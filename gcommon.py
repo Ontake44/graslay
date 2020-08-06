@@ -4,7 +4,7 @@ import math
 import json
 import os.path
 
-START_GAME_TIMER= 0		# 3600 :3		#2700 :2
+START_GAME_TIMER= 300		# 3600 :3		#2700 :2
 
 START_STAGE = 1
 
@@ -145,9 +145,12 @@ enemy_shot_rate = 1
 
 draw_star = False
 
-gcommon = None
-
 app = None
+
+drawMap = None
+
+mapFreeTable = []
+
 
 # ====================================================================
 
@@ -405,3 +408,25 @@ def checkShotKeyP():
 		return True
 	else:
 		return False
+
+def getMapData(x, y):
+	global drawMap
+	global map_x
+	global map_y
+	if drawMap == None:
+		return -1
+	else:
+		mx = int(map_x/8) + int((int(map_x)%8 + int(x))/8)
+		my = int(map_y/8) + int((int(map_y)%8 + int(y))/8)
+		if mx>=0 and mx<256 and my>=0 and my<256:
+			return pyxel.tilemap(0).get(mx, my)
+		else:
+			return -1
+
+
+def isMapFree(no):
+	global mapFreeTable
+	if no >= 512:
+		return True
+	else:
+		return no in mapFreeTable

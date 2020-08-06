@@ -9,7 +9,6 @@ import boss
 
 
 
-#story = []
 
 
 
@@ -227,6 +226,16 @@ class MyShot:
 				self.group.remove(self)
 				if len(self.group.shots) == 0:
 					gcommon.ObjMgr.shotGroups.remove(self.group)
+			else:
+				no = gcommon.getMapData(self.x + 4, self.y + 4)
+				if no >= 0 and gcommon.isMapFree(no) == False:
+					self.remove()
+
+	def remove(self):
+		self.removeFlag = True
+		self.group.remove(self)
+		if len(self.group.shots) == 0:
+			gcommon.ObjMgr.shotGroups.remove(self.group)
 
 	def draw(self):
 		pyxel.blt(self.x, self.y, 0, 48, 0, 8, 8, gcommon.TP_COLOR)
@@ -464,27 +473,19 @@ class MapDraw:
 			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, (int)(gcommon.map_x/8), (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 
 
-class StartMapDraw(enemy.EnemyBase):
+class StartMapDraw:
 	def __init__(self, t):
-		super(StartMapDraw, self).__init__()
 		gcommon.drawMap = MapDraw()
 
-	def update(self):
-		self.remove()
-
-	def draw(self):
+	def do(self):
 		pass
 
-class SetMapScroll(enemy.EnemyBase):
+class SetMapScroll:
 	def __init__(self, t):
-		super(SetMapScroll, self).__init__()
 		gcommon.cur_scroll_x = t[2]
 		gcommon.cur_scroll_y = t[3]
 		
-	def update(self):
-		self.remove()
-
-	def draw(self):
+	def do(self):
 		pass
 
 class MainGame:
@@ -493,14 +494,19 @@ class MainGame:
 		gcommon.ObjMgr.myShip = MyShip()
 		gcommon.cur_scroll_x = 0.5
 		self.story_pos = 0
+		self.event_pos = 0
 		self.stage = stage
 		self.mapOffsetX = 0
 		self.star_pos = 0
 		self.star_ary = []
-		gcommon.game_timer = gcommon.START_GAME_TIMER
+		gcommon.game_timer = 0
 		gcommon.map_x = 0
 		gcommon.map_y = 24*8
 		self.initStory()
+		self.initEvent()
+		
+		self.skipGameTimer()
+		
 		if self.stage == 1:
 			pyxel.image(1).load(0,0,"assets\graslay1.png")
 			self.mapOffsetX = 0
@@ -524,7 +530,18 @@ class MainGame:
 			self.star_ary.append(o)
 		
 		
+		gcommon.mapFreeTable = [0, 32, 33, 34, 65, 66]
+	
+	def skipGameTimer(self):
+		while(gcommon.game_timer < gcommon.START_GAME_TIMER):
+			self.ExecuteStory()
+			if gcommon.drawMap != None:
+				gcommon.drawMap.update()
+			
+			gcommon.game_timer = gcommon.game_timer + 1	
+	
 	def update(self):
+		self.ExecuteEvent()
 		self.ExecuteStory()
 		
 		# MAP
@@ -690,6 +707,7 @@ class MainGame:
 			pyxel.blt(4 + i*6, 244, 0, 56, 32, 6, 8, gcommon.C_COLOR_KEY)
 		
 		pyxel.text(120, 194, str(gcommon.game_timer), 7)
+		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
 		# マップ位置表示
 		#pyxel.text(0, 192, str(gcommon.map_x), 7)
 
@@ -709,6 +727,22 @@ class MainGame:
 				gcommon.ObjMgr.objs.append(obj)
 				obj.appended()
 			self.story_pos = self.story_pos + 1
+
+	def ExecuteEvent(self):
+		while True:
+			if len(self.eventTable) <= self.event_pos:
+				return
+		
+			s = self.eventTable[self.event_pos]
+			if s[0] < gcommon.game_timer:
+				pass
+			elif s[0] != gcommon.game_timer:
+				return
+			else:
+				t = s[1]	# [1]はクラス型
+				obj = t(s)			# ここでインスタンス化
+				obj.do()
+			self.event_pos = self.event_pos + 1
 
 	# 衝突判定
 	def Collision(self):
@@ -783,6 +817,20 @@ class MainGame:
 		m = gcommon.ObjMgr.myShip
 		enemy.create_item(m.x+(m.right-m.left)/2, m.y+(m.bottom-m.top)/2, gcommon.C_ITEM_PWUP)
 
+	def initEvent(self):
+		if self.stage == 1:
+			self.initEvent1()
+	
+	def initEvent1(self):
+		self.eventTable =[ \
+			[600,StartMapDraw],		\
+			[1500,SetMapScroll, 0.25, -0.25],	\
+			[2120,SetMapScroll, 0.5, 0.0],
+			[3200,SetMapScroll, 0.25, 0.25],
+			[3400,SetMapScroll, 0, 0.5],
+			[3800,SetMapScroll, 0.25, 0.25]
+		]
+
 	def initStory(self):
 		if self.stage == 1:
 			self.initStory1()
@@ -793,12 +841,6 @@ class MainGame:
 
 	def initStory1(self):
 		self.story=[ \
-			[600,StartMapDraw],		\
-			[1500,SetMapScroll, 0.25, -0.25],	\
-			[2120,SetMapScroll, 0.5, 0.0],
-			[3200,SetMapScroll, 0.25, 0.25],
-			[3400,SetMapScroll, 0, 0.5],
-			[3800,SetMapScroll, 0.25, 0.25]
 		]
 
 	def initStory2(self):
