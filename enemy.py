@@ -273,156 +273,8 @@ class PowerUp(EnemyBase):
 		pyxel.blt(self.x, self.y, 0, 64, 16, 16, 16, gcommon.TP_COLOR)
 		
 
-class Copter1(EnemyBase):
-	def __init__(self, t):
-		super(Copter1, self).__init__()
-		self.t = gcommon.T_COPTER1
-		self.x = t[2]
-		self.y = t[3]
-		self.left = 2
-		self.top = 2
-		self.right = 14
-		self.bottom = 14
-		self.hp = 1
-		self.dx = 0
-		self.dy = 0
-		self.speed = 2
-		self.stopy = t[4]
-		self.dr = 0		# direction
-		self.layer = gcommon.C_LAYER_SKY
-		self.score = 10
-	
-	def update(self):
-		if self.y >= 256 or self.y < -16:
-			self.removeFlag = True
-			return
-		if self.state == 0:
-			n = gcommon.get_direction_my(self.x+8, self.y+8)
-			#print(n)
-			self.dr = n		#(n+4 & 7) -3
-			self.y += self.speed
-			if self.y > self.stopy:
-				self.speed -= 0.025
-				if self.speed <=0:	
-					self.state=1
-					self.cnt=0
-					self.speed = 0.4
-					enemy_shot(self.x+8, self.y+8, 2, 0)
-		elif self.state==1:
-			self.dr = gcommon.get_direction_my(self.x+8, self.y+8)
-			r = gcommon.get_atan_to_ship(self.x+8, self.y+8)
-			self.dx = math.cos(r) * self.speed
-			self.dy = math.sin(r) * self.speed
-			self.x += self.dx
-			self.y += self.dy
-			self.speed += 0.025
-			if self.cnt>30:
-				self.state=2
-				self.cnt=0
-				self.speed -= 0.025 
-		elif self.state==2:
-			self.x += self.dx
-			self.y += self.dy
-			self.dx *=0.95
-			self.dy *=0.95
-			n = gcommon.get_direction_my(self.x+8,self.y+8)
-			self.dr = n		# (n+4 & 7)-3
-			if self.cnt>30:
-				self.state=3
-				self.cnt=0
-				self.speed = -0.025
-		else:
-			self.y += self.speed
-			if self.speed > -2:
-				self.speed-=0.1
-			if self.dr>=0 and self.dr<=2:
-				self.dr-=0.05
-				if self.dr <0:
-					self.dr = 8 + self.dr
-					if self.dr >= 8:
-						self.dr = 7.9
-			elif self.dr>2 and self.dr<6:
-				self.dr+=0.05
-				if self.dr > 6:
-					self.dr = 6
-			elif self.dr>=6:
-				self.dr-=0.05
-				if self.dr < 6:
-					self.dr = 6
-
-	def draw(self):
-		n = int(self.dr)		#int(self.dr)+6 & 7
-		spmap = enemy1_spmap[n]
-		spno = spmap[0] + int(gcommon.game_timer%8/4)*3*16
-		if gcommon.set_color_shadow():
-			pyxel.blt(self.x+16, self.y+16, 1, spno, 0, 16 * spmap[1], 16* spmap[2], gcommon.TP_COLOR)
-			pyxel.pal()
-		pyxel.blt(self.x, self.y, 1, spno, 0, 16 * spmap[1], 16* spmap[2], gcommon.TP_COLOR)
 
 
-class ItemCarrior(EnemyBase):
-	def __init__(self, t):
-		super(ItemCarrior, self).__init__()
-		self.t = gcommon.T_I_CARRIOR
-		self.x = t[2]
-		self.y = t[3]
-		self.itype = t[4]
-		self.left = 5
-		self.top = 1
-		self.right = 42
-		self.bottom = 26
-		self.hp = 50
-		self.layer = gcommon.C_LAYER_SKY
-		self.score = 100
-		self.hitcolor1 = 6
-		self.hitcolor2 = 10
-		self.exptype = gcommon.C_EXPTYPE_SKY_M
-
-	def update(self):
-		self.y += 0.8
-		if self.y >= 256:
-			self.removeFlag = True
-
-	def draw(self):
-		if gcommon.set_color_shadow():
-			self.draw_item_carrior(16)
-			pyxel.pal()
-			
-		self.draw_item_carrior(0)
-
-
-	def draw_item_carrior(self, offset):
-		p = int((gcommon.game_timer & 4)/4)*16
-		#spr(6,o.x+8+offset,o.y+offset,1,2)
-		pyxel.blt(self.x +16+offset, self.y+offset, 0, 96, 0, 16, 32, gcommon.TP_COLOR)
-		
-		#spr(7+p,o.x+offset,o.y+offset,1,1,false,true)
-		pyxel.blt(self.x +offset, self.y+offset, 0, 112, p, 16, -16, gcommon.TP_COLOR)
-		
-		#spr(7+p,o.x+offset,o.y+8+offset,1,1,false,false)
-		pyxel.blt(self.x +offset, self.y+16+offset, 0, 112, p, 16, 16, gcommon.TP_COLOR)
-		
-		#spr(7+p,o.x+16+offset,o.y+offset,1,1,true,true)
-		pyxel.blt(self.x +32+offset, self.y+offset, 0, 112, p, -16, -16, gcommon.TP_COLOR)
-		
-		#spr(7+p,o.x+16+offset,o.y+8+offset,1,1,true,false)
-		pyxel.blt(self.x +32+offset, self.y+16+offset, 0, 112, p, -16, 16, gcommon.TP_COLOR)
-
-
-	def broken(self):
-		super(ItemCarrior, self).broken()
-		create_item(self.x+(self.right-self.left)/2, self.y+(self.bottom-self.top)/2, self.itype)
-
-class ItemCarrior2(ItemCarrior):
-	def __init__(self, t):
-		super(ItemCarrior2, self).__init__(t)
-
-	def draw(self):
-		if gcommon.set_color_shadow():
-			pyxel.blt(self.x +16, self.y+16, 0, 128, 0, 48, 32, gcommon.TP_COLOR)
-			pyxel.pal()
-			
-		pyxel.blt(self.x, self.y, 0, 128, 0, 48, 32, gcommon.TP_COLOR)
 
 
 class Tank1(EnemyBase):
@@ -1129,4 +981,136 @@ class Splash(EnemyBase):
 						continue
 				pyxel.pset(s.x, s.y, 7)
 		self.tbl = newTbl
+
+
+class Fan1Group(EnemyBase):
+	def __init__(self, t):
+		super(Fan1Group, self).__init__()
+		self.y = t[2]
+		self.interval = t[3]
+		self.max = t[4]
+		self.cnt2 = 0
+
+	def update(self):
+		if self.cnt % self.interval == 0:
+			gcommon.ObjMgr.addObj(Fan1([0, 0, 256, self.y]))
+			self.cnt2 += 1
+			if self.cnt2 >= self.max:
+				self.remove()
+
+	def draw(self):
+		pass
+
+class Fan1(EnemyBase):
+	def __init__(self, t):
+		super(Fan1, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.left = 2
+		self.top = 2
+		self.right = 14
+		self.bottom = 14
+		self.hp = 1
+		self.dx = 0
+		self.dy = 0
+		self.time1 = 30
+		self.layer = gcommon.C_LAYER_SKY
+		self.score = 10
+	
+	def update(self):
+		self.x -= 3
+		if self.time1 < self.cnt:
+			if gcommon.ObjMgr.myShip.y < self.y +2:
+				self.y -= 1.5
+			elif gcommon.ObjMgr.myShip.y > self.y -2:
+				self.y += 1.5
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, 1, 0 + (self.cnt & 4) * 4, 56, 16, 16, gcommon.TP_COLOR)
+
+
+class MissileShip(EnemyBase):
+	def __init__(self, t):
+		super(MissileShip, self).__init__()
+		self.x = 256+8
+		self.y = t[2]
+		self.stop_x = t[3]
+		self.left = 2
+		self.top = 2
+		self.right = 14
+		self.bottom = 14
+		self.hp = 30
+		self.dx = -2
+		self.dy = 0
+		self.layer = gcommon.C_LAYER_SKY
+		self.score = 100
+	def update(self):
+		if self.state == 0:
+			self.x += self.dx
+			if self.x < self.stop_x:
+				self.dx += 0.2
+				if self.dx > -0.1:
+					self.dx = 0
+					self.nextState()
+		elif self.state == 1:
+			if self.cnt > 30:
+				# ミサイル発射
+				self.dx = 0.1
+				self.nextState()
+				gcommon.ObjMgr.addObj(Missile1(self.x -8, self.y -5, -1))
+				gcommon.ObjMgr.addObj(Missile1(self.x -8, self.y +14, 1))
+		elif self.state == 2:
+			self.x += self.dx
+			self.dx += 0.1
+			if self.dx >= 2:
+				self.dx = 2
+			if self.x >= 256:
+				self.remove()
+		else:
+			self.x += self.dx
+		
+		
+	def draw(self):
+		if self.state in (0,1):
+			pyxel.blt(self.x -10, self.y -5, 1, 48, 56, 32, 8, gcommon.TP_COLOR)
+			pyxel.blt(self.x -10, self.y +14, 1, 48, 56, 32, 8, gcommon.TP_COLOR)
+		pyxel.blt(self.x, self.y, 1, 32, 56, 16, 16, gcommon.TP_COLOR)
+
+
+class Missile1(EnemyBase):
+	def __init__(self, x, y, dy):
+		super(Missile1, self).__init__()
+		self.x = x
+		self.y = y
+		self.left = 2
+		self.top = 0
+		self.right = 31
+		self.bottom = 6
+		self.hp = 30
+		self.dx = dy
+		self.dy = 0
+		self.layer = gcommon.C_LAYER_SKY
+		self.score = 100
+	def update(self):
+		if self.state == 0:
+			self.y += self.dy
+			self.dy *= 0.95
+			if abs(self.dy) < 0.1:
+				self.dx = 0
+				self.nextState()
+		elif self.state == 1:
+			self.x += self.dx
+			self.dx -= 0.2
+			if self.dx > 3:
+				self.dx = 3
+		
+		
+	def draw(self):
+		pyxel.blt(self.x, self.y, 1, 48, 56, 32, 7, gcommon.TP_COLOR)
+		if self.cnt & 2 == 0:
+			if self.cnt & 4 == 0:
+				pyxel.blt(self.x + 32, self.y, 1, 48, 64, 32, 7, gcommon.TP_COLOR)
+			else:
+				pyxel.blt(self.x + 32, self.y-1, 1, 48, 64, 32, -7, gcommon.TP_COLOR)
+
 

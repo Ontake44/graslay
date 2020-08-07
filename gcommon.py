@@ -4,7 +4,7 @@ import math
 import json
 import os.path
 
-START_GAME_TIMER= 300		# 3600 :3		#2700 :2
+START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 
 START_STAGE = 1
 
@@ -383,6 +383,10 @@ class ObjMgr:
 		cls.shots.clear()
 		cls.shotGroups.clear()
 		cls.objs.clear()
+
+	@classmethod
+	def addObj(cls, obj):
+		cls.objs.append(obj)
 
 
 

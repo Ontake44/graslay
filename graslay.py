@@ -24,7 +24,8 @@ class MyShip:
 		self.right = 9
 		self.bottom = 10
 		self.cnt = 0
-		self.weapon = 0
+		self.weapon = 1
+		self.roundAngle = 0
 		# 1:ゲーム中 2:爆発中 3:復活中
 		self.sub_scene = 1
 		self.shotCounter = 0
@@ -90,22 +91,48 @@ class MyShip:
 			self.sprite = 1
 			if self.y > 240:
 				self.y = 240
-		if gcommon.checkShotKey() and gcommon.game_timer > 30:
-			if self.prevFlag:
-				self.shotCounter += 1
-				if self.shotCounter > 5:
-					self.shotCounter = 0
-					self.shot()
+		if gcommon.game_timer > 30:
+			if self.weapon == gcommon.WEAPON_ROUND:
+				if gcommon.checkShotKey():
+					doShot = False
+					if self.prevFlag:
+						self.shotCounter += 1
+						if self.shotCounter > 5:
+							self.shotCounter = 0
+							doShot = True
+					else:
+						self.prevFlag = True
+						self.shotCounter = 0
+						doShot = True
+					if doShot:
+						self.shot()
+						self.roundAngle += 6
+						if self.roundAngle > 62:
+							self.roundAngle = 62
+				elif self.roundAngle > 0:
+					self.shotCounter += 1
+					if self.shotCounter > 5:
+						self.shotCounter = 0
+						self.shot()
+						self.roundAngle -= 6
+						if self.roundAngle < 0:
+							self.roundAngle = 0
 			else:
-				self.prevFlag = True
-				self.shotCounter = 0
-				self.shot()
-		else:
-			self.prevFlag = False
-			self.shotCounter = 0
+				if gcommon.checkShotKey():
+					if self.prevFlag:
+						self.shotCounter += 1
+						if self.shotCounter > 5:
+							self.shotCounter = 0
+							self.shot()
+					else:
+						self.prevFlag = True
+						self.shotCounter = 0
+						self.shot()
+				else:
+					self.prevFlag = False
+					self.shotCounter = 0
+					self.roundAngle = 0
 			
-		if gcommon.checkBomKey() and gcommon.ObjMgr.myBom == None and gcommon.bomRemain > 0:
-			self.startBom(self.x +7, self.y +7)
 	
 	def draw(self):
 		if self.sub_scene == 1:
@@ -131,12 +158,18 @@ class MyShip:
 			pyxel.pal()
 		pyxel.blt(self.x, self.y, 0, self.sprite * 16, 0, 16, 16, gcommon.TP_COLOR)
 
+	# 自機弾発射
 	def shot(self):
 		if len(gcommon.ObjMgr.shotGroups) < self.shotMax:
 			shotGroup = MyShotGroup()
-			if gcommon.power == 1:
+			if self.weapon == 0:
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 8, 0)))
 				#gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+6, self.y -8, 0, -8)))
+			elif self.weapon == 1:
+				dx = 8 * math.cos(math.pi - math.pi/64 * self.roundAngle)
+				dy = 8 * math.sin(math.pi - math.pi/64 * self.roundAngle)
+				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+6, self.y +4, dx, dy)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+6, self.y +4, dx, -dy)))
 			else:
 				return
 			#if pyxel.play_pos(0) == -1:
@@ -145,7 +178,7 @@ class MyShip:
 			gcommon.ObjMgr.shotGroups.append(shotGroup)
 	
 	def createShot(self, x, y, dx, dy):
-		s = MyShot()
+		s = MyShot(self.weapon)
 		s.init(x, y, dx, dy)
 		return s
 	
@@ -154,8 +187,8 @@ class MyShip:
 		gcommon.bomRemain -= 1
 	
 	def setStartPosition(self):
-		self.x = pyxel.width/2 -8
-		self.y = pyxel.height*5/6
+		self.x = 8
+		self.y = pyxel.height/2 -8
 
 class MyBom:
 	def __init__(self, x, y):
@@ -199,7 +232,7 @@ class MyBom:
 
 
 class MyShot:
-	def __init__(self):
+	def __init__(self, weapon):
 		self.x = 0
 		self.y = 0
 		self.left = 2
@@ -208,6 +241,7 @@ class MyShot:
 		self.bottom = 15
 		self.dx = 0
 		self.dy = 0
+		self.sprite = weapon
 		self.group = None
 		self.removeFlag = False
 
@@ -221,11 +255,10 @@ class MyShot:
 		if self.removeFlag == False:
 			self.x = self.x + self.dx
 			self.y = self.y + self.dy
-			if self.x >= 256:
-				self.removeFlag = True
-				self.group.remove(self)
-				if len(self.group.shots) == 0:
-					gcommon.ObjMgr.shotGroups.remove(self.group)
+			if self.x <= -8 or self.x >= 256:
+				self.remove()
+			elif self.y <= -8 or self.y >= 192:
+				self.remove()
 			else:
 				no = gcommon.getMapData(self.x + 4, self.y + 4)
 				if no >= 0 and gcommon.isMapFree(no) == False:
@@ -238,7 +271,7 @@ class MyShot:
 			gcommon.ObjMgr.shotGroups.remove(self.group)
 
 	def draw(self):
-		pyxel.blt(self.x, self.y, 0, 48, 0, 8, 8, gcommon.TP_COLOR)
+		pyxel.blt(self.x, self.y, 0, 48 + self.sprite * 8, 0, 8, 8, gcommon.TP_COLOR)
 
 class MyShotGroup:
 	def __init__(self):
@@ -586,7 +619,7 @@ class MainGame:
 	
 	def draw(self):
 		pyxel.cls(0)
-		
+		pyxel.clip(0, 0, 256, 192)
 		
 		#pyxel.text(55, 41, "Hello, Pyxel!", pyxel.frame_count % 16)
 		#pyxel.blt(61, 66, 0, 0, 0, 38, 16)
@@ -695,16 +728,14 @@ class MainGame:
 			if obj.layer==gcommon.C_LAYER_TEXT:
 				obj.draw()
 		
+		
+		pyxel.clip()
 		# SCORE表示
 		pyxel.text(4, 194, "SCORE " + str(gcommon.score), 7)
-		
 		# 残機
-		pyxel.blt(232, 2, 0, 48, 32, 6, 8, gcommon.C_COLOR_KEY)
-		pyxel.text(242, 4, str(gcommon.remain), 7)
+		pyxel.blt(232, 192, 0, 48, 32, 6, 8, gcommon.C_COLOR_KEY)
+		pyxel.text(242, 192, str(gcommon.remain), 7)
 		
-		# BOM
-		for i in range(0, gcommon.bomRemain):
-			pyxel.blt(4 + i*6, 244, 0, 56, 32, 6, 8, gcommon.C_COLOR_KEY)
 		
 		pyxel.text(120, 194, str(gcommon.game_timer), 7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
@@ -823,12 +854,12 @@ class MainGame:
 	
 	def initEvent1(self):
 		self.eventTable =[ \
-			[600,StartMapDraw],		\
-			[1500,SetMapScroll, 0.25, -0.25],	\
-			[2120,SetMapScroll, 0.5, 0.0],
-			[3200,SetMapScroll, 0.25, 0.25],
-			[3400,SetMapScroll, 0, 0.5],
-			[3800,SetMapScroll, 0.25, 0.25]
+			[660,StartMapDraw],		\
+			[1560,SetMapScroll, 0.25, -0.25],	\
+			[2180,SetMapScroll, 0.5, 0.0],
+			[3260,SetMapScroll, 0.25, 0.25],
+			[3460,SetMapScroll, 0, 0.5],
+			[3860,SetMapScroll, 0.25, 0.25]
 		]
 
 	def initStory(self):
@@ -841,6 +872,12 @@ class MainGame:
 
 	def initStory1(self):
 		self.story=[ \
+			[150, enemy.Fan1Group, 8, 10, 6],		\
+			[270, enemy.Fan1Group, 170, 10, 6],		\
+			[360, enemy.Fan1Group, 8, 10, 6],		\
+			[450, enemy.Fan1Group, 170, 10, 6],		\
+			[500, enemy.MissileShip, 40, 160],		\
+			[530, enemy.MissileShip, 120, 200],		\
 		]
 
 	def initStory2(self):
