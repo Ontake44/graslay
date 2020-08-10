@@ -19,10 +19,10 @@ class MyShip:
 		super().__init__()
 		self.sprite = 1
 		self.shotMax = 5
-		self.left = 6
-		self.top = 6
-		self.right = 9
-		self.bottom = 10
+		self.left = 3
+		self.top = 7
+		self.right = 10
+		self.bottom = 8
 		self.cnt = 0
 		self.weapon = 1
 		self.roundAngle = 0
@@ -52,11 +52,11 @@ class MyShip:
 					gcommon.power = gcommon.START_MY_POWER
 					self.sprite = 1
 					self.setStartPosition()
-					self.y = 256
+					self.x = -16
 		elif self.sub_scene == 3:
 			# 復活中
-			self.y -= 1
-			if self.y == 200:
+			self.x += 1
+			if self.x >= 8:
 				self.cnt = 0
 				self.sub_scene = 4
 		else: # sub_scene=4
@@ -84,13 +84,13 @@ class MyShip:
 		if pyxel.btn(pyxel.KEY_UP) or pyxel.btn(pyxel.GAMEPAD_1_UP):
 			self.y = self.y -2
 			self.sprite = 2
-			if self.y < 16:
-				self.y = 16
+			if self.y < 0:
+				self.y = 0
 		elif pyxel.btn(pyxel.KEY_DOWN) or pyxel.btn(pyxel.GAMEPAD_1_DOWN):
 			self.y = self.y +2
 			self.sprite = 1
-			if self.y > 240:
-				self.y = 240
+			if self.y > 176:
+				self.y = 176
 		if gcommon.game_timer > 30:
 			if self.weapon == gcommon.WEAPON_ROUND:
 				if gcommon.checkShotKey():
@@ -153,9 +153,9 @@ class MyShip:
 				self.drawMyShip()
 
 	def drawMyShip(self):
-		if gcommon.set_color_shadow():
-			pyxel.blt(self.x +16, self.y +16, 0, self.sprite * 16, 0, 16, 16, gcommon.TP_COLOR)
-			pyxel.pal()
+		#if gcommon.set_color_shadow():
+		#	pyxel.blt(self.x +16, self.y +16, 0, self.sprite * 16, 0, 16, 16, gcommon.TP_COLOR)
+		#	pyxel.pal()
 		pyxel.blt(self.x, self.y, 0, self.sprite * 16, 0, 16, 16, gcommon.TP_COLOR)
 
 	# 自機弾発射
@@ -513,6 +513,13 @@ class StartMapDraw:
 	def do(self):
 		pass
 
+class EndMapDraw:
+	def __init__(self, t):
+		gcommon.drawMap = None
+
+	def do(self):
+		pass
+
 class SetMapScroll:
 	def __init__(self, t):
 		gcommon.cur_scroll_x = t[2]
@@ -532,6 +539,7 @@ class MainGame:
 		self.mapOffsetX = 0
 		self.star_pos = 0
 		self.star_ary = []
+		gcommon.drawMap = None
 		gcommon.game_timer = 0
 		gcommon.map_x = 0
 		gcommon.map_y = 24*8
@@ -544,6 +552,7 @@ class MainGame:
 			pyxel.image(1).load(0,0,"assets\graslay1.png")
 			self.mapOffsetX = 0
 			gcommon.draw_star = True
+			loadMapData("assets\graslay1.pyxmap")
 		#e#lif self.stage == 2:
 		#	pyxel.image(1).load(0,0,"assets\gra-den2.png")
 		#	self.mapOffsetX = 32
@@ -555,8 +564,8 @@ class MainGame:
 		#	gcommon.draw_star = True
 		pyxel.tilemap(0).refimg = 1
 		
-		gcommon.drawMap = None
-		#self.drawMap = MapDraw()
+		
+		
 		
 		for i in range(0,96):
 			o = [int(random.randrange(0,256)), int(random.randrange(0,2)+5)]
@@ -567,7 +576,7 @@ class MainGame:
 	
 	def skipGameTimer(self):
 		while(gcommon.game_timer < gcommon.START_GAME_TIMER):
-			self.ExecuteStory()
+			self.ExecuteEvent()
 			if gcommon.drawMap != None:
 				gcommon.drawMap.update()
 			
@@ -604,8 +613,8 @@ class MainGame:
 				or obj.layer==gcommon.C_LAYER_HIDE_GRD \
 				or obj.layer==gcommon.C_LAYER_EXP_GRD \
 				or obj.layer==gcommon.C_LAYER_UPPER_GRD:
-				obj.x += gcommon.cur_scroll_x
-				obj.y += gcommon.cur_scroll_y
+				obj.x -= gcommon.cur_scroll_x
+				obj.y -= gcommon.cur_scroll_y
 			obj.update()
 			obj.cnt = obj.cnt + 1
 			if obj.removeFlag == False:
@@ -736,8 +745,15 @@ class MainGame:
 		pyxel.blt(232, 192, 0, 48, 32, 6, 8, gcommon.C_COLOR_KEY)
 		pyxel.text(242, 192, str(gcommon.remain), 7)
 		
+		# 武器表示
+		for i in range(0,3):
+			if i == gcommon.ObjMgr.myShip.weapon == i:
+				pyxel.blt(72 + 48*i, 192, 0, i * 48, 56, 48, 8)
+			else:
+				pyxel.blt(72 + 48*i, 192, 0, i * 48, 48, 48, 8)
+			
 		
-		pyxel.text(120, 194, str(gcommon.game_timer), 7)
+		pyxel.text(120, 188, str(gcommon.game_timer), 7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
 		# マップ位置表示
 		#pyxel.text(0, 192, str(gcommon.map_x), 7)
@@ -755,6 +771,7 @@ class MainGame:
 			else:
 				t = s[1]	# [1]はクラス型
 				obj = t(s)			# ここでインスタンス化
+				print("instance " + str(gcommon.game_timer))
 				gcommon.ObjMgr.objs.append(obj)
 				obj.appended()
 			self.story_pos = self.story_pos + 1
@@ -859,7 +876,9 @@ class MainGame:
 			[2180,SetMapScroll, 0.5, 0.0],
 			[3260,SetMapScroll, 0.25, 0.25],
 			[3460,SetMapScroll, 0, 0.5],
-			[3860,SetMapScroll, 0.25, 0.25]
+			[3860,SetMapScroll, 0.25, 0.25],
+			[4600,SetMapScroll, 0.5, 0.0],
+			[5800,EndMapDraw],		\
 		]
 
 	def initStory(self):
@@ -878,6 +897,7 @@ class MainGame:
 			[450, enemy.Fan1Group, 170, 10, 6],		\
 			[500, enemy.MissileShip, 40, 160],		\
 			[530, enemy.MissileShip, 120, 200],		\
+			[5100, boss.Boss1, 256, 60],		\
 		]
 
 	def initStory2(self):
@@ -1054,7 +1074,14 @@ def parseCommandLine():
 		if arg == "-timer":
 			if idx+1<len(sys.argv):
 				gcommon.START_GAME_TIMER = int(sys.argv[idx+1])
+				print("set START_GAME_TIMER = " + str(gcommon.START_GAME_TIMER))
 		idx+=1
+
+def loadMapData(fileName):
+	mapFile = open(fileName, mode = "r")
+	lines = mapFile.readlines()
+	mapFile.close()
+	pyxel.tilemap(0).set(0, 0, lines)
 
 class App:
 	def __init__(self):
@@ -1065,7 +1092,7 @@ class App:
 	
 		pyxel.init(256, 200, caption="GRASLAY", fps=60)
  		
-		pyxel.load("assets/graslay.pyxres")
+		#pyxel.load("assets/graslay.pyxres")
 		pyxel.image(0).load(0,0,"assets\graslay0.png")
 		
 		gcommon.init_atan_table()
@@ -1112,5 +1139,6 @@ class App:
 
 	def draw(self):
 		self.scene.draw()
+
 
 App()

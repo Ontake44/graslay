@@ -10,6 +10,290 @@ import enemy
 class Boss1(enemy.EnemyBase):
 	def __init__(self, t):
 		super(Boss1, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.left = 16
+		self.top = 16
+		self.right = 79
+		self.bottom = 45
+		self.hp = 32000
+		self.layer = gcommon.C_LAYER_SKY
+		self.score = 5000
+		self.subcnt = 0
+		self.hitcolor1 = 3
+		self.hitcolor2 = 14
+		self.brake = False
+		self.beam = 0
+		self.subState = 0
+		self.tbl = []
+
+	def update(self):
+		self.beam = 0
+		if self.state == 0:
+			self.x -= gcommon.cur_scroll_x
+			if self.cnt % 30 == 0:
+				self.shotFix4()
+			if self.cnt > 260:
+				self.nextState()
+		elif self.state == 1:
+			self.x -= gcommon.cur_scroll_x
+			self.x += 0.625
+			self.y -= 0.125
+			if self.cnt % 30 == 0:
+				self.shotFix4()
+			if self.cnt > 220:
+				self.nextState()
+		elif self.state == 2:
+			self.y += 0.125
+			if self.cnt % 30 == 0:
+				self.shotFix4()
+			if self.cnt > 180:
+				self.nextState()
+		elif self.state == 3:
+			# ４、８方向ショット
+			if self.subState == 0:
+				self.y -= 0.250
+				if self.y < 0:
+					self.y = 0
+			else:
+				self.y += 0.250
+				if self.y > 150:
+					self.y = 150
+			if self.cnt & 15 == 15:
+				self.shotFix8()
+				#if self.cnt & 31 == 31:
+				#	self.shotFix4()
+				#else:
+			if self.cnt > 120:
+				self.nextState()
+				if self.subState == 0:
+					self.subState = 1
+				else:
+					self.subState = 0
+		elif self.state == 4:
+			# ビーム発射前
+
+			if self.cnt & 1 == 1:
+				x = 50 + random.random() * 30
+				y = random.random() * 6
+				a = 200 + random.random() * 500
+				if self.cnt & 3 == 3:
+					a *= -1
+				self.tbl.append(Boss1Star(x, y, a))
+
+			newTbl = []
+			for s in self.tbl:
+				s.x -= 2
+				if s.x>=0:
+					newTbl.append(s)
+			self.tbl = newTbl
+
+			if self.cnt > 90:
+				self.nextState()
+		elif self.state == 5:
+			# ビーム発射開始（移動なし）
+			self.beam = int(self.cnt/3) +1
+			if self.beam > 5:
+				self.nextState()
+		elif self.state == 6:
+			# ビーム発射中（移動なし）
+			self.beam = 6
+			if self.cnt > 60:
+				self.nextState()
+		elif self.state == 7:
+			# ビーム発射中（移動あり）
+			self.beam = 6
+			zy = abs(self.y +30 - gcommon.ObjMgr.myShip.y)
+			if zy > 80:
+				dy = 3
+			elif zy > 50:
+				dy = 2
+			elif zy > 20:
+				dy = 1
+			else:
+				dy = 0.25
+			if self.y +30 > gcommon.ObjMgr.myShip.y:
+				dy = -dy
+			self.y += dy
+			if self.cnt > 90:
+				self.nextState()
+		elif self.state == 8:
+			# ビーム発射終了（移動なし）
+			self.beam = 5- int(self.cnt/3)
+			if self.beam < 0:
+				self.state = 3
+				self.cnt = 0
+
+	def draw(self):
+		if self.state == 4:
+			for s in self.tbl:
+				y = s.x* s.x/s.a
+				pyxel.pset(self.x -s.x, self.y +28 -y + s.y, 7)
+
+		pyxel.blt(self.x, self.y , 1, 160, 200, 96, 56, gcommon.TP_COLOR)
+		if self.beam >= 1 and self.beam <=5:
+			bx = self.x -12
+			while(bx > -8):
+				pyxel.blt(bx, self.y +10, 1, (self.beam-1) * 8, 208, 8, 40, gcommon.TP_COLOR)
+				bx -=8
+			
+		if self.beam == 6:
+			# ビーーーーーーーーーーーーーーーム！！！
+			pyxel.blt(self.x -16, self.y +10, 1, 144, 208, 16, 40, gcommon.TP_COLOR)
+			bx = self.x -32
+			sx = 128 - ((self.cnt>>1) & 3) * 16
+			while(bx > -32):
+				pyxel.blt(bx, self.y +10, 1, sx, 208, 16, 40, gcommon.TP_COLOR)
+				bx -=16
+
+	def shotFix4(self):
+		enemy.enemy_shot_dr(self.x +48, self.y +22, 4, 1, 33);
+		enemy.enemy_shot_dr(self.x +52, self.y +16, 4, 1, 37);
+		enemy.enemy_shot_dr(self.x +48, self.y +42, 4, 1, 31);
+		enemy.enemy_shot_dr(self.x +52, self.y +48, 4, 1, 27);
+
+	def shotFix8(self):
+		enemy.enemy_shot_dr(self.x +48, self.y +22, 2, 0, 31);
+		enemy.enemy_shot_dr(self.x +48, self.y +22, 2, 0, 33);
+		
+		enemy.enemy_shot_dr(self.x +52, self.y +16, 2, 0, 35);
+		enemy.enemy_shot_dr(self.x +52, self.y +16, 2, 0, 37);
+		
+		enemy.enemy_shot_dr(self.x +48, self.y +42, 2, 0, 31);
+		enemy.enemy_shot_dr(self.x +48, self.y +42, 2, 0, 33);
+		
+		enemy.enemy_shot_dr(self.x +52, self.y +48, 2, 0, 27);
+		enemy.enemy_shot_dr(self.x +52, self.y +48, 2, 0, 29);
+
+class Boss1Star:
+	def __init__(self, x, y, a):
+		self.x = x
+		self.y = y
+		self.a = a
+		self.removeFlag = False
+
+
+# 0:mode
+#   0: 停止
+#   1: X座標がこれより小さくなると減速、次のインデックスへ
+#   2: X座標がこれより大きくなると減速、次のインデックスへ
+#   3: Y座標がこれより小さくなると減速、次のインデックスへ
+#   4: Y座標がこれより大きくなると減速、次のインデックスへ
+# 1:ax, 2: ay, 
+# 3: X or Y or 停止時間
+# 4: 攻撃パターン
+#   0: なし
+#   1: 最初の全体攻撃（左右から）
+#   2: 正面
+#   3: 波状
+#   4: 時計回り攻撃
+#   5: 反時計回り攻撃
+# mode, ax, ay, X or Y or 停止時間, 攻撃パターン]
+boss2tbl = [
+	[1, -0.124, 0,  130, 0],
+	[4, 0, 0.125,  10, 0],
+	[0, 0, 0,  140, 1],				# 全体攻撃
+	[0, 0, 0,  30, 0],
+	[2, 0.125, 0.02, 160, 2],			# 右移動 正面攻撃
+	[0, 0, 0,  30, 0],
+	[3, -0.125, -0.0625,  20, 0],		# 左上へ
+	[2, 0.125, 0, 100, 3],				# 右移動 波状攻撃
+	[1, -0.125, 0, 20, 4],			# 左移動 時計回り攻撃
+	[2, 0.125, 0, 120, 5],			# 左移動 時計回り攻撃
+	]
+
+# 触手
+# dr: 生えてる角度
+# count : 粒の数
+
+# mode
+#   1 : まっすぐ伸びる
+class Feeler(enemy.EnemyBase):
+	def __init__(self, parentObj, offsetX, offsetY, dr, count):
+		super(Feeler, self).__init__()
+		self.x = parentObj.x + offsetX
+		self.y = parentObj.y + offsetY
+		self.parentObj = parentObj
+		self.offsetX = offsetX
+		self.offsetY = offsetY
+		self.left = 0
+		self.top = 0
+		self.dr = dr
+		self.right = 71
+		self.bottom = 67
+		self.hp = 32000
+		self.cells = []		# 相対座標
+		self.mode = 0
+		self.subDr = 0
+		for i in range(0, count):
+			self.cells.append([0, 0])
+
+	def setMode(self, mode):
+		self.mode = mode
+		self.status = 1
+		self.cnt = 0
+
+	def update(self):
+		self.x = self.parentObj.x + self.offsetX
+		self.y = self.parentObj.y + self.offsetY
+		if self.mode == 1:
+			if self.status ==1:
+				#print("cnt = " + str(self.cnt))
+				i = 1
+				x = 0
+				y = 0
+				for pos in self.cells:
+					pos[0] = x + math.cos(gcommon.atan_table[(self.dr) & 63]) * 12 * (self.cnt) /30.0
+					pos[1] = y + math.sin(gcommon.atan_table[(self.dr) & 63]) * 12 * (self.cnt) /30.0
+					x = pos[0]
+					y = pos[1]
+					i += 1
+				if self.cnt == 30:
+					self.status = 0
+					
+		elif self.mode == 2:
+			if self.status == 1:
+				self.subDr = 0.0
+				self.status = 2
+			elif self.status == 2:
+				i = 0
+				x = 0
+				y = 0
+				for pos in self.cells:
+					pos[0] = x + math.cos(gcommon.atan_table[(int(self.dr + i * self.subDr)) & 63]) * 12
+					pos[1] = y + math.sin(gcommon.atan_table[(int(self.dr + i * self.subDr)) & 63]) * 12
+					x = pos[0]
+					y = pos[1]
+					i += 1
+				self.subDr += 0.05
+				if self.subDr >= 3.0:
+					self.status = 3
+			elif self.status == 3:
+				i = 0
+				x = 0
+				y = 0
+				for pos in self.cells:
+					pos[0] = x + math.cos(gcommon.atan_table[(int(self.dr + i * self.subDr)) & 63]) * 12
+					pos[1] = y + math.sin(gcommon.atan_table[(int(self.dr + i * self.subDr)) & 63]) * 12
+					x = pos[0]
+					y = pos[1]
+					i += 1
+				self.subDr -= 0.05
+				if self.subDr <= -3.0:
+					self.status = 2
+			
+		
+	def draw(self):
+		size = len(self.cells)
+		i = 0
+		while(i<size):
+			pos = self.cells[size -1 -i]
+			pyxel.blt(self.x + pos[0], self.y + pos[1], 1, 0, 80, 16, 16, gcommon.TP_COLOR)
+			i += 1
+
+class Boss2(enemy.EnemyBase):
+	def __init__(self, t):
+		super(Boss2, self).__init__()
 		self.t = gcommon.T_BOSS1
 		self.x = t[2]
 		self.y = t[3]
@@ -18,211 +302,140 @@ class Boss1(enemy.EnemyBase):
 		self.right = 71
 		self.bottom = 67
 		self.hp = 32000
-		self.layer = gcommon.C_LAYER_GRD
+		self.layer = gcommon.C_LAYER_SKY
 		self.score = 5000
-		self.sd = 0
 		self.subcnt = 0
-		self.hitcolor1 = 5
-		self.hitcolor2 = 6
-
+		self.dx = -0.5
+		self.dy = 0
+		self.hitcolor1 = 3
+		self.hitcolor2 = 14
+		self.tblIndex = 0
+		self.brake = False
+		self.feelers = []
+		self.feelers.append(Feeler(self, 50, 29, 8, 6))
+		self.feelers.append(Feeler(self, 16, 29, 24, 6))
+		self.feelers.append(Feeler(self, 16, 8, 40, 6))
+		self.feelers.append(Feeler(self, 50, 8, 56, 6))
+		self.feelers[0].setMode(1)
+		self.feelers[1].setMode(1)
+		self.feelers[2].setMode(1)
+		self.feelers[3].setMode(1)
+		gcommon.ObjMgr.addObj(self.feelers[0])
+		gcommon.ObjMgr.addObj(self.feelers[1])
+		gcommon.ObjMgr.addObj(self.feelers[2])
+		gcommon.ObjMgr.addObj(self.feelers[3])
 
 	def update(self):
-		if gcommon.game_timer==3720:
-			gcommon.cur_scroll=0
-		
-		if gcommon.is_outof_bound(self):
-			self.removeFlag = True
-		else:
-			if self.state==0:
-				if self.cnt>240:
-					self.cnt=0
-					self.state=1
-				
-			elif self.state==1:
-				if gcommon.cur_scroll==0:
-					self.y -= 0.5 * 2
-				elif self.cnt & 64==0:
-					self.y -= 0.35 * 2
-				
-				self.boss1_shot_cross()
-				if self.y<=0:
-					self.state=2
-					self.cnt=0
-				
-			elif self.state==2:
-				remove_all_battery()
-				if self.subcnt==0:
-					self.hp=1000
-				
-				if self.cnt & 7==7 and self.cnt & 127 !=127:
-					enemy.enemy_shot(		\
-					 self.x+18*2 +math.cos(gcommon.atan_table[self.cnt & 63])*8,		\
-					 self.y+10*2 +math.sin(gcommon.atan_table[self.cnt & 63])*8,		\
-					 2*2,1)
+		if self.state == 0:
+			self.x += self.dx
+			self.y += self.dy
+			self.brake = False
+			mode = boss2tbl[self.tblIndex][0]
+			if mode == 0:
+				if self.subcnt == boss2tbl[self.tblIndex][3]:
+					self.nextTbl()
+			elif mode == 1:
+				if self.x < boss2tbl[self.tblIndex][3]:
+					self.dx *= 0.95
+					self.dy *= 0.95
+					self.brake = True
+					if abs(self.dx) < 0.01:
+						self.nextTbl()
+				else:
+					self.addDxDy()
+			elif mode == 2:
+				if self.x > boss2tbl[self.tblIndex][3]:
+					self.dx *= 0.95
+					self.dy *= 0.95
+					self.brake = True
+					if abs(self.dx) < 0.01:
+						self.nextTbl()
+				else:
+					self.addDxDy()
+			elif mode == 3:
+				# 上制限（上移動）
+				if self.y < boss2tbl[self.tblIndex][3]:
+					self.dx *= 0.95
+					self.dy *= 0.95
+					self.brake = True
+					if abs(self.dy) <=0.01:
+						self.nextTbl()
+				else:
+					self.addDxDy()
+			elif mode == 4:
+				self.feelers[0].setMode(2)
+				self.feelers[1].setMode(2)
+				self.feelers[2].setMode(2)
+				self.feelers[3].setMode(2)
+				# 下制限（下移動）
+				if self.y > boss2tbl[self.tblIndex][3]:
+					self.dx *= 0.95
+					self.dy *= 0.95
+					self.brake = True
+					if abs(self.dy) <= 0.01:
+						self.nextTbl()
+				else:
+					self.addDxDy()
+
+			attack = boss2tbl[self.tblIndex][4]
+			attack = 0
+			if attack == 1:
+				# 全体攻撃
+				if self.subcnt & 7 == 0:
+					enemy.enemy_shot_dr(self.x +24, self.y + 18, 6, 1, 49 + (self.subcnt>>3)*2)
+					enemy.enemy_shot_dr(self.x +24, self.y + 18, 6, 1, 47 - (self.subcnt>>3)*2)
 					gcommon.sound(gcommon.SOUND_SHOT2)
-				
-				self.sd = (self.cnt & 4)>>2
-				if self.cnt==300:
-					self.state=3
-					self.cnt=0
-				
-			elif self.state==3:
-				if self.cnt & 15 ==15:
-					shot_cross(self.x+18*2, self.y+12*2, self.cnt>>2)
+			elif attack == 2:
+				# 正面攻撃
+				if self.subcnt & 15 == 0:
+					enemy.enemy_shot_dr(self.x +24 +16, self.y + 32, 4, 1, 16)
+					enemy.enemy_shot_dr(self.x +24 -16, self.y + 32, 4, 1, 16)
 					gcommon.sound(gcommon.SOUND_SHOT2)
-				
-				self.sd = (self.cnt & 4)>>2
-				if self.cnt==300:
-					self.state=4
-					self.subcnt = 0
-					self.cnt=0
-				
-			elif self.state==4:
-				if self.cnt & 31== 31:
-					if self.cnt & 63==63:
+			elif attack == 3:
+				# 波状攻撃
+				if self.subcnt & 15 == 0:
+					if self.subcnt & 31 == 0:
 						for i in range(1,6):
-							enemy.enemy_shot_offset(self.x+18*2, self.y+10*2, 2*2,1,(i-3)*2)
-						
+							enemy.enemy_shot_offset(self.x+24, self.y+18, 2*2,1, -(i-2)*2)
+						gcommon.sound(gcommon.SOUND_SHOT2)
 					else:
-						for i in range(1,7):
-							enemy.enemy_shot_offset(self.x+18*2, self.y+10*2, 2*2,1,(i-4)*2+1)
-						
+						for i in range(1,6):
+							enemy.enemy_shot_offset(self.x+24, self.y+18, 2*2,1, (i-2)*2)
+						gcommon.sound(gcommon.SOUND_SHOT2)
+			
+			elif attack == 4:
+				# 時計回り攻撃
+				if self.subcnt & 7 == 0:
+					enemy.enemy_shot_dr(self.x +24, self.y + 18, 5, 1, (self.subcnt>>3)+2)
+					enemy.enemy_shot_dr(self.x +24, self.y + 18, 6, 1, (self.subcnt>>3)-2)
+					gcommon.sound(gcommon.SOUND_SHOT2)
+
+			elif attack == 5:
+				# 反時計回り攻撃
+				if self.subcnt & 7 == 0:
+					enemy.enemy_shot_dr(self.x +24, self.y + 18, 6, 1, (34 -(self.subcnt>>3)))
+					enemy.enemy_shot_dr(self.x +24, self.y + 18, 5, 1, (30 -(self.subcnt>>3)))
 					gcommon.sound(gcommon.SOUND_SHOT2)
 				
-				
-				if self.cnt==120:
-					create_battery1(12*2,16*2,1)
-					create_battery1(28*2,16*2,240)
-					create_battery1(92*2,16*2,240)
-					create_battery1(108*2,16*2,1)
-
-				if self.cnt==300:
-					self.state=5
-					self.cnt=0
-
-				##	self.subcnt+=1
-				#	if self.subcnt==1:
-				#		self.state=5
-				#		create_battery1(12*2,16*2,1)
-				#		create_battery1(28*2,16*2,240)
-				#		create_battery1(92*2,16*2,240)
-				#		create_battery1(108*2,16*2,1)
-				#		self.cnt=0
-				#		self.subcnt=0
-				#	else:
-				#		self.subcnt = 0
-				#		self.state=2
-				#		self.cnt=0
-				#
-				
-			elif self.state==5:
-				self.y += 0.25*2
-				self.boss1_shot_cross()
-				if self.y>=50:
-					self.state=6
-					self.cnt=0
-				
-			elif self.state==6:
-				self.boss1_shot_cross()
-				if self.cnt==300:
-					self.state=7
-					self.cnt=0
-				
-			elif self.state==7:
-				self.y -= 0.25*2
-				self.boss1_shot_cross()
-				if self.y<=8:
-					self.state=2
-					self.cnt=0
-					self.subcnt+=1
-				
-			elif self.state==100:
-				if self.cnt>120:
-					self.state=101
-					self.cnt=0
-				
-			elif self.state==101:
-				if self.cnt % 12 == 0:
-					enemy.create_explosion(
-					self.x+(self.right-self.left)/2 +random.randrange(36)-18,
-					self.y+(self.bottom-self.top)/2 +random.randrange(24)-12,
-					self.layer,gcommon.C_EXPTYPE_GRD_M)
-				
-				if self.cnt>240:
-					self.state=102
-					self.cnt=0
-					#pyxel.play(1, 5)
-					gcommon.sound(gcommon.SOUND_LARGE_EXP)
-				
-			elif self.state==102:
-				#sfx(4)
-				if self.cnt>150:
-					self.state=103
-					self.cnt=0
-				
-			elif self.state==103:
-				if self.cnt>180:
-					self.state=104
-					self.cnt=0
-					gcommon.cur_scroll=0.4
-					gcommon.ObjMgr.objs.append(enemy.StageClearText(1))
-
-
-	def boss1_shot_cross(self):
-		if self.cnt % 60 ==0:
-			gcommon.sound(gcommon.SOUND_SHOT2)
-			if self.cnt % 120==0:
-				self.sd=1
-				shot_cross(self.x+18*2, self.y+12*2, 8)
-			else:
-				self.sd=0
-				shot_cross(self.x+18*2, self.y+12*2, 0)
-
+			self.subcnt+=1
 
 	def draw(self):
-		if self.state< 100:
-			#spr(192,self.x,self.y,5,4)
-			#spr(197+self.sd*2,self.x+10,self.y+4,2,2)
-			pyxel.blt(self.x, int(self.y), 1, 0, 192, 80, 64, gcommon.TP_COLOR)
-			pyxel.blt(self.x +20, int(self.y) +8, 1, 80 + self.sd*32, 192, 32, 32, gcommon.TP_COLOR)
-		elif self.state < 103:
-			#spr(192,self.x,self.y,5,4)
-			pyxel.blt(self.x, int(self.y), 1, 0, 192, 80, 64, gcommon.TP_COLOR)
-		else:
-			#spr(203,self.x+10,self.y+10,2,2)
-			pyxel.blt(self.x+20, int(self.y)+20, 1, 176, 192, 32, 32, gcommon.TP_COLOR)
+		pyxel.blt(self.x, self.y, 1, 168, 144, 80, 48, gcommon.TP_COLOR)
 		
-		if self.state==102:
-			pyxel.circb(self.x+(self.right-self.left)/2,
-				self.y+(self.bottom-self.top)/2, self.cnt*2*2,7)
-			gcommon.circfill_obj_center(self, self.cnt*2, 7)
-			r = 0
-			for i in range(1,201):
-				rr = math.sqrt((self.cnt*2+i)*20)*2
-				pyxel.pset(			\
-					self.x+(self.right-self.left+1)/2+math.cos(r) * rr,		\
-					self.y+(self.bottom-self.top+1)/2+math.sin(r) * rr,		\
-					7 + int(self.cnt%2)*3)
-				# kore ha tekito
-				r += 0.11 + i*0.04
-			
-		elif self.state==103:
-			d=True
-			r=20
-			clr=7
-			if self.cnt<60:
-				d = (self.cnt & 1)==1
-			elif self.cnt<120:
-				d = (self.cnt & 3)==3
-				r = 16
-				clr = 10
-			else:
-				d = (self.cnt & 7)==7
-				r = 12
-				clr = 9
-			
-			if d:
-				gcommon.circfill_obj_center(self, r, clr)
+
+	def nextTbl(self):
+		self.tblIndex +=1
+		if self.tblIndex >= len(boss2tbl):
+			self.tblIndex = 0
+		self.dx = boss2tbl[self.tblIndex][1]
+		self.dy = boss2tbl[self.tblIndex][2]
+		self.subcnt = 0
+
+	def addDxDy(self):
+		if abs(self.dx) < 0.5:
+			self.dx +=  boss2tbl[self.tblIndex][1]
+		if abs(self.dy) < 0.5:
+			self.dy +=  boss2tbl[self.tblIndex][2]
 
 	def broken(self):
 		if self.state<100:
@@ -255,487 +468,14 @@ def shot_cross(cx,cy,dr):
 			2*2, 1, (i+dr) & 63)
 
 
-class Boss2(enemy.EnemyBase):
-	def __init__(self, t):
-		super(Boss2, self).__init__()
-		self.t = gcommon.T_BOSS2
-		self.x = t[2]*2
-		self.y = t[3]*2
-		self.left = 0
-		self.top = 0
-		self.right = 71
-		self.bottom = 67
-		self.hp = 32000
-		self.layer = gcommon.C_LAYER_UPPER_GRD
-		self.score = 5000
-		self.subcnt = 0
-		self.hitcolor1 = 5
-		self.hitcolor2 = 6
-		self.material_cnt=6
-		self.material_offset=0
-		self.dy=0
-		self.dr=0
-
-	def appended(self):
-		gcommon.ObjMgr.objs.append(Boss2Side(self, -20*2, False))
-		gcommon.ObjMgr.objs.append(Boss2Side(self, 36*2, True))
-
-	def update(self):
-		st = self.state
-		if st<10:
-			if gcommon.map_y >= (680+17*8)*2:
-				# scroll loop
-				gcommon.map_y = (632+17*8)*2
-			
-		else:
-			if gcommon.map_y>=2048*2:
-				# scroll loop
-				gcommon.map_y=1280*2
-			
-		if st==0:
-			if self.cnt>270:
-				self.cnt=0
-				self.state=1
-				#-gcommon.cur_scroll=0
-			
-		elif st==1:
-			if self.subcnt==0:
-				self.y -= 0.1*2
-			else:
-				self.y-=gcommon.cur_scroll
-			
-			if self.cnt % 10 == 0:
-				#add(objs,material:new(
-				#	self.x-16+(6-self.material_cnt)*4,self.y+8))
-				#add(objs,material:new(
-				#	self.x+41-(6-self.material_cnt)*4,self.y+8))
-				gcommon.ObjMgr.objs.append(
-					Material(self.x-16*2+(6-self.material_cnt)*4*2, self.y+8*2))
-				gcommon.ObjMgr.objs.append(
-					Material(self.x+41*2+(6-self.material_cnt)*4*2, self.y+8*2))
-								
-				self.material_cnt-=1
-				if self.material_cnt==0:
-					self.cnt=0
-					self.state=2
-				
-			
-			if self.cnt%60==0:
-				boss2_shot_offset(self)
-			
-		elif st==2:
-			if self.subcnt==0:
-				self.y-=0.3
-			else:
-				self.y-=gcommon.cur_scroll
-			
-			if self.cnt%60==0:
-				boss2_shot_offset(self)
-			
-			if self.cnt>60:
-				self.cnt=0
-				self.state=3
-				self.subcnt+=1
-				if self.subcnt>2:
-					self.state=4
-				
-			
-		elif st==3:
-			if self.subcnt==0:
-				self.y -= 0.4
-			else:
-				self.y-=gcommon.cur_scroll
-			
-			if self.material_cnt<6:
-				#-self.material_offset+=1
-				if self.cnt % 6 == 0:
-					self.material_cnt+=1
-				
-			
-			if self.cnt%30==0:
-				boss2_shot_offset(self)
-			
-			if self.cnt>60:
-				self.cnt=0
-				self.state=1
-			
-		elif st==4:
-			self.y -= gcommon.cur_scroll
-			if self.cnt%30==0:
-				boss2_shot_offset(self)
-			
-			if self.cnt>60:
-				self.cnt=0
-				self.state=5
-				self.dx=-0.2
-				gcommon.cur_scroll=0.4
-			
-		elif st==5:
-			self.y -= gcommon.cur_scroll
-			self.y += self.dx
-			self.dx-=0.025
-			if self.cnt>60:
-				self.cnt=0
-				self.state=6
-				boss2_shot_offset(self)
-			
-		elif st==6:
-			self.y -= gcommon.cur_scroll
-			#gcommon.cur_scroll+=0.05
-			gcommon.cur_scroll+=0.1
-			if self.cnt>60:
-				self.cnt=0
-				self.state=7
-			
-		elif st==7:
-			self.y -= gcommon.cur_scroll
-			if self.y < 8:
-				self.y += 0.2
-			
-			if self.cnt%30==0:
-				boss2_shot_offset(self)
-			
-			if self.cnt>420:
-				self.cnt=0
-				self.state=10
-				self.hp=2000
-				gcommon.draw_star = True
-			
-		elif st==10:
-			self.y -= gcommon.cur_scroll
-			if self.cnt==120:
-				self.state=11
-				self.cnt=0
-				self.layer = gcommon.C_LAYER_SKY
-				self.subcnt=0
-				#--create_explosion(
-				#-- self.x+8,
-				#-- self.y+16,
-				#-- c_layer_sky,c_exptype_sky_m)
-				#--create_explosion(
-				#-- self.x+24,
-				#-- self.y+16,
-				#-- c_layer_sky,c_exptype_sky_m)
-			
-		elif st==11:
-			#-- wait
-			#--if self.cnt>60 then
-			#-- self.cnt=0 self.state=12
-			#--end
-			nextstate(self, 60, 12)
-
-		elif st==12:
-			if self.cnt%10==0:
-				dr=0
-				if self.subcnt%2==1:
-					dr+=1
-				
-				if self.cnt%20==0:
-					dr+=2
-				shot_radial(self, dr)
-			
-			nextstate(self, 120, 13)
-		elif st==13:
-			self.x-=0.5
-			self.y-=0.125
-			if self.x<4:
-				self.state=14
-				self.cnt=0
-				self.dr=2
-			
-		elif st==14:
-			self.x+=1	#0.5
-			boss2_shot_side(self)
-			if self.cnt%8==0:
-				enemy.enemy_shot_dr(			\
-					self.x+17*2,		\
-					self.y+12*2,		\
-					2*2, 1, (self.dr & 63))
-				self.dr+=1
-			
-			if self.x>96*2:
-				self.state=15
-				self.dr=32
-			
-		elif st==15:
-			self.x-=1		#0.5
-			boss2_shot_side(self)
-			if self.cnt%8==0:
-				enemy.enemy_shot_dr(
-					self.x+17*2,
-					self.y+12*2,
-				2*2,  1, (self.dr & 63))
-				self.dr-=1
-			
-			if self.x<4*2:
-				self.state=16
-				self.cnt=0
-			
-		elif st==16:
-			if self.x<63-14:
-				self.x+=0.5
-			
-			if self.y<4:
-				self.y+=0.125
-			
-			if self.cnt>120:
-				self.cnt=0
-				self.state=12
-				self.subcnt+=1
-			
-		elif st==102:
-			#sfx(4)
-			#--circfill(self.x+(self.r-self.l)/2,
-			#-- self.y+(self.b-self.u)/2, self.cnt,7)
-			if self.cnt>150:
-				self.state=103
-				self.cnt=0
-				#pyxel.play(1, 5)
-				gcommon.sound(gcommon.SOUND_LARGE_EXP)
-			
-		elif st==103:
-			if self.cnt>240:
-				self.state=104
-				self.cnt=0
-				#--gcommon.cur_scroll=0.2
-				gcommon.ObjMgr.objs.append(enemy.StageClearText(2))
-			
-		elif st==104:
-			if self.cnt>240:
-				self.removeFlag = True
-				gcommon.app.startStage(3)
-				
-
-	def draw(self):
-		#-- left
-		#--spr(132,self.x-20,self.y+8,2,4)
-		#--sspr(48,72,8,12,self.x-4,self.y+17)
-		#-- right
-		#--spr(132,self.x+36,self.y+8,2,4,true)
-		#--sspr(48,72,8,12,self.x+28,self.y+17,8,12,true)
-		#-- middle
-		if self.state<=10:
-			#spr(128,self.x,self.y,4,4)
-			gcommon.spr1(128,self.x,self.y,4,4)
-			draw_material(self.x,self.y,
-				self.material_offset,
-				self.material_cnt)
-			if self.state<=4:
-				lx=0
-				if self.state==4:
-					lx=self.cnt/2
-				
-				if lx<26:
-					#sspr(48,84,4,12,self.x-20+lx,self.y+2)
-					gcommon.sspr1(48, 84, 4, 12, self.x-20*2+lx*2, self.y+2*2)
-					#sspr(48,64,8,6,self.x-16+lx,self.y+4)
-					gcommon.sspr1(48, 64, 8, 6, self.x-16*2+lx*2, self.y+4*2)
-					#sspr(48,64,8,6,self.x-8+lx,self.y+4)
-					gcommon.sspr1(48, 64, 8, 6, self.x-8*2+lx*2, self.y+4*2)
-					if lx<8:
-						#sspr(48,64,8,6,self.x+lx,self.y+4)
-						gcommon.sspr1(48, 64, 8, 6, self.x+lx*2, self.y+4*2)
-						#-- right
-						#sspr(48,64,8,6,self.x+24-lx,self.y+4)
-						gcommon.sspr1(48, 64, 8, 6, self.x+24*2-lx*2, self.y+4*2)
-					
-					#-- right
-					#sspr(48,84,4,12,self.x+48-lx,self.y+2,4,12,true)
-					gcommon.sspr1(48, 84, -4, 12, self.x+48*2-lx*2, self.y+2*2)
-					#sspr(48,64,8,6,self.x+32-lx,self.y+4)
-					gcommon.sspr1(48, 64, 8, 6, self.x+32*2-lx*2, self.y+4*2)
-					#sspr(48,64,8,6,self.x+40-lx,self.y+4)
-					gcommon.sspr1(48, 64, 8, 6, self.x+40*2-lx*2, self.y+4*2)
-				
-			
-			#--spr(136,self.x+8,self.y,2,3)
-
-			#sspr(7,68,18,12,self.x+7,self.y+4)
-			gcommon.sspr1(7, 68, 18, 12, self.x+7*2, self.y+4*2)
-			#sspr(7,72,18,24,self.x+7,self.y+16)
-			gcommon.sspr1(7, 72, 18, 24, self.x+7*2, self.y+16*2)
-
-			if self.state==5:
-				#-- fire
-				#--if self.cnt%2 ==0 then
-				#-- spr(138,self.x,self.y+32,1,2)
-				#--end
-				pass
-			
-		elif self.state<100:
-			#--change
-			#spr(192,self.x-4,self.y,5,4)
-			gcommon.spr1(192, self.x-4*2, self.y, 5, 4)
-			if self.state==11:
-				gcommon.draw_splash(self)
-			
-		elif self.state==102:
-			pyxel.circb(self.x+(self.right-self.left)/2,
-				self.y+(self.bottom-self.top)/2, self.cnt*2,7)
-			#--circfill(self.x+(self.r-self.l)/2,
-			#-- self.y+(self.b-self.u)/2, self.cnt,7)
-			gcommon.circfill_obj_center(self, self.cnt, 7)
-			gcommon.draw_splash(self)
-			#--local r = 0
-			#--for i=1,200 do
-			#-- local rr = sqrt((self.cnt*2+i)*20)
-			#-- pset(
-			#--  self.x+(self.r-self.l+1)/2+cos(r) * rr,
-			#--  self.y+(self.b-self.u+1)/2+sin(r) * rr,
-			#--  7 + flr(self.cnt%2)*3)
-			#--  -- kore ha tekito
-			#--  r += 0.11 + i*0.04
-			#--end
-		elif self.state==103:
-			d = True
-			r = 20
-			clr = 7
-			if self.cnt<60:
-				d = (self.cnt & 1)==1
-			elif self.cnt<120:
-				d = (self.cnt & 3)==3
-				r=16
-				clr=10
-			else:
-				d = (self.cnt & 7)==7
-				r=12
-				clr=9
-			
-			if d:
-				gcommon.circfill_obj_center(self, r, clr)
-
-	def broken(self):
-		if self.state<100:
-			self.layer = gcommon.C_LAYER_EXP_SKY
-			self.cnt = 0
-			self.state= 102
-			enemy.create_explosion(
-				self.x+(self.right-self.left+1)/2,
-				self.y+(self.bottom-self.top+1)/2-4,
-				self.layer, gcommon.C_EXPTYPE_GRD_M)
-			gcommon.score+=10000
-
-class Boss2Side(enemy.EnemyBase):
-	def __init__(self, bossobj, cx, flag):
-		super(Boss2Side, self).__init__()
-		self.t = gcommon.T_BOSS2SIDE
-		self.bossobj = bossobj
-		self.x = bossobj.x + cx
-		self.y = bossobj.y
-		self.left = 0
-		self.top = 0
-		self.right = 31
-		self.bottom = 63
-		self.hp = 300
-		self.layer = gcommon.C_LAYER_GRD
-		self.score = 1000
-		self.subcnt = 0
-		self.hitcolor1 = 5
-		self.hitcolor2 = 6
-		self.cx = cx
-		self.flag = flag
-		self.brokenflag = 0
 
 
-	def update(self):
-		if self.bossobj.state==11 and self.bossobj.cnt>0:
-			if self.flag:
-				self.x+=2
-			else:
-				self.x-=2
-			
-			self.y = self.bossobj.y
-			if gcommon.is_outof_bound(self):
-				self.removeFlag = True
-			
-		else:
-			self.x = self.bossobj.x+self.cx
-			self.y = self.bossobj.y
-			if self.brokenflag==0 and self.bossobj.state>0 and self.bossobj.state<=10:
-				if self.cnt%60 ==0:
-					enemy.enemy_shot(self.x+8*2,self.y+35*2,2,1)
-				
-			
-	def draw(self):
-		#local fireflag=(bossobj.state==11)
-
-		if self.flag:
-			gcommon.spr1(132+self.brokenflag*4, self.x, self.y+8*2, -2, 4)
-			gcommon.sspr1(48,72, -8,12, self.x-8*2, self.y+17*2)
-		else:
-			gcommon.spr1(132+self.brokenflag*4, self.x, self.y+8*2, 2, 4)
-			gcommon.sspr1(48,72,8,12, self.x+16*2, self.y+17*2)
-
-	def broken(self):
-		self.brokenflag = 1
-		self.layer = gcommon.C_LAYER_HIDE_GRD
-		enemy.create_explosion(
-			self.x+(self.right-self.left+1)/2,
-			self.y+30*2,
-			gcommon.C_LAYER_SKY, gcommon.C_EXPTYPE_SKY_M)
-		gcommon.score += self.score
-
-
-# BOSS2 Material
-class Material(enemy.EnemyBase):
-	def __init__(self, x, y):
-		super(Material, self).__init__()
-		self.t = gcommon.T_MATERIAL
-		self.x = x
-		self.y = y
-		self.left = 0
-		self.top = 0
-		self.right = 15
-		self.bottom = 33
-		self.hp = 0
-		self.layer = gcommon.C_LAYER_SKY
-		self.score = 10
-		self.hitcolor1 = 5
-		self.hitcolor2 = 6
-		self.dx = 0
-		self.exptype = gcommon.C_EXPTYPE_SKY_S
-		if abs(x - gcommon.ObjMgr.myShip.x)<8:
-			self.dx = 0
-		elif x<gcommon.ObjMgr.myShip.x:
-			self.dx = 2
-		else:
-			self.dx = -2
-
-	def update(self):
-		self.x += self.dx
-		self.y += 6
-		if gcommon.is_outof_bound(self):
-			self.removeFlag = True
-
-
-	def draw(self):
-		gcommon.spr1(135, self.x, self.y, 1, 2)
-
-def draw_material(x,y,offset,count):
-	for i in range(1,count+1):
-		gcommon.spr1(135,
-			x-20*2+(6-count+i)*4*2-offset,
-			y+8*2,1,2)
-		gcommon.spr1(135,x+32*2+13*2-(6-count+i)*4*2+offset*2,y+8*2,1,2)
-
-
-
-def boss2_shot_side(self):
-	if self.subcnt>=1 and self.cnt%80==0:
-		enemy.enemy_shot(self.x,self.y+18*2,2,0)
-		enemy.enemy_shot(self.x+31*2,self.y+18*2,2,0)
 
 def nextstate(self, cnt, nextstate):
 	if self.cnt>cnt:
 		self.state = nextstate
 		self.cnt = 0
 
-
-def boss2_shot_offset(self):
-	enemy.enemy_shot_offset(
-		self.x+22*2, self.y+26*2, 2*2,2,-1)
-	enemy.enemy_shot_offset(
-		self.x+10*2, self.y+26*2, 2*2,2,1)
 
 def shot_radial(self, dr):
 	#for i=1,64,4 do

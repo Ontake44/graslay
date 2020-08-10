@@ -1026,7 +1026,7 @@ class Fan1(EnemyBase):
 				self.y += 1.5
 
 	def draw(self):
-		pyxel.blt(self.x, self.y, 1, 0 + (self.cnt & 4) * 4, 56, 16, 16, gcommon.TP_COLOR)
+		pyxel.blt(self.x, self.y, 1, 0 + (self.cnt & 4) * 4, 64, 16, 16, gcommon.TP_COLOR)
 
 
 class MissileShip(EnemyBase):
@@ -1072,9 +1072,9 @@ class MissileShip(EnemyBase):
 		
 	def draw(self):
 		if self.state in (0,1):
-			pyxel.blt(self.x -10, self.y -5, 1, 48, 56, 32, 8, gcommon.TP_COLOR)
-			pyxel.blt(self.x -10, self.y +14, 1, 48, 56, 32, 8, gcommon.TP_COLOR)
-		pyxel.blt(self.x, self.y, 1, 32, 56, 16, 16, gcommon.TP_COLOR)
+			pyxel.blt(self.x -10, self.y -5, 1, 48, 64, 32, 8, gcommon.TP_COLOR)
+			pyxel.blt(self.x -10, self.y +14, 1, 48, 64, 32, 8, gcommon.TP_COLOR)
+		pyxel.blt(self.x, self.y, 1, 32, 64, 16, 16, gcommon.TP_COLOR)
 
 
 class Missile1(EnemyBase):
@@ -1086,7 +1086,7 @@ class Missile1(EnemyBase):
 		self.top = 0
 		self.right = 31
 		self.bottom = 6
-		self.hp = 30
+		self.hp = 15
 		self.dx = dy
 		self.dy = 0
 		self.layer = gcommon.C_LAYER_SKY
@@ -1106,11 +1106,11 @@ class Missile1(EnemyBase):
 		
 		
 	def draw(self):
-		pyxel.blt(self.x, self.y, 1, 48, 56, 32, 7, gcommon.TP_COLOR)
+		pyxel.blt(self.x, self.y, 1, 48, 64, 32, 7, gcommon.TP_COLOR)
 		if self.cnt & 2 == 0:
 			if self.cnt & 4 == 0:
-				pyxel.blt(self.x + 32, self.y, 1, 48, 64, 32, 7, gcommon.TP_COLOR)
+				pyxel.blt(self.x + 32, self.y, 1, 48, 72, 32, 7, gcommon.TP_COLOR)
 			else:
-				pyxel.blt(self.x + 32, self.y-1, 1, 48, 64, 32, -7, gcommon.TP_COLOR)
+				pyxel.blt(self.x + 32, self.y-1, 1, 48, 72, 32, -7, gcommon.TP_COLOR)
 
 
