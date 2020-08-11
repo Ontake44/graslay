@@ -432,11 +432,15 @@ class Battery1(EnemyBase):
 		self.x = pos[0]		# map x
 		self.y = pos[1]		# map y
 		self.mirror = t[4]	# 0: normal 1:上下逆
-		self.left = 0
-		self.top = 0
-		self.right = 15
-		self.bottom = 15
-		self.hp = 5
+		self.left = 2
+		self.right = 13
+		if self.mirror == 0:
+			self.top = 5
+			self.bottom = 15
+		else:
+			self.top = 0
+			self.bottom = 10
+		self.hp = 10
 		self.layer = gcommon.C_LAYER_GRD
 		self.score = 300
 		self.hitcolor1 = 5

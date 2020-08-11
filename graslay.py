@@ -27,7 +27,7 @@ class MyShip:
 		self.weapon = 0
 		self.roundAngle = 0
 		# 1:ゲーム中 2:爆発中 3:復活中
-		self.sub_scene = 1
+		self.sub_scene = 3
 		self.shotCounter = 0
 		self.prevFlag = False
 		self.setStartPosition()
@@ -121,7 +121,7 @@ class MyShip:
 				if gcommon.checkShotKey():
 					if self.prevFlag:
 						self.shotCounter += 1
-						if self.shotCounter > 5:
+						if self.shotCounter > 4:
 							self.shotCounter = 0
 							self.shot()
 					else:
@@ -914,6 +914,8 @@ class MainGame:
 			[720, enemy.RollingFighter1Group, 100, 15, 4],		\
 			[730, enemy.Battery1, 8, 41, 0],		\
 			[730, enemy.Battery1, 8, 29, 1],		\
+			[800, enemy.RollingFighter1Group, 42, 15, 4],		\
+			[900, enemy.RollingFighter1Group, 100, 15, 4],		\
 			[1100, enemy.Jumper1, 256, 70, 0.1],		\
 			[1160, enemy.Jumper1, 256, 100, -0.1],		\
 			[1200, enemy.MissileShip, 50, 200],		\
@@ -933,13 +935,42 @@ class MainGame:
 			[1700, enemy.Jumper1, 256, 70, 0.1],		\
 			[1830, enemy.Jumper1, 256, 70, 0.1],		\
 			[1860, enemy.Jumper1, 256, 70, 0.1],		\
-			[1860, enemy.Battery1, 69, 7, 1],		\
-			[1860, enemy.Battery1, 69, 24, 0],		\
+			[1860, enemy.Battery1, 69, 6, 1],		\
+			[1860, enemy.Battery1, 70, 25, 0],		\
 			[2230, enemy.Jumper1, 256, 70, 0.1],		\
 			[2260, enemy.Jumper1, 256, 70, 0.1],		\
 			[2430, enemy.MissileShip, 82, 200],		\
 			[2430, enemy.Battery1, 100, 7, 1],		\
 			[2430, enemy.Battery1, 100, 24, 0],		\
+			[2460, enemy.MissileShip, 82, 200],		\
+			[2490, enemy.MissileShip, 82, 200],		\
+			[3000, enemy.RollingFighter1Group, 24, 15, 4],		\
+			[3100, enemy.MissileShip, 40, 160],		\
+			[3100, enemy.MissileShip, 80, 200],		\
+			[3350, enemy.Battery1, 144, 33, 1],		\
+			[3350, enemy.Battery1, 144, 35, 0],		\
+			[3360, enemy.Battery1, 146, 33, 1],		\
+			[3360, enemy.Battery1, 146, 35, 0],		\
+			[3400, enemy.Battery1, 118, 40, 1],		\
+			[3400, enemy.Battery1, 118, 42, 0],		\
+			[3420, enemy.Battery1, 144, 43, 1],		\
+			[3420, enemy.Battery1, 144, 45, 0],		\
+			[3460, enemy.Battery1, 118, 50, 1],		\
+			[3460, enemy.Battery1, 118, 52, 0],		\
+			[4200, enemy.Battery1, 162, 60, 1],		\
+			[4200, enemy.Battery1, 164, 60, 1],		\
+			[4200, enemy.Jumper1, 256, 130, -0.1],		\
+			[4400, enemy.Jumper1, 256, 100, 0.1],		\
+			[4400, enemy.MissileShip, 80, 200],		\
+			[4400, enemy.Battery1, 154, 81, 0],		\
+			[4420, enemy.Battery1, 156, 81, 0],		\
+			[4430, enemy.MissileShip, 120, 200],		\
+			[4500, enemy.Jumper1, 256, 100, 0.1],		\
+			[4500, enemy.Battery1, 170, 81, 0],		\
+			[4520, enemy.Battery1, 172, 81, 0],		\
+			[4530, enemy.Jumper1, 256, 120, 0.1],		\
+			[4700, enemy.RollingFighter1Group, 60, 15, 4],		\
+			[4730, enemy.RollingFighter1Group, 120, 15, 4],		\
 			[5100, boss.Boss1, 256, 60],		\
 		]
 
