@@ -153,6 +153,9 @@ class MyShip:
 		elif self.sub_scene==3 or self.sub_scene==4:
 			if self.cnt%2 ==0:
 				self.drawMyShip()
+				
+		# 当たり判定領域描画
+		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
 
 	def drawMyShip(self):
 		#if gcommon.set_color_shadow():
@@ -246,10 +249,10 @@ class MyShot:
 	def __init__(self, weapon, sprite):
 		self.x = 0
 		self.y = 0
-		self.left = 2
-		self.top = 0
-		self.right = 13
-		self.bottom = 15
+		self.left = -4
+		self.top = -4
+		self.right = 11
+		self.bottom = 11
 		self.dx = 0
 		self.dy = 0
 		self.sprite = sprite
@@ -282,10 +285,13 @@ class MyShot:
 			gcommon.ObjMgr.shotGroups.remove(self.group)
 
 	def draw(self):
+		# 当たり判定描画
+		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
 		if self.sprite > 0:
 			pyxel.blt(self.x, self.y, 0, 48 + self.sprite * 8, 0, 8, 8, gcommon.TP_COLOR)
 		else:
 			pyxel.blt(self.x, self.y, 0, 48 - self.sprite * 8, 0, 8, -8, gcommon.TP_COLOR)
+
 
 class MyShotGroup:
 	def __init__(self):
@@ -830,34 +836,17 @@ class MainGame:
 					if obj.removeFlag:
 						break
 		
-		# my bom & enemy
-		if gcommon.ObjMgr.myBom != None:
-			for obj in gcommon.ObjMgr.objs:
-				if obj.layer==gcommon.C_LAYER_GRD \
-					or obj.layer==gcommon.C_LAYER_SKY \
-					or obj.layer==gcommon.C_LAYER_E_SHOT:
-					if math.sqrt((obj.x+(obj.right-obj.left)/2-gcommon.ObjMgr.myBom.x)**2+	\
-						(obj.y+(obj.bottom-obj.top)/2-gcommon.ObjMgr.myBom.y)**2) <=72:
-						if obj.layer==gcommon.C_LAYER_E_SHOT:
-							obj.removeFlag = True
-						else:
-							obj.hp -= gcommon.BOM_POWER
-							if obj.hp<=0:
-								obj.broken()
-							else:
-								obj.hit = True
-
 		# my ship & enemy
 		if gcommon.ObjMgr.myShip.sub_scene == 1:
 			for obj in gcommon.ObjMgr.objs:
-				if obj.layer==gcommon.C_LAYER_E_SHOT or obj.layer==gcommon.C_LAYER_SKY:
+				if obj.hitCheck:
 					if gcommon.check_collision(obj, gcommon.ObjMgr.myShip):
 						self.my_broken()
 						break
-				elif obj.layer==gcommon.C_LAYER_ITEM:
-					if gcommon.check_collision(obj, gcommon.ObjMgr.myShip):
-						self.catch_item(obj)
-						obj.removeFlag = True
+				#elif obj.layer==gcommon.C_LAYER_ITEM:
+				#	if gcommon.check_collision(obj, gcommon.ObjMgr.myShip):
+				#		self.catch_item(obj)
+				#		obj.removeFlag = True
 
 
 	def catch_item(self, obj):
@@ -976,169 +965,10 @@ class MainGame:
 
 	def initStory2(self):
 		self.story=[ \
-			[120,enemy.Copter1,60*2,-8*2,70,0],		\
-			[200,enemy.Copter1,100*2,-8*2,80,0],	\
-			[220,enemy.Copter1,10*2,-8*2,80,0],		\
-			[300,enemy.ItemCarrior,80*2,-16*2, gcommon.C_ITEM_PWUP],
-			[320,enemy.Copter1,10*2,-8*2,70,0],
-			[350,enemy.Copter1,100*2,-8*2,80,0],
-			[380,enemy.Copter1,20*2,-8*2,80,0],
-
-			[440,enemy.Copter1,20*2,-8*2,90,0],
-			[470,enemy.Copter1,90*2,-8*2,70,0],
-			[530,enemy.Copter1,70*2,-8*2,60,0],
-
-
-			[660,enemy.Copter1,90*2,-8*2,80,0],
-
-			[800,enemy.Copter1,10*2,-8*2,70,0],
-			[830,enemy.Copter1,100*2,-8*2,80,0],
-			[860,enemy.Copter1,20*2,-8*2,80,0],
-
-			[940,enemy.Copter1,20*2,-8*2,90,0],
-			[960,enemy.Copter1,40*2,-8*2,80,0],
-			[980,enemy.Copter1,60*2,-8*2,70,0],
-			[980,enemy.Tank2,-16,16,60,120,
-				[[56,1],[1800,0]]],
-
-			[1020,enemy.Tank2,128,24,60,120,
-			[[56,5],[1800,0]]],
-
-			[1060,enemy.Tank2,128,16,60,120,
-			[[88,5],[1800,0]]],
-
-			[1080,enemy.Tank2,-16,20,60,120,
-			[[88,1],[1800,0]]],
-
-			[1100,enemy.Copter1,30*2,-8*2,80,0],
-			[1120,enemy.Copter1,50*2,-8*2,80,0],
-			[1140,enemy.Copter1,70*2,-8*2,80,0],
-
-			[1200,enemy.ItemCarrior,80*2,-16*2,gcommon.C_ITEM_PWUP],
-
-			[1300,enemy.Copter1,10*2,-8*2,80,0],
-			[1320,enemy.Copter1,30*2,-8*2,80,0],
-			[1340,enemy.Copter1,40*2,-8*2,80,0],
-
-			[1360,enemy.Tank2,28,-16,60,60,
-			[[88,7],[1800,0]]],
-
-			[1380,enemy.Tank2,44,-16,60,60,
-			[[88,7],[1800,0]]],
-
-			[1380,enemy.Copter1,10*2,-8*2,80,0],
-			[1400,enemy.Copter1,30*2,-8*2,80,0],
-			[1420,enemy.Copter1,100*2,-8*2,80,0],
-
-			[1500,enemy.Tank2,84,-16,60,60,
-			[[88,7],[1800,0]]],
-
-			[1580,enemy.Tank2,68,-16,60,60,
-			[[88,7],[1800,0]]],
-
-			[1580,enemy.Copter1,10*2,-8*2,80,0],
-			[1600,enemy.Copter1,30*2,-8*2,80,0],
-			[1620,enemy.Copter1,50*2,-8*2,80,0],
-
-			[1720,enemy.Wall1,0,-24,0],
-			[1720,enemy.Wall1,104,-24,1],
-
-			[1880,enemy.Tank2,28,-16,60,60,
-			[[56,7],[180,5]]],
-			[1880,enemy.Tank2,84,-16,60,60,
-			[[56,7],[180,1]]],
-
-			[1940,enemy.Fighter1,60*2,-16*2,60,180,120],
-
-			[2000,enemy.Wall1,0,-24,0],
-			[2000,enemy.Wall1,104,-24,1],
-
-			[2020,enemy.Tank2,-16,40,60,60,
-			[[88,1],[180,7]]],
-
-			[2060,enemy.Tank2,84,128,60,60,
-			[[160,3],[320,1]]],
-
-			[2180,enemy.Copter1,70*2,-8*2,60,0],
-
-			[2200,enemy.Copter1,85*2,-8*2,70,0],
-			[2220,enemy.Copter1,100*2,-8*2,80,0],
-			[2260,enemy.Tank2,-16,32,60,60,[[60,1],[300,5]]],
-
-			[2320,enemy.Tank2,128,42,60,60,
-			[[86,5],[200,3],[1200,7]]],
-
-			[2320,enemy.Copter1,10*2,-8,80,0],
-			[2340,enemy.Copter1,25*2,-8,70,0],
-			[2360,enemy.Copter1,40*2,-8,90,0],
-
-			[2420,enemy.Fighter1,90*2,-16*2,60,180,120],
-			[2480,enemy.Fighter1,10*2,-16*2,60,180,120],
-			[2530,enemy.Fighter1,40*2,-16*2,60,180,120],
-			[2840,boss.Boss2,48,-48]
 		]
 
 	def initStory3(self):
 		self.story=[ \
-			[120,enemy.ItemCarrior2,8,-16*2,gcommon.C_ITEM_PWUP],	\
-			[300,enemy.Fighter2Appear, 0, 20, 6, -1],		\
-			[400,enemy.Fighter2Appear, 0, 20, 6, 1],		\
-			[500,enemy.Battery2, 80, -16, 120, 60],		\
-			[500,enemy.Battery2, 160, -16, 120, 60],		\
-			[540,enemy.Battery2, 80, -16, 180, 60],		\
-			[540,enemy.Battery2, 160, -16, 180, 60],		\
-			[600,enemy.Fighter1B,200,-16*2,60,180,120],
-			[600,enemy.Fighter2Appear, 0, 20, 6, -1],		\
-			[660,enemy.Fighter1B,10*2,-16*2,60,180,120],
-			[680,enemy.MidBattery1,112,-32,60,60,40],
-			[720,enemy.Fighter1B,80,-16*2,60,180,120],
-			[800,enemy.Fighter2Appear, 0, 20, 6, 1],		\
-			[860,enemy.MidBattery1,112,-32,60,60,40],
-			[1060,enemy.MidBattery1,88,-32,70,60,60],
-			[1060,enemy.MidBattery1,136,-32,70,60,60],
-			[1160,enemy.Battery2, 88, -16, 120, 60],		\
-			[1160,enemy.Battery2, 152, -16, 120, 60],		\
-			[1200,enemy.Fighter2Appear, 0, 20, 6, -1],		\
-			[1200,enemy.Battery2, 88, -16, 180, 60],		\
-			[1200,enemy.Battery2, 152, -16, 180, 60],		\
-			[1300,enemy.Fighter2Appear, 0, 20, 6, 1],		\
-			[1440,enemy.Battery2, 8, -16, 120, 60],		\
-			[1440,enemy.Battery2, 232, -16, 120, 60],		\
-			[1440,enemy.Fighter1B,180,-16*2,60,180,120],
-			[1500,enemy.Battery2, 8, -16, 120, 60],		# 147	\
-			[1500,enemy.Battery2, 232, -16, 300, 60],		\
-			[1500,enemy.Fighter1B,40,-16*2,60,180,120],
-			[1600,enemy.ItemCarrior2,170,-16*2,gcommon.C_ITEM_PWUP],	\
-			# 艦上戦車
-			[1780,enemy.MidTank2, 100, -40],		\
-			[1880,enemy.Battery2, 8, -16, 120, 60],		# 128	\
-			[1880,enemy.Battery2, 232, -16, 120, 60],		\
-			[1940,enemy.Fighter2Appear, 0, 20, 6, -1],		\
-			[1940,enemy.Battery2, 8, -16, 120, 60],		# 125	\
-			[1940,enemy.Battery2, 232, -16, 120, 60],		\
-			[2040,enemy.Fighter2Appear, 0, 20, 6, 1],		\
-			[2040,enemy.Battery2, 8, -16, 120, 60],		# 120	\
-			[2040,enemy.Battery2, 232, -16, 120, 60],		\
-			[2100,enemy.Battery2, 8, -16, 120, 60],		# 117	\
-			[2100,enemy.Battery2, 232, -16, 120, 60],		\
-			[2300,enemy.Fighter1B,180,-16*2,60,180,120],
-			[2400,enemy.Fighter1B,80,-16*2,60,180,120],
-			[2500,enemy.Fighter1B,20,-16*2,60,180,120],
-			[2520,enemy.Battery2, 8, -16, 120, 60],		# 96	\
-			[2520,enemy.Battery2, 232, -16, 120, 60],		\
-			[2580,enemy.Battery2, 8, -16, 120, 60],		# 93	\
-			[2580,enemy.Battery2, 232, -16, 120, 60],		\
-			[2580,enemy.Fighter2Appear, 0, 20, 6, 1],		\
-			[2680,enemy.Battery2, 8, -16, 120, 60],		# 88	\
-			[2680,enemy.Battery2, 232, -16, 120, 60],		\
-			[2680,enemy.Fighter2Appear, 0, 20, 6, -1],		\
-			[2740,enemy.Battery2, 8, -16, 120, 60],		# 85	\
-			[2740,enemy.Battery2, 232, -16, 120, 60],		\
-			[3360,enemy.Battery2, 96, -16, 120, 60],		# 56	\
-			[3360,enemy.Battery2, 144, -16, 120, 60],		\
-			[3420,enemy.Battery2, 96, -16, 120, 60],		# 53	\
-			[3420,enemy.Battery2, 144, -16, 120, 60],		\
-			[3600,boss.Boss3, 48, 256],		\
 		]
 
 def parseCommandLine():

@@ -123,15 +123,15 @@ class EnemyShot(EnemyBase):
 		self.type = gcommon.T_E_SHOT1
 		self.layer = gcommon.C_LAYER_E_SHOT
 		if shotType==0:
-			self.left = 6
-			self.top = 6
+			self.left = 2
+			self.top = 2
+			self.right = 5
+			self.bottom = 5
+		else:
+			self.left = 2
+			self.top = 2
 			self.right = 9
 			self.bottom = 9
-		else:
-			self.left = 4
-			self.top = 4
-			self.right = 11
-			self.bottom = 11
 
 	@classmethod
 	def createToMyShip(cls, x, y, speed, shotType, offsetDr):
@@ -156,10 +156,12 @@ class EnemyShot(EnemyBase):
 			self.removeFlag = True
 
 	def draw(self):
+		# pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
 		if self.shotType==0:
 			pyxel.blt(self.x, self.y, 0, 4, 20, 8, 8, gcommon.TP_COLOR)
 		else:
 			pyxel.blt(self.x, self.y, 0, 18, 18, 12, 12, gcommon.TP_COLOR)
+
 
 
 #
@@ -355,72 +357,6 @@ class RollingFighter1Group(EnemyBase):
 	def draw(self):
 		pass
 
-class Fighter1(EnemyBase):
-	def __init__(self, t):
-		super(Fighter1, self).__init__()
-		self.t = gcommon.T_FIGHTER1
-		self.x = t[2]
-		self.y = t[3]
-		self.first = t[4]
-		self.interval = t[5]
-		self.speedup = t[6]
-		self.left = 4
-		self.top = 2
-		self.right = 44
-		self.bottom = 30
-		self.hp = 40
-		self.layer = gcommon.C_LAYER_SKY
-		self.score = 50
-		self.hitcolor1 = 5
-		self.hitcolor2 = 6
-		self.exptype = gcommon.C_EXPTYPE_SKY_M
-		self.imageIndex = 1
-		self.imageX = 0
-		self.imageY = 32
-
-	def update(self):
-		self.y += 0.8
-		if self.cnt >= self.speedup:
-			self.y += 1.2
-		if gcommon.is_outof_bound(self):
-			self.removeFlag = True
-		else:
-			if self.cnt == self.first:
-				enemy_shot(self.x+22,self.y+30,2,0)
-				enemy_shot_offset(self.x+10,self.y+18,2,0,-1)
-				enemy_shot_offset(self.x+38,self.y+18,2,0,1)
-			else:
-				c = self.cnt-self.first
-				if c % self.interval==0:
-					enemy_shot(self.x+22,self.y+30,2,0)
-					enemy_shot_offset(self.x+10,self.y+18,2,0,-1)
-					enemy_shot_offset(self.x+38,self.y+18,2,0,1)
-
-	def draw(self):
-		if gcommon.set_color_shadow():
-			pyxel.blt(self.x+16, self.y+16, self.imageIndex, self.imageX, self.imageY, 48, 32, gcommon.TP_COLOR)
-			pyxel.pal()
-		pyxel.blt(self.x, self.y, self.imageIndex, self.imageX, self.imageY, 48, 32, gcommon.TP_COLOR)
-		if self.cnt & 1 == 0:
-			if self.cnt >= self.speedup:
-				#spr(14,o.x+2,o.y-6)
-				#spr(14,o.x+17,o.y-6)
-				pyxel.blt(self.x+4, self.y-12, self.imageIndex, self.imageX+48, self.imageY, 10, 16, gcommon.TP_COLOR)
-				pyxel.blt(self.x+34, self.y-12, self.imageIndex, self.imageX+48, self.imageY, 10, 16, gcommon.TP_COLOR)
-			else:
-				#spr(15,o.x+2,o.y-6)
-				#spr(15,o.x+17,o.y-6)
-				pyxel.blt(self.x+4, self.y-12, self.imageIndex, self.imageX+48, self.imageY+16, 10, 16, gcommon.TP_COLOR)
-				pyxel.blt(self.x+34, self.y-12, self.imageIndex, self.imageX+48, self.imageY+16, 10, 16, gcommon.TP_COLOR)
-
-
-class Fighter1B(Fighter1):
-	def __init__(self, t):
-		super(Fighter1B, self).__init__(t)
-		self.imageIndex = 2
-		self.imageX = 192
-		self.imageY = 16
-
 
 
 #
@@ -491,97 +427,6 @@ class Battery1(EnemyBase):
 
 
 
-class Tank2(EnemyBase):
-	def __init__(self, t):
-		super(Tank2, self).__init__()
-		self.t = gcommon.T_TANK2
-		self.x = t[2]*2
-		self.y = t[3]*2
-		self.first = t[4]
-		self.interval = t[5]
-		self.move_tbl = t[6]		# index 0:timer 1:direction ただし、ひとつずれている。0は停止
-		self.left = 2
-		self.top = 2
-		self.right = 29
-		self.bottom = 29
-		self.hp = 40
-		self.layer = gcommon.C_LAYER_GRD
-		self.score = 30
-		self.hitcolor1 = 5
-		self.hitcolor2 = 6
-		self.exptype = gcommon.C_EXPTYPE_GRD_M
-		self.tbl_idx = 0
-		self.timer = 0
-
-	def update(self):
-		if len(self.move_tbl)>self.tbl_idx:
-			t = self.move_tbl[self.tbl_idx]
-			if t[1]==0:
-				# no move
-				pass
-			else:
-				self.x += gcommon.direction_map[t[1]-1][0] *0.5*2
-				self.y += gcommon.direction_map[t[1]-1][1] *0.5*2
-			
-			if self.timer>=t[0]:
-				self.tbl_idx+=1
-			
-		
-		if gcommon.is_outof_bound(self):
-			self.removeFlag = True
-		else:
-			if self.cnt == self.first:
-				enemy_shot(self.x+14,self.y+14,2,0)
-				self.first = -1
-				self.cnt =0
-			elif self.cnt == self.interval:
-				enemy_shot(self.x+14,self.y+14,2,0)
-				self.cnt =0
-			
-		
-		self.timer+=1
-
-	def draw(self):
-		pyxel.blt(self.x, self.y, 1, 96, 32, 32, 32, gcommon.TP_COLOR)
-
-class Wall1(EnemyBase):
-	def __init__(self, t):
-		super(Wall1, self).__init__()
-		self.t = gcommon.T_WALL1
-		self.x = t[2]*2
-		self.y = t[3]*2
-		self.pos = t[4]
-		self.left = 0
-		self.top = 0
-		self.right = 0
-		self.bottom = 0
-		self.layer = gcommon.C_LAYER_UPPER_GRD
-
-	def update(self):
-		if self.y>=256:
-			self.removeFlag = True
-
-	def draw(self):
-		n = self.pos
-		ox = n * 16
-		#spr(112+n,self.x+n*16,self.y)
-		pyxel.blt(self.x+n*16*2, self.y, 1, 0+ox, 112, 16, 16, gcommon.TP_COLOR) 
-		
-		#spr(100+n,self.x+n*16,self.y+8)
-		pyxel.blt(self.x+n*16*2, self.y+8*2, 1, 64+ox, 96, 16, 16, gcommon.TP_COLOR) 
-		
-		#spr(112+n,self.x+8,self.y+8)
-		pyxel.blt(self.x+8*2, self.y+8*2, 1, 0+ox, 112, 16, 16, gcommon.TP_COLOR)
-
-		#spr(84+n,self.x+n*16,self.y+16)
-		pyxel.blt(self.x+n*16*2, self.y+16*2, 1, 64+ox, 80, 16, 16, gcommon.TP_COLOR)
-	
-		#spr(100+n,self.x+8,self.y+16)
-		pyxel.blt(self.x+8*2, self.y+16*2, 1, 64+ox, 96, 16, 16, gcommon.TP_COLOR)
-		
-		#spr(112+n,self.x+16-n*16,self.y+16)
-		pyxel.blt(self.x+16*2-n*16*2, self.y+16*2, 1, 0+ox, 112, 16, 16, gcommon.TP_COLOR)
-
 class StageClearText(EnemyBase):
 	def __init__(self, stage):
 		super(StageClearText, self).__init__()
@@ -621,64 +466,6 @@ class Splash(EnemyBase):
 	def draw(self):
 		gcommon.draw_splash2(self, self.offset)
 
-class Fighter2(EnemyBase):
-	def __init__(self, t):
-		super(Fighter2, self).__init__()
-		self.t = gcommon.T_FIGHTER2
-		self.y = t[2]
-		self.pos = t[3]			# -1:left  1:right  0:auto
-		if self.pos == 0:
-			if gcommon.ObjMgr.myShip.x > 120:
-				self.pos = -1
-				self.x = -24
-			else:
-				self.pos = 1
-				self.x = 256
-		elif self.pos < 0:
-			self.x = -24
-		else:
-			self.x = 256
-		
-		self.dr = gcommon.get_atan_no_to_ship(self.x +12, self.y + 12)
-		self.left = 2
-		self.top = 2
-		self.right = 21
-		self.bottom = 21
-		self.hp = 5
-		self.layer = gcommon.C_LAYER_SKY
-		self.score = 30
-		self.hitcolor1 = 5
-		self.hitcolor2 = 6
-		self.exptype = gcommon.C_EXPTYPE_SKY_S
-
-	def update(self):
-		self.x += math.cos(gcommon.atan_table[self.dr & 63]) * 3
-		self.y += math.sin(gcommon.atan_table[self.dr & 63]) * 3
-		if self.state == 0:
-			if True:
-				if abs(116 - self.x) < 80 and self.cnt % 8 == 0:
-					self.dr -= self.pos
-					self.cnt = 0
-					if abs(116 - self.x) < 50:
-						self.state = 1
-						self.cnt = 0
-						if gcommon.get_distance_my(self.x + 12, self.y +12) > 30:
-							enemy_shot(self.x+12,self.y+12,2,0)
-			else:
-				if abs(gcommon.ObjMgr.myShip.x - self.x) < 80 and self.cnt % 8 == 0:
-					self.dr -= self.pos
-					self.cnt = 0
-					if abs(gcommon.ObjMgr.myShip.x - self.x) < 50:
-						self.state = 1
-						self.cnt = 0
-						if gcommon.get_distance_my(self.x + 12, self.y +12) > 30:
-							enemy_shot(self.x+12,self.y+12,2,0)
-		elif self.state == 1:
-			self.dr -= self.pos
-			self.cnt += 1
-			if self.cnt > 30:
-				self.state = 3
-				self.cnt = 0
 
 	def draw(self):
 		d = ((self.dr + 2) & 63)>>2
@@ -688,192 +475,7 @@ class Fighter2(EnemyBase):
 			pyxel.blt(self.x, self.y, 2, d * 24, 16, 24, 24, gcommon.TP_COLOR)
 
 
-class Fighter2Appear(EnemyBase):
-	def __init__(self, t):
-		super(Fighter2Appear, self).__init__()
-		self.t = gcommon.T_FIGHTER2
-		self.y = t[2]
-		self.interval = t[3]
-		self.fcount = t[4]
-		self.pos = t[5]
-		self.layer = gcommon.C_LAYER_NONE
 
-	def update(self):
-		if self.cnt % 20 == 0:
-			t = [0, gcommon.T_FIGHTER2, self.y, self.pos]
-			gcommon.ObjMgr.objs.append(Fighter2(t))
-			self.fcount -= 1
-			if self.fcount == 0:
-				self.removeFlag = True
-
-	def draw(self):
-		pass
-
-#
-# 艦砲台
-class Battery2(EnemyBase):
-	def __init__(self, t):
-		super(Battery2, self).__init__()
-		self.t = gcommon.T_BATTERY2
-		self.x = t[2]
-		self.y = t[3]
-		self.firsttime = t[4]	# 最初の開くまで
-		self.hidetime = t[5]
-		self.left = 0
-		self.top = 0
-		self.right = 15
-		self.bottom = 15
-		self.hp = 20
-		self.layer = gcommon.C_LAYER_HIDE_GRD
-		self.score = 300
-		self.hitcolor1 = 5
-		self.hitcolor2 = 6
-		self.exptype = gcommon.C_EXPTYPE_GRD_S
-
-	def update(self):
-		if self.y > gcommon.SCREEN_MAX_Y:
-			self.removeFlag = True
-		else:
-			if self.state==0:
-				# 隠れている状態
-				if self.cnt==self.firsttime:
-					self.state=1
-					self.cnt=0
-			elif self.state==1:
-				# 開く途中
-				if self.cnt==15:
-					self.state=2
-					self.cnt=0
-					self.layer=gcommon.C_LAYER_GRD
-			elif self.state==2:
-				# 開いている状態
-				if self.cnt==60:
-					self.state = 3
-					self.cnt=0
-					self.layer=gcommon.C_LAYER_HIDE_GRD
-				if self.cnt==20 and self.y <gcommon.SCREEN_MAX_Y -16:
-					enemy_shot(self.x+8,self.y+6, 2, 0)
-			elif self.state==3:
-				# 閉じる途中
-				if self.cnt==15:
-					self.state=4
-					self.cnt=0
-			elif self.state==4:
-				# 隠れている状態
-				if self.cnt==self.hidetime:
-					self.state=1
-					self.cnt=0
-
-	def draw(self):
-		if self.state==0 or self.state==4:
-			pyxel.blt(self.x, self.y, 1, 0, 48, 16, 16)
-		elif self.state==1 or self.state==3:
-			pyxel.blt(self.x, self.y, 1, 16, 48, 16, 16)
-		elif self.state==2:
-			pyxel.blt(self.x, self.y, 1, 32, 48, 16, 16)
-		elif self.state==100:
-			pyxel.blt(self.x, self.y, 1, 48, 48, 16, 16)
-
-
-# 中型艦砲台（回転式）
-class MidBattery1(EnemyBase):
-	def __init__(self, t):
-		super(MidBattery1, self).__init__()
-		self.t = gcommon.T_MID_BATTERY1
-		self.x = t[2]
-		self.y = t[3]
-		self.firsttime = t[4]	# 最初の攻撃まで
-		self.interval = t[5]	# 攻撃間隔
-		self.shotTime = t[6]	# 攻撃時間
-		self.left = 0
-		self.top = 0
-		self.right = 31
-		self.bottom = 31
-		self.hp = 100
-		self.layer = gcommon.C_LAYER_GRD
-		self.score = 300
-		self.hitcolor1 = 5
-		self.hitcolor2 = 6
-		self.exptype = gcommon.C_EXPTYPE_GRD_M
-
-	def update(self):
-		if self.y > gcommon.SCREEN_MAX_Y:
-			self.removeFlag = True
-		else:
-			if self.state==0:
-				# 最初の沈黙
-				if self.cnt==self.firsttime:
-					self.state=1
-					self.cnt=0
-			elif self.state==1:
-				# 攻撃
-				if self.cnt & 15 == 15:
-					enemy_shot(		\
-					 self.x+16 +math.cos(gcommon.atan_table[self.cnt & 63])*6,		\
-					 self.y+16 +math.sin(gcommon.atan_table[self.cnt & 63])*6,		\
-					 2*2,1)
-				if self.cnt==self.shotTime:
-					self.state=2
-					self.cnt=0
-			elif self.state==2:
-				# 沈黙
-				if self.cnt==self.interval:
-					self.state = 1
-					self.cnt=0
-
-	def draw(self):
-		if self.state==1 and self.cnt & 4 == 0:
-			pyxel.blt(self.x, self.y, 1, 112, 160, 32, 32)
-		else:
-			pyxel.blt(self.x, self.y, 1, 80, 160, 32, 32)
-
-midTank2Tbl = [[260, 0], [30, 1], [100, 0], [30, 1], [200, 0], [80,1]]
-
-class MidTank2(EnemyBase):
-	def __init__(self, t):
-		super(MidTank2, self).__init__()
-		self.t = gcommon.T_LARGE_TANK1
-		self.x = t[2]
-		self.y = t[3]
-		self.left = 8
-		self.top = 4
-		self.right = 47
-		self.bottom = 39
-		self.hp = 500
-		self.layer = gcommon.C_LAYER_GRD
-		self.score = 1000
-		self.hitcolor1 = 5
-		self.hitcolor2 = 6
-		self.exptype = gcommon.C_EXPTYPE_GRD_M
-		self.tblIndex = 0
-		self.cnt2 = 0		# 攻撃用カウント
-
-	def update(self):
-		if self.y > gcommon.SCREEN_MAX_Y:
-			self.removeFlag = True
-		else:
-			if self.state == 0:
-				if self.cnt == midTank2Tbl[self.tblIndex][0]:
-					self.tblIndex+=1
-					self.cnt=0
-					if self.tblIndex == len(midTank2Tbl):
-						self.state = 1
-				else:
-					mode = midTank2Tbl[self.tblIndex][1]
-					if mode == 0:
-						pass
-					else:
-						self.y -=1
-		
-		if self.cnt2 & 63==63:
-			for i in range(-3,4, 2):
-				enemy_shot_offset(self.x+28, self.y+20, 2, 0, i)
-
-		self.cnt2+=1
-		
-
-	def draw(self):
-		pyxel.blt(self.x, self.y, 1, 80, 112, 56, 40, gcommon.TP_COLOR)
 
 class SplashItem:
 	def __init__(self, x, y, dx, dy, cnt):
