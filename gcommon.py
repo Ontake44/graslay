@@ -105,13 +105,16 @@ BOM_POWER = 3
 TP_COLOR = 2
 
 SCREEN_MAX_X = 255
-SCREEN_MAX_Y = 255
+SCREEN_MAX_Y = 191
 
 # 64 direction table
 atan_table = []
 
+cos_table = []
+sin_table = []
 
 
+# 座標系は下の上下逆になることに注意
 #       2
 #    3     1
 #  4         0
@@ -155,7 +158,7 @@ mapFreeTable = []
 
 # ====================================================================
 
-SETTINGS_FILE = ".graden"
+SETTINGS_FILE = ".graslay"
 
 def loadSettings():
 	try:
@@ -215,11 +218,14 @@ def saveSettings():
 		pass
 
 def init_atan_table():
-	r = 0
+	r = 0.0
 	rr =  math.pi*2/64		#1/128
 	for i in range(0,64):	#   i=0,63 do
 		atan_table.append(r)
+		cos_table.append(math.cos(r))
+		sin_table.append(math.sin(r))
 		r = r + rr
+		
 
 # -piからpiでは使いにくいので
 # 0 から 2piとする
@@ -304,8 +310,8 @@ def checkShotKey():
 	else:
 		return False
 
-def checkBomKey():
-	if pyxel.btn(pyxel.KEY_Z) or pyxel.btn(pyxel.GAMEPAD_1_B) or pyxel.btn(pyxel.GAMEPAD_1_X):
+def checkOpionKey():
+	if pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD_1_B) or pyxel.btnp(pyxel.GAMEPAD_1_X):
 		return True
 	else:
 		return False
@@ -428,10 +434,27 @@ def getMapData(x, y):
 		else:
 			return -1
 
-
 def isMapFree(no):
 	global mapFreeTable
 	if no >= 512:
 		return True
 	else:
 		return no in mapFreeTable
+
+def isMapFreePos(x, y):
+	no = getMapData(x, y)
+	if no >= 0:
+		return isMapFree(no)
+	else:
+		return True
+
+def mapPosToScreenPos(mx, my):
+	global drawMap
+	global map_x
+	global map_y
+	if drawMap == None:
+		return [-9999,-9999]
+	else:
+		return [mx * 8 - map_x, my * 8 - map_y]
+
+

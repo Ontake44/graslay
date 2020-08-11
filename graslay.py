@@ -18,13 +18,13 @@ class MyShip:
 	def __init__(self):
 		super().__init__()
 		self.sprite = 1
-		self.shotMax = 5
+		self.shotMax = 4
 		self.left = 3
 		self.top = 7
 		self.right = 10
 		self.bottom = 8
 		self.cnt = 0
-		self.weapon = 1
+		self.weapon = 0
 		self.roundAngle = 0
 		# 1:ゲーム中 2:爆発中 3:復活中
 		self.sub_scene = 1
@@ -133,6 +133,8 @@ class MyShip:
 					self.shotCounter = 0
 					self.roundAngle = 0
 			
+			if gcommon.checkOpionKey():
+				self.weapon = (self.weapon + 1) % 3
 	
 	def draw(self):
 		if self.sub_scene == 1:
@@ -163,22 +165,31 @@ class MyShip:
 		if len(gcommon.ObjMgr.shotGroups) < self.shotMax:
 			shotGroup = MyShotGroup()
 			if self.weapon == 0:
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 8, 0)))
-				#gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+6, self.y -8, 0, -8)))
+				self.shotMax = 6
+				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 8, 0, 0)))
 			elif self.weapon == 1:
+				self.shotMax = 4
 				dx = 8 * math.cos(math.pi - math.pi/64 * self.roundAngle)
 				dy = 8 * math.sin(math.pi - math.pi/64 * self.roundAngle)
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+6, self.y +4, dx, dy)))
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+6, self.y +4, dx, -dy)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+6, self.y +4, dx, dy, 1)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+6, self.y +4, dx, -dy, 1)))
 			else:
-				return
+				self.shotMax = 3
+				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 6, 0, 2)))
+				
+				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 5.5, 2.3, -3)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 5.5, -2.3, 3)))
+				
+				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 4.2, 4.2, -3)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 4.2, -4.2, 3)))
+			
 			#if pyxel.play_pos(0) == -1:
 			#	pyxel.play(0, 0)
 			gcommon.sound(gcommon.SOUND_SHOT)
 			gcommon.ObjMgr.shotGroups.append(shotGroup)
 	
-	def createShot(self, x, y, dx, dy):
-		s = MyShot(self.weapon)
+	def createShot(self, x, y, dx, dy, sprite):
+		s = MyShot(self.weapon, sprite)
 		s.init(x, y, dx, dy)
 		return s
 	
@@ -232,7 +243,7 @@ class MyBom:
 
 
 class MyShot:
-	def __init__(self, weapon):
+	def __init__(self, weapon, sprite):
 		self.x = 0
 		self.y = 0
 		self.left = 2
@@ -241,7 +252,7 @@ class MyShot:
 		self.bottom = 15
 		self.dx = 0
 		self.dy = 0
-		self.sprite = weapon
+		self.sprite = sprite
 		self.group = None
 		self.removeFlag = False
 
@@ -271,7 +282,10 @@ class MyShot:
 			gcommon.ObjMgr.shotGroups.remove(self.group)
 
 	def draw(self):
-		pyxel.blt(self.x, self.y, 0, 48 + self.sprite * 8, 0, 8, 8, gcommon.TP_COLOR)
+		if self.sprite > 0:
+			pyxel.blt(self.x, self.y, 0, 48 + self.sprite * 8, 0, 8, 8, gcommon.TP_COLOR)
+		else:
+			pyxel.blt(self.x, self.y, 0, 48 - self.sprite * 8, 0, 8, -8, gcommon.TP_COLOR)
 
 class MyShotGroup:
 	def __init__(self):
@@ -771,7 +785,6 @@ class MainGame:
 			else:
 				t = s[1]	# [1]はクラス型
 				obj = t(s)			# ここでインスタンス化
-				print("instance " + str(gcommon.game_timer))
 				gcommon.ObjMgr.objs.append(obj)
 				obj.appended()
 			self.story_pos = self.story_pos + 1
@@ -862,8 +875,6 @@ class MainGame:
 		#sfx(4)
 		#pyxel.play(0, 4)
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
-		m = gcommon.ObjMgr.myShip
-		enemy.create_item(m.x+(m.right-m.left)/2, m.y+(m.bottom-m.top)/2, gcommon.C_ITEM_PWUP)
 
 	def initEvent(self):
 		if self.stage == 1:
@@ -897,6 +908,38 @@ class MainGame:
 			[450, enemy.Fan1Group, 170, 10, 6],		\
 			[500, enemy.MissileShip, 40, 160],		\
 			[530, enemy.MissileShip, 120, 200],		\
+			[630, enemy.RollingFighter1Group, 42, 15, 4],		\
+			[700, enemy.Battery1, 2, 28, 1],		\
+			[700, enemy.Battery1, 2, 42, 0],		\
+			[720, enemy.RollingFighter1Group, 100, 15, 4],		\
+			[730, enemy.Battery1, 8, 41, 0],		\
+			[730, enemy.Battery1, 8, 29, 1],		\
+			[1100, enemy.Jumper1, 256, 70, 0.1],		\
+			[1160, enemy.Jumper1, 256, 100, -0.1],		\
+			[1200, enemy.MissileShip, 50, 200],		\
+			[1230, enemy.MissileShip, 120, 160],		\
+			[1300, enemy.Battery1, 41, 27, 1],		\
+			[1360, enemy.Battery1, 45, 23, 1],		\
+			[1460, enemy.Battery1, 49, 19, 1],		\
+			[1500, enemy.Battery1, 51, 37, 0],		\
+			[1500, enemy.Battery1, 53, 15, 1],		\
+			[1500, enemy.Battery1, 55, 33, 0],		\
+			[1500, enemy.Jumper1, 256, 70, 0.1],		\
+			[1530, enemy.Battery1, 57, 11, 1],		\
+			[1530, enemy.Battery1, 59, 29, 0],		\
+			[1560, enemy.Jumper1, 256, 70, 0.1],		\
+			[1600, enemy.Jumper1, 256, 70, 0.1],		\
+			[1630, enemy.Jumper1, 256, 70, 0.1],		\
+			[1700, enemy.Jumper1, 256, 70, 0.1],		\
+			[1830, enemy.Jumper1, 256, 70, 0.1],		\
+			[1860, enemy.Jumper1, 256, 70, 0.1],		\
+			[1860, enemy.Battery1, 69, 7, 1],		\
+			[1860, enemy.Battery1, 69, 24, 0],		\
+			[2230, enemy.Jumper1, 256, 70, 0.1],		\
+			[2260, enemy.Jumper1, 256, 70, 0.1],		\
+			[2430, enemy.MissileShip, 82, 200],		\
+			[2430, enemy.Battery1, 100, 7, 1],		\
+			[2430, enemy.Battery1, 100, 24, 0],		\
 			[5100, boss.Boss1, 256, 60],		\
 		]
 

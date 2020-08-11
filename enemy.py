@@ -152,7 +152,7 @@ class EnemyShot(EnemyBase):
 	def update(self):
 		self.x += self.dx
 		self.y += self.dy
-		if self.x <-16 or self.x >= 256 or self.y<-16 or self.y >=256:
+		if self.x <-16 or self.x >= gcommon.SCREEN_MAX_X or self.y<-16 or self.y >=gcommon.SCREEN_MAX_Y:
 			self.removeFlag = True
 
 	def draw(self):
@@ -273,155 +273,87 @@ class PowerUp(EnemyBase):
 		pyxel.blt(self.x, self.y, 0, 64, 16, 16, 16, gcommon.TP_COLOR)
 		
 
-
-
-
-
-class Tank1(EnemyBase):
+class Jumper1(EnemyBase):
 	def __init__(self, t):
-		super(Tank1, self).__init__()
-		self.t = gcommon.T_TANK1
+		super(Jumper1, self).__init__()
 		self.x = t[2]
 		self.y = t[3]
-		self.direction = t[4]
-		self.first = t[5]
-		self.interval = t[6]
-		self.stop_time = t[7]
+		self.ay = t[4]
 		self.left = 2
 		self.top = 2
-		self.right = 29
-		self.bottom = 29
-		self.hp = 50
-		self.layer = gcommon.C_LAYER_GRD
-		self.score = 30
-		self.hitcolor1 = 5
-		self.hitcolor2 = 6
-		self.exptype = gcommon.C_EXPTYPE_GRD_M
-
-	def update(self):
-		self.x += gcommon.direction_map[self.direction][0] * 0.2
-		if self.stop_time > 0:
-			self.y += gcommon.direction_map[self.direction][1] * 0.2
-		
-		if gcommon.is_outof_bound(self):
-			self.removeFlag = True
-		else:
-			if self.cnt == self.first:
-				enemy_shot(self.x +16, self.y+16, 2, 0)
-				self.first = -1
-				self.cnt =0
-			elif self.cnt == self.interval:
-				enemy_shot(self.x +16, self.y+16, 2, 0)
-				self.cnt = 0
-			
-			self.stop_time -=1
-
-	def draw(self):
-		pyxel.blt(self.x, self.y, 1, tank1_spmap[self.direction], 0, 32, 32, gcommon.TP_COLOR)
-
-
-class MidTank1(EnemyBase):
-	def __init__(self, t):
-		super(MidTank1, self).__init__()
-		self.t = gcommon.T_MID_TANK1
-		self.x = t[2]
-		self.y = t[3]
-		self.first = t[4]
-		self.interval = t[5]
-		self.move_first = t[6]
-		self.direction = t[7]
-		self.move_interval = t[8]
-		self.move_cnt = 0
-		self.left = 2
-		self.top = 4
-		self.right = 42
-		self.bottom = 26
-		self.hp = 80
-		self.layer = gcommon.C_LAYER_GRD
+		self.right = 13
+		self.bottom = 13
+		self.hp = 20
+		self.layer = gcommon.C_LAYER_SKY
 		self.score = 50
 		self.hitcolor1 = 5
 		self.hitcolor2 = 6
-		self.exptype = gcommon.C_EXPTYPE_GRD_M
-		if self.direction==0:
-			# right
-			self.left = 1
-			self.top = 2
-			self.rgith = 42
-			self.bottom = 26
-		elif self.direction==6:
-			# lower
-			self.left = 4
-			self.top = 2
-			self.right = 26
-			self.bottom = 42
-		self.speed = 0.1*2
+		self.exptype = gcommon.C_EXPTYPE_SKY_S
+		self.dx = -1
+		self.dy = 0.0
 
 	def update(self):
-		if self.cnt >= self.move_first:
-			c = int(self.cnt/self.move_interval)
-			if c % 2 == 0:
-				self.x += gcommon.direction_map[self.direction][0] * self.speed *2
-				self.y -= gcommon.direction_map[self.direction][1] * self.speed *2
-				self.move_cnt+=1
-		if gcommon.is_outof_bound(self):
-			self.removeFlag = True
+		self.x = self.x + self.dx
+		self.y = self.y + self.dy
+		self.dy = self.dy + self.ay
+		if self.dy > 0:
+			if gcommon.isMapFreePos(self.x + 8, self.y + 16 + self.dy) == False:
+				self.dy = -self.dy
 		else:
-			# mid tank1 shot
-			ox = 0
-			oy = 0
-			ox2 = 0
-			oy2 = 0
-			ox3 = 0
-			oy3 = 0
-			if self.direction==0 or self.direction==4:
-				ox = 8
-				oy = 16
-				dx = 6*2
-				dy = 0
-			elif self.direction==6:
-				ox = 16
-				oy = 8
-				dx = 0
-				dy = 6*2
-			
-			ox2=ox+dx
-			oy2=oy+dy
-			ox3=ox+dx+dx
-			oy3=oy+dy+dy
-			if self.cnt == self.first:
-				enemy_shot(self.x+ox, self.y+oy, 2, 0)
-			elif self.cnt == self.first+20:
-				enemy_shot(self.x+ox2, self.y+oy2, 2, 0)
-			elif self.cnt == self.first+40:
-				enemy_shot(self.x+ox3, self.y+oy3, 2, 0)
-			elif self.cnt>self.first+40:
-				c=self.cnt-self.first
-				if c % self.interval==0:
-					enemy_shot(self.x+ox, self.y+oy, 2, 0)
-				elif c % self.interval==20:
-					enemy_shot(self.x+ox2, self.y+oy2, 2, 0)
-				elif c % self.interval==40:
-					enemy_shot(self.x+ox3, self.y+oy3, 2, 0)
+			if gcommon.isMapFreePos(self.x + 8, self.y + self.dy) == False:
+				self.dy = -self.dy
+		#elif gcommon.isMapFreePos(self.x + 8, self.y -4) == False:
+		#	self.dy = -self.dy
 
 	def draw(self):
-		if self.direction==0:		# Right
-			if self.move_cnt & 4 == 0:
-				# sspr(0,64,24,20,self.x,self.y)
-				pyxel.blt(self.x, self.y, 1, 0, 128, 48, 40, gcommon.TP_COLOR)
-			else:
-				pyxel.blt(self.x, self.y, 1, 48, 128, 48, 40, gcommon.TP_COLOR)
-		elif self.direction==4:		# Left
-			if self.move_cnt & 4 == 0:
-				# sspr(24,64,24,20,self.x,self.y)
-				pyxel.blt(self.x, self.y, 1, 96, 128, 48, 40, gcommon.TP_COLOR)
-			else:
-				pyxel.blt(self.x, self.y, 1, 144, 128, 48, 40, gcommon.TP_COLOR)
-		elif self.direction==6:		# Lower
-			if self.move_cnt & 4 == 0:
-				pyxel.blt(self.x, self.y, 1, 176, 16, 40, 48, gcommon.TP_COLOR)
-			else:
-				pyxel.blt(self.x, self.y, 1, 216, 16, 40, 48, gcommon.TP_COLOR)
+		pyxel.blt(self.x, self.y, 1, 80, 64, 16, 16, gcommon.TP_COLOR)
 
+
+
+class RollingFighter1(EnemyBase):
+	def __init__(self, t):
+		super(RollingFighter1, self).__init__()
+		self.x = 256
+		self.y = t[2]
+		self.left = 2
+		self.top = 2
+		self.right = 15
+		self.bottom = 13
+		self.hp = 1
+		self.layer = gcommon.C_LAYER_SKY
+		self.score = 50
+		self.hitcolor1 = 5
+		self.hitcolor2 = 6
+		self.exptype = gcommon.C_EXPTYPE_SKY_S
+		self.dy = 0.0
+		self.dr = 0		# 0 to 63
+
+	def update(self):
+		self.x = self.x -1.5
+		self.y = self.y + self.dy
+		self.dy = gcommon.sin_table[self.dr] * 2.0
+		self.dr = (self.dr + 1) & 63
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, 1, ((self.cnt>>1) &7) * 16, 80, 16, 16, gcommon.TP_COLOR)
+
+class RollingFighter1Group(EnemyBase):
+	def __init__(self, t):
+		super(RollingFighter1Group, self).__init__()
+		self.y = t[2]
+		self.interval = t[3]
+		self.max = t[4]
+		self.cnt2 = 0
+
+	def update(self):
+		if self.cnt % self.interval == 0:
+			gcommon.ObjMgr.addObj(RollingFighter1([0, 0, self.y]))
+			self.cnt2 += 1
+			if self.cnt2 >= self.max:
+				self.remove()
+
+	def draw(self):
+		pass
 
 class Fighter1(EnemyBase):
 	def __init__(self, t):
@@ -496,52 +428,63 @@ class Fighter1B(Fighter1):
 class Battery1(EnemyBase):
 	def __init__(self, t):
 		super(Battery1, self).__init__()
-		self.t = gcommon.T_BATTERY1
-		self.x = t[2]
-		self.y = t[3]
-		self.hidetime = t[4]
+		pos = gcommon.mapPosToScreenPos(t[2], t[3])
+		self.x = pos[0]		# map x
+		self.y = pos[1]		# map y
+		self.mirror = t[4]	# 0: normal 1:上下逆
 		self.left = 0
 		self.top = 0
 		self.right = 15
 		self.bottom = 15
-		self.hp = 50
-		self.layer = gcommon.C_LAYER_HIDE_GRD
+		self.hp = 5
+		self.layer = gcommon.C_LAYER_GRD
 		self.score = 300
 		self.hitcolor1 = 5
 		self.hitcolor2 = 6
 		self.exptype = gcommon.C_EXPTYPE_GRD_S
 
-	@classmethod
-	def create(cls, x, y, hidetime):
-		tbl = [0, gcommon.T_BATTERY1, x, y, hidetime]
-		return Battery1(tbl)
-
 	def update(self):
-		if self.state==0:
-			if self.cnt==self.hidetime:
-				self.state=1
-				self.cnt=0
-		elif self.state==1:
-			if self.cnt==30:
-				self.state=2
-				self.cnt=0
-				self.layer=gcommon.C_LAYER_GRD
-		else:
-			if self.cnt % 60==0:
-				enemy_shot(self.x+8,self.y+6, 2, 0)
+		if self.cnt % 120==0:
+			enemy_shot(self.x+8,self.y+6, 2, 0)
 
 	def draw(self):
-		if self.state==1:
-			if self.cnt<=15:
-				#spr(205,self.x,self.y)
-				pyxel.blt(self.x, self.y, 1, 208, 192, 16, 16)
-			else:
-				#spr(206,self.x,self.y)
-				pyxel.blt(self.x, self.y, 1, 224, 192, 16, 16)
-			
-		elif self.state==2:
-			#spr(207,self.x,self.y)
-			pyxel.blt(self.x, self.y, 1, 240, 192, 16, 16)
+		dr8 = gcommon.get_direction_my(self.x+8, self.y +8)
+		y = int(self.y+0.5)
+		if self.mirror == 0:
+			if dr8 == 0:
+				pyxel.blt(self.x, y, 1, 0, 96, -16, 16, gcommon.TP_COLOR)
+			elif dr8 == 1:
+				pyxel.blt(self.x, y, 1, 0, 96, -16, 16, gcommon.TP_COLOR)
+			elif dr8 == 2:
+				pyxel.blt(self.x, y, 1, 32, 96, 16, 16, gcommon.TP_COLOR)
+			elif dr8 == 3:
+				pyxel.blt(self.x, y, 1, 0, 96, 16, 16, gcommon.TP_COLOR)
+			elif dr8 == 4:
+				pyxel.blt(self.x, y, 1, 0, 96, 16, 16, gcommon.TP_COLOR)
+			elif dr8 == 5:
+				pyxel.blt(self.x, y, 1, 16, 96, 16, 16, gcommon.TP_COLOR)
+			elif dr8 == 6:
+				pyxel.blt(self.x, y, 1, 32, 96, 16, 16, gcommon.TP_COLOR)
+			elif dr8 == 7:
+				pyxel.blt(self.x, y, 1, 16, 96, -16, 16, gcommon.TP_COLOR)
+		else:
+			if dr8 == 0:
+				pyxel.blt(self.x, y, 1, 0, 96, -16, -16, gcommon.TP_COLOR)
+			elif dr8 == 1:
+				pyxel.blt(self.x, y, 1, 16, 96, -16, -16, gcommon.TP_COLOR)
+			elif dr8 == 2:
+				pyxel.blt(self.x, y, 1, 32, 96, 16, -16, gcommon.TP_COLOR)
+			elif dr8 == 3:
+				pyxel.blt(self.x, y, 1, 16, 96, 16, -16, gcommon.TP_COLOR)
+			elif dr8 == 4:
+				pyxel.blt(self.x, y, 1, 0, 96, 16, -16, gcommon.TP_COLOR)
+			elif dr8 == 5:
+				pyxel.blt(self.x, y, 1, 0, 96, 16, -16, gcommon.TP_COLOR)
+			elif dr8 == 6:
+				pyxel.blt(self.x, y, 1, 32, 96, 16, -16, gcommon.TP_COLOR)
+			elif dr8 == 7:
+				pyxel.blt(self.x, y, 1, 16, 96, -16, -16, gcommon.TP_COLOR)
+
 
 
 class Tank2(EnemyBase):
