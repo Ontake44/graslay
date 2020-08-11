@@ -346,6 +346,7 @@ class RollingFighter1Group(EnemyBase):
 		self.interval = t[3]
 		self.max = t[4]
 		self.cnt2 = 0
+		self.hitCheck = False
 
 	def update(self):
 		if self.cnt % self.interval == 0:
@@ -539,6 +540,7 @@ class Fan1Group(EnemyBase):
 		self.interval = t[3]
 		self.max = t[4]
 		self.cnt2 = 0
+		self.hitCheck = False
 
 	def update(self):
 		if self.cnt % self.interval == 0:

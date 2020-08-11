@@ -314,8 +314,8 @@ class Title:
 	def __init__(self):
 		gcommon.map_y = 0
 		self.cnt = 0
-		#pyxel.image(1).load(0,0,"assets\graslayden1.png")
-		#pyxel.tilemap(0).refimg = 1
+		pyxel.image(1).load(0,0,"assets/title.png")
+		pyxel.tilemap(0).refimg = 1
 		self.menuPos = 0
 		self.timer = 0
 		self.state = 0
@@ -324,16 +324,10 @@ class Title:
 	def update(self):
 		if self.cnt >= 6*60:
 			self.cnt = 0
-			gcommon.map_y = 0
-		self.timer += 1
-		if self.timer >= 60 * 3600:
-			self.timer = 0
-		
-		gcommon.map_y += 0.4
 		
 		if self.state == 0:
 			
-			if gcommon.checkShotKey() and self.timer > 30:
+			if gcommon.checkShotKey() and self.cnt > 30:
 				if self.menuPos == 0:
 					gcommon.sound(gcommon.SOUND_GAMESTART)
 					self.state = 1
@@ -354,8 +348,7 @@ class Title:
 
 	def draw(self):
 		pyxel.cls(0)
-		pyxel.bltm(0,-8+gcommon.map_y%8, 0, 0,(256-33)-(int)(gcommon.map_y/8),32,33)
-		pyxel.blt(64, 88, 0, 0, 208, 128, 32, gcommon.TP_COLOR)
+		pyxel.blt(0, 48, 1, 0, 48, 256, 72, gcommon.TP_COLOR)
 		if self.state == 0:
 			gcommon.Text2(110, 150, "GAME START", 7, 5)
 		else:
@@ -960,6 +953,8 @@ class MainGame:
 			[4530, enemy.Jumper1, 256, 120, 0.1],		\
 			[4700, enemy.RollingFighter1Group, 60, 15, 4],		\
 			[4730, enemy.RollingFighter1Group, 120, 15, 4],		\
+			[4830, enemy.MissileShip, 120, 200],		\
+			[4860, enemy.MissileShip, 80, 200],		\
 			[5100, boss.Boss1, 256, 60],		\
 		]
 
