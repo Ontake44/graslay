@@ -56,7 +56,8 @@ class EnemyBase:
 		self.hitcolor2 = 0
 		self.exptype = gcommon.C_EXPTYPE_SKY_S
 		self.score = 0
-		self.hitCheck = True
+		self.shotHitCheck = True	# 自機弾との当たり判定
+		self.hitCheck = True	# 自機と敵との当たり判定
 		self.removeFlag = False
 
 	def nextState(self):
@@ -113,6 +114,7 @@ class EnemyShot(EnemyBase):
 	def __init__(self, x, y, speed, shotType):
 		super(EnemyShot, self).__init__()
 		self.shotType = shotType
+		self.shotHitCheck = False
 		if self.shotType==0:
 			self.x = x -4
 			self.y = y -4
@@ -153,6 +155,9 @@ class EnemyShot(EnemyBase):
 		self.x += self.dx
 		self.y += self.dy
 		if self.x <-16 or self.x >= gcommon.SCREEN_MAX_X or self.y<-16 or self.y >=gcommon.SCREEN_MAX_Y:
+			self.removeFlag = True
+
+		if gcommon.isMapFreePos(gcommon.getCenterX(self), gcommon.getCenterY(self)) == False:
 			self.removeFlag = True
 
 	def draw(self):

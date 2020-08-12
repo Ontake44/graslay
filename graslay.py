@@ -196,53 +196,9 @@ class MyShip:
 		s.init(x, y, dx, dy)
 		return s
 	
-	def startBom(self, x, y):
-		gcommon.ObjMgr.myBom = MyBom(x, y)
-		gcommon.bomRemain -= 1
-	
 	def setStartPosition(self):
 		self.x = 8
 		self.y = pyxel.height/2 -8
-
-class MyBom:
-	def __init__(self, x, y):
-		self.x = x
-		self.y = y
-		self.state = 1
-		self.cnt = 0
-		self.removeFlag = False
-
-	def update(self):
-		if self.state==1:
-			self.cnt += 1
-			if self.cnt>15:
-				#pyxel.play(0, 5)
-				gcommon.sound(gcommon.SOUND_BOM_EXP)
-				self.state=2
-				self.cnt=0
-		elif self.state==2:
-			self.cnt+=1
-			if self.cnt>60:
-				self.state=0
-				self.cnt=0
-				self.removeFlag = True
-
-	def draw(self):
-		if self.state==1:
-			pyxel.circ(self.x, self.y, (self.cnt+1)*4, 7)
-		elif self.state==2:
-			if self.cnt%2 ==0:
-				# 128,16 40x40
-				#blt(64,8,24,24,self.x-36,self.y-36,
-				#72-bom.cnt%4,72-self.cnt%4,
-				#self.cnt%4==0,not(self.cnt%4==0))
-				dx = 1
-				dy = 1
-				if self.cnt & 3==0:
-					dx = -1
-				if self.cnt & 7==0:
-					dy = -1
-				pyxel.blt(self.x-36*2, self.y-36*2, 0, 0, 64, 144*dx, 144*dy, gcommon.C_COLOR_KEY)
 
 
 class MyShot:
@@ -319,6 +275,7 @@ class Title:
 		self.menuPos = 0
 		self.timer = 0
 		self.state = 0
+		self.star_pos = 0
 		gcommon.loadSettings()
 	
 	def update(self):
@@ -348,6 +305,14 @@ class Title:
 
 	def draw(self):
 		pyxel.cls(0)
+
+		for i in range(0,96):
+			pyxel.pset(((int)(gcommon.star_ary[i][0]+self.star_pos))&255, i*2, gcommon.star_ary[i][1])
+		
+		self.star_pos -= 0.2
+		if self.star_pos<0:
+			self.star_pos += 255
+
 		pyxel.blt(0, 48, 1, 0, 48, 256, 72, gcommon.TP_COLOR)
 		if self.state == 0:
 			gcommon.Text2(110, 150, "GAME START", 7, 5)
@@ -551,7 +516,6 @@ class MainGame:
 		self.stage = stage
 		self.mapOffsetX = 0
 		self.star_pos = 0
-		self.star_ary = []
 		gcommon.drawMap = None
 		gcommon.game_timer = 0
 		gcommon.map_x = 0
@@ -580,10 +544,6 @@ class MainGame:
 		
 		
 		
-		for i in range(0,96):
-			o = [int(random.randrange(0,256)), int(random.randrange(0,2)+5)]
-			self.star_ary.append(o)
-		
 		
 		gcommon.mapFreeTable = [0, 32, 33, 34, 65, 66]
 	
@@ -605,7 +565,7 @@ class MainGame:
 		if gcommon.drawMap != None:
 			gcommon.drawMap.update()
 		
-		
+		# 自機移動
 		gcommon.ObjMgr.myShip.update()
 		
 		newShots = []
@@ -615,10 +575,6 @@ class MainGame:
 				newShots.append(shot)
 		gcommon.ObjMgr.shots = newShots
 
-		if gcommon.ObjMgr.myBom != None:
-			gcommon.ObjMgr.myBom.update()
-			if gcommon.ObjMgr.myBom.removeFlag:
-				gcommon.ObjMgr.myBom = None
 	
 		newObjs = []
 		for obj in gcommon.ObjMgr.objs:
@@ -648,7 +604,7 @@ class MainGame:
 		if self.stage == 1:
 			if gcommon.draw_star:
 				for i in range(0,96):
-					pyxel.pset(((int)(self.star_ary[i][0]+self.star_pos))&255, i*2, self.star_ary[i][1])
+					pyxel.pset(((int)(gcommon.star_ary[i][0]+self.star_pos))&255, i*2, gcommon.star_ary[i][1])
 				
 				self.star_pos -= 0.2
 				if self.star_pos<0:
@@ -659,7 +615,7 @@ class MainGame:
 		elif self.stage == 2:
 			if gcommon.draw_star:
 				for i in range(0,96):
-					pyxel.pset((self.star_ary[i][0]+self.star_pos)&255, self.star_pos+i*2, self.star_ary[i][1])
+					pyxel.pset((gcommon.star_ary[i][0]+self.star_pos)&255, self.star_pos+i*2, gcommon.star_ary[i][1])
 				
 				self.star_pos += 0.2
 				if self.star_pos>255:
@@ -677,7 +633,7 @@ class MainGame:
 		elif self.stage == 3:
 			if gcommon.draw_star:
 				for i in range(0,128):
-					pyxel.pset(self.star_ary[i][0], (self.star_pos+i*2)%255, self.star_ary[i][1])
+					pyxel.pset(gcommon.star_ary[i][0], (self.star_pos+i*2)%255, gcommon.star_ary[i][1])
 				
 				self.star_pos += 0.2
 				if self.star_pos>255:
@@ -719,10 +675,6 @@ class MainGame:
 		for obj in gcommon.ObjMgr.objs:
 			if obj.layer==gcommon.C_LAYER_ITEM:
 				obj.draw()
-
-		# my bom
-		if gcommon.ObjMgr.myBom != None:
-			gcommon.ObjMgr.myBom.draw()
 		
 		# enemy(sky)
 		for obj in gcommon.ObjMgr.objs:
@@ -806,12 +758,21 @@ class MainGame:
 
 	# 衝突判定
 	def Collision(self):
+	
+		# 壁との当たり判定
+		if gcommon.ObjMgr.myShip.sub_scene == 1 and \
+			gcommon.isMapFreePos(gcommon.ObjMgr.myShip.x+ 7, gcommon.ObjMgr.myShip.y +7) == False:
+			self.my_broken()
+			return
+	
 		# shot & enemy
 		for obj in gcommon.ObjMgr.objs:
 			if obj.removeFlag:
 				continue
 			obj.hit = False
-			if obj.layer!=gcommon.C_LAYER_GRD and obj.layer!=gcommon.C_LAYER_SKY:
+			
+			#if obj.layer!=gcommon.C_LAYER_GRD and obj.layer!=gcommon.C_LAYER_SKY:
+			if obj.shotHitCheck == False:
 				continue
 			
 			for shot in gcommon.ObjMgr.shots:
@@ -995,6 +956,7 @@ class App:
 		pyxel.image(0).load(0,0,"assets\graslay0.png")
 		
 		gcommon.init_atan_table()
+		gcommon.initStar()
 		
 		#self.scene = MainGame()
 		self.scene = Title()

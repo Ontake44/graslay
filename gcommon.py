@@ -3,6 +3,7 @@ import pyxel
 import math
 import json
 import os.path
+import random
 
 START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 
@@ -155,10 +156,20 @@ drawMap = None
 
 mapFreeTable = []
 
+star_ary = []
 
 # ====================================================================
 
 SETTINGS_FILE = ".graslay"
+
+
+def initStar():
+	global star_ary
+	for i in range(0,96):
+		o = [int(random.randrange(0,256)), int(random.randrange(0,2)+5)]
+		star_ary.append(o)
+
+	
 
 def loadSettings():
 	try:
@@ -367,10 +378,10 @@ def sound(snd):
 
 
 def getCenterX(obj):
-	return obj.x + (obj.right -obj.left+1)/2
+	return obj.x + obj.left + (obj.right -obj.left+1)/2
 
 def getCenterY(obj):
-	return obj.y + (obj.bottom -obj.top+1)/2
+	return obj.y + obj.top + (obj.bottom -obj.top+1)/2
 
 class ObjMgr:
 	myShip = None

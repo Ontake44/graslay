@@ -16,7 +16,7 @@ class Boss1(enemy.EnemyBase):
 		self.top = 16
 		self.right = 79
 		self.bottom = 45
-		self.hp = 32000
+		self.hp = 999999
 		self.layer = gcommon.C_LAYER_SKY
 		self.score = 5000
 		self.subcnt = 0
@@ -26,12 +26,14 @@ class Boss1(enemy.EnemyBase):
 		self.beam = 0
 		self.subState = 0
 		self.tbl = []
+		self.beamObj = Boss1Beam(self)
+		gcommon.ObjMgr.addObj(self.beamObj)
 
 	def update(self):
 		self.beam = 0
 		if self.state == 0:
 			self.x -= gcommon.cur_scroll_x
-			if self.cnt % 30 == 0:
+			if self.cnt % 60 == 0:
 				self.shotFix4()
 			if self.cnt > 260:
 				self.nextState()
@@ -39,16 +41,17 @@ class Boss1(enemy.EnemyBase):
 			self.x -= gcommon.cur_scroll_x
 			self.x += 0.625
 			self.y -= 0.125
-			if self.cnt % 30 == 0:
+			if self.cnt % 60 == 0:
 				self.shotFix4()
 			if self.cnt > 220:
 				self.nextState()
 		elif self.state == 2:
 			self.y += 0.125
-			if self.cnt % 30 == 0:
+			if self.cnt % 60 == 0:
 				self.shotFix4()
 			if self.cnt > 180:
 				self.nextState()
+				self.hp = 1000
 		elif self.state == 3:
 			# ４、８方向ショット
 			if self.subState == 0:
@@ -98,6 +101,7 @@ class Boss1(enemy.EnemyBase):
 		elif self.state == 6:
 			# ビーム発射中（移動なし）
 			self.beam = 6
+			self.beamObj.hitCheck = True
 			if self.cnt > 60:
 				self.nextState()
 		elif self.state == 7:
@@ -120,6 +124,7 @@ class Boss1(enemy.EnemyBase):
 		elif self.state == 8:
 			# ビーム発射終了（移動なし）
 			self.beam = 5- int(self.cnt/3)
+			self.beamObj.hitCheck = False
 			if self.beam < 0:
 				self.state = 3
 				self.cnt = 0
@@ -165,12 +170,40 @@ class Boss1(enemy.EnemyBase):
 		enemy.enemy_shot_dr(self.x +52, self.y +48, 2, 0, 27);
 		enemy.enemy_shot_dr(self.x +52, self.y +48, 2, 0, 29);
 
+	def broken(self):
+		self.setState(100)
+		self.shotHitCheck = False
+		self.beamObj.remove()
+		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_GRD))
+		gcommon.score+=self.score
+		self.remove()
+		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+
+
+# 波動砲発射前の、あの吸い込むようなやつ
 class Boss1Star:
 	def __init__(self, x, y, a):
 		self.x = x
 		self.y = y
 		self.a = a
 		self.removeFlag = False
+
+
+class Boss1Beam(enemy.EnemyBase):
+	def __init__(self, bossObj):
+		super(Boss1Beam, self).__init__()
+		self.bossObj = bossObj
+		self.hitCheck = False
+		self.shotHitCheck = False
+	
+	def update(self):
+		self.x = 0
+		self.y = self.bossObj.y + 10
+		self.right = self.bossObj.x
+		self.bottom = 39
+
+	def draw(self):
+		pass
 
 
 # 0:mode
