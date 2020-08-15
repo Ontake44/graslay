@@ -670,3 +670,26 @@ class Missile1(EnemyBase):
 				pyxel.blt(self.x + 32, self.y-1, 1, 48, 72, 32, -7, gcommon.TP_COLOR)
 
 
+class DockArm(EnemyBase):
+	def __init__(self, t):
+		super(DockArm, self).__init__()
+		pos = gcommon.mapPosToScreenPos(t[2], t[3])
+		self.x = pos[0]
+		self.y = pos[1]
+		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.shotHitCheck = False
+		self.hitCheck = False
+		self.startCnt = t[4]
+		self.shift = 0
+
+	def update(self):
+		pass
+		if self.cnt > self.startCnt:
+			self.shift += 1
+			if self.shift >= 80:
+				self.remove()
+
+	def draw(self):
+		pyxel.blt(self.x, self.y -self.shift, 1, 240, 64, 16, 80, gcommon.TP_COLOR)
+		pyxel.blt(self.x, self.y+ 96 +self.shift, 1, 240, 64, 16, 80, gcommon.TP_COLOR)
+		

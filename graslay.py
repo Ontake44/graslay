@@ -581,7 +581,8 @@ class MainGame:
 			if obj.layer == gcommon.C_LAYER_GRD 	\
 				or obj.layer==gcommon.C_LAYER_HIDE_GRD \
 				or obj.layer==gcommon.C_LAYER_EXP_GRD \
-				or obj.layer==gcommon.C_LAYER_UPPER_GRD:
+				or obj.layer==gcommon.C_LAYER_UPPER_GRD \
+				or obj.layer==gcommon.C_LAYER_UNDER_GRD:
 				obj.x -= gcommon.cur_scroll_x
 				obj.y -= gcommon.cur_scroll_y
 			obj.update()
@@ -601,6 +602,11 @@ class MainGame:
 		
 		#pyxel.text(55, 41, "Hello, Pyxel!", pyxel.frame_count % 16)
 		#pyxel.blt(61, 66, 0, 0, 0, 38, 16)
+		
+		for obj in gcommon.ObjMgr.objs:
+			if obj.layer==gcommon.C_LAYER_UNDER_GRD:
+				obj.draw()
+		
 		if self.stage == 1:
 			if gcommon.draw_star:
 				for i in range(0,96):
@@ -887,7 +893,10 @@ class MainGame:
 			[2430, enemy.Battery1, 100, 24, 0],		\
 			[2460, enemy.MissileShip, 82, 200],		\
 			[2490, enemy.MissileShip, 82, 200],		\
-			[3000, enemy.RollingFighter1Group, 24, 15, 4],		\
+			[2500, enemy.Battery1, 105, 7, 1],		\
+			[2500, enemy.Battery1, 105, 24, 0],		\
+			[2700, enemy.RollingFighter1Group, 24, 15, 4],		\
+			[2760, enemy.RollingFighter1Group, 80, 15, 4],		\
 			[3100, enemy.MissileShip, 40, 160],		\
 			[3100, enemy.MissileShip, 80, 200],		\
 			[3350, enemy.Battery1, 144, 33, 1],		\
@@ -917,6 +926,10 @@ class MainGame:
 			[4830, enemy.MissileShip, 120, 200],		\
 			[4860, enemy.MissileShip, 80, 200],		\
 			[5100, boss.Boss1, 256, 60],		\
+			[5100, enemy.DockArm, 204, 59, 180],		\
+			[5100, enemy.DockArm, 212, 59, 180],		\
+			[5130, enemy.DockArm, 206, 59, 180],		\
+			[5130, enemy.DockArm, 210, 59, 180],		\
 		]
 
 	def initStory2(self):
