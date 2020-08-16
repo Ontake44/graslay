@@ -471,7 +471,7 @@ class GameClear:
 
 class MapDraw:
 	def __init__(self):
-		gcommon.map_x = -32 * 8
+		pass
 		
 	def update(self):
 		gcommon.map_x += gcommon.cur_scroll_x
@@ -483,10 +483,36 @@ class MapDraw:
 		else:
 			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, (int)(gcommon.map_x/8), (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 
+class MapDraw2:
+	def __init__(self):
+		pass
+		
+	def update(self):
+		gcommon.map_x += gcommon.cur_scroll_x
+		gcommon.map_y += gcommon.cur_scroll_y
 
-class StartMapDraw:
+	def draw(self):
+		pyxel.bltm(-1 * (int(gcommon.map_x/2) % 8), 0, 0, int((gcommon.map_x/16)%3), 128, 33,33, gcommon.TP_COLOR)
+		if gcommon.map_x < 0:
+			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+		else:
+			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, int(gcommon.map_x/8), (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+
+class StartMapDraw1:
 	def __init__(self, t):
 		gcommon.drawMap = MapDraw()
+		gcommon.map_x = -32 * 8
+		gcommon.map_y = 24*8
+
+	def do(self):
+		pass
+
+class StartMapDraw2:
+	def __init__(self, t):
+		gcommon.drawMap = MapDraw2()
+		gcommon.map_x = 0
+		gcommon.map_y = 24*8
+		print("StartMapDraw2")
 
 	def do(self):
 		pass
@@ -519,7 +545,7 @@ class MainGame:
 		gcommon.drawMap = None
 		gcommon.game_timer = 0
 		gcommon.map_x = 0
-		gcommon.map_y = 24*8
+		gcommon.map_y = 0
 		self.initStory()
 		self.initEvent()
 		
@@ -530,10 +556,11 @@ class MainGame:
 			self.mapOffsetX = 0
 			gcommon.draw_star = True
 			loadMapData("assets\graslay1.pyxmap")
-		#e#lif self.stage == 2:
-		#	pyxel.image(1).load(0,0,"assets\gra-den2.png")
-		#	self.mapOffsetX = 32
-		#	gcommon.draw_star = False
+		elif self.stage == 2:
+			pyxel.image(1).load(0,0,"assets\graslay2.png")
+			self.mapOffsetX = 0
+			gcommon.draw_star = False
+			loadMapData("assets\graslay2.pyxmap")
 		#elif self.stage == 3:
 		#	pyxel.image(1).load(0,0,"assets\gra-den3a.png")
 		#	pyxel.image(2).load(0,0,"assets\gra-den3b.png")
@@ -627,15 +654,8 @@ class MainGame:
 				if self.star_pos>255:
 					self.star_pos -= 255
 
-			#for obj in gcommon.ObjMgr.objs:
-			#	if obj.layer==gcommon.C_LAYER_UNDER_GRD:
-			#		if obj.hitcolor1 !=0 and obj.hit:
-			#			pyxel.pal(obj.hitcolor1, obj.hitcolor2)
-			#		obj.draw()
-			#		if obj.hitcolor1 !=0 and obj.hit:
-			#			pyxel.pal(obj.hitcolor1, obj.hitcolor1)
-			# map
-			pyxel.bltm(0,-8+int(gcommon.map_y)%8, 0, self.mapOffsetX,(256-33)-(int)(gcommon.map_y/8),32,33, gcommon.TP_COLOR)
+			if gcommon.drawMap != None:
+				gcommon.drawMap.draw()
 		elif self.stage == 3:
 			if gcommon.draw_star:
 				for i in range(0,128):
@@ -828,10 +848,12 @@ class MainGame:
 	def initEvent(self):
 		if self.stage == 1:
 			self.initEvent1()
+		elif self.stage == 2:
+			self.initEvent2()
 	
 	def initEvent1(self):
 		self.eventTable =[ \
-			[660,StartMapDraw],		\
+			[660,StartMapDraw1],		\
 			[1560,SetMapScroll, 0.25, -0.25],	\
 			[2180,SetMapScroll, 0.5, 0.0],
 			[3260,SetMapScroll, 0.25, 0.25],
@@ -839,6 +861,22 @@ class MainGame:
 			[3860,SetMapScroll, 0.25, 0.25],
 			[4600,SetMapScroll, 0.5, 0.0],
 			[5800,EndMapDraw],		\
+		]
+
+	def initEvent2(self):
+		self.eventTable =[ \
+			[0,StartMapDraw2],		\
+			[738,SetMapScroll, 0.25, 0.25],	\
+			[1104,SetMapScroll, -0.25, 0.25],	\
+			[1856,SetMapScroll, 0.5, 0.0],	\
+			[2208,SetMapScroll, 0.25, 0.25],	\
+			[2572,SetMapScroll, 0.5, 0.0],	\
+			[3104,SetMapScroll, 0.0, -0.5],	\
+			[3408,SetMapScroll, -0.25, -0.25],	\
+			[4000,SetMapScroll, 0.0, -0.5],	\
+			[4128,SetMapScroll, 0.5, 0.0],	\
+			[4608,SetMapScroll, 0.25, -0.25],	\
+			[5216,SetMapScroll, 0.50, 0.0],	\
 		]
 
 	def initStory(self):
