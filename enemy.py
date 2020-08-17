@@ -68,6 +68,25 @@ class EnemyBase:
 		self.state = state
 		self.cnt = 0
 
+	# 自機弾と敵との当たり判定と破壊処理
+	def checkShotCollision(self, shot):
+		if shot.removeFlag == False and gcommon.check_collision(self, shot):
+			self.hp -= gcommon.SHOT_POWER
+			if self.hp <= 0:
+				self.broken()
+			else:
+				self.hit = True
+			return True
+		else:
+			return False
+
+	# 自機と敵との当たり判定
+	def checkMyShipCollision(self):
+		if gcommon.check_collision(self, gcommon.ObjMgr.myShip):
+			return True
+		else:
+			return False
+
 	def remove(self):
 		self.removeFlag = True
 
@@ -767,7 +786,8 @@ class Worm1(EnemyBase):
 		pos = gcommon.mapPosToScreenPos(t[2], t[3])
 		self.x = pos[0]
 		self.y = pos[1]
-		self.downward = t[4]		# 0:上向き  1:下向き
+		self.baseDr = t[4]		# 0:上向き  1:下向き  2:右向き 3:左向き
+		self.cellCount = t[5]
 		self.left = 2
 		self.top = 2
 		self.right = 21
@@ -777,35 +797,131 @@ class Worm1(EnemyBase):
 		self.layer = gcommon.C_LAYER_GRD
 		self.score = 100
 		self.dr = 48
+		self.offsetX = 4
+		self.offsetY = 0
+		if self.baseDr ==0:
+			self.dr = 48
+		elif self.baseDr ==1:
+			self.dr = 16
+		elif self.baseDr ==2:
+			self.dr = 0
+		else:
+			self.dr = 32
+		self.subDr = 0
 		self.cells = []
-		for i in range(0,6):
+		for i in range(0, self.cellCount):
 			self.cells.append([0,0])
+
+		self.cellRect = gcommon.Rect.create(2,2,13,13)
 
 	def update(self):
 		if self.state == 0:
 			# 待機状態
-			if gcommon.get_distance_my(self.x + 12, self.y) < 100:
-				print("get_distance")
+			#if gcommon.get_distance_my(self.x + 12, self.y) < 100:
+			#	print("get_distance")
+			if self.cnt > 60:
 				self.nextState()
 		elif self.state == 1:
 			# 触手伸ばす
 			x = 0
 			y = 0
-			r = 0
 			for pos in self.cells:
-				pos[0] = x + math.cos(gcommon.atan_table[(self.dr + r) & 63]) * 12 * (self.cnt) /30.0
-				pos[1] = y + math.sin(gcommon.atan_table[(self.dr + r) & 63]) * 12 * (self.cnt) /30.0
+				pos[0] = x + math.cos(gcommon.atan_table[(self.dr) & 63]) * 12 * (self.cnt) /30.0
+				pos[1] = y + math.sin(gcommon.atan_table[(self.dr) & 63]) * 12 * (self.cnt) /30.0
 				x = pos[0]
 				y = pos[1]
-				r += 1
 			if self.cnt == 30:
 				self.nextState()
-		
+		elif self.state == 2:
+			if self.cnt & 31 == 31:
+				self.shot()
+			i = 0
+			x = 0
+			y = 0
+			for pos in self.cells:
+				pos[0] = x + math.cos(gcommon.atan_table[(int(self.dr + i * self.subDr)) & 63]) * 12
+				pos[1] = y + math.sin(gcommon.atan_table[(int(self.dr + i * self.subDr)) & 63]) * 12
+				x = pos[0]
+				y = pos[1]
+				i += 1
+			self.subDr += 0.05
+			if self.subDr >= 3.0:
+				self.state = 3
+		elif self.state == 3:
+			if self.cnt & 31 == 31:
+				self.shot()
+			i = 0
+			x = 0
+			y = 0
+			for pos in self.cells:
+				pos[0] = x + math.cos(gcommon.atan_table[(int(self.dr + i * self.subDr)) & 63]) * 12
+				pos[1] = y + math.sin(gcommon.atan_table[(int(self.dr + i * self.subDr)) & 63]) * 12
+				x = pos[0]
+				y = pos[1]
+				i += 1
+			self.subDr -= 0.05
+			if self.subDr <= -3.0:
+				self.state = 2
+
+	
+	def shot(self):
+		pos = self.cells[len(self.cells) -1]
+		enemy_shot(self.x +self.offsetX +pos[0], self.y +self.offsetY +pos[1], 2, 0)
+
+	
 	def draw(self):
 		size = len(self.cells)
 		i = 0
 		while(i<size):
 			pos = self.cells[size -1 -i]
-			pyxel.blt(self.x + 4 + pos[0], self.y + pos[1], 1, 48, 168, 16, 16, 3)
+			if i == 0:
+				pyxel.blt(self.x +self.offsetX + pos[0], self.y +self.offsetY +pos[1], 1, 64, 168, 16, 16, 3)
+			else:
+				pyxel.blt(self.x +self.offsetX + pos[0], self.y +self.offsetY +pos[1], 1, 48, 168, 16, 16, 3)
 			i += 1
-		pyxel.blt(self.x, self.y, 1, 64, 168, 24, 16, 3)
+		if self.baseDr == 0:
+			pyxel.blt(self.x, self.y, 1, 80, 168, 24, 16, 3)
+		elif self.baseDr == 1:
+			pyxel.blt(self.x, self.y, 1, 80, 168, 24, -16, 3)
+		elif self.baseDr == 2:
+			pyxel.blt(self.x, self.y, 1, 104, 168, 16, 24, 3)
+		else:
+			pyxel.blt(self.x, self.y, 1, 104, 168, -16, 24, 3)
+
+	# 自機弾と敵との当たり判定と破壊処理
+	def checkShotCollision(self, shot):
+		if shot.removeFlag:
+			return False
+		hit = False
+		if gcommon.check_collision(self, shot):
+			hit = True
+		else:
+			# 触手部の当たり判定（先端のみ）
+			pos = self.cells[len(self.cells) -1]
+			x = self.x +4 +pos[0]
+			y = self.y +pos[1]
+			if gcommon.check_collision2(x, y, self.cellRect, shot):
+				hit = True
+		
+		if hit:
+			self.hp -= gcommon.SHOT_POWER
+			if self.hp <= 0:
+				self.broken()
+			else:
+				self.hit = True
+			return True
+		else:
+			return False
+
+	# 自機と敵との当たり判定
+	def checkMyShipCollision(self):
+		if gcommon.check_collision(self, gcommon.ObjMgr.myShip):
+			return True
+		else:
+			# 触手部の当たり判定
+			for pos in self.cells:
+				x = self.x +4 +pos[0]
+				y = self.y +pos[1]
+				if gcommon.check_collision2(x, y, self.cellRect, gcommon.ObjMgr.myShip):
+					return True
+			return False

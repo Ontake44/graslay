@@ -163,6 +163,30 @@ star_ary = []
 SETTINGS_FILE = ".graslay"
 
 
+class Rect:
+	def __init__(self):
+		self.left = 0
+		self.top = 0
+		self.right = 0
+		self.bottom = 0
+
+	@classmethod
+	def create(cls, left, top, right, bottom):
+		rect = Rect()
+		rect.left = left
+		rect.top = top
+		rect.right = right
+		rect.bottom = bottom
+		return rect
+	
+	def width(self):
+		return self.right - self.left +1
+
+	def height(self):
+		return self.height - self.top +1
+
+
+
 def initStar():
 	global star_ary
 	for i in range(0,96):
@@ -285,6 +309,15 @@ def check_collision(o, s):
 		or (o.x+o.left<=s.x+s.right and s.x+s.right<=o.x+o.right):
 		if (o.y+o.top<=s.y+s.top and s.y+s.top<=o.y+o.bottom)	\
 			or (o.y+o.top<=s.y+s.bottom and s.y+s.bottom<=o.y+o.bottom):
+			return True
+	return False
+
+# ox,oyのo(left,top,right,bottom)と、sとの衝突判定
+def check_collision2(ox, oy, o, s):
+	if (ox+o.left<=s.x+s.left and s.x+s.left<=ox+o.right)	\
+		or (ox+o.left<=s.x+s.right and s.x+s.right<=ox+o.right):
+		if (oy+o.top<=s.y+s.top and s.y+s.top<=oy+o.bottom)	\
+			or (oy+o.top<=s.y+s.bottom and s.y+s.bottom<=oy+o.bottom):
 			return True
 	return False
 

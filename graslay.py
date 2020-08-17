@@ -805,12 +805,7 @@ class MainGame:
 				continue
 			
 			for shot in gcommon.ObjMgr.shots:
-				if shot.removeFlag == False and gcommon.check_collision(obj, shot):
-					obj.hp -= gcommon.SHOT_POWER
-					if obj.hp <= 0:
-						obj.broken()
-					else:
-						obj.hit = True
+				if obj.checkShotCollision(shot):
 					shot.removeFlag = True
 					shot.group.remove(shot)
 					if len(shot.group.shots) == 0:
@@ -823,7 +818,7 @@ class MainGame:
 		if gcommon.ObjMgr.myShip.sub_scene == 1:
 			for obj in gcommon.ObjMgr.objs:
 				if obj.hitCheck:
-					if gcommon.check_collision(obj, gcommon.ObjMgr.myShip):
+					if obj.checkMyShipCollision():
 						self.my_broken()
 						break
 				#elif obj.layer==gcommon.C_LAYER_ITEM:
@@ -982,7 +977,9 @@ class MainGame:
 			[400, enemy.Cell1Group1, 256, 50, 0],		\
 			[1100, enemy.Cell1Group1, 20, 192, 1],		\
 			[1500, enemy.Cell1Group1, 0, 192, 1],		\
-			[2400, enemy.Worm1, 90, 91, 1],		\
+			[2400, enemy.Worm1, 90, 91, 0, 4],		\
+			[2430, enemy.Worm1, 103, 75, 1, 5],		\
+			[2460, enemy.Worm1, 122, 74, 3, 5],		\
 		]
 
 	def initStory3(self):
