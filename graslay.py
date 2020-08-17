@@ -490,9 +490,13 @@ class MapDraw2:
 	def update(self):
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
-
+		
 	def draw(self):
-		pyxel.bltm(-1 * (int(gcommon.map_x/2) % 8), 0, 0, int((gcommon.map_x/16)%3), 128, 33,33, gcommon.TP_COLOR)
+		dx = -1.0 * (int(gcommon.map_x/2) % 8)
+		dy = -1.0 * (int(gcommon.map_y/2) % 8)
+		sx = (int(gcommon.map_x/16)%3)
+		sy = 128 +(int(gcommon.map_y/16)%3)
+		pyxel.bltm(dx, 0, 0, sx, 128, 33,33, gcommon.TP_COLOR)
 		if gcommon.map_x < 0:
 			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 		else:
@@ -512,7 +516,6 @@ class StartMapDraw2:
 		gcommon.drawMap = MapDraw2()
 		gcommon.map_x = 0
 		gcommon.map_y = 24*8
-		print("StartMapDraw2")
 
 	def do(self):
 		pass
@@ -866,7 +869,7 @@ class MainGame:
 	def initEvent2(self):
 		self.eventTable =[ \
 			[0,StartMapDraw2],		\
-			[738,SetMapScroll, 0.25, 0.25],	\
+			[736,SetMapScroll, 0.25, 0.25],	\
 			[1104,SetMapScroll, -0.25, 0.25],	\
 			[1856,SetMapScroll, 0.5, 0.0],	\
 			[2208,SetMapScroll, 0.25, 0.25],	\
@@ -972,6 +975,14 @@ class MainGame:
 
 	def initStory2(self):
 		self.story=[ \
+			[180, enemy.Cell1Group1, 256, 10, 0],		\
+			[240, enemy.Cell1Group1, 256, 60, 0],		\
+			[260, enemy.Cell1Group1, -16, 60, 0],		\
+			[320, enemy.Cell1Group1, 256, 20, 0],		\
+			[400, enemy.Cell1Group1, 256, 50, 0],		\
+			[1100, enemy.Cell1Group1, 20, 192, 1],		\
+			[1500, enemy.Cell1Group1, 0, 192, 1],		\
+			[2400, enemy.Worm1, 90, 91, 1],		\
 		]
 
 	def initStory3(self):

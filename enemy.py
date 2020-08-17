@@ -693,3 +693,119 @@ class DockArm(EnemyBase):
 		pyxel.blt(self.x, self.y -self.shift, 1, 240, 64, 16, 80, gcommon.TP_COLOR)
 		pyxel.blt(self.x, self.y+ 96 +self.shift, 1, 240, 64, 16, 80, gcommon.TP_COLOR)
 		
+
+
+class Cell1(EnemyBase):
+	def __init__(self, t):
+		super(Cell1, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.left = 2
+		self.top = 2
+		self.right = 13
+		self.bottom = 13
+		self.hp = 15
+		#self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.layer = gcommon.C_LAYER_SKY
+		self.score = 100
+
+	def update(self):
+		if self.cnt & 32 == 0:
+			dr = gcommon.get_direction_my(self.x +8, self.y +8)
+			self.x += gcommon.direction_map[dr][0] * 1.25
+			self.y -= gcommon.direction_map[dr][1] * 1.25
+		if self.cnt & 127 == 127:
+			enemy_shot(self.x +8, self.y +8, 2, 0)
+		
+	def draw(self):
+		n = int(self.cnt/5) %3
+		pyxel.blt(self.x, self.y, 1, 0 + n* 16, 168, 16, 16, gcommon.TP_COLOR)
+
+
+class Cell1Group1(EnemyBase):
+	def __init__(self, t):
+		super(Cell1Group1, self).__init__()
+		self.startX = t[2]
+		self.startY = t[3]
+		self.hv = t[4]			# 0 横から出現   1: 上下から出現
+		self.hitCheck = False
+		self.shotHitCheck = False
+
+	def update(self):
+		if self.hv == 0:
+			if self.cnt == 0:
+				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY]))
+			elif self.cnt == 20:
+				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 50]))
+			elif self.cnt == 40:
+				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 20]))
+			elif self.cnt == 60:
+				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 70]))
+			elif self.cnt == 80:
+				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 30]))
+				self.remove()
+		else:
+			if self.cnt == 0:
+				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY]))
+			elif self.cnt == 20:
+				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +50, self.startY]))
+			elif self.cnt == 40:
+				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +20, self.startY]))
+			elif self.cnt == 60:
+				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +70, self.startY]))
+			elif self.cnt == 80:
+				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +30, self.startY]))
+				self.remove()
+
+	def draw(self):
+		pass
+
+
+class Worm1(EnemyBase):
+	def __init__(self, t):
+		super(Worm1, self).__init__()
+		pos = gcommon.mapPosToScreenPos(t[2], t[3])
+		self.x = pos[0]
+		self.y = pos[1]
+		self.downward = t[4]		# 0:上向き  1:下向き
+		self.left = 2
+		self.top = 2
+		self.right = 21
+		self.bottom = 15
+		self.hp = 40
+		#self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.layer = gcommon.C_LAYER_GRD
+		self.score = 100
+		self.dr = 48
+		self.cells = []
+		for i in range(0,6):
+			self.cells.append([0,0])
+
+	def update(self):
+		if self.state == 0:
+			# 待機状態
+			if gcommon.get_distance_my(self.x + 12, self.y) < 100:
+				print("get_distance")
+				self.nextState()
+		elif self.state == 1:
+			# 触手伸ばす
+			x = 0
+			y = 0
+			r = 0
+			for pos in self.cells:
+				pos[0] = x + math.cos(gcommon.atan_table[(self.dr + r) & 63]) * 12 * (self.cnt) /30.0
+				pos[1] = y + math.sin(gcommon.atan_table[(self.dr + r) & 63]) * 12 * (self.cnt) /30.0
+				x = pos[0]
+				y = pos[1]
+				r += 1
+			if self.cnt == 30:
+				self.nextState()
+		
+	def draw(self):
+		size = len(self.cells)
+		i = 0
+		while(i<size):
+			pos = self.cells[size -1 -i]
+			pyxel.blt(self.x + 4 + pos[0], self.y + pos[1], 1, 48, 168, 16, 16, 3)
+			i += 1
+		pyxel.blt(self.x, self.y, 1, 64, 168, 24, 16, 3)
