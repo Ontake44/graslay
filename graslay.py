@@ -171,20 +171,23 @@ class MyShip:
 				self.shotMax = 6
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 8, 0, 0)))
 			elif self.weapon == 1:
-				self.shotMax = 4
+				self.shotMax = 5
 				dx = 8 * math.cos(math.pi - math.pi/64 * self.roundAngle)
 				dy = 8 * math.sin(math.pi - math.pi/64 * self.roundAngle)
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+6, self.y +4, dx, dy, 1)))
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+6, self.y +4, dx, -dy, 1)))
 			else:
-				self.shotMax = 3
+				self.shotMax = 2
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 6, 0, 2)))
 				
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 5.5, 2.3, -3)))
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 5.5, -2.3, 3)))
 				
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 4.2, 4.2, -3)))
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 4.2, -4.2, 3)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 4.2, 4.2, -4)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 4.2, -4.2, 4)))
+
+				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x-2, self.y +4, -4.2, 4.2, 4)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x-2, self.y +4, -4.2, -4.2, -4)))
 			
 			#if pyxel.play_pos(0) == -1:
 			#	pyxel.play(0, 0)
@@ -977,9 +980,28 @@ class MainGame:
 			[400, enemy.Cell1Group1, 256, 50, 0],		\
 			[1100, enemy.Cell1Group1, 20, 192, 1],		\
 			[1500, enemy.Cell1Group1, 0, 192, 1],		\
-			[2400, enemy.Worm1, 90, 91, 0, 4],		\
-			[2430, enemy.Worm1, 103, 75, 1, 5],		\
-			[2460, enemy.Worm1, 122, 74, 3, 5],		\
+			[2000, enemy.Cell1Group1, 256, 100, 0],		\
+			[2400, enemy.Worm1, 90, 91, 2, 4, 60],		\
+			[2610, enemy.Worm1, 103, 75, 6, 5, 80],		\
+			[2760, enemy.Worm1, 111, 69, 0, 5, 90],		\
+			[2800, enemy.Worm1, 122, 74, 4, 5, 130],		\
+			[3360, enemy.Cell1Group1, -16, 10, 0],		\
+
+			[3360, enemy.Worm1, 93, 56, 1, 5, 130],		\
+
+			[3600, enemy.Worm1, 100, 40, 3, 5, 230],		\
+
+			[3800, enemy.Cell1Group1, 30, -16, 1],		\
+			[4400, enemy.Cell1Group1, 256, 30, 0],		\
+			[4500, enemy.Cell2, 256, 60, -1, -1, 0],		\
+			[4510, enemy.Cell2, 256, 80, -1, 1, 0],		\
+			[4600, enemy.Cell2, 256, 70, -1, 1, 0],		\
+
+			[4610, enemy.Cell2, 256, 30, -0.5, -1, 0],		\
+			[4620, enemy.Cell2, 256, 80, -0.5, 1, 0],		\
+			[4640, enemy.Cell2, 256, 70, -0.5, 1, 0],		\
+			[4660, enemy.Cell2, 256, 40, -0.5, 1, 0],		\
+			[4680, enemy.Cell2, 256, 30, -0.5, 1, 0],		\
 		]
 
 	def initStory3(self):

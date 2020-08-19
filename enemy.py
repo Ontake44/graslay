@@ -723,18 +723,21 @@ class Cell1(EnemyBase):
 		self.top = 2
 		self.right = 13
 		self.bottom = 13
-		self.hp = 15
+		self.hp = 10
 		#self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.layer = gcommon.C_LAYER_SKY
 		self.score = 100
 
 	def update(self):
-		if self.cnt & 32 == 0:
-			dr = gcommon.get_direction_my(self.x +8, self.y +8)
-			self.x += gcommon.direction_map[dr][0] * 1.25
-			self.y -= gcommon.direction_map[dr][1] * 1.25
-		if self.cnt & 127 == 127:
-			enemy_shot(self.x +8, self.y +8, 2, 0)
+		if self.cnt > 900:
+			self.remove()
+		else:
+			if self.cnt & 32 == 0:
+				dr = gcommon.get_direction_my(self.x +8, self.y +8)
+				self.x += gcommon.direction_map[dr][0] * 1.25
+				self.y -= gcommon.direction_map[dr][1] * 1.25
+			if self.cnt & 127 == 127:
+				enemy_shot(self.x +8, self.y +8, 2, 0)
 		
 	def draw(self):
 		n = int(self.cnt/5) %3
@@ -779,6 +782,48 @@ class Cell1Group1(EnemyBase):
 	def draw(self):
 		pass
 
+class Cell2(EnemyBase):
+	def __init__(self, t):
+		super(Cell2, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.dx = t[4]
+		self.dy = t[5]
+		self.dr = t[6]		# 0: 水平方向
+		self.left = 4
+		self.top = 4
+		self.right = 19
+		self.bottom = 19
+		self.hp = 100
+		#self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.layer = gcommon.C_LAYER_GRD
+		self.score = 200
+
+	def update(self):
+		self.x += self.dx
+		self.y += self.dy
+		if self.dr == 0:
+			if self.x <= -24 or self.x > SCREEN_MAX_X:
+				self.remove()
+			else:
+				if self.dy < 0:
+					if gcommon.isMapFreePos(self.x +4, self.y + 2 * self.dy) == False:
+						self.dy = -1 * self.dy
+					elif gcommon.isMapFreePos(self.x +4, self.y + 4 * self.dy) == False:
+						self.dy = -1 * self.dy
+				else:
+					if gcommon.isMapFreePos(self.x +4, self.y +24 + 2 * self.dy) == False:
+						self.dy = -1 * self.dy
+					elif gcommon.isMapFreePos(self.x +4, self.y +24 + 4 * self.dy) == False:
+						self.dy = -1 * self.dy
+
+		#if self.cnt & 127 == 127:
+		#	enemy_shot(self.x +8, self.y +8, 2, 0)
+		
+	def draw(self):
+		n = int(self.cnt/5) %3
+		pyxel.blt(self.x, self.y, 1, 48 + n* 24, 144, 24, 24, gcommon.TP_COLOR)
+
 
 class Worm1(EnemyBase):
 	def __init__(self, t):
@@ -786,13 +831,15 @@ class Worm1(EnemyBase):
 		pos = gcommon.mapPosToScreenPos(t[2], t[3])
 		self.x = pos[0]
 		self.y = pos[1]
-		self.baseDr = t[4]		# 0:上向き  1:下向き  2:右向き 3:左向き
+		self.baseDr = t[4]		# 0:右向き 2:上向き 4:左向き 6:下向き
+								# 1:右上  3:左上 5:左下 7:右下
 		self.cellCount = t[5]
+		self.growCount = t[6]
 		self.left = 2
 		self.top = 2
 		self.right = 21
 		self.bottom = 15
-		self.hp = 40
+		self.hp = 60
 		#self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.layer = gcommon.C_LAYER_GRD
 		self.score = 100
@@ -800,13 +847,27 @@ class Worm1(EnemyBase):
 		self.offsetX = 4
 		self.offsetY = 0
 		if self.baseDr ==0:
-			self.dr = 48
-		elif self.baseDr ==1:
-			self.dr = 16
-		elif self.baseDr ==2:
 			self.dr = 0
-		else:
+			self.offsetX = 0
+			self.offsetY = 4
+		elif self.baseDr ==1:
+			self.dr = 56
+			self.offsetX = 8
+			self.offsetY = 8
+		elif self.baseDr ==2:
+			self.dr = 48
+		elif self.baseDr ==3:
+			self.dr = 40
+			self.offsetX = 8
+			self.offsetY = 8
+		elif self.baseDr ==4:
 			self.dr = 32
+			self.offsetX = 0
+			self.offsetY = 4
+		elif self.baseDr ==6:
+			self.dr = 16
+		else:
+			pass
 		self.subDr = 0
 		self.cells = []
 		for i in range(0, self.cellCount):
@@ -819,7 +880,7 @@ class Worm1(EnemyBase):
 			# 待機状態
 			#if gcommon.get_distance_my(self.x + 12, self.y) < 100:
 			#	print("get_distance")
-			if self.cnt > 60:
+			if self.cnt > self.growCount:
 				self.nextState()
 		elif self.state == 1:
 			# 触手伸ばす
@@ -862,11 +923,21 @@ class Worm1(EnemyBase):
 			self.subDr -= 0.05
 			if self.subDr <= -3.0:
 				self.state = 2
-
+		elif self.state == 100:
+			if self.cnt > 2:
+				if len(self.cells) > 0:
+					# 最後の要素
+					pos = self.cells.pop()
+					create_explosion(self.x+pos[0] +8, self.y+pos[1]+8, self.layer, self.exptype)
+					self.cnt = 0
+				else:
+					create_explosion(self.x+(self.right-self.left+1)/2, self.y+(self.bottom-self.top+1)/2, self.layer, self.exptype)
+					self.remove()
+		
 	
 	def shot(self):
 		pos = self.cells[len(self.cells) -1]
-		enemy_shot(self.x +self.offsetX +pos[0], self.y +self.offsetY +pos[1], 2, 0)
+		enemy_shot(self.x +self.offsetX +pos[0] +8, self.y +self.offsetY +pos[1] +8, 2, 0)
 
 	
 	def draw(self):
@@ -880,13 +951,17 @@ class Worm1(EnemyBase):
 				pyxel.blt(self.x +self.offsetX + pos[0], self.y +self.offsetY +pos[1], 1, 48, 168, 16, 16, 3)
 			i += 1
 		if self.baseDr == 0:
-			pyxel.blt(self.x, self.y, 1, 80, 168, 24, 16, 3)
-		elif self.baseDr == 1:
-			pyxel.blt(self.x, self.y, 1, 80, 168, 24, -16, 3)
-		elif self.baseDr == 2:
 			pyxel.blt(self.x, self.y, 1, 104, 168, 16, 24, 3)
-		else:
+		elif self.baseDr == 1:
+			pyxel.blt(self.x, self.y, 1, 120, 168, 32, 32, 3)
+		elif self.baseDr == 2:
+			pyxel.blt(self.x, self.y, 1, 80, 168, 24, 16, 3)
+		elif self.baseDr == 3:
+			pyxel.blt(self.x, self.y, 1, 120, 168, -32, 32, 3)
+		elif self.baseDr == 4:
 			pyxel.blt(self.x, self.y, 1, 104, 168, -16, 24, 3)
+		elif self.baseDr == 6:
+			pyxel.blt(self.x, self.y, 1, 80, 168, 24, -16, 3)
 
 	# 自機弾と敵との当たり判定と破壊処理
 	def checkShotCollision(self, shot):
@@ -896,12 +971,13 @@ class Worm1(EnemyBase):
 		if gcommon.check_collision(self, shot):
 			hit = True
 		else:
-			# 触手部の当たり判定（先端のみ）
-			pos = self.cells[len(self.cells) -1]
-			x = self.x +4 +pos[0]
-			y = self.y +pos[1]
-			if gcommon.check_collision2(x, y, self.cellRect, shot):
-				hit = True
+			if len(self.cells)> 0:
+				# 触手部の当たり判定（先端のみ）
+				pos = self.cells[len(self.cells) -1]
+				x = self.x +4 +pos[0]
+				y = self.y +pos[1]
+				if gcommon.check_collision2(x, y, self.cellRect, shot):
+					hit = True
 		
 		if hit:
 			self.hp -= gcommon.SHOT_POWER
@@ -925,3 +1001,8 @@ class Worm1(EnemyBase):
 				if gcommon.check_collision2(x, y, self.cellRect, gcommon.ObjMgr.myShip):
 					return True
 			return False
+
+	def broken(self):
+		gcommon.score += self.score
+		self.state = 100
+		self.cnt = 0
