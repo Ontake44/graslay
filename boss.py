@@ -205,6 +205,35 @@ class Boss1Beam(enemy.EnemyBase):
 	def draw(self):
 		pass
 
+# ボス２固定台
+class Boss2Base(enemy.EnemyBase):
+	def __init__(self, bossObj, pos):
+		super(Boss2Base, self).__init__()
+		self.bossObj = bossObj
+		self.left = 16
+		self.top = 4
+		self.right = 61
+		self.bottom = 17
+		self.layer = gcommon.C_LAYER_UPPER_GRD
+		self.hp = 0
+		self.hitcolor1 = 3
+		self.hitcolor2 = 10
+		self.pos = pos
+		if pos ==0:
+			# 上側
+			self.x = self.bossObj.x +4
+			self.y = self.bossObj.y -16
+		else:
+			# 下側
+			self.x = self.bossObj.x +4
+			self.y = self.bossObj.y +40
+
+	def update(self):
+		pass
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, 1, 104, 208 + self.pos*24, 72, 24, gcommon.TP_COLOR)
+		
 
 # 0:mode
 #   0: 停止
@@ -321,27 +350,28 @@ class Feeler(enemy.EnemyBase):
 		i = 0
 		while(i<size):
 			pos = self.cells[size -1 -i]
-			pyxel.blt(self.x + pos[0], self.y + pos[1], 1, 0, 80, 16, 16, gcommon.TP_COLOR)
+			pyxel.blt(self.x + pos[0], self.y + pos[1], 1, 0, 128, 16, 16, gcommon.TP_COLOR)
 			i += 1
 
 class Boss2(enemy.EnemyBase):
 	def __init__(self, t):
 		super(Boss2, self).__init__()
 		self.t = gcommon.T_BOSS1
-		self.x = t[2]
-		self.y = t[3]
-		self.left = 0
-		self.top = 0
-		self.right = 71
-		self.bottom = 67
+		pos = gcommon.mapPosToScreenPos(t[2], t[3])
+		self.x = pos[0]
+		self.y = pos[1]
+		self.left = 16
+		self.top = 9
+		self.right = 63
+		self.bottom = 38
 		self.hp = 32000
-		self.layer = gcommon.C_LAYER_SKY
+		self.layer = gcommon.C_LAYER_GRD
 		self.score = 5000
 		self.subcnt = 0
 		self.dx = -0.5
 		self.dy = 0
 		self.hitcolor1 = 3
-		self.hitcolor2 = 14
+		self.hitcolor2 = 7
 		self.tblIndex = 0
 		self.brake = False
 		self.feelers = []
@@ -349,17 +379,20 @@ class Boss2(enemy.EnemyBase):
 		self.feelers.append(Feeler(self, 16, 29, 24, 6))
 		self.feelers.append(Feeler(self, 16, 8, 40, 6))
 		self.feelers.append(Feeler(self, 50, 8, 56, 6))
-		self.feelers[0].setMode(1)
-		self.feelers[1].setMode(1)
-		self.feelers[2].setMode(1)
-		self.feelers[3].setMode(1)
-		gcommon.ObjMgr.addObj(self.feelers[0])
-		gcommon.ObjMgr.addObj(self.feelers[1])
-		gcommon.ObjMgr.addObj(self.feelers[2])
-		gcommon.ObjMgr.addObj(self.feelers[3])
+		#self.feelers[0].setMode(1)
+		#self.feelers[1].setMode(1)
+		#self.feelers[2].setMode(1)
+		#self.feelers[3].setMode(1)
+		#gcommon.ObjMgr.addObj(self.feelers[0])
+		#gcommon.ObjMgr.addObj(self.feelers[1])
+		#gcommon.ObjMgr.addObj(self.feelers[2])
+		#gcommon.ObjMgr.addObj(self.feelers[3])
+		
+		gcommon.ObjMgr.addObj(Boss2Base(self,0))
+		gcommon.ObjMgr.addObj(Boss2Base(self,1))
 
 	def update(self):
-		if self.state == 0:
+		if self.state == 1:
 			self.x += self.dx
 			self.y += self.dy
 			self.brake = False
@@ -453,7 +486,7 @@ class Boss2(enemy.EnemyBase):
 			self.subcnt+=1
 
 	def draw(self):
-		pyxel.blt(self.x, self.y, 1, 168, 144, 80, 48, gcommon.TP_COLOR)
+		pyxel.blt(self.x, self.y, 1, 176, 208, 80, 48, gcommon.TP_COLOR)
 		
 
 	def nextTbl(self):

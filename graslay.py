@@ -751,6 +751,7 @@ class MainGame:
 			
 		
 		pyxel.text(120, 188, str(gcommon.game_timer), 7)
+		pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
 		# マップ位置表示
 		#pyxel.text(0, 192, str(gcommon.map_x), 7)
@@ -1002,11 +1003,45 @@ class MainGame:
 			[4640, enemy.Cell2, 256, 70, -0.5, 1, 0],		\
 			[4660, enemy.Cell2, 256, 40, -0.5, 1, 0],		\
 			[4680, enemy.Cell2, 256, 30, -0.5, 1, 0],		\
+
+			# 斜面に上からへばり付いてるやつ
+			[4800, enemy.Worm1, 144, 15, 7, 5, 160],		\
+
+			[5300, enemy.Worm1, 175, 28, 2, 5, 160],		\
+
+			[5300, enemy.Worm2Group, 330, 30, 32, 10, enemy.worm2Tbl1],		\
+
+			[5310, enemy.Cell1Group1, 256, 10, 0],		\
+			[5360, enemy.Cell1Group1, 256, 60, 0],		\
+
+			[5400, enemy.Worm1, 180, 9, 6, 5, 160],		\
+			[5700, enemy.Worm2Group, 200, -24, 16, 10, enemy.worm2Tbl2],		\
+
+
+			[5700, enemy.Worm1, 195, 26, 2, 5, 160],		\
+
+			[5710, enemy.Cell1Group1, 256, 30, 0],		\
+			[5760, enemy.Cell1Group1, 256, 100, 0],		\
+
+			[5800, enemy.Worm2Group, 176, -24, 16, 10, enemy.worm2Tbl3],		\
+			
+			[5800, enemy.Worm1, 207, 9, 6, 5, 160],		\
+			
+			[5810, enemy.Cell1Group1, 256, 30, 0],		\
+			[5860, enemy.Cell1Group1, 256, 100, 0],		\
+
+			[6000, enemy.Worm2Group, 176, 192, 48, 10, enemy.worm2Tbl4],		\
+
+			[6000, enemy.Worm1, 230, 8, 6, 5, 160],		\
+			[6000, enemy.Worm1, 228, 25, 2, 5, 160],		\
+
+			[6400, boss.Boss2, 241, 16],		\
 		]
 
 	def initStory3(self):
 		self.story=[ \
 		]
+
 
 def parseCommandLine():
 	idx = 0

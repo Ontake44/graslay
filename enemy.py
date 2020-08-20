@@ -803,7 +803,8 @@ class Cell2(EnemyBase):
 		self.x += self.dx
 		self.y += self.dy
 		if self.dr == 0:
-			if self.x <= -24 or self.x > SCREEN_MAX_X:
+			if self.x <= -24 or self.x > gcommon.SCREEN_MAX_X+1:
+				print("Cell2 remove " + str(self.x) + " " + str(self.y))
 				self.remove()
 			else:
 				if self.dy < 0:
@@ -825,6 +826,8 @@ class Cell2(EnemyBase):
 		pyxel.blt(self.x, self.y, 1, 48 + n* 24, 144, 24, 24, gcommon.TP_COLOR)
 
 
+#
+# 土台付触手
 class Worm1(EnemyBase):
 	def __init__(self, t):
 		super(Worm1, self).__init__()
@@ -866,6 +869,10 @@ class Worm1(EnemyBase):
 			self.offsetY = 4
 		elif self.baseDr ==6:
 			self.dr = 16
+		elif self.baseDr ==7:
+			self.dr = 8
+			self.offsetX = 8
+			self.offsetY = 8
 		else:
 			pass
 		self.subDr = 0
@@ -876,6 +883,9 @@ class Worm1(EnemyBase):
 		self.cellRect = gcommon.Rect.create(2,2,13,13)
 
 	def update(self):
+		if self.state != 0 and self.x < -32 or self.y > 250:
+			self.remove()
+			return
 		if self.state == 0:
 			# 待機状態
 			#if gcommon.get_distance_my(self.x + 12, self.y) < 100:
@@ -962,6 +972,8 @@ class Worm1(EnemyBase):
 			pyxel.blt(self.x, self.y, 1, 104, 168, -16, 24, 3)
 		elif self.baseDr == 6:
 			pyxel.blt(self.x, self.y, 1, 80, 168, 24, -16, 3)
+		elif self.baseDr == 7:
+			pyxel.blt(self.x, self.y, 1, 120, 168, 32, -32, 3)
 
 	# 自機弾と敵との当たり判定と破壊処理
 	def checkShotCollision(self, shot):
@@ -1006,3 +1018,95 @@ class Worm1(EnemyBase):
 		gcommon.score += self.score
 		self.state = 100
 		self.cnt = 0
+
+
+class Worm2Cell:
+	def __init__(self, offsetX, offsetY, dr, cnt):
+		self.offsetX = offsetX
+		self.offsetY = offsetY
+		self.dr = dr
+		self.cnt = cnt
+
+
+class Worm2(EnemyBase):
+	def __init__(self, t):
+		super(Worm2, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.dr = t[4]
+		self.tbl = t[5]
+		self.left = 2
+		self.top = 2
+		self.right = 21
+		self.bottom = 21
+		self.hp = 600
+		#self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.layer = gcommon.C_LAYER_GRD
+		self.score = 100
+		self.tblIndex = 0
+		self.subcnt = self.tbl[self.tblIndex][0]
+
+	def update(self):
+		self.x += gcommon.cos_table[int(self.dr) & 63]
+		self.y += gcommon.sin_table[int(self.dr) & 63]
+		if self.x < -24 or self.y < -24 or self.y > gcommon.SCREEN_MAX_Y:
+			self.remove()
+		else:
+			if self.tblIndex < len(self.tbl):
+				self.dr += self.tbl[self.tblIndex][1]
+				self.subcnt -=1
+				if self.subcnt <= 0:
+					self.tblIndex += 1
+					if self.tblIndex < len(self.tbl):
+						self.subcnt =  self.tbl[self.tblIndex][0]
+	
+	def draw(self):
+		n = int(self.cnt/11) %3
+		pyxel.blt(self.x, self.y, 1, 48, 144, 24, 24, gcommon.TP_COLOR)
+
+
+worm2Tbl1 = [
+	[74, 0],
+	[32, -0.5],
+]
+
+worm2Tbl2 = [
+	[74, 0],
+	[32, 0.5],
+]
+
+worm2Tbl3 = [
+	[49, 0],
+	[32, -0.5],
+	[128, 0.25],
+]
+
+worm2Tbl4 = [
+	[50, 0],
+	[32, 0.5],
+	[128, -0.25],
+	[50, 0],
+]
+
+class Worm2Group(EnemyBase):
+	def __init__(self, t):
+		super(Worm2Group, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.dr = t[4]
+		self.cellCount = t[5]
+		self.tbl = t[6]
+		self.layer = gcommon.C_LAYER_GRD
+		self.hitCheck = False
+		self.shotHitCheck = False
+
+	def update(self):
+		if self.cnt % 15 == 0:
+			gcommon.ObjMgr.addObj(Worm2([0, 0, self.x, self.y, self.dr, self.tbl]))
+			self.cellCount -= 1
+			if self.cellCount == 0:
+				self.remove()
+
+	def draw(self):
+		pass
+
