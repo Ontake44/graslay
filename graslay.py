@@ -97,7 +97,7 @@ class MyShip:
 					doShot = False
 					if self.prevFlag:
 						self.shotCounter += 1
-						if self.shotCounter > 5:
+						if self.shotCounter > 2:
 							self.shotCounter = 0
 							doShot = True
 					else:
@@ -106,15 +106,15 @@ class MyShip:
 						doShot = True
 					if doShot:
 						self.shot()
-						self.roundAngle += 6
+						self.roundAngle += 4
 						if self.roundAngle > 62:
 							self.roundAngle = 62
 				elif self.roundAngle > 0:
 					self.shotCounter += 1
-					if self.shotCounter > 5:
+					if self.shotCounter > 2:
 						self.shotCounter = 0
 						self.shot()
-						self.roundAngle -= 6
+						self.roundAngle -= 4
 						if self.roundAngle < 0:
 							self.roundAngle = 0
 			else:
@@ -209,9 +209,9 @@ class MyShot:
 		self.x = 0
 		self.y = 0
 		self.left = -4
-		self.top = -4
+		self.top = -2
 		self.right = 11
-		self.bottom = 11
+		self.bottom = 9
 		self.dx = 0
 		self.dy = 0
 		self.sprite = sprite

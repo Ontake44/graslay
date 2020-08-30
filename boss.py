@@ -211,58 +211,31 @@ class Boss2Base(enemy.EnemyBase):
 		super(Boss2Base, self).__init__()
 		self.bossObj = bossObj
 		self.left = 16
-		self.top = 4
-		self.right = 61
-		self.bottom = 17
+		self.top = 8
+		self.right = 56
+		self.bottom = 23
 		self.layer = gcommon.C_LAYER_UPPER_GRD
-		self.hp = 0
+		self.hp = 50
 		self.hitcolor1 = 3
 		self.hitcolor2 = 10
 		self.pos = pos
+		self.exptype = gcommon.C_EXPTYPE_GRD_M
 		if pos ==0:
 			# 上側
 			self.x = self.bossObj.x +4
-			self.y = self.bossObj.y -16
+			self.y = self.bossObj.y -24
 		else:
 			# 下側
 			self.x = self.bossObj.x +4
-			self.y = self.bossObj.y +40
+			self.y = self.bossObj.y +36
 
 	def update(self):
 		pass
 
 	def draw(self):
-		pyxel.blt(self.x, self.y, 1, 104, 208 + self.pos*24, 72, 24, gcommon.TP_COLOR)
+		pyxel.blt(int(self.x), self.y, 1, 32 + self.pos*72, 224, 72, 32, gcommon.TP_COLOR)
 		
 
-# 0:mode
-#   0: 停止
-#   1: X座標がこれより小さくなると減速、次のインデックスへ
-#   2: X座標がこれより大きくなると減速、次のインデックスへ
-#   3: Y座標がこれより小さくなると減速、次のインデックスへ
-#   4: Y座標がこれより大きくなると減速、次のインデックスへ
-# 1:ax, 2: ay, 
-# 3: X or Y or 停止時間
-# 4: 攻撃パターン
-#   0: なし
-#   1: 最初の全体攻撃（左右から）
-#   2: 正面
-#   3: 波状
-#   4: 時計回り攻撃
-#   5: 反時計回り攻撃
-# mode, ax, ay, X or Y or 停止時間, 攻撃パターン]
-boss2tbl = [
-	[1, -0.124, 0,  130, 0],
-	[4, 0, 0.125,  10, 0],
-	[0, 0, 0,  140, 1],				# 全体攻撃
-	[0, 0, 0,  30, 0],
-	[2, 0.125, 0.02, 160, 2],			# 右移動 正面攻撃
-	[0, 0, 0,  30, 0],
-	[3, -0.125, -0.0625,  20, 0],		# 左上へ
-	[2, 0.125, 0, 100, 3],				# 右移動 波状攻撃
-	[1, -0.125, 0, 20, 4],			# 左移動 時計回り攻撃
-	[2, 0.125, 0, 120, 5],			# 左移動 時計回り攻撃
-	]
 
 # 触手
 # dr: 生えてる角度
@@ -270,6 +243,8 @@ boss2tbl = [
 
 # mode
 #   1 : まっすぐ伸びる
+#   2 : ゆらゆら開始
+#   3 : 縮む
 class Feeler(enemy.EnemyBase):
 	def __init__(self, parentObj, offsetX, offsetY, dr, count):
 		super(Feeler, self).__init__()
@@ -289,6 +264,8 @@ class Feeler(enemy.EnemyBase):
 		self.subDr = 0
 		for i in range(0, count):
 			self.cells.append([0, 0])
+		# 触手セルの当たり判定範囲
+		self.cellRect = gcommon.Rect.create(2,2,13,13)
 
 	def setMode(self, mode):
 		self.mode = mode
@@ -305,8 +282,8 @@ class Feeler(enemy.EnemyBase):
 				x = 0
 				y = 0
 				for pos in self.cells:
-					pos[0] = x + math.cos(gcommon.atan_table[(self.dr) & 63]) * 12 * (self.cnt) /30.0
-					pos[1] = y + math.sin(gcommon.atan_table[(self.dr) & 63]) * 12 * (self.cnt) /30.0
+					pos[0] = x + math.cos(gcommon.atan_table[int(self.dr + i * self.subDr) & 63]) * 12 * (self.cnt) /30.0
+					pos[1] = y + math.sin(gcommon.atan_table[int(self.dr + i * self.subDr) & 63]) * 12 * (self.cnt) /30.0
 					x = pos[0]
 					y = pos[1]
 					i += 1
@@ -314,6 +291,7 @@ class Feeler(enemy.EnemyBase):
 					self.status = 0
 					
 		elif self.mode == 2:
+			# ゆらゆら動く
 			if self.status == 1:
 				self.subDr = 0.0
 				self.status = 2
@@ -343,15 +321,103 @@ class Feeler(enemy.EnemyBase):
 				self.subDr -= 0.05
 				if self.subDr <= -3.0:
 					self.status = 2
-			
+			if self.cnt % 30 == 0:
+				if len(self.cells) > 0:
+					pos = self.cells[len(self.cells)-1]
+					enemy.enemy_shot(self.x +pos[0] +8, self.y +pos[1] +8, 2, 0)
+
+		elif self.mode == 3:
+			# 縮む
+			if self.status ==1:
+				#print("cnt = " + str(self.cnt))
+				i = 1
+				x = 0
+				y = 0
+				for pos in self.cells:
+					pos[0] = x + math.cos(gcommon.atan_table[int(self.dr + i * self.subDr) & 63]) * 12 * (30 -self.cnt) /30.0
+					pos[1] = y + math.sin(gcommon.atan_table[int(self.dr + i * self.subDr) & 63]) * 12 * (30 -self.cnt) /30.0
+					x = pos[0]
+					y = pos[1]
+					i += 1
+				if self.cnt == 30:
+					self.status = 0
 		
 	def draw(self):
 		size = len(self.cells)
 		i = 0
 		while(i<size):
 			pos = self.cells[size -1 -i]
-			pyxel.blt(self.x + pos[0], self.y + pos[1], 1, 0, 128, 16, 16, gcommon.TP_COLOR)
+			if i == 0:
+				pyxel.blt(self.x + pos[0], self.y + pos[1], 1, 32, 128, 16, 16, gcommon.TP_COLOR)
+			else:
+				pyxel.blt(self.x + pos[0], self.y + pos[1], 1, 0, 128, 16, 16, gcommon.TP_COLOR)
 			i += 1
+
+	# 自機弾と敵との当たり判定と破壊処理
+	def checkShotCollision(self, shot):
+		if shot.removeFlag:
+			return False
+		hit = False
+		if len(self.cells)> 0:
+			# 触手部の当たり判定（先端のみ）
+			pos = self.cells[len(self.cells) -1]
+			x = self.x +pos[0]
+			y = self.y +pos[1]
+			if gcommon.check_collision2(x, y, self.cellRect, shot):
+				hit = True
+		
+		if hit:
+			self.hp -= gcommon.SHOT_POWER
+			if self.hp <= 0:
+				self.broken()
+			else:
+				self.hit = True
+			return True
+		else:
+			return False
+
+	# 自機と敵との当たり判定
+	def checkMyShipCollision(self):
+		if gcommon.check_collision(self, gcommon.ObjMgr.myShip):
+			return True
+		else:
+			# 触手部の当たり判定
+			for pos in self.cells:
+				x = self.x +pos[0]
+				y = self.y +pos[1]
+				if gcommon.check_collision2(x, y, self.cellRect, gcommon.ObjMgr.myShip):
+					return True
+			return False
+
+# 0:mode
+#   0: 停止
+#   1: X座標がこれより小さくなると減速、次のインデックスへ
+#   2: X座標がこれより大きくなると減速、次のインデックスへ
+#   3: Y座標がこれより小さくなると減速、次のインデックスへ
+#   4: Y座標がこれより大きくなると減速、次のインデックスへ
+#   5: 触手伸ばす
+#   6: 触手縮める
+#   100: 指定インデックスへ
+# 1:ax, 2: ay, 
+# 3: X or Y or 停止時間
+# 4: 攻撃パターン
+#   0: なし
+#   1: 最初の全体攻撃（左右から）
+#   2: 正面
+#   3: 波状
+#   4: 時計回り攻撃
+#   5: 反時計回り攻撃
+# mode, ax, ay, X or Y or 停止時間 or 移動先インデックス, 攻撃パターン]
+boss2tbl = [
+	[2, 0.25, 0, 140, 0],		# 右の定位置に移動
+	[5, 0, 0, 60, 0],			# 触手伸ばす
+	[3, 0, -0.25, 30, 0],		# 上移動
+	[4, 0, 0.25, 130, 0],		# 下移動
+	[3, 0, -0.25, 64, 0],		# 上移動
+	[6, 0, 0, 60, 0],			# 触手縮める
+	[4, 0, 0.25, 130, 0],		# 下移動
+	[100, 0.0, 0.0, 1, 0],
+	]
 
 class Boss2(enemy.EnemyBase):
 	def __init__(self, t):
@@ -368,7 +434,7 @@ class Boss2(enemy.EnemyBase):
 		self.layer = gcommon.C_LAYER_GRD
 		self.score = 5000
 		self.subcnt = 0
-		self.dx = -0.5
+		self.dx = 0.5
 		self.dy = 0
 		self.hitcolor1 = 3
 		self.hitcolor2 = 7
@@ -383,16 +449,37 @@ class Boss2(enemy.EnemyBase):
 		#self.feelers[1].setMode(1)
 		#self.feelers[2].setMode(1)
 		#self.feelers[3].setMode(1)
-		#gcommon.ObjMgr.addObj(self.feelers[0])
-		#gcommon.ObjMgr.addObj(self.feelers[1])
-		#gcommon.ObjMgr.addObj(self.feelers[2])
-		#gcommon.ObjMgr.addObj(self.feelers[3])
+		gcommon.ObjMgr.addObj(self.feelers[0])
+		gcommon.ObjMgr.addObj(self.feelers[1])
+		gcommon.ObjMgr.addObj(self.feelers[2])
+		gcommon.ObjMgr.addObj(self.feelers[3])
 		
-		gcommon.ObjMgr.addObj(Boss2Base(self,0))
-		gcommon.ObjMgr.addObj(Boss2Base(self,1))
+		self.upperBase = Boss2Base(self,0)
+		self.lowerBase = Boss2Base(self,1)
+		gcommon.ObjMgr.addObj(self.upperBase)
+		gcommon.ObjMgr.addObj(self.lowerBase)
 
 	def update(self):
-		if self.state == 1:
+		if self.state == 0:
+			if self.x <= 168:
+				if self.upperBase.removeFlag == False:
+					self.upperBase.broken()
+				if self.lowerBase.removeFlag == False:
+					self.lowerBase.broken()
+				self.nextState()
+		elif self.state == 1:
+			if self.cnt == 120:
+				self.layer = gcommon.C_LAYER_SKY
+				self.nextState()
+				self.dx = 0.25
+				self.dy = 0.0
+		elif self.state == 2:
+			self.x += self.dx
+			self.y += self.dy
+			if self.x > 150:
+				self.dx = 0
+				self.setState(4)
+		elif self.state == 4:
 			self.x += self.dx
 			self.y += self.dy
 			self.brake = False
@@ -406,6 +493,7 @@ class Boss2(enemy.EnemyBase):
 					self.dy *= 0.95
 					self.brake = True
 					if abs(self.dx) < 0.01:
+						self.dx = 0
 						self.nextTbl()
 				else:
 					self.addDxDy()
@@ -415,6 +503,7 @@ class Boss2(enemy.EnemyBase):
 					self.dy *= 0.95
 					self.brake = True
 					if abs(self.dx) < 0.01:
+						self.dx = 0
 						self.nextTbl()
 				else:
 					self.addDxDy()
@@ -429,10 +518,6 @@ class Boss2(enemy.EnemyBase):
 				else:
 					self.addDxDy()
 			elif mode == 4:
-				self.feelers[0].setMode(2)
-				self.feelers[1].setMode(2)
-				self.feelers[2].setMode(2)
-				self.feelers[3].setMode(2)
 				# 下制限（下移動）
 				if self.y > boss2tbl[self.tblIndex][3]:
 					self.dx *= 0.95
@@ -442,7 +527,37 @@ class Boss2(enemy.EnemyBase):
 						self.nextTbl()
 				else:
 					self.addDxDy()
-
+			elif mode == 5:
+				# 触手伸ばす
+				if self.subcnt == 1:
+					self.feelers[0].subDr = -1
+					self.feelers[1].subDr = 1
+					self.feelers[2].subDr = -1
+					self.feelers[3].subDr = 1
+					self.feelers[0].setMode(1)
+					self.feelers[1].setMode(1)
+					self.feelers[2].setMode(1)
+					self.feelers[3].setMode(1)
+				if self.subcnt == boss2tbl[self.tblIndex][3]:
+					self.feelers[0].setMode(2)
+					self.feelers[1].setMode(2)
+					self.feelers[2].setMode(2)
+					self.feelers[3].setMode(2)
+					self.nextTbl()
+			elif mode == 6:
+				# 触手縮める
+				if self.subcnt == 1:
+					print("mode 6 :1")
+					self.feelers[0].setMode(3)
+					self.feelers[1].setMode(3)
+					self.feelers[2].setMode(3)
+					self.feelers[3].setMode(3)
+				if self.subcnt == boss2tbl[self.tblIndex][3]:
+					self.nextTbl()
+			elif mode == 100:
+				self.tblIndex = boss2tbl[self.tblIndex][3]
+				self.subcnt = 0
+			
 			attack = boss2tbl[self.tblIndex][4]
 			attack = 0
 			if attack == 1:

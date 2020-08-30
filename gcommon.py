@@ -306,20 +306,22 @@ def get_distance_my(x, y):
 
 def check_collision(o, s):
 	if (o.x+o.left<=s.x+s.left and s.x+s.left<=o.x+o.right)	\
-		or (o.x+o.left<=s.x+s.right and s.x+s.right<=o.x+o.right):
+		or (o.x+o.left<=s.x+s.right and s.x+s.left<=o.x+o.right):
 		if (o.y+o.top<=s.y+s.top and s.y+s.top<=o.y+o.bottom)	\
-			or (o.y+o.top<=s.y+s.bottom and s.y+s.bottom<=o.y+o.bottom):
+			or (o.y+o.top<=s.y+s.bottom and s.y+s.top<=o.y+o.bottom):
 			return True
 	return False
 
 # ox,oyのo(left,top,right,bottom)と、sとの衝突判定
 def check_collision2(ox, oy, o, s):
 	if (ox+o.left<=s.x+s.left and s.x+s.left<=ox+o.right)	\
-		or (ox+o.left<=s.x+s.right and s.x+s.right<=ox+o.right):
+		or (ox+o.left<=s.x+s.right and s.x+s.left<=ox+o.right):
 		if (oy+o.top<=s.y+s.top and s.y+s.top<=oy+o.bottom)	\
-			or (oy+o.top<=s.y+s.bottom and s.y+s.bottom<=oy+o.bottom):
+			or (oy+o.top<=s.y+s.bottom and s.y+s.top<=oy+o.bottom):
 			return True
 	return False
+
+
 
 def is_draw_shadow():
 	if game_timer & 1 ==1:

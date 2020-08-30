@@ -227,17 +227,17 @@ class Explosion(EnemyBase):
 				pyxel.circ(self.x, self.y, self.cnt*2+1, 10)
 			elif self.cnt < 25:
 				if self.cnt%2 ==0:
-					pyxel.blt( self.x-24, self.y-24, 0, 208, 208,
+					pyxel.blt( self.x-24, self.y-24, 0, 0, 64,
 						24*2 -(self.cnt &2) * 48,
 						24*2 -(self.cnt &4) * 24,
-						gcommon.C_COLOR_KEY)
+						gcommon.TP_COLOR)
 			else:
 				if self.cnt%2 ==0:
 					pyxel.pal(7, gcommon.TP_COLOR)
-					pyxel.blt( self.x-24, self.y-24, 0, 208, 208,
+					pyxel.blt( self.x-24, self.y-24, 0, 0, 64,
 						24*2 -(self.cnt &2) * 48,
 						24*2 -(self.cnt &4) * 24,
-						gcommon.C_COLOR_KEY)
+						gcommon.TP_COLOR)
 					pyxel.pal()
 		else:
 			if self.cnt<8:
@@ -247,14 +247,14 @@ class Explosion(EnemyBase):
 					pyxel.blt( self.x-36, self.y-36, 0, 184, 88,
 						72 -(self.cnt &2) * 72,
 						72 -(self.cnt &4) * 36,
-						gcommon.C_COLOR_KEY)
+						gcommon.TP_COLOR)
 			else:
 				if self.cnt%2 ==0:
 					pyxel.pal(7, gcommon.TP_COLOR)
 					pyxel.blt( self.x-36, self.y-36, 0, 184, 88,
 						72 -(self.cnt &2) * 72,
 						72 -(self.cnt &4) * 36,
-						gcommon.C_COLOR_KEY)
+						gcommon.TP_COLOR)
 					pyxel.pal()
 
 #
@@ -804,7 +804,6 @@ class Cell2(EnemyBase):
 		self.y += self.dy
 		if self.dr == 0:
 			if self.x <= -24 or self.x > gcommon.SCREEN_MAX_X+1:
-				print("Cell2 remove " + str(self.x) + " " + str(self.y))
 				self.remove()
 			else:
 				if self.dy < 0:
@@ -859,6 +858,8 @@ class Worm1(EnemyBase):
 			self.offsetY = 8
 		elif self.baseDr ==2:
 			self.dr = 48
+			self.offsetX = 4
+			self.offsetY = 0
 		elif self.baseDr ==3:
 			self.dr = 40
 			self.offsetX = 8
@@ -869,6 +870,8 @@ class Worm1(EnemyBase):
 			self.offsetY = 4
 		elif self.baseDr ==6:
 			self.dr = 16
+			self.offsetX = 4
+			self.offsetY = 0
 		elif self.baseDr ==7:
 			self.dr = 8
 			self.offsetX = 8
@@ -880,6 +883,7 @@ class Worm1(EnemyBase):
 		for i in range(0, self.cellCount):
 			self.cells.append([0,0])
 
+		# 触手セルの当たり判定範囲
 		self.cellRect = gcommon.Rect.create(2,2,13,13)
 
 	def update(self):
@@ -960,6 +964,14 @@ class Worm1(EnemyBase):
 			else:
 				pyxel.blt(self.x +self.offsetX + pos[0], self.y +self.offsetY +pos[1], 1, 48, 168, 16, 16, 3)
 			i += 1
+
+		#	if len(self.cells)> 0:
+		#		# 触手部の当たり判定（先端のみ）
+		#		pos = self.cells[len(self.cells) -1]
+		#		x = self.x +self.offsetX +pos[0]
+		#		y = self.y +self.offsetY +pos[1]
+		#		pyxel.rect(x+ self.cellRect.left, y +self.cellRect.top, self.cellRect.right-self.cellRect.left+1, self.cellRect.bottom-self.cellRect.top+1, 7)
+
 		if self.baseDr == 0:
 			pyxel.blt(self.x, self.y, 1, 104, 168, 16, 24, 3)
 		elif self.baseDr == 1:
@@ -986,8 +998,8 @@ class Worm1(EnemyBase):
 			if len(self.cells)> 0:
 				# 触手部の当たり判定（先端のみ）
 				pos = self.cells[len(self.cells) -1]
-				x = self.x +4 +pos[0]
-				y = self.y +pos[1]
+				x = self.x +self.offsetX +pos[0]
+				y = self.y +self.offsetY +pos[1]
 				if gcommon.check_collision2(x, y, self.cellRect, shot):
 					hit = True
 		
@@ -1008,8 +1020,8 @@ class Worm1(EnemyBase):
 		else:
 			# 触手部の当たり判定
 			for pos in self.cells:
-				x = self.x +4 +pos[0]
-				y = self.y +pos[1]
+				x = self.x +self.offsetX +pos[0]
+				y = self.y +self.offsetY +pos[1]
 				if gcommon.check_collision2(x, y, self.cellRect, gcommon.ObjMgr.myShip):
 					return True
 			return False
@@ -1018,6 +1030,7 @@ class Worm1(EnemyBase):
 		gcommon.score += self.score
 		self.state = 100
 		self.cnt = 0
+		self.shotHitCheck = False
 
 
 class Worm2Cell:
