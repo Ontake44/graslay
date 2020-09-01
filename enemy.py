@@ -1123,3 +1123,34 @@ class Worm2Group(EnemyBase):
 	def draw(self):
 		pass
 
+# 遅延発生イベント
+class Delay(EnemyBase):
+	def __init__(self, cls, t, delayTime):
+		super(Delay, self).__init__()
+		self.cls = cls
+		self.t = t
+		self.delayTime = delayTime
+		self.hitCheck = False
+		self.shotHitCheck = False
+
+	def update(self):
+		if self.cnt == self.delayTime:
+			gcommon.ObjMgr.addObj(self.cls(self.t))
+			self.remove()
+
+	def draw(self):
+		pass
+
+
+class StageClear(EnemyBase):
+	def __init__(self, t):
+		super(StageClear, self).__init__()
+		self.hitCheck = False
+		self.shotHitCheck = False
+
+	def update(self):
+		self.remove()
+		gcommon.app.startNextStage()
+
+	def draw(self):
+		pass

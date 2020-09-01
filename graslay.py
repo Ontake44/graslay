@@ -281,6 +281,9 @@ class Title:
 		self.star_pos = 0
 		gcommon.loadSettings()
 	
+	def init(self):
+		pass
+
 	def update(self):
 		if self.cnt >= 6*60:
 			self.cnt = 0
@@ -338,6 +341,9 @@ class OptionMenu:
 	def __init__(self):
 		self.menuPos = 0
 	
+	def init(self):
+		self.menuPos = 0
+
 	def update(self):
 		if gcommon.checkUpP():
 			self.menuPos -= 1
@@ -426,6 +432,9 @@ class GameOver:
 	def __init__(self):
 		self.cnt = 0
 	
+	def init(self):
+		self.cnt = 0
+
 	def update(self):
 		self.cnt+=1
 		if self.cnt > 5*60:
@@ -443,7 +452,10 @@ class StageClear:
 	def __init__(self, stage):
 		self.cnt = 0
 		self.stage = stage
-	
+
+	def init(self):
+		self.cnt = 0
+
 	def update(self):
 		self.cnt+=1
 		if self.cnt > 5*60:
@@ -461,6 +473,9 @@ class GameClear:
 	def __init__(self):
 		self.cnt = 0
 	
+	def init(self):
+		self.cnt = 0
+
 	def update(self):
 		self.cnt+=1
 		if self.cnt > 5*60:
@@ -519,6 +534,7 @@ class StartMapDraw2:
 		gcommon.drawMap = MapDraw2()
 		gcommon.map_x = 0
 		gcommon.map_y = 24*8
+		print("StartMapDraw2")
 
 	def do(self):
 		pass
@@ -540,12 +556,16 @@ class SetMapScroll:
 
 class MainGame:
 	def __init__(self, stage):
+		self.stage = stage
+		self.init()
+	
+	def init(self):
 		gcommon.ObjMgr.init()
 		gcommon.ObjMgr.myShip = MyShip()
 		gcommon.cur_scroll_x = 0.5
+		gcommon.cur_scroll_y = 0.0
 		self.story_pos = 0
 		self.event_pos = 0
-		self.stage = stage
 		self.mapOffsetX = 0
 		self.star_pos = 0
 		gcommon.drawMap = None
@@ -573,13 +593,8 @@ class MainGame:
 		#	self.mapOffsetX = 64
 		#	gcommon.draw_star = True
 		pyxel.tilemap(0).refimg = 1
-		
-		
-		
-		
-		
 		gcommon.mapFreeTable = [0, 32, 33, 34, 65, 66]
-	
+
 	def skipGameTimer(self):
 		while(gcommon.game_timer < gcommon.START_GAME_TIMER):
 			self.ExecuteEvent()
@@ -751,10 +766,11 @@ class MainGame:
 			
 		
 		pyxel.text(120, 188, str(gcommon.game_timer), 7)
-		pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)
+		#pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)
+		pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
 		# マップ位置表示
-		#pyxel.text(0, 192, str(gcommon.map_x), 7)
+		#pyxel.text(200, 188, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
 
 	def ExecuteStory(self):
 		while True:
@@ -780,6 +796,7 @@ class MainGame:
 		
 			s = self.eventTable[self.event_pos]
 			if s[0] < gcommon.game_timer:
+				print("!!ExecuteEvent passed " + str(s[0]) + " " + str(gcommon.game_timer))
 				pass
 			elif s[0] != gcommon.game_timer:
 				return
@@ -1075,43 +1092,52 @@ class App:
 		gcommon.initStar()
 		
 		#self.scene = MainGame()
-		self.scene = Title()
+		self.nextScene = None
+		self.scene = None
 		self.stage = 0
+		self.startTitle()
 		pyxel.run(self.update, self.draw)
 
 	def startTitle(self):
-		self.scene = Title()
+		self.setScene(Title())
+
+	def setScene(self, nextScene):
+		self.nextScene = nextScene
 
 	def startGame(self, stage):
 		self.stage = stage
 		gcommon.remain = gcommon.START_REMAIN
 		gcommon.power = gcommon.START_MY_POWER
 		gcommon.score = 0
-		self.scene = MainGame(stage)
+		self.setScene(MainGame(stage))
 
 	def startStage(self, stage):
 		self.stage = stage
-		self.scene = MainGame(stage)
+		self.setScene(MainGame(stage))
 
 	def startNextStage(self):
 		self.startStage(self.stage+1)
 
 	def startGameOver(self):
-		self.scene = GameOver()
+		self.setScene(GameOver())
 
 	def startStageClear(self, stage):
-		self.scene = StageClear(stage)
+		self.setScene(StageClear(stage))
 
 	def startGameClear(self):
-		self.scene = GameClear()
+		self.setScene(GameClear())
 
 	def startOption(self):
-		self.scene = OptionMenu()
+		self.setScene(OptionMenu())
 
 	def update(self):
 		if pyxel.btnp(pyxel.KEY_Q):
 			pyxel.quit()
 
+		if self.nextScene != None:
+			self.nextScene.init()
+			self.scene = self.nextScene
+			self.nextScene = None
 		self.scene.update()
 
 	def draw(self):

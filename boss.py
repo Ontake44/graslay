@@ -51,7 +51,7 @@ class Boss1(enemy.EnemyBase):
 				self.shotFix4()
 			if self.cnt > 180:
 				self.nextState()
-				self.hp = 1000
+				self.hp = 100
 		elif self.state == 3:
 			# ４、８方向ショット
 			if self.subState == 0:
@@ -178,6 +178,7 @@ class Boss1(enemy.EnemyBase):
 		gcommon.score+=self.score
 		self.remove()
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [], 300))
 
 
 # 波動砲発射前の、あの吸い込むようなやつ
@@ -389,6 +390,56 @@ class Feeler(enemy.EnemyBase):
 					return True
 			return False
 
+class Boss2Cell(enemy.EnemyBase):
+	def __init__(self, parentObj, x, y, firstDr):
+		super(Boss2Cell, self).__init__()
+		self.x = x
+		self.y = y
+		self.parentObj = parentObj
+		self.left = 2
+		self.top = 2
+		self.right = 13
+		self.bottom = 13
+		self.hp = 32000
+		self.dr = firstDr
+		self.cells = []
+
+	def update(self):
+		if self.state == 0:
+			# 伸びる
+			if self.cnt < 20:
+				pass
+			elif self.cnt % 2 == 0:
+				tempDr = gcommon.get_atan_no_to_ship(self.x +4, self.y +4)
+				rr = tempDr - self.dr
+				if rr == 0:
+					pass
+				elif  (tempDr - self.dr) > 0:
+					self.dr = (self.dr + 1) & 63
+				else:
+					self.dr = (self.dr - 1) & 63
+			self.x += gcommon.cos_table[self.dr] * 3
+			self.y += gcommon.sin_table[self.dr] * 3
+			self.cells.append([self.x, self.y])
+			if self.cnt > 60:
+				self.nextState()
+		elif self.state == 1:
+			if self.cnt > 20:
+				self.nextState()
+		elif self.state == 2:
+			del self.cells[-1]
+			if len(self.cells) == 0:
+				self.remove()
+
+	def draw(self):
+		index = len(self.cells) -1
+		while(index >= 0):
+			pos = self.cells[index]
+			pyxel.blt(pos[0], pos[1], 1, 0, 128, 16, 16, gcommon.TP_COLOR)
+			index -= 4
+
+
+
 # 0:mode
 #   0: 停止
 #   1: X座標がこれより小さくなると減速、次のインデックスへ
@@ -415,7 +466,8 @@ boss2tbl = [
 	[4, 0, 0.25, 130, 0],		# 下移動
 	[3, 0, -0.25, 64, 0],		# 上移動
 	[6, 0, 0, 60, 0],			# 触手縮める
-	[4, 0, 0.25, 130, 0],		# 下移動
+	[0, 0, 0, 160, 1],
+#	[4, 0, 0.25, 130, 0],		# 下移動
 	[100, 0.0, 0.0, 1, 0],
 	]
 
@@ -559,45 +611,11 @@ class Boss2(enemy.EnemyBase):
 				self.subcnt = 0
 			
 			attack = boss2tbl[self.tblIndex][4]
-			attack = 0
 			if attack == 1:
-				# 全体攻撃
-				if self.subcnt & 7 == 0:
-					enemy.enemy_shot_dr(self.x +24, self.y + 18, 6, 1, 49 + (self.subcnt>>3)*2)
-					enemy.enemy_shot_dr(self.x +24, self.y + 18, 6, 1, 47 - (self.subcnt>>3)*2)
-					gcommon.sound(gcommon.SOUND_SHOT2)
-			elif attack == 2:
-				# 正面攻撃
-				if self.subcnt & 15 == 0:
-					enemy.enemy_shot_dr(self.x +24 +16, self.y + 32, 4, 1, 16)
-					enemy.enemy_shot_dr(self.x +24 -16, self.y + 32, 4, 1, 16)
-					gcommon.sound(gcommon.SOUND_SHOT2)
-			elif attack == 3:
-				# 波状攻撃
-				if self.subcnt & 15 == 0:
-					if self.subcnt & 31 == 0:
-						for i in range(1,6):
-							enemy.enemy_shot_offset(self.x+24, self.y+18, 2*2,1, -(i-2)*2)
-						gcommon.sound(gcommon.SOUND_SHOT2)
-					else:
-						for i in range(1,6):
-							enemy.enemy_shot_offset(self.x+24, self.y+18, 2*2,1, (i-2)*2)
-						gcommon.sound(gcommon.SOUND_SHOT2)
-			
-			elif attack == 4:
-				# 時計回り攻撃
-				if self.subcnt & 7 == 0:
-					enemy.enemy_shot_dr(self.x +24, self.y + 18, 5, 1, (self.subcnt>>3)+2)
-					enemy.enemy_shot_dr(self.x +24, self.y + 18, 6, 1, (self.subcnt>>3)-2)
-					gcommon.sound(gcommon.SOUND_SHOT2)
-
-			elif attack == 5:
-				# 反時計回り攻撃
-				if self.subcnt & 7 == 0:
-					enemy.enemy_shot_dr(self.x +24, self.y + 18, 6, 1, (34 -(self.subcnt>>3)))
-					enemy.enemy_shot_dr(self.x +24, self.y + 18, 5, 1, (30 -(self.subcnt>>3)))
-					gcommon.sound(gcommon.SOUND_SHOT2)
-				
+				if self.subcnt == 1:
+					gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+29, 24))
+				elif self.subcnt == 30:
+					gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+8, 40))
 			self.subcnt+=1
 
 	def draw(self):
@@ -897,12 +915,12 @@ class Boss3Explosion(enemy.EnemyBase):
 		if self.state == 0:
 			if self.cnt == 0:
 				gcommon.sound(gcommon.SOUND_BOSS_EXP)
-			elif self.cnt>170:
+			elif self.cnt>200:
 				#self.nextState()
 				self.remove()
 				#pyxel.play(1, 5)
 		elif self.state == 1:
-			if self.cnt>20:
+			if self.cnt>40:
 				self.remove()
 		
 
