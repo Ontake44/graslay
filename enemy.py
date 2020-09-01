@@ -474,32 +474,30 @@ class StageClearText(EnemyBase):
 		pyxel.blt(127-16*5/2, 138, 0, 80, 240, 80, 16, gcommon.TP_COLOR)
 
 
-class Splash(EnemyBase):
-	def __init__(self, x, y, layer):
-		super(Splash, self).__init__()
-		self.t = gcommon.T_SKY_EXP
-		self.x = x
-		self.y = y
-		self.layer = layer
-		self.offset = random.random()
+# class Splash(EnemyBase):
+# 	def __init__(self, x, y, layer):
+# 		super(Splash, self).__init__()
+# 		self.t = gcommon.T_SKY_EXP
+# 		self.x = x
+# 		self.y = y
+# 		self.layer = layer
+# 		self.offset = random.random()
 
-	def update(self):
-		self.cnt += 1
-		if self.cnt > 100:
-			self.removeFlag = True
+# 	def update(self):
+# 		self.cnt += 1
+# 		if self.cnt > 100:
+# 			self.removeFlag = True
 
-	def draw(self):
-		gcommon.draw_splash2(self, self.offset)
-
-
-	def draw(self):
-		d = ((self.dr + 2) & 63)>>2
-		if d >= 8:
-			pyxel.blt(self.x, self.y, 2, (d -8) * 24, 16+24, 24, 24, gcommon.TP_COLOR)
-		else:
-			pyxel.blt(self.x, self.y, 2, d * 24, 16, 24, 24, gcommon.TP_COLOR)
+# 	def draw(self):
+# 		gcommon.draw_splash2(self, self.offset)
 
 
+# 	def draw(self):
+# 		d = ((self.dr + 2) & 63)>>2
+# 		if d >= 8:
+# 			pyxel.blt(self.x, self.y, 2, (d -8) * 24, 16+24, 24, 24, gcommon.TP_COLOR)
+# 		else:
+# 			pyxel.blt(self.x, self.y, 2, d * 24, 16, 24, 24, gcommon.TP_COLOR)
 
 
 class SplashItem:

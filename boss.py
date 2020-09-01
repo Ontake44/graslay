@@ -152,23 +152,23 @@ class Boss1(enemy.EnemyBase):
 				bx -=16
 
 	def shotFix4(self):
-		enemy.enemy_shot_dr(self.x +48, self.y +22, 4, 1, 33);
-		enemy.enemy_shot_dr(self.x +52, self.y +16, 4, 1, 37);
-		enemy.enemy_shot_dr(self.x +48, self.y +42, 4, 1, 31);
-		enemy.enemy_shot_dr(self.x +52, self.y +48, 4, 1, 27);
+		enemy.enemy_shot_dr(self.x +48, self.y +22, 4, 1, 33)
+		enemy.enemy_shot_dr(self.x +52, self.y +16, 4, 1, 37)
+		enemy.enemy_shot_dr(self.x +48, self.y +42, 4, 1, 31)
+		enemy.enemy_shot_dr(self.x +52, self.y +48, 4, 1, 27)
 
 	def shotFix8(self):
-		enemy.enemy_shot_dr(self.x +48, self.y +22, 2, 0, 31);
-		enemy.enemy_shot_dr(self.x +48, self.y +22, 2, 0, 33);
+		enemy.enemy_shot_dr(self.x +48, self.y +22, 2, 0, 31)
+		enemy.enemy_shot_dr(self.x +48, self.y +22, 2, 0, 33)
 		
-		enemy.enemy_shot_dr(self.x +52, self.y +16, 2, 0, 35);
-		enemy.enemy_shot_dr(self.x +52, self.y +16, 2, 0, 37);
+		enemy.enemy_shot_dr(self.x +52, self.y +16, 2, 0, 35)
+		enemy.enemy_shot_dr(self.x +52, self.y +16, 2, 0, 37)
 		
-		enemy.enemy_shot_dr(self.x +48, self.y +42, 2, 0, 31);
-		enemy.enemy_shot_dr(self.x +48, self.y +42, 2, 0, 33);
+		enemy.enemy_shot_dr(self.x +48, self.y +42, 2, 0, 31)
+		enemy.enemy_shot_dr(self.x +48, self.y +42, 2, 0, 33)
 		
-		enemy.enemy_shot_dr(self.x +52, self.y +48, 2, 0, 27);
-		enemy.enemy_shot_dr(self.x +52, self.y +48, 2, 0, 29);
+		enemy.enemy_shot_dr(self.x +52, self.y +48, 2, 0, 27)
+		enemy.enemy_shot_dr(self.x +52, self.y +48, 2, 0, 29)
 
 	def broken(self):
 		self.setState(100)
@@ -684,224 +684,8 @@ def shot_radial(self, dr):
 			self.y+18,
 			2, 1, (i+dr) & 63)
 
-# ax, ay, 
-# 1: X座標がこれより小さくなると減速、次のインデックスへ
-# 2: X座標がこれより大きくなると減速、次のインデックスへ
-# 3: Y座標がこれより小さくなると減速、次のインデックスへ
-# 4: Y座標がこれより大きくなると減速、次のインデックスへ
-# ax, ay, mode, X or Y]
-boss3tbl = [
-	[0, -0.0125, 3, 10], 
-	[0, 0.0125, 4, 40],
-	[0.012, -0.012, 3, 10], 
-	[-0.013, -0.002, 1, -10],
-	[0, 0.01, 4, 30],			# 下移動
-	[0.012, 0, 2, 160],			# 横移動
-	[-0.012, -0.012, 3, 0],		# 左上へ
-	[0.012, 0, 2, 100],
-	[-0.012, 0.012, 4, 40],
-	]
 
-class Boss3(enemy.EnemyBase):
-	def __init__(self, t):
-		super(Boss3, self).__init__()
-		self.t = gcommon.T_BOSS3
-		self.x = t[2]
-		self.y = t[3]
-		self.left = 0
-		self.top = 0
-		self.right = 159
-		self.bottom = 135
-		self.hp = 32000
-		self.layer = gcommon.C_LAYER_UNDER_GRD
-		self.score = 5000
-		self.subcnt = 0
-		self.hitcolor1 = 5
-		self.hitcolor2 = 6
-		self.dy = -0.5
-		self.dx = 0
-		self.tblIndex = 0
-		
-	def update(self):
-		if self.state == 0:
-			if self.cnt == 600:
-				gcommon.ObjMgr.objs.append(Boss3Body(self))
-				self.nextState()
-		
-		if self.state in (0,1):
-			self.x += self.dx
-			self.y += self.dy
-			mode = boss3tbl[self.tblIndex][2]
-			if mode == 1:
-				if self.x < boss3tbl[self.tblIndex][3]:
-					self.dx *= 0.95
-					self.dy *= 0.95
-					if abs(self.dx) < 0.01:
-						self.nextTbl()
-				else:
-					self.addDxDy()
-			elif mode == 2:
-				if self.x > boss3tbl[self.tblIndex][3]:
-					self.dx *= 0.95
-					self.dy *= 0.95
-					if abs(self.dx) < 0.01:
-						self.nextTbl()
-				else:
-					self.addDxDy()
-			elif mode == 3:
-				# 上制限（上移動）
-				if self.y < boss3tbl[self.tblIndex][3]:
-					self.dx *= 0.95
-					self.dy *= 0.95
-					if abs(self.dy) <=0.01:
-						self.nextTbl()
-				else:
-					self.addDxDy()
-			elif mode == 4:
-				# 下制限（下移動）
-				if self.y > boss3tbl[self.tblIndex][3]:
-					self.dx *= 0.95
-					self.dy *= 0.95
-					if abs(self.dy) <= 0.01:
-						self.nextTbl()
-				else:
-					self.addDxDy()
-		elif self.state == 100:		# broken
-			self.dx = 0
-			self.dy = 0
-			if self.cnt == 80:
-				self.nextState()
-		
-		elif self.state == 101:
-			self.y += gcommon.cur_scroll
-			if self.cnt == 40:
-				self.nextState()
-		
-		elif self.state == 102:
-			self.y += gcommon.cur_scroll
-			if self.cnt % 10 == 0:
-				enemy.create_explosion(
-				self.x+(self.right-self.left)/2 +random.randrange(80)-40,
-				self.y+(self.bottom-self.top)/2 +random.randrange(80)-30,
-				self.layer,gcommon.C_EXPTYPE_GRD_M)
-			if self.cnt == 120:
-				gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_GRD))
-				self.nextState()
-		elif self.state == 103:
-			self.y += gcommon.cur_scroll
-			if self.cnt == 120:
-				self.remove()
 
-	def nextTbl(self):
-		self.tblIndex +=1
-		if self.tblIndex >= len(boss3tbl):
-			self.tblIndex = 0
-		self.dx = boss3tbl[self.tblIndex][0]
-		self.dy = boss3tbl[self.tblIndex][1]
-
-	def addDxDy(self):
-		if abs(self.dx) < 0.5:
-			self.dx +=  boss3tbl[self.tblIndex][0]
-		if abs(self.dy) < 0.5:
-			self.dy +=  boss3tbl[self.tblIndex][1]
-
-	def draw(self):
-		pyxel.blt(self.x, self.y, 2, 0, 120, 160, 136, gcommon.TP_COLOR)
-		if self.state == 0:
-			pyxel.blt(self.x +48, self.y +48, 2, 160, 120, 64, 72, gcommon.TP_COLOR)
-		if self.cnt & 1 != 0:
-			# バーニア
-			if abs(self.dx) <= 0.01:
-				pass
-			elif self.dx < 0:
-				pyxel.blt(self.x+92, self.y +16, 2, 96, 64, 32, 16 -(self.cnt & 2)*16, gcommon.TP_COLOR)
-				pyxel.blt(self.x+144, self.y +114, 2, 96, 64, 32, 16 -(self.cnt & 2)*16, gcommon.TP_COLOR)
-			else:
-				pyxel.blt(self.x+35, self.y +16, 2, 96, 64, -32, 16 -(self.cnt & 2)*16, gcommon.TP_COLOR)
-				pyxel.blt(self.x-16, self.y +114, 2, 96, 64, -32, 16 -(self.cnt & 2)*16, gcommon.TP_COLOR)
-
-			# メインエンジン
-			if self.dy == 0:
-				pass
-			elif self.dy <= 0:
-				pyxel.blt(self.x+20, self.y +136, 2, 208, 48, 24 -(self.cnt & 2)*24, 72, gcommon.TP_COLOR)
-				pyxel.blt(self.x+113, self.y +136, 2, 208, 48, 24 -(self.cnt & 2)*24, 72, gcommon.TP_COLOR)
-			else:
-				pyxel.blt(self.x+20, self.y +136, 2, 232, 48, 24 -(self.cnt & 2)*24, 72, gcommon.TP_COLOR)
-				pyxel.blt(self.x+113, self.y +136, 2, 232, 48, 24 -(self.cnt & 2)*24, 72, gcommon.TP_COLOR)
-
-			
-
-class Boss3Body(enemy.EnemyBase):
-	def __init__(self, obj):
-		super(Boss3Body, self).__init__()
-		self.t = gcommon.T_BOSS3
-		self.x = obj.x + 48
-		self.y = obj.y + 48
-		self.left = 0
-		self.top = 0
-		self.right = 63
-		self.bottom = 71
-		self.hp = 2000
-		self.layer = gcommon.C_LAYER_GRD
-		self.score = 5000
-		self.subcnt = 0
-		self.hitcolor1 = 5
-		self.hitcolor2 = 6
-		self.outside = obj
-		self.dr1 = 0
-		self.dr2 = 0
-		self.shotcnt = 0
-		self.crosscnt = 0
-
-	def update(self):
-		self.x = int(self.outside.x) + 48
-		self.y = int(self.outside.y) + 48
-		if self.cnt % 28 == 0:
-			shot_cross(self.x+32, self.y-8, self.crosscnt)
-			gcommon.sound(gcommon.SOUND_SHOT2)
-			self.crosscnt += 3
-			
-			#self.dr1 = gcommon.get_atan_no_to_ship(self.x + 67, self.y + 37)
-			#print("dr " + str(self.dr1))
-			#enemy.enemy_shot_dr(self.x + 67, self.y + 37, 2, 0, self.dr1)
-			#enemy.enemy_shot(self.x+67, self.y+37,2,0)
-			pass
-		if self.state == 0:
-			if self.cnt == 1:
-				self.dr1 = gcommon.get_atan_no_to_ship(self.x + 80, self.y + 48)
-			if self.cnt & 7 ==7 and self.shotcnt < 4:
-				enemy.enemy_shot_dr(self.x + 80, self.y + 48, 4, 0, self.dr1)
-				gcommon.sound(gcommon.SOUND_SHOT2)
-				self.shotcnt += 1
-			if self.cnt == 50:
-				self.cnt = 0
-				self.shotcnt = 0
-				self.state = 1
-		elif self.state == 1:
-			if self.cnt == 1:
-				self.dr2 = gcommon.get_atan_no_to_ship(self.x -16, self.y + 48)
-			if self.cnt & 7 ==7 and self.shotcnt < 4:
-				enemy.enemy_shot_dr(self.x -16, self.y + 48, 4, 0, self.dr2)
-				gcommon.sound(gcommon.SOUND_SHOT2)
-				self.shotcnt += 1
-			if self.cnt == 50:
-				self.cnt = 0
-				self.shotcnt = 0
-				self.state = 0
-	
-	
-	def draw(self):
-		pyxel.blt(self.x, self.y, 2, 160, 120, 64, 72, gcommon.TP_COLOR)
-
-	def broken(self):
-		enemy.create_explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY, gcommon.C_EXPTYPE_SKY_L)
-		#gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_GRD))
-		gcommon.ObjMgr.objs.append(Boss3B(gcommon.getCenterX(self), self.y + 50))
-		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		self.remove()
-		self.outside.setState(100)
-		gcommon.score+=10000
 
 class Boss3Explosion(enemy.EnemyBase):
 	def __init__(self, cx, cy, layer):

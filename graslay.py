@@ -557,7 +557,6 @@ class SetMapScroll:
 class MainGame:
 	def __init__(self, stage):
 		self.stage = stage
-		self.init()
 	
 	def init(self):
 		gcommon.ObjMgr.init()
@@ -766,8 +765,8 @@ class MainGame:
 			
 		
 		pyxel.text(120, 188, str(gcommon.game_timer), 7)
-		#pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)
-		pyxel.text(160, 188, str(self.event_pos),7)
+		pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)
+		#pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
 		# マップ位置表示
 		#pyxel.text(200, 188, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
