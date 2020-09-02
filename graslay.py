@@ -30,6 +30,7 @@ class MyShip:
 		self.sub_scene = 3
 		self.shotCounter = 0
 		self.prevFlag = False
+		self.dx = 0
 		self.setStartPosition()
 		
 	def update(self):
@@ -55,16 +56,23 @@ class MyShip:
 					self.x = -16
 		elif self.sub_scene == 3:
 			# 復活中
+			self.dx = 0
 			self.x += 1
 			if self.x >= 8:
 				self.cnt = 0
 				self.sub_scene = 4
-		else: # sub_scene=4
+		elif self.sub_scene == 4:
 			# 無敵中
 			self.actionButtonInput()
 			if self.cnt == 120:
 				self.cnt = 0
 				self.sub_scene=1
+		else:	# scene == 5
+			if self.x < 256 + 32:
+				if self.dx < 8:
+					self.dx += 0.25
+				self.x += self.dx
+
 
 		self.cnt += 1
 
@@ -150,9 +158,11 @@ class MyShip:
 					7 + int(self.cnt%2)*3)
 				# kore ha tekito
 				r += 0.11 + i*0.04
-		elif self.sub_scene==3 or self.sub_scene==4:
+		elif self.sub_scene in (3,4,5):
 			if self.cnt%2 ==0:
 				self.drawMyShip()
+				if self.sub_scene == 5:
+					pyxel.blt(self.x-32, self.y+4, 0, 48, 8, 32, 8, gcommon.TP_COLOR)
 				
 		# 当たり判定領域描画
 		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
@@ -751,7 +761,8 @@ class MainGame:
 		
 		pyxel.clip()
 		# SCORE表示
-		pyxel.text(4, 194, "SCORE " + str(gcommon.score), 7)
+		#pyxel.text(4, 194, "SC " + str(gcommon.score), 7)
+		gcommon.showText2(0,192, "SC " + str(gcommon.score))
 		# 残機
 		pyxel.blt(232, 192, 0, 48, 32, 6, 8, gcommon.C_COLOR_KEY)
 		pyxel.text(242, 192, str(gcommon.remain), 7)

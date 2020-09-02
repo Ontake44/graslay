@@ -503,4 +503,20 @@ def mapPosToScreenPos(mx, my):
 	else:
 		return [mx * 8 - map_x, my * 8 - map_y]
 
+def showText(x, y, s):
+	for c in s:
+		code = ord(c)
+		if code >= 65 and code <= 90:
+			pyxel.blt(x, y, 0, (code-65)*8, 128, 8, 8, TP_COLOR)
+		elif code >= 48 and code <= 57:
+			pyxel.blt(x, y, 0, (code-48)*8, 136, 8, 8, TP_COLOR)
+		x += 8
 
+def showText2(x, y, s):
+	for c in s:
+		code = ord(c)
+		if code >= 65 and code <= 90:
+			pyxel.blt(x, y, 0, (code-65)*8, 112, 6, 8, TP_COLOR)
+		elif code >= 48 and code <= 57:
+			pyxel.blt(x, y, 0, (code-48)*8, 120, 6, 8, TP_COLOR)
+		x += 6

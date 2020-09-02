@@ -200,6 +200,8 @@ class Explosion(EnemyBase):
 		self.layer = exlayer
 		self.exptype = exptype
 		self.size = 0
+		self.hitCheck = False
+		self.shotHitCheck = False
 		if exptype == gcommon.C_EXPTYPE_SKY_S or exptype==gcommon.C_EXPTYPE_GRD_S:
 			self.size = 1
 		elif exptype == gcommon.C_EXPTYPE_SKY_M or exptype==gcommon.C_EXPTYPE_GRD_M:
@@ -1145,10 +1147,12 @@ class StageClear(EnemyBase):
 		super(StageClear, self).__init__()
 		self.hitCheck = False
 		self.shotHitCheck = False
+		gcommon.ObjMgr.myShip.sub_scene = 5
 
 	def update(self):
-		self.remove()
-		gcommon.app.startNextStage()
+		if self.cnt > 60:
+			self.remove()
+			gcommon.app.startNextStage()
 
 	def draw(self):
 		pass

@@ -51,7 +51,7 @@ class Boss1(enemy.EnemyBase):
 				self.shotFix4()
 			if self.cnt > 180:
 				self.nextState()
-				self.hp = 100
+				self.hp = 1000
 		elif self.state == 3:
 			# ４、８方向ショット
 			if self.subState == 0:
@@ -254,15 +254,16 @@ class Feeler(enemy.EnemyBase):
 		self.parentObj = parentObj
 		self.offsetX = offsetX
 		self.offsetY = offsetY
-		self.left = 0
-		self.top = 0
+		self.left = 2
+		self.top = 2
 		self.dr = dr
-		self.right = 71
-		self.bottom = 67
+		self.right = 13
+		self.bottom = 13
 		self.hp = 32000
 		self.cells = []		# 相対座標
 		self.mode = 0
 		self.subDr = 0
+		self.state = 0		# 0:縮小状態 1,2:モードで動作中
 		for i in range(0, count):
 			self.cells.append([0, 0])
 		# 触手セルの当たり判定範囲
@@ -270,14 +271,14 @@ class Feeler(enemy.EnemyBase):
 
 	def setMode(self, mode):
 		self.mode = mode
-		self.status = 1
+		self.state = 1
 		self.cnt = 0
 
 	def update(self):
 		self.x = self.parentObj.x + self.offsetX
 		self.y = self.parentObj.y + self.offsetY
 		if self.mode == 1:
-			if self.status ==1:
+			if self.state ==1:
 				#print("cnt = " + str(self.cnt))
 				i = 1
 				x = 0
@@ -289,14 +290,14 @@ class Feeler(enemy.EnemyBase):
 					y = pos[1]
 					i += 1
 				if self.cnt == 30:
-					self.status = 0
+					self.state = 2
 					
 		elif self.mode == 2:
 			# ゆらゆら動く
-			if self.status == 1:
+			if self.state == 1:
 				self.subDr = 0.0
-				self.status = 2
-			elif self.status == 2:
+				self.state = 2
+			elif self.state == 2:
 				i = 0
 				x = 0
 				y = 0
@@ -308,8 +309,8 @@ class Feeler(enemy.EnemyBase):
 					i += 1
 				self.subDr += 0.05
 				if self.subDr >= 3.0:
-					self.status = 3
-			elif self.status == 3:
+					self.state = 3
+			elif self.state == 3:
 				i = 0
 				x = 0
 				y = 0
@@ -321,7 +322,7 @@ class Feeler(enemy.EnemyBase):
 					i += 1
 				self.subDr -= 0.05
 				if self.subDr <= -3.0:
-					self.status = 2
+					self.state = 2
 			if self.cnt % 30 == 0:
 				if len(self.cells) > 0:
 					pos = self.cells[len(self.cells)-1]
@@ -329,7 +330,7 @@ class Feeler(enemy.EnemyBase):
 
 		elif self.mode == 3:
 			# 縮む
-			if self.status ==1:
+			if self.state ==1:
 				#print("cnt = " + str(self.cnt))
 				i = 1
 				x = 0
@@ -341,18 +342,19 @@ class Feeler(enemy.EnemyBase):
 					y = pos[1]
 					i += 1
 				if self.cnt == 30:
-					self.status = 0
+					self.state = 0
 		
 	def draw(self):
-		size = len(self.cells)
-		i = 0
-		while(i<size):
-			pos = self.cells[size -1 -i]
-			if i == 0:
-				pyxel.blt(self.x + pos[0], self.y + pos[1], 1, 32, 128, 16, 16, gcommon.TP_COLOR)
-			else:
-				pyxel.blt(self.x + pos[0], self.y + pos[1], 1, 0, 128, 16, 16, gcommon.TP_COLOR)
-			i += 1
+		if self.state != 0:
+			size = len(self.cells)
+			i = 0
+			while(i<size):
+				pos = self.cells[size -1 -i]
+				if i == 0:
+					pyxel.blt(self.x + pos[0], self.y + pos[1], 1, 32, 128, 16, 16, gcommon.TP_COLOR)
+				else:
+					pyxel.blt(self.x + pos[0], self.y + pos[1], 1, 0, 128, 16, 16, gcommon.TP_COLOR)
+				i += 1
 
 	# 自機弾と敵との当たり判定と破壊処理
 	def checkShotCollision(self, shot):
@@ -407,7 +409,7 @@ class Boss2Cell(enemy.EnemyBase):
 	def update(self):
 		if self.state == 0:
 			# 伸びる
-			if self.cnt < 20:
+			if self.cnt < 15:
 				pass
 			elif self.cnt % 2 == 0:
 				tempDr = gcommon.get_atan_no_to_ship(self.x +4, self.y +4)
@@ -466,7 +468,7 @@ boss2tbl = [
 	[4, 0, 0.25, 130, 0],		# 下移動
 	[3, 0, -0.25, 64, 0],		# 上移動
 	[6, 0, 0, 60, 0],			# 触手縮める
-	[0, 0, 0, 160, 1],
+	[0, 0, 0, 240, 1],
 #	[4, 0, 0.25, 130, 0],		# 下移動
 	[100, 0.0, 0.0, 1, 0],
 	]
@@ -530,6 +532,7 @@ class Boss2(enemy.EnemyBase):
 			self.y += self.dy
 			if self.x > 150:
 				self.dx = 0
+				self.hp = 500
 				self.setState(4)
 		elif self.state == 4:
 			self.x += self.dx
@@ -599,7 +602,6 @@ class Boss2(enemy.EnemyBase):
 			elif mode == 6:
 				# 触手縮める
 				if self.subcnt == 1:
-					print("mode 6 :1")
 					self.feelers[0].setMode(3)
 					self.feelers[1].setMode(3)
 					self.feelers[2].setMode(3)
@@ -614,8 +616,12 @@ class Boss2(enemy.EnemyBase):
 			if attack == 1:
 				if self.subcnt == 1:
 					gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+29, 24))
-				elif self.subcnt == 30:
+				elif self.subcnt == 20:
 					gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+8, 40))
+				elif self.subcnt == 40:
+					gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+8, 24))
+				elif self.subcnt == 60:
+					gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+29, 40))
 			self.subcnt+=1
 
 	def draw(self):
@@ -637,22 +643,13 @@ class Boss2(enemy.EnemyBase):
 			self.dy +=  boss2tbl[self.tblIndex][2]
 
 	def broken(self):
-		if self.state<100:
-			self.layer = gcommon.C_LAYER_EXP_GRD
-			self.cnt=0
-			self.state=100
-			enemy.create_explosion(
-				self.x+(self.right -self.left+1)/2,
-				self.y+(self.bottom -self.top+1)/2-4,
-				self.layer, gcommon.C_EXPTYPE_GRD_M)
-			gcommon.score += 10000
-			remove_all_battery()
+		for feeler in self.feelers:
+			feeler.remove()
+		self.remove()
+		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_GRD))
+		gcommon.score+=self.score
+		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 
-def create_battery1(x,y,hidetime):
-	#local s={0,t_battery1,x,y,hidetime}
-	#local o=battery1:new(s)
-	#add(objs,o)
-	gcommon.ObjMgr.objs.append(enemy.Battery1.create(x,y,hidetime))
 
 def remove_all_battery():
 	for obj in gcommon.ObjMgr.objs:
