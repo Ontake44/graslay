@@ -136,11 +136,16 @@ direction_map = [		\
 game_timer = 0
 score = 0
 
-cur_scroll_x = 0
-cur_scroll_y = 0
+cur_scroll_x = 0.0
+cur_scroll_y = 0.0
 
-map_x = 0
-map_y = 0
+cur_map_dx = 0.0
+cur_map_dy = 0.0
+
+map_x = 0.0
+map_y = 0.0
+
+sync_map_y = True
 
 power = START_MY_POWER
 remain = START_REMAIN		# 残機
@@ -470,15 +475,76 @@ def getMapData(x, y):
 	global drawMap
 	global map_x
 	global map_y
+	global sync_map_y
 	if drawMap == None:
 		return -1
 	else:
 		mx = int(map_x/8) + int((int(map_x)%8 + int(x))/8)
 		my = int(map_y/8) + int((int(map_y)%8 + int(y))/8)
-		if mx>=0 and mx<256 and my>=0 and my<256:
-			return pyxel.tilemap(0).get(mx, my)
+		if sync_map_y:
+			# 2 * 3 = 6画面分
+			if mx>=0 and mx<256*6 and my>=0 and my<128:
+				tm = int(mx/512)
+				moffset = (int(mx/256) & 1) * 128
+				return pyxel.tilemap(tm).get(mx & 255, (my + moffset) & 255)
+			else:
+				return -1
 		else:
-			return -1
+			if mx>=0 and mx<256 and my>=0 and my<256:
+				return pyxel.tilemap(0).get(mx, my)
+			else:
+				return -1
+
+# xはスクリーン座標、yはマップ座標
+def getMapDataX(x, my):
+	global drawMap
+	global map_x
+	global sync_map_y
+	if drawMap == None:
+		return -1
+	else:
+		mx = int(map_x/8) + int((int(map_x)%8 + int(x))/8)
+		if sync_map_y:
+			# 2 * 3 = 6画面分
+			if mx>=0 and mx<256*6 and my>=0 and my<128:
+				tm = int(mx/512)
+				moffset = (int(mx/256) & 1) * 128
+				return pyxel.tilemap(tm).get(mx & 255, (my + moffset) & 255)
+			else:
+				return -1
+		else:
+			if mx>=0 and mx<256 and my>=0 and my<256:
+				return pyxel.tilemap(0).get(mx, my)
+			else:
+				return -1
+
+def setMapData(x, y, p):
+	global drawMap
+	global map_x
+	global map_y
+	global sync_map_y
+	if drawMap == None:
+		return
+	else:
+		mx = int(map_x/8) + int((int(map_x)%8 + int(x))/8)
+		my = int(map_y/8) + int((int(map_y)%8 + int(y))/8)
+		if sync_map_y:
+			# 2 * 3 = 6画面分
+			if mx>=0 and mx<256*6 and my>=0 and my<128:
+				tm = int(mx/512)
+				moffset = (int(mx/256) & 1) * 128
+				pyxel.tilemap(tm).set(mx & 255, (my + moffset) & 255, p)
+			else:
+				return
+		else:
+			if mx>=0 and mx<256 and my>=0 and my<256:
+				pyxel.tilemap(0).set(mx, my, p)
+			else:
+				return
+def screenPosToMapPos(x, y):
+	global map_x
+	global map_y
+	return [int(map_x/8) + int((int(map_x)%8 + int(x))/8), int(map_y/8) + int((int(map_y)%8 + int(y))/8)]
 
 def isMapFree(no):
 	global mapFreeTable

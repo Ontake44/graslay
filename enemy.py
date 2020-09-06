@@ -409,10 +409,13 @@ class Battery1(EnemyBase):
 		self.hitcolor1 = 5
 		self.hitcolor2 = 6
 		self.exptype = gcommon.C_EXPTYPE_GRD_S
+		self.interval = 120
+		self.first = 120
+		self.shot_speed = 2
 
 	def update(self):
-		if self.cnt % 120==0:
-			enemy_shot(self.x+8,self.y+6, 2, 0)
+		if self.first == self.cnt or self.cnt % self.interval ==0:
+			enemy_shot(self.x+8,self.y+6, self.shot_speed, 0)
 
 	def draw(self):
 		dr8 = gcommon.get_direction_my(self.x+8, self.y +8)
