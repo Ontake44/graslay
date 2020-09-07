@@ -97,8 +97,8 @@ class EnemyBase:
 	# 破壊されたとき
 	def broken(self):
 		layer = gcommon.C_LAYER_EXP_SKY
-		if self.layer == gcommon.C_LAYER_GRD:
-			layer = gcommon.C_LAYER_EXP_GRD
+		#if self.layer == gcommon.C_LAYER_GRD:
+		#	layer = gcommon.C_LAYER_EXP_GRD
 		
 		gcommon.score += self.score
 		
@@ -709,7 +709,6 @@ class DockArm(EnemyBase):
 		self.shift = 0
 
 	def update(self):
-		pass
 		if self.cnt > self.startCnt:
 			self.shift += 1
 			if self.shift >= 80:

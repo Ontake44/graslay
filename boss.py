@@ -174,7 +174,7 @@ class Boss1(enemy.EnemyBase):
 		self.setState(100)
 		self.shotHitCheck = False
 		self.beamObj.remove()
-		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_GRD))
+		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
 		gcommon.score+=self.score
 		self.remove()
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
@@ -215,7 +215,7 @@ class Boss2Base(enemy.EnemyBase):
 		self.top = 8
 		self.right = 56
 		self.bottom = 23
-		self.layer = gcommon.C_LAYER_UPPER_GRD
+		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.hp = 50
 		self.hitcolor1 = 3
 		self.hitcolor2 = 10
@@ -231,7 +231,8 @@ class Boss2Base(enemy.EnemyBase):
 			self.y = self.bossObj.y +36
 
 	def update(self):
-		pass
+		if self.x < -72:
+			self.remove()
 
 	def draw(self):
 		pyxel.blt(int(self.x), self.y, 1, 32 + self.pos*72, 224, 72, 32, gcommon.TP_COLOR)
@@ -646,7 +647,7 @@ class Boss2(enemy.EnemyBase):
 		for feeler in self.feelers:
 			feeler.remove()
 		self.remove()
-		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_GRD))
+		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
 		gcommon.score+=self.score
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [], 300))
@@ -723,278 +724,4 @@ class Boss3Explosion(enemy.EnemyBase):
 
 
 
-# 0:mode
-#   0: 停止
-#   1: X座標がこれより小さくなると減速、次のインデックスへ
-#   2: X座標がこれより大きくなると減速、次のインデックスへ
-#   3: Y座標がこれより小さくなると減速、次のインデックスへ
-#   4: Y座標がこれより大きくなると減速、次のインデックスへ
-# 1:ax, 2: ay, 
-# 3: X or Y or 停止時間
-# 4: 攻撃パターン
-#   0: なし
-#   1: 最初の全体攻撃（左右から）
-#   2: 正面
-#   3: 波状
-#   4: 時計回り攻撃
-#   5: 反時計回り攻撃
-# mode, ax, ay, X or Y or 停止時間, 攻撃パターン]
-boss3Btbl = [
-	[4, 0, 0.125,  10, 0],
-	[0, 0, 0,  140, 1],				# 全体攻撃
-	[0, 0, 0,  30, 0],
-	[2, 0.125, 0.02, 160, 2],			# 右移動 正面攻撃
-	[0, 0, 0,  30, 0],
-	[3, -0.125, -0.0625,  20, 0],		# 左上へ
-	[2, 0.125, 0, 100, 3],				# 右移動 波状攻撃
-	[1, -0.125, 0, 20, 4],			# 左移動 時計回り攻撃
-	[2, 0.125, 0, 120, 5],			# 左移動 時計回り攻撃
-	]
-
-class Boss3B(enemy.EnemyBase):
-	def __init__(self, x, y):
-		super(Boss3B, self).__init__()
-		self.t = gcommon.T_BOSS3
-		self.left = 0
-		self.top = 0
-		self.right = 47
-		self.bottom = 31
-		self.x = x - 24
-		self.y = y - 48/2
-		self.hp = 3000
-		self.layer = gcommon.C_LAYER_SKY
-		self.score = 20000
-		self.subcnt = 0
-		self.hitcolor1 = 8
-		self.hitcolor2 = 14
-		self.dy = 0
-		self.dx = 0
-		self.tblIndex = 0
-		self.firstX = 128-48/2
-		self.firstY = -49
-		self.subcnt = 0
-		self.brake = False
-		
-	def update(self):
-		if self.state == 0:
-			# 格納庫
-			if self.cnt == 80:
-				self.nextState()
-		elif self.state == 1:
-			# 初期位置まで移動
-			if abs(self.firstY - self.y) < 1 and abs(self.firstX - self.x) < 1:
-				self.nextState()
-				self.dx = 0
-				self.dy = 0
-			else:
-				r = math.atan2(self.firstY - self.y, self.firstX - self.x)
-				self.dx = math.cos(r) * 1
-				self.dy = math.sin(r) * 1
-				self.x += self.dx
-				self.y += self.dy
-
-		elif self.state == 2:
-			self.brake = False
-			if self.cnt == 60:
-				self.nextState()
-		elif self.state == 3:
-			self.x += self.dx
-			self.y += self.dy
-			self.brake = False
-			mode = boss3Btbl[self.tblIndex][0]
-			if mode == 0:
-				if self.subcnt == boss3Btbl[self.tblIndex][3]:
-					self.nextTbl()
-			elif mode == 1:
-				if self.x < boss3Btbl[self.tblIndex][3]:
-					self.dx *= 0.95
-					self.dy *= 0.95
-					self.brake = True
-					if abs(self.dx) < 0.01:
-						self.nextTbl()
-				else:
-					self.addDxDy()
-			elif mode == 2:
-				if self.x > boss3Btbl[self.tblIndex][3]:
-					self.dx *= 0.95
-					self.dy *= 0.95
-					self.brake = True
-					if abs(self.dx) < 0.01:
-						self.nextTbl()
-				else:
-					self.addDxDy()
-			elif mode == 3:
-				# 上制限（上移動）
-				if self.y < boss3Btbl[self.tblIndex][3]:
-					self.dx *= 0.95
-					self.dy *= 0.95
-					self.brake = True
-					if abs(self.dy) <=0.01:
-						self.nextTbl()
-				else:
-					self.addDxDy()
-			elif mode == 4:
-				# 下制限（下移動）
-				if self.y > boss3Btbl[self.tblIndex][3]:
-					self.dx *= 0.95
-					self.dy *= 0.95
-					self.brake = True
-					if abs(self.dy) <= 0.01:
-						self.nextTbl()
-				else:
-					self.addDxDy()
-
-			attack = boss3Btbl[self.tblIndex][4]
-			if attack == 1:
-				# 全体攻撃
-				if self.subcnt & 7 == 0:
-					enemy.enemy_shot_dr(self.x +24, self.y + 18, 6, 1, 49 + (self.subcnt>>3)*2)
-					enemy.enemy_shot_dr(self.x +24, self.y + 18, 6, 1, 47 - (self.subcnt>>3)*2)
-					gcommon.sound(gcommon.SOUND_SHOT2)
-			elif attack == 2:
-				# 正面攻撃
-				if self.subcnt & 15 == 0:
-					enemy.enemy_shot_dr(self.x +24 +16, self.y + 32, 4, 1, 16)
-					enemy.enemy_shot_dr(self.x +24 -16, self.y + 32, 4, 1, 16)
-					gcommon.sound(gcommon.SOUND_SHOT2)
-			elif attack == 3:
-				# 波状攻撃
-				if self.subcnt & 15 == 0:
-					if self.subcnt & 31 == 0:
-						for i in range(1,6):
-							enemy.enemy_shot_offset(self.x+24, self.y+18, 2*2,1, -(i-2)*2)
-						gcommon.sound(gcommon.SOUND_SHOT2)
-					else:
-						for i in range(1,6):
-							enemy.enemy_shot_offset(self.x+24, self.y+18, 2*2,1, (i-2)*2)
-						gcommon.sound(gcommon.SOUND_SHOT2)
-			
-			elif attack == 4:
-				# 時計回り攻撃
-				if self.subcnt & 7 == 0:
-					enemy.enemy_shot_dr(self.x +24, self.y + 18, 5, 1, (self.subcnt>>3)+2)
-					enemy.enemy_shot_dr(self.x +24, self.y + 18, 6, 1, (self.subcnt>>3)-2)
-					gcommon.sound(gcommon.SOUND_SHOT2)
-
-			elif attack == 5:
-				# 反時計回り攻撃
-				if self.subcnt & 7 == 0:
-					enemy.enemy_shot_dr(self.x +24, self.y + 18, 6, 1, (34 -(self.subcnt>>3)))
-					enemy.enemy_shot_dr(self.x +24, self.y + 18, 5, 1, (30 -(self.subcnt>>3)))
-					gcommon.sound(gcommon.SOUND_SHOT2)
-				
-			self.subcnt+=1
-
-		elif self.state == 100:
-			# broken
-			self.dx = 0
-			self.dy = 0
-			self.subcnt = 0
-			if self.cnt > 120:
-				gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_GRD))
-				gcommon.score+=self.score
-				self.nextState()
-
-		elif self.state == 101:
-			if self.cnt > 300:
-				self.nextState()
-
-		elif self.state == 102:
-			gcommon.ObjMgr.objs.append(enemy.StageClearText(3))
-			if self.cnt > 240:
-				self.nextState()
-
-		elif self.state == 103:
-			self.remove()
-			gcommon.app.startGameClear()
-
-	def nextTbl(self):
-		self.tblIndex +=1
-		if self.tblIndex >= len(boss3Btbl):
-			self.tblIndex = 0
-		self.dx = boss3Btbl[self.tblIndex][1]
-		self.dy = boss3Btbl[self.tblIndex][2]
-		self.subcnt = 0
-
-	def addDxDy(self):
-		if abs(self.dx) < 1:
-			self.dx +=  boss3Btbl[self.tblIndex][1]
-		if abs(self.dy) < 1:
-			self.dy +=  boss3Btbl[self.tblIndex][2]
-
-	def draw(self):
-		if self.state >= 101:
-			return
-		elif self.state == 100:
-			pyxel.blt(self.x, self.y, 2, 160, 192, 48, 48, gcommon.TP_COLOR)
-			pyxel.blt(self.x +48, self.y, 2, 72, 64, 24, 24, gcommon.TP_COLOR)
-			pyxel.blt(self.x -24, self.y, 2, 0, 64, 24, 24, gcommon.TP_COLOR)
-			return
-		if self.cnt & 1 == 0:
-			tl = False
-			tr = False
-			bl = False
-			br = False
-			if self.dy > 0.01:
-				if self.dx > 0.01:
-					tl = True
-				elif self.dx < -0.01:
-					tr = True
-				else:
-					tl = True
-					tr = True
-			elif self.dy < -0.01:
-				if self.dx > 0.01:
-					bl = True
-				elif self.dx < -0.01:
-					br = True
-				else:
-					bl = True
-					br = True
-			else:
-				if self.dx > 0.01:
-					bl = True
-					tl = True
-				elif self.dx < -0.01:
-					br = True
-					tr = True
-
-			if self.brake:
-				if tl:
-					pyxel.blt(self.x +48, self.y +26, 2, 128, 80, 24, 24, gcommon.TP_COLOR)
-				if tr:
-					pyxel.blt(self.x -24, self.y +26, 2, 128, 80, -24, 24, gcommon.TP_COLOR)
-				if bl:
-					pyxel.blt(self.x +48, self.y -24, 2, 128, 80, 24, -24, gcommon.TP_COLOR)
-				if br:
-					pyxel.blt(self.x -24, self.y -24, 2, 128, 80, -24, -24, gcommon.TP_COLOR)
-			else:
-				if tl:
-					pyxel.blt(self.x -32, self.y -24, 2, 96, 80, -32, -32, gcommon.TP_COLOR)
-				if tr:
-					pyxel.blt(self.x +48, self.y -24, 2, 96, 80, 32, -32, gcommon.TP_COLOR)
-				if bl:
-					pyxel.blt(self.x -32, self.y +26, 2, 96, 80, -32, 32, gcommon.TP_COLOR)
-				if br:
-					pyxel.blt(self.x +48, self.y +26, 2, 96, 80, 32, 32, gcommon.TP_COLOR)
-			
-		if self.state == 1:
-			if self.cnt >= 0 and self.cnt<24:
-				pyxel.blt(self.x +48, self.y, 2, 95 -self.cnt, 64, self.cnt+1, 24, gcommon.TP_COLOR)
-				pyxel.blt(self.x -self.cnt -1, self.y, 2, 0, 64, self.cnt+1, 24, gcommon.TP_COLOR)
-			elif self.cnt>=24:
-				pyxel.blt(self.x +48, self.y, 2, 72, 64, 24, 24, gcommon.TP_COLOR)
-				pyxel.blt(self.x -24, self.y, 2, 0, 64, 24, 24, gcommon.TP_COLOR)
-		elif self.state in  (2, 3):
-				pyxel.blt(self.x +48, self.y, 2, 72, 64, 24, 24, gcommon.TP_COLOR)
-				pyxel.blt(self.x -24, self.y, 2, 0, 64, 24, 24, gcommon.TP_COLOR)
-		
-		pyxel.blt(self.x, self.y, 2, 24, 64, 48, 48, gcommon.TP_COLOR)
-
-	def broken(self):
-		self.setState(100)
-		# 当たり判定がないレイヤに移動しないと何度もbrokenが呼ばれてしまう
-		self.layer = gcommon.C_LAYER_HIDE_GRD
-		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 

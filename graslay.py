@@ -525,6 +525,9 @@ class MapDraw:
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 
+	def drawBackground(self):
+		pass
+
 	def draw(self):
 		if gcommon.map_x < 0:
 			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
@@ -538,13 +541,17 @@ class MapDraw2:
 	def update(self):
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
-		
+	
+	def drawBackground(self):
+		dx = -1.0 * (int(gcommon.map_x/2) % 8)
+		sx = (int(gcommon.map_x/16)%3)
+		pyxel.bltm(dx, 0, 0, sx, 128, 33,33, gcommon.TP_COLOR)
+
 	def draw(self):
 		dx = -1.0 * (int(gcommon.map_x/2) % 8)
 		dy = -1.0 * (int(gcommon.map_y/2) % 8)
-		sx = (int(gcommon.map_x/16)%3)
-		sy = 128 +(int(gcommon.map_y/16)%3)
-		pyxel.bltm(dx, 0, 0, sx, 128, 33,33, gcommon.TP_COLOR)
+		#sx = (int(gcommon.map_x/16)%3)
+		#sy = 128 +(int(gcommon.map_y/16)%3)
 		if gcommon.map_x < 0:
 			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 		else:
@@ -569,6 +576,9 @@ class MapDraw3:
 				if n == 391:
 					obj.mirror = 1
 				gcommon.ObjMgr.addObj(obj)
+
+	def drawBackground(self):
+		pass
 
 	def draw(self):
 		if gcommon.map_x < 0:
@@ -715,9 +725,6 @@ class MainGame:
 		newObjs = []
 		for obj in gcommon.ObjMgr.objs:
 			if obj.layer == gcommon.C_LAYER_GRD 	\
-				or obj.layer==gcommon.C_LAYER_HIDE_GRD \
-				or obj.layer==gcommon.C_LAYER_EXP_GRD \
-				or obj.layer==gcommon.C_LAYER_UPPER_GRD \
 				or obj.layer==gcommon.C_LAYER_UNDER_GRD:
 				obj.x -= gcommon.cur_scroll_x
 				obj.y -= gcommon.cur_scroll_y
@@ -741,63 +748,33 @@ class MainGame:
 		#pyxel.text(55, 41, "Hello, Pyxel!", pyxel.frame_count % 16)
 		#pyxel.blt(61, 66, 0, 0, 0, 38, 16)
 		
+		# 星
+		if gcommon.draw_star:
+			for i in range(0,96):
+				pyxel.pset(((int)(gcommon.star_ary[i][0]+self.star_pos))&255, i*2, gcommon.star_ary[i][1])
+			self.star_pos -= 0.2
+			if self.star_pos<0:
+				self.star_pos += 255
+
+		if gcommon.drawMap != None:
+			gcommon.drawMap.drawBackground()
+
 		for obj in gcommon.ObjMgr.objs:
 			if obj.layer==gcommon.C_LAYER_UNDER_GRD:
 				obj.draw()
 		
-		if self.stage == 1:
-			if gcommon.draw_star:
-				for i in range(0,96):
-					pyxel.pset(((int)(gcommon.star_ary[i][0]+self.star_pos))&255, i*2, gcommon.star_ary[i][1])
-				
-				self.star_pos -= 0.2
-				if self.star_pos<0:
-					self.star_pos += 255
-			#pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, (int)(gcommon.map_x/8), (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
-			if gcommon.drawMap != None:
-				gcommon.drawMap.draw()
-		elif self.stage == 2:
-			if gcommon.draw_star:
-				for i in range(0,96):
-					pyxel.pset((gcommon.star_ary[i][0]+self.star_pos)&255, self.star_pos+i*2, gcommon.star_ary[i][1])
-				
-				self.star_pos += 0.2
-				if self.star_pos>255:
-					self.star_pos -= 255
-
-			if gcommon.drawMap != None:
-				gcommon.drawMap.draw()
-		elif self.stage == 3:
-			if gcommon.draw_star:
-				for i in range(0,96):
-					pyxel.pset(((int)(gcommon.star_ary[i][0]+self.star_pos))&255, i*2, gcommon.star_ary[i][1])
-				
-				self.star_pos -= 0.2
-				if self.star_pos<0:
-					self.star_pos += 255
-			if gcommon.drawMap != None:
-				gcommon.drawMap.draw()
-		
+		if gcommon.drawMap != None:
+			gcommon.drawMap.draw()
 		
 		# enemy(ground)
 		for obj in gcommon.ObjMgr.objs:
-			if obj.layer==gcommon.C_LAYER_GRD or obj.layer==gcommon.C_LAYER_HIDE_GRD:
+			if obj.layer==gcommon.C_LAYER_GRD:
 				if obj.hitcolor1 !=0 and obj.hit:
 					pyxel.pal(obj.hitcolor1, obj.hitcolor2)
 				
 				obj.draw()
 				if obj.hitcolor1 !=0 and obj.hit:
 					pyxel.pal(obj.hitcolor1, obj.hitcolor1)
-
-		# explosion(ground)
-		for obj in gcommon.ObjMgr.objs:
-			if obj.layer==gcommon.C_LAYER_EXP_GRD:
-				obj.draw()
-
-		# upper ground
-		for obj in gcommon.ObjMgr.objs:
-			if obj.layer==gcommon.C_LAYER_UPPER_GRD:
-				obj.draw()
 
 		# item
 		for obj in gcommon.ObjMgr.objs:

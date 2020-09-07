@@ -61,9 +61,9 @@ C_EXPTYPE_GRD_BOSS = 14
 # layer
 C_LAYER_UNDER_GRD = 9		# マップより下
 C_LAYER_GRD = 0				# 普通の地上物
-C_LAYER_HIDE_GRD = 6		# 壁とか
-C_LAYER_EXP_GRD = 4			# 地上爆発
-C_LAYER_UPPER_GRD = 7
+#C_LAYER_HIDE_GRD = 6		# 壁とか
+#C_LAYER_EXP_GRD = 4			# 地上爆発
+#C_LAYER_UPPER_GRD = 7
 C_LAYER_SKY = 1
 C_LAYER_EXP_SKY = 5
 C_LAYER_ITEM = 3
