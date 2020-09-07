@@ -649,6 +649,7 @@ class Boss2(enemy.EnemyBase):
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_GRD))
 		gcommon.score+=self.score
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [], 300))
 
 
 def remove_all_battery():
@@ -691,6 +692,8 @@ class Boss3Explosion(enemy.EnemyBase):
 		self.x = cx
 		self.y = cy
 		self.layer = layer
+		self.hitCheck = False
+		self.shotHitCheck = False
 
 	def update(self):
 		if self.state == 0:

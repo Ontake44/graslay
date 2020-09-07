@@ -412,8 +412,12 @@ class Battery1(EnemyBase):
 		self.interval = 120
 		self.first = 120
 		self.shot_speed = 2
+		self.remove_min_x = -16
 
 	def update(self):
+		if self.x < self.remove_min_x:
+			self.remove()
+			return
 		if self.first == self.cnt or self.cnt % self.interval ==0:
 			enemy_shot(self.x+8,self.y+6, self.shot_speed, 0)
 
