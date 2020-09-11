@@ -562,20 +562,46 @@ class MapDraw3:
 		pass
 		
 	def update(self):
-		gcommon.map_x += gcommon.cur_scroll_x
-		gcommon.map_y += gcommon.cur_scroll_y + gcommon.cur_map_dy
+		gcommon.map_y += gcommon.cur_map_dy
 		for my in range(0, 128):
-			n = gcommon.getMapDataX(256, my)
+			mx = gcommon.screenPosToMapPosX(256)
+			n = gcommon.getMapDataByMapPos(mx, my)
 			if n in (390, 391):
-				pos = gcommon.mapPosToScreenPos(0, my)
-				gcommon.setMapData(256, pos[1], 0)
-				map_pos = gcommon.screenPosToMapPos(256, 0)
-				obj = enemy.Battery1([0,0,map_pos[0], my, 0])
+				gcommon.setMapDataByMapPos(mx, my, 0)
+				obj = enemy.Battery1([0,0,mx, my, 0])
 				obj.first = 20
 				obj.shot_speed = 3
 				if n == 391:
 					obj.mirror = 1
 				gcommon.ObjMgr.addObj(obj)
+			elif n in (394,395):
+				size = gcommon.getMapDataByMapPos(mx+1, my) -576
+				speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
+				param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
+				param2 = (gcommon.getMapDataByMapPos(mx+4, my) -576) * 20
+				for i in range(5):
+					gcommon.setMapDataByMapPos(mx +i, my, 0)
+				pos = gcommon.mapPosToScreenPos(mx, my)
+				if n == 394:
+					obj = enemy.Shutter1(pos[0], pos[1] +16*size, -1, size, 0, speed, param1, param2)
+				else:
+					obj = enemy.Shutter1(pos[0], pos[1] -32*size +8, 1, size, 0, speed, param1, param2)
+				gcommon.ObjMgr.addObj(obj)
+			elif n in (396,397):
+				size = gcommon.getMapDataByMapPos(mx+1, my) -576
+				speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
+				param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
+				param2 = (gcommon.getMapDataByMapPos(mx+4, my) -576) * 20
+				for i in range(5):
+					gcommon.setMapDataByMapPos(mx +i, my, 0)
+				pos = gcommon.mapPosToScreenPos(mx, my)
+				if n == 396:
+					obj = enemy.Shutter1(pos[0], pos[1], 1, size, 0, speed, param1, param2)
+				else:
+					obj = enemy.Shutter1(pos[0], pos[1] -16*size +8, -1, size, 0, speed, param1, param2)
+				gcommon.ObjMgr.addObj(obj)
+		gcommon.map_x += gcommon.cur_scroll_x
+		gcommon.map_y += gcommon.cur_scroll_y
 
 	def drawBackground(self):
 		pass
@@ -705,14 +731,11 @@ class MainGame:
 		self.ExecuteEvent()
 		self.ExecuteStory()
 		
-		# MAP
-		#gcommon.map_x += gcommon.cur_scroll_x
-		#gcommon.map_y += gcommon.cur_scroll_y
-		if gcommon.drawMap != None:
-			gcommon.drawMap.update()
-		
 		# 自機移動
 		gcommon.ObjMgr.myShip.update()
+		
+		if gcommon.drawMap != None:
+			gcommon.drawMap.update()
 		
 		newShots = []
 		for shot in gcommon.ObjMgr.shots:

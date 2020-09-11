@@ -413,6 +413,7 @@ class Battery1(EnemyBase):
 		self.first = 120
 		self.shot_speed = 2
 		self.remove_min_x = -16
+		self.dr8 = 4
 
 	def update(self):
 		if self.x < self.remove_min_x:
@@ -422,41 +423,36 @@ class Battery1(EnemyBase):
 			enemy_shot(self.x+8,self.y+6, self.shot_speed, 0)
 
 	def draw(self):
-		dr8 = gcommon.get_direction_my(self.x+8, self.y +8)
+		if self.cnt & 3 == 3:
+			self.dr8 = gcommon.get_direction_my(self.x+8, self.y +8)
 		y = int(self.y+0.5)
 		if self.mirror == 0:
-			if dr8 == 0:
+			if self.dr8  in (0, 1):
 				pyxel.blt(self.x, y, 1, 0, 96, -16, 16, gcommon.TP_COLOR)
-			elif dr8 == 1:
-				pyxel.blt(self.x, y, 1, 0, 96, -16, 16, gcommon.TP_COLOR)
-			elif dr8 == 2:
+			elif self.dr8 == 2:
 				pyxel.blt(self.x, y, 1, 32, 96, 16, 16, gcommon.TP_COLOR)
-			elif dr8 == 3:
+			elif self.dr8 in (3, 4):
 				pyxel.blt(self.x, y, 1, 0, 96, 16, 16, gcommon.TP_COLOR)
-			elif dr8 == 4:
-				pyxel.blt(self.x, y, 1, 0, 96, 16, 16, gcommon.TP_COLOR)
-			elif dr8 == 5:
+			elif self.dr8 in (5, 6):
 				pyxel.blt(self.x, y, 1, 16, 96, 16, 16, gcommon.TP_COLOR)
-			elif dr8 == 6:
-				pyxel.blt(self.x, y, 1, 32, 96, 16, 16, gcommon.TP_COLOR)
-			elif dr8 == 7:
+			elif self.dr8 == 7:
 				pyxel.blt(self.x, y, 1, 16, 96, -16, 16, gcommon.TP_COLOR)
 		else:
-			if dr8 == 0:
+			if self.dr8 == 0:
 				pyxel.blt(self.x, y, 1, 0, 96, -16, -16, gcommon.TP_COLOR)
-			elif dr8 == 1:
+			elif self.dr8 == 1:
 				pyxel.blt(self.x, y, 1, 16, 96, -16, -16, gcommon.TP_COLOR)
-			elif dr8 == 2:
+			elif self.dr8 == 2:
 				pyxel.blt(self.x, y, 1, 32, 96, 16, -16, gcommon.TP_COLOR)
-			elif dr8 == 3:
+			elif self.dr8 == 3:
 				pyxel.blt(self.x, y, 1, 16, 96, 16, -16, gcommon.TP_COLOR)
-			elif dr8 == 4:
+			elif self.dr8 == 4:
 				pyxel.blt(self.x, y, 1, 0, 96, 16, -16, gcommon.TP_COLOR)
-			elif dr8 == 5:
+			elif self.dr8 == 5:
 				pyxel.blt(self.x, y, 1, 0, 96, 16, -16, gcommon.TP_COLOR)
-			elif dr8 == 6:
+			elif self.dr8 == 6:
 				pyxel.blt(self.x, y, 1, 32, 96, 16, -16, gcommon.TP_COLOR)
-			elif dr8 == 7:
+			elif self.dr8 == 7:
 				pyxel.blt(self.x, y, 1, 16, 96, -16, -16, gcommon.TP_COLOR)
 
 
@@ -718,7 +714,6 @@ class DockArm(EnemyBase):
 		pyxel.blt(self.x, self.y -self.shift, 1, 240, 64, 16, 80, gcommon.TP_COLOR)
 		pyxel.blt(self.x, self.y+ 96 +self.shift, 1, 240, 64, 16, 80, gcommon.TP_COLOR)
 		
-
 
 class Cell1(EnemyBase):
 	def __init__(self, t):
@@ -1162,3 +1157,50 @@ class StageClear(EnemyBase):
 
 	def draw(self):
 		pass
+
+class Shutter1(EnemyBase):
+	def __init__(self, x, y, direction, size, mode, speed, param1, param2):
+		super(Shutter1, self).__init__()
+		self.x = x		# screen x
+		self.y = y		# screen y
+		self.direction = direction	# 1: 上から下 -1:下から上
+		self.size = size	# 大きさ（16ドット単位）
+		self.speed = speed
+		self.mode = mode	# 動作モード
+			# 0:閉まる→開く（繰り返し）
+			#   param1 : 閉まり始めるまでの時間
+			#   param2 : 開くまでの時間
+		self.param1 = param1
+		self.param2 = param2
+		self.dy = 0
+		self.left = 0
+		self.right = 15
+		self.top = 0
+		self.bottom = 16 * self.size
+		self.hp = 999999
+		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.hitCheck = True
+		self.shotHitCheck = True
+
+	def update(self):
+		if self.x <= -16:
+			self.remove()
+			return
+		if self.mode == 0:
+			if self.state == 0 and self.cnt >= self.param1:
+				self.dy += self.speed
+				self.y += self.direction * self.speed
+				if self.dy >= self.size * 16:
+					self.nextState()
+			elif self.state == 1 and self.cnt >= self.param2:
+				self.nextState()
+			elif self.state == 2:
+				self.dy -= self.speed
+				self.y -= self.direction * self.speed
+				if self.dy <=0:
+					self.setState(0)
+
+	def draw(self):
+		for i in range(self.size):
+			pyxel.blt(self.x, self.y + i * 16, 1, 64, 96, 16, 16)
+
