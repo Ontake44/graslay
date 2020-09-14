@@ -88,7 +88,7 @@ class MyShip:
 				self.x = 240
 		if pyxel.btn(pyxel.KEY_UP) or pyxel.btn(pyxel.GAMEPAD_1_UP):
 			self.sprite = 2
-			if gcommon.sync_map_y and gcommon.map_y > 0 and self.y < pyxel.height/2:
+			if gcommon.sync_map_y:
 				gcommon.cur_map_dy = -2
 			else:
 				self.y = self.y -2
@@ -97,7 +97,7 @@ class MyShip:
 		elif pyxel.btn(pyxel.KEY_DOWN) or pyxel.btn(pyxel.GAMEPAD_1_DOWN):
 			# 縦は192/8 = 24キャラ
 			self.sprite = 1
-			if gcommon.sync_map_y and gcommon.map_y < 128*8 -192 and self.y > pyxel.height/2:
+			if gcommon.sync_map_y:
 				gcommon.cur_map_dy = 2
 			else:
 				self.y = self.y +2
@@ -563,6 +563,10 @@ class MapDraw3:
 		
 	def update(self):
 		gcommon.map_y += gcommon.cur_map_dy
+		if gcommon.map_y < 0:
+			gcommon.map_y = 128 * 8 + gcommon.map_y
+		elif gcommon.map_y >= 128 * 8:
+			gcommon.map_y = gcommon.map_y - 128 * 8
 		for my in range(0, 128):
 			mx = gcommon.screenPosToMapPosX(256)
 			n = gcommon.getMapDataByMapPos(mx, my)
@@ -575,6 +579,7 @@ class MapDraw3:
 					obj.mirror = 1
 				gcommon.ObjMgr.addObj(obj)
 			elif n in (394,395):
+				# シャッター
 				size = gcommon.getMapDataByMapPos(mx+1, my) -576
 				speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
 				param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
@@ -608,18 +613,37 @@ class MapDraw3:
 
 	def draw(self):
 		if gcommon.map_x < 0:
-			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+			if gcommon.map_y > (128 -24) * 8:
+				# 上を描く
+				pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),
+					33, (128 - int(gcommon.map_y/8)), gcommon.TP_COLOR)
+				pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, 0,
+					33, (24-128) +int(gcommon.map_y/8), gcommon.TP_COLOR)
+			else:
+				pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 		#elif gcommon.map_x > (256 -32) * 8 and gcommon.map_x < :
 		#	pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, (int)(gcommon.map_x/8), (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 		else:
 			tm = int(gcommon.map_x/4096)
 			moffset = (int(gcommon.map_x/2048) & 1) * 128
 			w = int((gcommon.map_x %2048)/8)
-			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+			if gcommon.map_y > (128 -24) * 8:
+				pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),
+					33, 128 - int(gcommon.map_y/8), gcommon.TP_COLOR)
+				pyxel.bltm(-1 * (int(gcommon.map_x) % 8), 128 * 8 - int(gcommon.map_y), tm, (int)((gcommon.map_x % 2048)/8), moffset,	
+					33, (24 -128) +int(gcommon.map_y/8)+1, gcommon.TP_COLOR)
+			else:
+				pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, gcommon.TP_COLOR)
 			if w >= 224:
 				tm2 = int((gcommon.map_x+256)/4096)
 				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
-				pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+				if gcommon.map_y > (128 -24) * 8:
+					pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),
+						33, 128 - int(gcommon.map_y/8), gcommon.TP_COLOR)
+					pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), 128 * 8 - int(gcommon.map_y), tm2, 0, moffset2,
+						33, (24 -128) +int(gcommon.map_y/8)+1, gcommon.TP_COLOR)
+				else:
+					pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 
 
 class StartMapDraw1:
@@ -848,11 +872,11 @@ class MainGame:
 			
 		
 		pyxel.text(120, 188, str(gcommon.game_timer), 7)
-		pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)
+		#pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)
 		#pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
 		# マップ位置表示
-		#pyxel.text(200, 188, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
+		pyxel.text(200, 188, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
 
 	def ExecuteStory(self):
 		while True:
