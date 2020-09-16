@@ -520,7 +520,11 @@ class GameClear:
 class MapDraw:
 	def __init__(self):
 		pass
-		
+	
+	def init(self):
+		gcommon.map_x = -32 * 8
+		gcommon.map_y = 24*8
+
 	def update(self):
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
@@ -537,7 +541,11 @@ class MapDraw:
 class MapDraw2:
 	def __init__(self):
 		pass
-		
+	
+	def init(self):
+		gcommon.map_x = 0
+		gcommon.map_y = 24*8
+
 	def update(self):
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
@@ -560,6 +568,12 @@ class MapDraw2:
 class MapDraw3:
 	def __init__(self):
 		pass
+
+	def init(self):
+		gcommon.map_x = -32 * 8
+		gcommon.map_y = 24*8
+		gcommon.cur_scroll_x = 2.0
+		gcommon.cur_scroll_y = 0.0
 		
 	def update(self):
 		gcommon.map_y += gcommon.cur_map_dy
@@ -648,29 +662,32 @@ class MapDraw3:
 
 class StartMapDraw1:
 	def __init__(self, t):
-		gcommon.drawMap = MapDraw()
-		gcommon.map_x = -32 * 8
-		gcommon.map_y = 24*8
+		#gcommon.drawMap = MapDraw()
+		#gcommon.map_x = -32 * 8
+		#gcommon.map_y = 24*8
+		gcommon.ObjMgr.setDrawMap(MapDraw())
 
 	def do(self):
 		pass
 
 class StartMapDraw2:
 	def __init__(self, t):
-		gcommon.drawMap = MapDraw2()
-		gcommon.map_x = 0
-		gcommon.map_y = 24*8
+		#gcommon.drawMap = MapDraw2()
+		#gcommon.map_x = 0
+		#gcommon.map_y = 24*8
+		gcommon.ObjMgr.setDrawMap(MapDraw2())
 
 	def do(self):
 		pass
 
 class StartMapDraw3:
 	def __init__(self, t):
-		gcommon.drawMap = MapDraw3()
-		gcommon.map_x = -32 * 8
-		gcommon.map_y = 24*8
-		gcommon.cur_scroll_x = 2.0
-		gcommon.cur_scroll_y = 0.0
+		# gcommon.drawMap = MapDraw3()
+		# gcommon.map_x = -32 * 8
+		# gcommon.map_y = 24*8
+		# gcommon.cur_scroll_x = 2.0
+		# gcommon.cur_scroll_y = 0.0
+		gcommon.ObjMgr.setDrawMap(MapDraw3())
 
 	def do(self):
 		pass
@@ -757,10 +774,10 @@ class MainGame:
 		
 		# 自機移動
 		gcommon.ObjMgr.myShip.update()
-		
-		if gcommon.drawMap != None:
-			gcommon.drawMap.update()
-		
+
+		# マップ処理
+		gcommon.ObjMgr.updateDrawMap()
+
 		newShots = []
 		for shot in gcommon.ObjMgr.shots:
 			shot.update()
@@ -803,15 +820,13 @@ class MainGame:
 			if self.star_pos<0:
 				self.star_pos += 255
 
-		if gcommon.drawMap != None:
-			gcommon.drawMap.drawBackground()
+		gcommon.ObjMgr.drawDrawMapBackground()
 
 		for obj in gcommon.ObjMgr.objs:
 			if obj.layer==gcommon.C_LAYER_UNDER_GRD:
 				obj.draw()
 		
-		if gcommon.drawMap != None:
-			gcommon.drawMap.draw()
+		gcommon.ObjMgr.drawDrawMap()
 		
 		# enemy(ground)
 		for obj in gcommon.ObjMgr.objs:

@@ -157,8 +157,6 @@ draw_star = False
 
 app = None
 
-drawMap = None
-
 mapFreeTable = []
 
 star_ary = []
@@ -434,19 +432,46 @@ class ObjMgr:
 
 	# 敵
 	objs = []
-	
+
+	nextDrawMap = None
+	drawMap = None
+
+
 	@classmethod
 	def init(cls):
 		cls.myShip = None
 		cls.shots.clear()
 		cls.shotGroups.clear()
 		cls.objs.clear()
+		cls.nextDrawMap = None
+		cls.drawMap = None
 
 	@classmethod
 	def addObj(cls, obj):
 		cls.objs.append(obj)
 
+	@classmethod
+	def setDrawMap(cls, obj):
+		cls.nextDrawMap = obj
 
+	@classmethod
+	def updateDrawMap(cls):
+		if cls.nextDrawMap != None:
+			cls.nextDrawMap.init()
+			cls.drawMap = cls.nextDrawMap
+			cls.nextDrawMap = None
+		if cls.drawMap != None:
+			cls.drawMap.update()
+
+	@classmethod
+	def drawDrawMapBackground(cls):
+		if cls.drawMap != None:
+			cls.drawMap.drawBackground()
+
+	@classmethod
+	def drawDrawMap(cls):
+		if cls.drawMap != None:
+			cls.drawMap.draw()
 
 def bltStripe(x, y, img, u, v, w, h, col, p):
 	for yy in range(p, h, 2):
@@ -475,35 +500,12 @@ def getMapData(x, y):
 	mx = int(map_x/8) + int((int(map_x)%8 + int(x))/8)
 	my = int(map_y/8) + int((int(map_y)%8 + int(y))/8)
 	return getMapDataByMapPos(mx, my)
-	# global drawMap
-	# global map_x
-	# global map_y
-	# global sync_map_y
-	# if drawMap == None:
-	# 	return -1
-	# else:
-	# 	mx = int(map_x/8) + int((int(map_x)%8 + int(x))/8)
-	# 	my = int(map_y/8) + int((int(map_y)%8 + int(y))/8)
-	# 	if sync_map_y:
-	# 		# 2 * 3 = 6画面分
-	# 		if mx>=0 and mx<256*6 and my>=0 and my<128:
-	# 			tm = int(mx/512)
-	# 			moffset = (int(mx/256) & 1) * 128
-	# 			return pyxel.tilemap(tm).get(mx & 255, (my + moffset) & 255)
-	# 		else:
-	# 			return -1
-	# 	else:
-	# 		if mx>=0 and mx<256 and my>=0 and my<256:
-	# 			return pyxel.tilemap(0).get(mx, my)
-	# 		else:
-	# 			return -1
 
 def getMapDataByMapPos(mx, my):
-	global drawMap
 	global map_x
 	global map_y
 	global sync_map_y
-	if drawMap == None:
+	if ObjMgr.drawMap == None:
 		return -1
 	else:
 		if sync_map_y:
@@ -520,35 +522,11 @@ def getMapDataByMapPos(mx, my):
 			else:
 				return -1
 
-# xはスクリーン座標、yはマップ座標
-# def getMapDataX(x, my):
-# 	global drawMap
-# 	global map_x
-# 	global sync_map_y
-# 	if drawMap == None:
-# 		return -1
-# 	else:
-# 		mx = int(map_x/8) + int((int(map_x)%8 + int(x))/8)
-# 		if sync_map_y:
-# 			# 2 * 3 = 6画面分
-# 			if mx>=0 and mx<256*6 and my>=0 and my<128:
-# 				tm = int(mx/512)
-# 				moffset = (int(mx/256) & 1) * 128
-# 				return pyxel.tilemap(tm).get(mx & 255, (my + moffset) & 255)
-# 			else:
-# 				return -1
-# 		else:
-# 			if mx>=0 and mx<256 and my>=0 and my<256:
-# 				return pyxel.tilemap(0).get(mx, my)
-# 			else:
-# 				return -1
-
 def setMapData(x, y, p):
-	global drawMap
 	global map_x
 	global map_y
 	global sync_map_y
-	if drawMap == None:
+	if ObjMgr.drawMap == None:
 		return
 	else:
 		mx = int(map_x/8) + int((int(map_x)%8 + int(x))/8)
@@ -567,9 +545,8 @@ def setMapData(x, y, p):
 			else:
 				return
 def setMapDataByMapPos(mx, my, p):
-	global drawMap
 	global sync_map_y
-	if drawMap == None:
+	if ObjMgr.drawMap == None:
 		return
 	else:
 		if sync_map_y:
@@ -610,10 +587,9 @@ def isMapFreePos(x, y):
 		return True
 
 def mapPosToScreenPos(mx, my):
-	global drawMap
 	global map_x
 	global map_y
-	if drawMap == None:
+	if ObjMgr.drawMap == None:
 		return [-9999,-9999]
 	else:
 		return [mx * 8 - map_x, my * 8 - map_y]
