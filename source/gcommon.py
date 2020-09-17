@@ -455,11 +455,16 @@ class ObjMgr:
 		cls.nextDrawMap = obj
 
 	@classmethod
-	def updateDrawMap(cls):
+	def updateDrawMap0(cls):
 		if cls.nextDrawMap != None:
 			cls.nextDrawMap.init()
 			cls.drawMap = cls.nextDrawMap
 			cls.nextDrawMap = None
+		if cls.drawMap != None:
+			cls.drawMap.update0()
+
+	@classmethod
+	def updateDrawMap(cls):
 		if cls.drawMap != None:
 			cls.drawMap.update()
 

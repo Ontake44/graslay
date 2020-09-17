@@ -525,6 +525,9 @@ class MapDraw:
 		gcommon.map_x = -32 * 8
 		gcommon.map_y = 24*8
 
+	def update0(self):
+		pass
+
 	def update(self):
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
@@ -545,6 +548,9 @@ class MapDraw2:
 	def init(self):
 		gcommon.map_x = 0
 		gcommon.map_y = 24*8
+
+	def update0(self):
+		pass
 
 	def update(self):
 		gcommon.map_x += gcommon.cur_scroll_x
@@ -574,51 +580,66 @@ class MapDraw3:
 		gcommon.map_y = 24*8
 		gcommon.cur_scroll_x = 2.0
 		gcommon.cur_scroll_y = 0.0
-		
+	
+	def update0(self):
+		pass
+
 	def update(self):
-		gcommon.map_y += gcommon.cur_map_dy
-		if gcommon.map_y < 0:
-			gcommon.map_y = 128 * 8 + gcommon.map_y
-		elif gcommon.map_y >= 128 * 8:
-			gcommon.map_y = gcommon.map_y - 128 * 8
-		for my in range(0, 128):
-			mx = gcommon.screenPosToMapPosX(256)
-			n = gcommon.getMapDataByMapPos(mx, my)
-			if n in (390, 391):
-				gcommon.setMapDataByMapPos(mx, my, 0)
-				obj = enemy.Battery1([0,0,mx, my, 0])
-				obj.first = 20
-				obj.shot_speed = 3
-				if n == 391:
-					obj.mirror = 1
-				gcommon.ObjMgr.addObj(obj)
-			elif n in (394,395):
-				# シャッター
-				size = gcommon.getMapDataByMapPos(mx+1, my) -576
-				speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
-				param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
-				param2 = (gcommon.getMapDataByMapPos(mx+4, my) -576) * 20
-				for i in range(5):
-					gcommon.setMapDataByMapPos(mx +i, my, 0)
-				pos = gcommon.mapPosToScreenPos(mx, my)
-				if n == 394:
-					obj = enemy.Shutter1(pos[0], pos[1] +16*size, -1, size, 0, speed, param1, param2)
-				else:
-					obj = enemy.Shutter1(pos[0], pos[1] -32*size +8, 1, size, 0, speed, param1, param2)
-				gcommon.ObjMgr.addObj(obj)
-			elif n in (396,397):
-				size = gcommon.getMapDataByMapPos(mx+1, my) -576
-				speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
-				param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
-				param2 = (gcommon.getMapDataByMapPos(mx+4, my) -576) * 20
-				for i in range(5):
-					gcommon.setMapDataByMapPos(mx +i, my, 0)
-				pos = gcommon.mapPosToScreenPos(mx, my)
-				if n == 396:
-					obj = enemy.Shutter1(pos[0], pos[1], 1, size, 0, speed, param1, param2)
-				else:
-					obj = enemy.Shutter1(pos[0], pos[1] -16*size +8, -1, size, 0, speed, param1, param2)
-				gcommon.ObjMgr.addObj(obj)
+		if gcommon.game_timer == 3550:
+			gcommon.sync_map_y = False
+		elif gcommon.game_timer > 3550:
+			if gcommon.map_y > 336:
+				gcommon.map_y -= 0.50
+				if gcommon.map_y < 336:
+					gcommon.map_y = 336
+			elif gcommon.map_y < 336:
+				gcommon.map_y += 0.50
+				if gcommon.map_y > 336:
+					gcommon.map_y = 336
+		else:
+			gcommon.map_y += gcommon.cur_map_dy
+			if gcommon.map_y < 0:
+				gcommon.map_y = 128 * 8 + gcommon.map_y
+			elif gcommon.map_y >= 128 * 8:
+				gcommon.map_y = gcommon.map_y - 128 * 8
+			for my in range(0, 128):
+				mx = gcommon.screenPosToMapPosX(256)
+				n = gcommon.getMapDataByMapPos(mx, my)
+				if n in (390, 391):
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					obj = enemy.Battery1([0,0,mx, my, 0])
+					obj.first = 20
+					obj.shot_speed = 3
+					if n == 391:
+						obj.mirror = 1
+					gcommon.ObjMgr.addObj(obj)
+				elif n in (394,395):
+					# シャッター
+					size = gcommon.getMapDataByMapPos(mx+1, my) -576
+					speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
+					param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
+					param2 = (gcommon.getMapDataByMapPos(mx+4, my) -576) * 20
+					for i in range(5):
+						gcommon.setMapDataByMapPos(mx +i, my, 0)
+					pos = gcommon.mapPosToScreenPos(mx, my)
+					if n == 394:
+						obj = enemy.Shutter1(pos[0], pos[1] +16*size, -1, size, 0, speed, param1, param2)
+					else:
+						obj = enemy.Shutter1(pos[0], pos[1] -32*size +8, 1, size, 0, speed, param1, param2)
+					gcommon.ObjMgr.addObj(obj)
+				elif n in (396,397):
+					size = gcommon.getMapDataByMapPos(mx+1, my) -576
+					speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
+					param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
+					param2 = (gcommon.getMapDataByMapPos(mx+4, my) -576) * 20
+					for i in range(5):
+						gcommon.setMapDataByMapPos(mx +i, my, 0)
+					pos = gcommon.mapPosToScreenPos(mx, my)
+					if n == 396:
+						obj = enemy.Shutter1(pos[0], pos[1], 1, size, 0, speed, param1, param2)
+					else:
+						obj = enemy.Shutter1(pos[0], pos[1] -16*size +8, -1, size, 0, speed, param1, param2)
+					gcommon.ObjMgr.addObj(obj)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 
@@ -763,15 +784,18 @@ class MainGame:
 	def skipGameTimer(self):
 		while(gcommon.game_timer < gcommon.START_GAME_TIMER):
 			self.ExecuteEvent()
-			if gcommon.drawMap != None:
-				gcommon.drawMap.update()
+			gcommon.ObjMgr.updateDrawMap0()
+			gcommon.ObjMgr.updateDrawMap()
 			
 			gcommon.game_timer = gcommon.game_timer + 1	
 	
 	def update(self):
 		self.ExecuteEvent()
 		self.ExecuteStory()
-		
+
+		# マップ処理０
+		gcommon.ObjMgr.updateDrawMap0()
+
 		# 自機移動
 		gcommon.ObjMgr.myShip.update()
 
@@ -886,12 +910,12 @@ class MainGame:
 				pyxel.blt(72 + 48*i, 192, 0, i * 48, 48, 48, 8)
 			
 		
-		pyxel.text(120, 188, str(gcommon.game_timer), 7)
+		pyxel.text(120, 184, str(gcommon.game_timer), 7)
 		#pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)
 		#pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
 		# マップ位置表示
-		pyxel.text(200, 188, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
+		pyxel.text(200, 184, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
 
 	def ExecuteStory(self):
 		while True:
