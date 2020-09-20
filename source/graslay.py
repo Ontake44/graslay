@@ -597,11 +597,6 @@ class MapDraw3:
 				if gcommon.map_y > 336:
 					gcommon.map_y = 336
 		else:
-			gcommon.map_y += gcommon.cur_map_dy
-			if gcommon.map_y < 0:
-				gcommon.map_y = 128 * 8 + gcommon.map_y
-			elif gcommon.map_y >= 128 * 8:
-				gcommon.map_y = gcommon.map_y - 128 * 8
 			for my in range(0, 128):
 				mx = gcommon.screenPosToMapPosX(256)
 				n = gcommon.getMapDataByMapPos(mx, my)
@@ -640,6 +635,11 @@ class MapDraw3:
 					else:
 						obj = enemy.Shutter1(pos[0], pos[1] -16*size +8, -1, size, 0, speed, param1, param2)
 					gcommon.ObjMgr.addObj(obj)
+			gcommon.map_y += gcommon.cur_map_dy
+			if gcommon.map_y < 0:
+				gcommon.map_y = 128 * 8 + gcommon.map_y
+			elif gcommon.map_y >= 128 * 8:
+				gcommon.map_y = gcommon.map_y - 128 * 8
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 
@@ -757,18 +757,21 @@ class MainGame:
 			pyxel.image(1).load(0,0,"assets/graslay1.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = False
+			gcommon.long_map = False
 			gcommon.draw_star = True
 			loadMapData(0, "assets/graslay1.pyxmap")
 		elif self.stage == 2:
 			pyxel.image(1).load(0,0,"assets/graslay2.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = False
+			gcommon.long_map = False
 			gcommon.draw_star = False
 			loadMapData(0, "assets/graslay2.pyxmap")
 		elif self.stage == 3:
 			pyxel.image(1).load(0,0,"assets/graslay3.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = True
+			gcommon.long_map = True
 			gcommon.draw_star = True
 			loadMapData(0, "assets/graslay3-0.pyxmap")
 			loadMapData(1, "assets/graslay3-1.pyxmap")
@@ -791,7 +794,6 @@ class MainGame:
 	
 	def update(self):
 		self.ExecuteEvent()
-		self.ExecuteStory()
 
 		# マップ処理０
 		gcommon.ObjMgr.updateDrawMap0()
@@ -801,6 +803,8 @@ class MainGame:
 
 		# マップ処理
 		gcommon.ObjMgr.updateDrawMap()
+
+		self.ExecuteStory()
 
 		newShots = []
 		for shot in gcommon.ObjMgr.shots:
@@ -1209,6 +1213,7 @@ class MainGame:
 
 	def initStory3(self):
 		self.story=[ \
+			[3730, boss.Boss3],		\
 		]
 
 
@@ -1268,7 +1273,10 @@ class App:
 		self.setScene(MainGame(stage))
 
 	def startNextStage(self):
-		self.startStage(self.stage+1)
+		if self.stage == 3:
+			self.startGameClear()
+		else:
+			self.startStage(self.stage+1)
 
 	def startGameOver(self):
 		self.setScene(GameOver())

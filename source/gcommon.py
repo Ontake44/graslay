@@ -147,6 +147,8 @@ map_y = 0.0
 
 sync_map_y = True
 
+long_map = False
+
 power = START_MY_POWER
 remain = START_REMAIN		# 残機
 bomRemain = START_BOM_REMAIN
@@ -270,7 +272,7 @@ def init_atan_table():
 def atan2x(x, y):
 	r = math.atan2(y, x)
 	if y < 0:
-		r = r + math.pi * 2;
+		r = r + math.pi * 2
 	return r
 
 
@@ -509,11 +511,11 @@ def getMapData(x, y):
 def getMapDataByMapPos(mx, my):
 	global map_x
 	global map_y
-	global sync_map_y
+	global long_map
 	if ObjMgr.drawMap == None:
 		return -1
 	else:
-		if sync_map_y:
+		if long_map:
 			# 2 * 3 = 6画面分
 			if mx>=0 and mx<256*6 and my>=0 and my<128:
 				tm = int(mx/512)
@@ -530,13 +532,13 @@ def getMapDataByMapPos(mx, my):
 def setMapData(x, y, p):
 	global map_x
 	global map_y
-	global sync_map_y
+	global long_map
 	if ObjMgr.drawMap == None:
 		return
 	else:
 		mx = int(map_x/8) + int((int(map_x)%8 + int(x))/8)
 		my = int(map_y/8) + int((int(map_y)%8 + int(y))/8)
-		if sync_map_y:
+		if long_map:
 			# 2 * 3 = 6画面分
 			if mx>=0 and mx<256*6 and my>=0 and my<128:
 				tm = int(mx/512)
@@ -550,11 +552,11 @@ def setMapData(x, y, p):
 			else:
 				return
 def setMapDataByMapPos(mx, my, p):
-	global sync_map_y
+	global long_map
 	if ObjMgr.drawMap == None:
 		return
 	else:
-		if sync_map_y:
+		if long_map:
 			# 2 * 3 = 6画面分
 			if mx>=0 and mx<256*6 and my>=0 and my<128:
 				tm = int(mx/512)
