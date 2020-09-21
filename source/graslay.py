@@ -45,7 +45,6 @@ class MyShip:
 					gcommon.remain -= 1
 					#--restart_game()
 					self.sub_scene=3
-					gcommon.bomRemain = gcommon.START_BOM_REMAIN
 					self.cnt = 0
 					gcommon.power = gcommon.START_MY_POWER
 					self.sprite = 1
@@ -363,10 +362,9 @@ class Title:
 		
 
 OPTIONMENU_PLAYER_STOCK = 0
-OPTIONMENU_BOMB_STOCK = 1
-OPTIONMENU_START_STAGE = 2
-OPTIONMENU_SOUND = 3
-OPTIONMENU_EXIT = 4
+OPTIONMENU_START_STAGE = 1
+OPTIONMENU_SOUND = 2
+OPTIONMENU_EXIT = 3
 
 class OptionMenu:
 	def __init__(self):
@@ -379,10 +377,10 @@ class OptionMenu:
 		if gcommon.checkUpP():
 			self.menuPos -= 1
 			if self.menuPos < 0:
-				self.menuPos = 4
+				self.menuPos = 3
 		if gcommon.checkDownP():
 			self.menuPos += 1
-			if self.menuPos > 4:
+			if self.menuPos > 3:
 				self.menuPos = 0
 		
 		if gcommon.checkRightP():
@@ -390,10 +388,6 @@ class OptionMenu:
 				gcommon.START_REMAIN += 1
 				if gcommon.START_REMAIN > 99:
 					gcommon.START_REMAIN = 99
-			elif self.menuPos == OPTIONMENU_BOMB_STOCK:
-				gcommon.START_BOM_REMAIN += 1
-				if gcommon.START_BOM_REMAIN > 5:
-					gcommon.START_BOM_REMAIN = 5
 			elif self.menuPos == OPTIONMENU_START_STAGE:
 				gcommon.START_STAGE += 1
 				if gcommon.START_STAGE > 3:
@@ -405,10 +399,6 @@ class OptionMenu:
 				gcommon.START_REMAIN -= 1
 				if gcommon.START_REMAIN < 1:
 					gcommon.START_REMAIN = 1
-			elif self.menuPos == OPTIONMENU_BOMB_STOCK:
-				gcommon.START_BOM_REMAIN -= 1
-				if gcommon.START_BOM_REMAIN < 0:
-					gcommon.START_BOM_REMAIN = 0
 			elif self.menuPos == OPTIONMENU_START_STAGE:
 				gcommon.START_STAGE -= 1
 				if gcommon.START_STAGE < 1:
@@ -430,10 +420,6 @@ class OptionMenu:
 		
 		gcommon.Text2(30, y, "PLAYER STOCK", self.getOptionColor(OPTIONMENU_PLAYER_STOCK), 5)
 		gcommon.Text2(120, y, str(gcommon.START_REMAIN), self.getOptionColor(OPTIONMENU_PLAYER_STOCK), 5)
-		y += 20
-
-		gcommon.Text2(30, y, "BOMB STOCK", self.getOptionColor(OPTIONMENU_BOMB_STOCK), 5)
-		gcommon.Text2(120, y, str(gcommon.START_BOM_REMAIN), self.getOptionColor(OPTIONMENU_BOMB_STOCK), 5)
 		y += 20
 
 		gcommon.Text2(30, y, "START STAGE", self.getOptionColor(OPTIONMENU_START_STAGE), 5)
@@ -1008,7 +994,6 @@ class MainGame:
 		gcommon.ObjMgr.myShip.sub_scene = 2
 		gcommon.ObjMgr.myShip.cnt = 0
 		gcommon.power = gcommon.START_MY_POWER
-		gcommon.bomRemain = gcommon.START_BOM_REMAIN
 		#sfx(4)
 		#pyxel.play(0, 4)
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)

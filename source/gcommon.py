@@ -46,8 +46,6 @@ T_SKY_EXP = -1
 T_GRD_EXP = -2
 # POWER UP
 T_PWUP = -100
-# BOM
-T_BOM = -110
 
 # explosion type
 C_EXPTYPE_SKY_S=1
@@ -73,7 +71,6 @@ C_LAYER_NONE = -1
 
 # item
 C_ITEM_PWUP = 1
-C_ITEM_BOM = 2
 
 C_COLOR_KEY = 13
 
@@ -82,7 +79,6 @@ SOUND_MID_EXP = 1
 SOUND_SMALL_EXP = 2
 SOUND_ITEM_GET = 3
 SOUND_LARGE_EXP = 4
-SOUND_BOM_EXP = 5
 SOUND_PWUP = 6
 SOUND_FULLPOWER = 7
 SOUND_BOSS_EXP = 8
@@ -92,7 +88,6 @@ SOUND_GAMESTART = 10
 #                 0 1 2 3 4 5 6 7 8 9 10
 sound_priority = [0,2,1,4,5,3,6,0,8,0, 0]
 
-START_BOM_REMAIN = 3
 START_MY_POWER = 1
 
 # 残機
@@ -100,8 +95,6 @@ START_REMAIN = 2		# 2
 
 SHOT_POWER = 5		# 5
 #SHOT_POWER = 200
-
-BOM_POWER = 3
 
 TP_COLOR = 2
 
@@ -151,7 +144,6 @@ long_map = False
 
 power = START_MY_POWER
 remain = START_REMAIN		# 残機
-bomRemain = START_BOM_REMAIN
 
 enemy_shot_rate = 1
 
@@ -208,21 +200,16 @@ def loadSettings():
 		json_data = json.load(json_file)
 		if "playerStock" in json_data:
 			playerStock = int(json_data["playerStock"])
-		if "bombStock" in json_data:
-			bombStock = int(json_data["bombStock"])
 		if "startStage" in json_data:
 			startStage = int(json_data["startStage"])
 		if "sound" in json_data:
 			soundFlag = int(json_data["sound"])		# 0 or 1
 
 		global START_REMAIN
-		global START_BOM_REMAIN
 		global START_STAGE
 		global SOUND_ON
 		if playerStock >= 1 and playerStock <= 99:
 			START_REMAIN = playerStock
-		if bombStock >= 0 and bombStock <= 5:
-			START_BOM_REMAIN = bombStock
 		if startStage >= 1 and startStage <= 3:
 			START_STAGE = startStage
 		if soundFlag == 0:
@@ -239,10 +226,9 @@ def loadSettings():
 def saveSettings():
 	
 	global START_REMAIN
-	global START_BOM_REMAIN
 	global START_STAGE
 	global SOUND_ON
-	json_data = { "playerStock": START_REMAIN, "bombStock": START_BOM_REMAIN, "startStage": START_STAGE}
+	json_data = { "playerStock": START_REMAIN, "startStage": START_STAGE}
 	if SOUND_ON:
 		json_data["sound"] = 1
 	else:
@@ -429,9 +415,6 @@ class ObjMgr:
 	shots = []
 	shotGroups = []
 
-	# BOM
-	myBom = None
-
 	# 敵
 	objs = []
 
@@ -504,8 +487,14 @@ def checkShotKeyP():
 		return False
 
 def getMapData(x, y):
+	global map_x
+	global map_y
+	global long_map
 	mx = int(map_x/8) + int((int(map_x)%8 + int(x))/8)
-	my = int(map_y/8) + int((int(map_y)%8 + int(y))/8)
+	if long_map:
+		my = (int(map_y/8) + int((int(map_y)%8 + int(y))/8)) & 127
+	else:
+		my = int(map_y/8) + int((int(map_y)%8 + int(y))/8)
 	return getMapDataByMapPos(mx, my)
 
 def getMapDataByMapPos(mx, my):
@@ -537,8 +526,8 @@ def setMapData(x, y, p):
 		return
 	else:
 		mx = int(map_x/8) + int((int(map_x)%8 + int(x))/8)
-		my = int(map_y/8) + int((int(map_y)%8 + int(y))/8)
 		if long_map:
+			my = (int(map_y/8) + int((int(map_y)%8 + int(y))/8)) & 127
 			# 2 * 3 = 6画面分
 			if mx>=0 and mx<256*6 and my>=0 and my<128:
 				tm = int(mx/512)
@@ -547,6 +536,7 @@ def setMapData(x, y, p):
 			else:
 				return
 		else:
+			my = int(map_y/8) + int((int(map_y)%8 + int(y))/8)
 			if mx>=0 and mx<256 and my>=0 and my<256:
 				pyxel.tilemap(0).set(mx, my, p)
 			else:
@@ -573,7 +563,11 @@ def setMapDataByMapPos(mx, my, p):
 def screenPosToMapPos(x, y):
 	global map_x
 	global map_y
-	return [int(map_x/8) + int((int(map_x)%8 + int(x))/8), int(map_y/8) + int((int(map_y)%8 + int(y))/8)]
+	global long_map
+	if long_map:
+		return [int(map_x/8) + (int((int(map_x)%8 + int(x))/8), int(map_y/8) + int((int(map_y)%8 + int(y))/8)) & 127]
+	else:
+		return [int(map_x/8) + int((int(map_x)%8 + int(x))/8), int(map_y/8) + int((int(map_y)%8 + int(y))/8)]
 
 def screenPosToMapPosX(x):
 	global map_x
