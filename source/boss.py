@@ -769,6 +769,11 @@ class Boss3(enemy.EnemyBase):
 		self.body = Boss3Body()
 		self.body.y = 72
 		self.anchor = Boss3Anchor()
+		self.upperARect = gcommon.Rect.create(8, 0, 72, 15)
+		self.upperBRect = gcommon.Rect.create(24, 16, 71, 29)
+		self.shaftRect = gcommon.Rect.create(40, 30, 62, 129)
+		self.lowerBRect = gcommon.Rect.create(24, 130, 71, 143)
+		self.lowerARect = gcommon.Rect.create(8, 144, 72, 159)
 		self.mode = 0
 		self.modeCnt = 0
 		self.body_min_y = 16
@@ -964,6 +969,24 @@ class Boss3(enemy.EnemyBase):
 		else:
 			return False
 	
+		# 自機と敵との当たり判定
+	def checkMyShipCollision(self):
+		if gcommon.check_collision(self.body, gcommon.ObjMgr.myShip):
+			return True
+		if gcommon.check_collision(self.anchor, gcommon.ObjMgr.myShip):
+			return True
+		if gcommon.check_collision2(self.x, self.y, self.upperARect, gcommon.ObjMgr.myShip):
+			return True
+		if gcommon.check_collision2(self.x, self.y, self.upperBRect, gcommon.ObjMgr.myShip):
+			return True
+		if gcommon.check_collision2(self.x, self.y, self.shaftRect, gcommon.ObjMgr.myShip):
+			return True
+		if gcommon.check_collision2(self.x, self.y, self.lowerBRect, gcommon.ObjMgr.myShip):
+			return True
+		if gcommon.check_collision2(self.x, self.y, self.lowerARect, gcommon.ObjMgr.myShip):
+			return True
+		return False
+
 	def broken(self):
 		self.remove()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
