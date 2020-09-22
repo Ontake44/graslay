@@ -835,7 +835,7 @@ class Boss3(enemy.EnemyBase):
 			if self.body.y < self.body_min_y:
 				self.body.y = self.body_min_y
 				self.nextState()
-			elif self.cnt % 10 == 0:
+			elif self.cnt % 15 == 0:
 				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
 				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
 			self.setBodyAnchorPos()
@@ -893,7 +893,7 @@ class Boss3(enemy.EnemyBase):
 			if self.body.y > self.body_max_y:
 				self.body.y = self.body_max_y
 				self.nextState()
-			elif self.cnt % 10 == 0:
+			elif self.cnt % 15 == 0:
 				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
 				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
 			self.setBodyAnchorPos()

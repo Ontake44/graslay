@@ -156,8 +156,8 @@ class MyShip:
 			r = 0
 			for i in range(1,50):
 				pyxel.pset(							\
-					self.x +7 * math.cos(r) * ((self.cnt/2+i)%20),	\
-					self.y +7 * math.sin(r) * ((self.cnt/2+i)%20),	\
+					self.x+7 +7 * math.cos(r) * ((self.cnt/2+i)%20),	\
+					self.y+7 +7 * math.sin(r) * ((self.cnt/2+i)%20),	\
 					7 + int(self.cnt%2)*3)
 				# kore ha tekito
 				r += 0.11 + i*0.04
@@ -568,12 +568,12 @@ class MapDraw3:
 		gcommon.cur_scroll_y = 0.0
 	
 	def update0(self):
-		pass
-
-	def update(self):
 		if gcommon.game_timer == 3550:
 			gcommon.sync_map_y = False
-		elif gcommon.game_timer > 3550:
+			gcommon.cur_map_dy = 0
+
+	def update(self):
+		if gcommon.game_timer > 3550:
 			if gcommon.map_y > 336:
 				gcommon.map_y -= 0.50
 				if gcommon.map_y < 336:
@@ -889,8 +889,8 @@ class MainGame:
 		#pyxel.text(4, 194, "SC " + str(gcommon.score), 7)
 		gcommon.showText2(0,192, "SC " + str(gcommon.score))
 		# 残機
-		pyxel.blt(232, 192, 0, 48, 32, 6, 8, gcommon.C_COLOR_KEY)
-		pyxel.text(242, 192, str(gcommon.remain), 7)
+		pyxel.blt(232, 192, 0, 8, 32, 8, 8, gcommon.TP_COLOR)
+		gcommon.showText2(242, 192, str(gcommon.remain))
 		
 		# 武器表示
 		for i in range(0,3):
@@ -900,12 +900,12 @@ class MainGame:
 				pyxel.blt(72 + 48*i, 192, 0, i * 48, 48, 48, 8)
 			
 		
-		pyxel.text(120, 184, str(gcommon.game_timer), 7)
+		#pyxel.text(120, 184, str(gcommon.game_timer), 7)
 		#pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)
 		#pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
 		# マップ位置表示
-		pyxel.text(200, 184, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
+		#pyxel.text(200, 184, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
 
 	def ExecuteStory(self):
 		while True:
