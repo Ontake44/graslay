@@ -1227,7 +1227,7 @@ class App:
 	
 		pyxel.init(256, 200, caption="GRASLAY", fps=60)
  		
-		#pyxel.load("assets/graslay.pyxres")
+		pyxel.load("assets/graslay.pyxres")
 		pyxel.image(0).load(0,0,"assets/graslay0.png")
 		
 		gcommon.init_atan_table()
