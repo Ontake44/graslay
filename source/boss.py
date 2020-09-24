@@ -69,13 +69,13 @@ class Boss1(enemy.EnemyBase):
 				#else:
 			if self.cnt > 120:
 				self.nextState()
+				gcommon.sound(gcommon.SOUND_BOSS1PREBEAM)
 				if self.subState == 0:
 					self.subState = 1
 				else:
 					self.subState = 0
 		elif self.state == 4:
 			# ビーム発射前
-
 			if self.cnt & 1 == 1:
 				x = 50 + random.random() * 30
 				y = random.random() * 6
@@ -93,6 +93,7 @@ class Boss1(enemy.EnemyBase):
 
 			if self.cnt > 90:
 				self.nextState()
+				gcommon.sound(gcommon.SOUND_BOSS1BEAM)
 		elif self.state == 5:
 			# ビーム発射開始（移動なし）
 			self.beam = int(self.cnt/3) +1
@@ -156,6 +157,7 @@ class Boss1(enemy.EnemyBase):
 		enemy.enemy_shot_dr(self.x +52, self.y +16, 4, 1, 37)
 		enemy.enemy_shot_dr(self.x +48, self.y +42, 4, 1, 31)
 		enemy.enemy_shot_dr(self.x +52, self.y +48, 4, 1, 27)
+		gcommon.sound(gcommon.SOUND_SHOT2)
 
 	def shotFix8(self):
 		enemy.enemy_shot_dr(self.x +48, self.y +22, 2, 0, 31)
@@ -169,6 +171,7 @@ class Boss1(enemy.EnemyBase):
 		
 		enemy.enemy_shot_dr(self.x +52, self.y +48, 2, 0, 27)
 		enemy.enemy_shot_dr(self.x +52, self.y +48, 2, 0, 29)
+		gcommon.sound(gcommon.SOUND_SHOT2)
 
 	def broken(self):
 		self.setState(100)
@@ -615,8 +618,10 @@ class Boss2(enemy.EnemyBase):
 			
 			attack = boss2tbl[self.tblIndex][4]
 			if attack == 1:
+				# 触手伸ばす攻撃
 				if self.subcnt == 1:
 					gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+29, 24))
+					gcommon.sound(gcommon.SOUND_FEELER_GROW)
 				elif self.subcnt == 20:
 					gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+8, 40))
 				elif self.subcnt == 40:

@@ -55,6 +55,7 @@ class EnemyBase:
 		self.hitcolor1 = 0
 		self.hitcolor2 = 0
 		self.exptype = gcommon.C_EXPTYPE_SKY_S
+		self.expsound = -1
 		self.score = 0
 		self.shotHitCheck = True	# 自機弾との当たり判定
 		self.hitCheck = True	# 自機と敵との当たり判定
@@ -102,7 +103,7 @@ class EnemyBase:
 		
 		gcommon.score += self.score
 		
-		create_explosion(self.x+(self.right-self.left+1)/2, self.y+(self.bottom-self.top+1)/2, layer, self.exptype)
+		create_explosion2(self.x+(self.right-self.left+1)/2, self.y+(self.bottom-self.top+1)/2, layer, self.exptype, self.expsound)
 		self.removeFlag = True
 
 
@@ -116,6 +117,17 @@ def create_explosion(cx, cy, exlayer, exptype):
 	else:
 		#pyxel.play(1, 1)
 		gcommon.sound(gcommon.SOUND_MID_EXP)
+	#add(objs,explosion:new(cx,cy,exlayer,exptype))
+	gcommon.ObjMgr.objs.append(Explosion(cx,cy,exlayer,exptype))
+
+def create_explosion2(cx, cy, exlayer, exptype, expsound):
+	if expsound != -1:
+		gcommon.sound(expsound)
+	else:
+		if exptype==gcommon.C_EXPTYPE_SKY_S or exptype==gcommon.C_EXPTYPE_GRD_S:
+			gcommon.sound(gcommon.SOUND_SMALL_EXP)
+		else:
+			gcommon.sound(gcommon.SOUND_MID_EXP)
 	#add(objs,explosion:new(cx,cy,exlayer,exptype))
 	gcommon.ObjMgr.objs.append(Explosion(cx,cy,exlayer,exptype))
 
@@ -728,6 +740,7 @@ class Cell1(EnemyBase):
 		#self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.layer = gcommon.C_LAYER_SKY
 		self.score = 100
+		self.expsound = gcommon.SOUND_CELL_EXP
 
 	def update(self):
 		if self.cnt > 900:

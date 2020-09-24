@@ -84,9 +84,13 @@ SOUND_FULLPOWER = 7
 SOUND_BOSS_EXP = 8
 SOUND_SHOT2 = 9
 SOUND_GAMESTART = 10
+SOUND_BOSS1BEAM = 11
+SOUND_BOSS1PREBEAM = 12
+SOUND_CELL_EXP = 13
+SOUND_FEELER_GROW = 14
 
-#                 0 1 2 3 4 5 6 7 8 9 10
-sound_priority = [0,2,1,4,5,3,6,0,8,0, 0]
+#                 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+sound_priority = [0,2,1,4,5,3,6,0,8,1, 0, 6, 6, 1, 6]
 
 START_MY_POWER = 1
 

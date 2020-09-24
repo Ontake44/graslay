@@ -102,6 +102,8 @@ class MyShip:
 				self.y = self.y +2
 				if self.y > 176:
 					self.y = 176
+		elif pyxel.btn(pyxel.KEY_ESCAPE):
+			pass
 		if gcommon.game_timer > 30:
 			if self.weapon == gcommon.WEAPON_ROUND:
 				if gcommon.checkShotKey():
