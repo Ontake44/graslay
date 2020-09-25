@@ -2,7 +2,7 @@ import pyxel
 import math
 import random
 import sys
-
+import os
 import gcommon
 import enemy
 import boss
@@ -358,14 +358,15 @@ class Title:
 
 		pyxel.blt(0, 48, 1, 0, 48, 256, 72, gcommon.TP_COLOR)
 		if self.state == 0:
-			gcommon.Text2(110, 150, "GAME START", 7, 5)
+			gcommon.Text2(110, 140, "GAME START", 7, 5)
 		else:
 			if self.cnt & 2 == 0:
-				gcommon.Text2(110, 150, "GAME START", 7, 5)
+				gcommon.Text2(110, 140, "GAME START", 7, 5)
 			else:
-				gcommon.Text2(110, 150, "GAME START", 8, 5)
-		gcommon.Text2(110, 165, "OPTION", 7, 5)
-		pyxel.blt(98, 149 + self.menuPos * 15, 0, 0, 32, 8, 8, gcommon.TP_COLOR)
+				gcommon.Text2(110, 140, "GAME START", 8, 5)
+		gcommon.Text2(110, 155, "OPTION", 7, 5)
+		gcommon.Text2(68, 170, "PUSH SHIFT KEY OR SHOT BUTTON", 8, 1)
+		pyxel.blt(98, 139 + self.menuPos * 15, 0, 0, 32, 8, 8, gcommon.TP_COLOR)
 		
 
 OPTIONMENU_PLAYER_STOCK = 0
@@ -1220,10 +1221,17 @@ def parseCommandLine():
 		idx+=1
 
 def loadMapData(tm, fileName):
-	mapFile = open(fileName, mode = "r")
+	mapFile = open(resource_path(fileName), mode = "r")
 	lines = mapFile.readlines()
 	mapFile.close()
 	pyxel.tilemap(tm).set(0, 0, lines)
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.dirname(__file__)
+    return os.path.join(base_path, relative_path)
 
 class App:
 	def __init__(self):
@@ -1231,7 +1239,7 @@ class App:
 	
 		# コマンドライン解析
 		parseCommandLine()
-	
+		
 		pyxel.init(256, 200, caption="GRASLAY", fps=60)
  		
 		pyxel.load("assets/graslay.pyxres")
