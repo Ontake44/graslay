@@ -1161,7 +1161,7 @@ class StageClear(EnemyBase):
 		super(StageClear, self).__init__()
 		self.hitCheck = False
 		self.shotHitCheck = False
-		gcommon.ObjMgr.myShip.sub_scene = 5
+		gcommon.ObjMgr.myShip.setSubScene(5)
 
 	def update(self):
 		if self.cnt > 60:

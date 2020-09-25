@@ -64,6 +64,9 @@ class MyShip:
 				self.cnt = 0
 				self.sub_scene=1
 		else:	# scene == 5
+			# クリア時
+			if self.cnt == 0:
+				gcommon.sound(gcommon.SOUND_AFTER_BURNER)
 			if self.x < 256 + 32:
 				if self.dx < 8:
 					self.dx += 0.25
@@ -72,7 +75,9 @@ class MyShip:
 
 		self.cnt += 1
 
-	
+	def setSubScene(self, sub_scene):
+		self.sub_scene = sub_scene
+		self.cnt = 0	
 	
 	def actionButtonInput(self):
 		self.sprite = 0

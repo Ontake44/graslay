@@ -843,6 +843,7 @@ class Boss3(enemy.EnemyBase):
 			elif self.cnt % 15 == 0:
 				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
 				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
+				gcommon.sound(gcommon.SOUND_SHOT3)
 			self.setBodyAnchorPos()
 		elif self.state == 4:
 			cy = gcommon.getCenterY(gcommon.ObjMgr.myShip)
@@ -859,11 +860,14 @@ class Boss3(enemy.EnemyBase):
 			if self.cnt % 20 == 0:
 				enemy.enemy_shot(self.x+20, self.y+27, 4, 0)
 				enemy.enemy_shot(self.x+20, self.y+160-27, 4, 0)
+				gcommon.sound(gcommon.SOUND_SHOT2)
 			if self.cnt > 180:
 				self.nextState()
 		elif self.state == 5:
 			if self.mode == 0:
 				# アンカーが伸びる
+				if self.modeCnt == 0:
+					gcommon.sound(gcommon.SOUND_BOSS3_ANCHOR)
 				self.anchor.x -= 8
 				if self.anchor.x <= 0:
 					self.anchor.x = 0
