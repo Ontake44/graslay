@@ -107,8 +107,6 @@ class MyShip:
 				self.y = self.y +2
 				if self.y > 176:
 					self.y = 176
-		elif pyxel.btn(pyxel.KEY_ESCAPE):
-			pass
 		if gcommon.game_timer > 30:
 			if self.weapon == gcommon.WEAPON_ROUND:
 				if gcommon.checkShotKey():
@@ -789,12 +787,12 @@ class MainGame:
 	
 	def update(self):
 		if self.pause:
-			if pyxel.btnp(pyxel.KEY_F1):
+			if pyxel.btnp(pyxel.KEY_F1) or pyxel.btnp(pyxel.GAMEPAD_1_START):
 				self.pause = False
 			else:
 				return
 		else:
-			if pyxel.btnp(pyxel.KEY_F1):
+			if pyxel.btnp(pyxel.KEY_F1) or pyxel.btnp(pyxel.GAMEPAD_1_START):
 				self.pause = True
 				return
 
