@@ -746,6 +746,7 @@ class MainGame:
 		self.initEvent()
 		
 		self.skipGameTimer()
+		self.pause = False
 		
 		if self.stage == 1:
 			pyxel.image(1).load(0,0,"assets/graslay1.png")
@@ -787,6 +788,22 @@ class MainGame:
 			gcommon.game_timer = gcommon.game_timer + 1	
 	
 	def update(self):
+		if self.pause:
+			if pyxel.btnp(pyxel.KEY_F1):
+				self.pause = False
+			else:
+				return
+		else:
+			if pyxel.btnp(pyxel.KEY_F1):
+				self.pause = True
+				return
+
+		# 星
+		if gcommon.draw_star:
+			self.star_pos -= 0.2
+			if self.star_pos<0:
+				self.star_pos += 255
+
 		self.ExecuteEvent()
 
 		# マップ処理０
@@ -838,9 +855,6 @@ class MainGame:
 		if gcommon.draw_star:
 			for i in range(0,96):
 				pyxel.pset(((int)(gcommon.star_ary[i][0]+self.star_pos))&255, i*2, gcommon.star_ary[i][1])
-			self.star_pos -= 0.2
-			if self.star_pos<0:
-				self.star_pos += 255
 
 		gcommon.ObjMgr.drawDrawMapBackground()
 
@@ -914,6 +928,11 @@ class MainGame:
 		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
 		# マップ位置表示
 		#pyxel.text(200, 184, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
+
+		if self.pause:
+			pyxel.rect(127 -24, 192/2 -12, 48, 24, 0)
+			pyxel.rectb(127 -24, 192/2 -12, 48, 24, 7)
+			gcommon.showText2(-999, -999, "PAUSE")
 
 	def ExecuteStory(self):
 		while True:

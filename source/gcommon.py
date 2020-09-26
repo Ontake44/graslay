@@ -612,6 +612,10 @@ def showText(x, y, s):
 		x += 8
 
 def showText2(x, y, s):
+	if x == -999:
+		x = 127 - len(s)/2 *6
+	if y == -999:
+		y = 192/2 - 8/2
 	for c in s:
 		code = ord(c)
 		if code >= 65 and code <= 90:
