@@ -1219,14 +1219,13 @@ class Shutter1(EnemyBase):
 
 # 遺跡基本クラス
 class RuinBase(EnemyBase):
-	def __init__(self, x, y, direction, mWidth, mHeight, pillarOffset):
+	def __init__(self, x, y, direction, mWidth, mHeight):
 		super(RuinBase, self).__init__()
 		self.x = x		# screen x
 		self.y = y		# screen y
 		self.direction = direction
 		self.mWidth = mWidth	# 幅（8ドット単位） 2 -6
 		self.mHeight = mHeight
-		self.pillarOffset = pillarOffset
 		self.left = 0
 		self.right = self.mWidth * 8 -1
 		self.top = 0
@@ -1242,9 +1241,7 @@ class RuinBase(EnemyBase):
 			self.remove()
 			return
 		exist = False
-		if 256 - self.x <= self.pillarOffset * 8:
-			return 
-		for i in range(self.pillarOffset, self.mWidth):
+		for i in range(self.mWidth):
 			check = False
 			if self.direction == 1:
 				check = gcommon.isMapFreePos(self.x + i*8, self.y +self.mHeight * 8)
@@ -1281,7 +1278,7 @@ class RuinBase(EnemyBase):
 # 遺跡柱
 class RuinPillar1(RuinBase):
 	def __init__(self, x, y, direction, size):
-		super(RuinPillar1, self).__init__(x, y, direction, 2, size, 0)
+		super(RuinPillar1, self).__init__(x, y, direction, 2, size)
 		self.size = size	# 高さ（8ドット単位） 2 - 6
 		self.hp = 30
 		self.bx = (self.size -2) * 2
@@ -1298,8 +1295,8 @@ class RuinPillar1(RuinBase):
 
 # 遺跡床
 class RuinFloor1(RuinBase):
-	def __init__(self, x, y, direction, size, pillarOffset):
-		super(RuinFloor1, self).__init__(x, y, direction, size*2, 2, pillarOffset)
+	def __init__(self, x, y, direction, size):
+		super(RuinFloor1, self).__init__(x, y, direction, size*2, 2)
 		self.size = size
 		self.left = 0
 		self.top = 4

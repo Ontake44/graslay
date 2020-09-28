@@ -699,9 +699,8 @@ class MapDraw4:
 				# 床
 				pos = gcommon.mapPosToScreenPos(mx, my)
 				size = gcommon.getMapDataByMapPos(mx+1, my) -576
-				pillarOffset = gcommon.getMapDataByMapPos(mx+2, my) -576
 				gcommon.setMapDataByMapPos2(mx, my, gcommon.DUMMY_BLOCK_NO, size * 2, 2)
-				obj = enemy.RuinFloor1(pos[0], pos[1], 1, size, pillarOffset)
+				obj = enemy.RuinFloor1(pos[0], pos[1], 1, size)
 				gcommon.ObjMgr.addObj(obj)
 			if n == 396:
 				# 柱
@@ -714,9 +713,8 @@ class MapDraw4:
 				# 床
 				pos = gcommon.mapPosToScreenPos(mx, my)
 				size = gcommon.getMapDataByMapPos(mx+1, my) -576
-				pillarOffset = gcommon.getMapDataByMapPos(mx+2, my) -576
 				gcommon.setMapDataByMapPos2(mx, my, gcommon.DUMMY_BLOCK_NO, size * 2, 2)
-				obj = enemy.RuinFloor1(pos[0], pos[1], -1, size, pillarOffset)
+				obj = enemy.RuinFloor1(pos[0], pos[1], -1, size)
 				gcommon.ObjMgr.addObj(obj)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
