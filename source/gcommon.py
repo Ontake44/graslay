@@ -510,6 +510,7 @@ def getMapDataByMapPos(mx, my):
 	global map_x
 	global map_y
 	global long_map
+	#print("--mx = " + str(mx) + " my=" + str(my))
 	if ObjMgr.drawMap == None:
 		return -1
 	else:
@@ -520,7 +521,8 @@ def getMapDataByMapPos(mx, my):
 				moffset = (int(mx/256) & 1) * 128
 				return pyxel.tilemap(tm).get(mx & 255, (my + moffset) & 255)
 			else:
-				return -1
+				#print("mx = " + str(mx) + " my=" + str(my))
+				return -3
 		else:
 			if mx>=0 and mx<256 and my>=0 and my<256:
 				return pyxel.tilemap(0).get(mx, my)
@@ -598,6 +600,13 @@ def isMapFree(no):
 
 def isMapFreePos(x, y):
 	no = getMapData(x, y)
+	if no >= 0:
+		return isMapFree(no)
+	else:
+		return True
+
+def isMapFreeByMapPos(mx, my):
+	no = getMapDataByMapPos(mx, my)
 	if no >= 0:
 		return isMapFree(no)
 	else:

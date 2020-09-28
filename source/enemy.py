@@ -1219,12 +1219,14 @@ class Shutter1(EnemyBase):
 
 # 遺跡基本クラス
 class RuinBase(EnemyBase):
-	def __init__(self, x, y, mWidth, mHeight):
+	def __init__(self, x, y, direction, mWidth, mHeight, pillarOffset):
 		super(RuinBase, self).__init__()
 		self.x = x		# screen x
 		self.y = y		# screen y
+		self.direction = direction
 		self.mWidth = mWidth	# 幅（8ドット単位） 2 -6
 		self.mHeight = mHeight
+		self.pillarOffset = pillarOffset
 		self.left = 0
 		self.right = self.mWidth * 8 -1
 		self.top = 0
@@ -1233,14 +1235,27 @@ class RuinBase(EnemyBase):
 		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.hitCheck = True
 		self.shotHitCheck = True
+		self.ruinType = 0
 
 	def update(self):
 		if self.x + self.right < 0:
 			self.remove()
 			return
 		exist = False
-		for i in range(self.mWidth):
-			if gcommon.isMapFreePos(self.x + i*8, self.y +self.mHeight * 8) == False:
+		if 256 - self.x <= self.pillarOffset * 8:
+			return 
+		for i in range(self.pillarOffset, self.mWidth):
+			check = False
+			if self.direction == 1:
+				check = gcommon.isMapFreePos(self.x + i*8, self.y +self.mHeight * 8)
+			else:
+				pos = gcommon.screenPosToMapPos(self.x + i*8, self.y -1)
+				#print("pre check")
+				check = gcommon.isMapFreeByMapPos(pos[0], pos[1])
+				#if self.ruinType == 1:
+				#	print("check = " + str(pos[0]) + " " + str(pos[1]) + str(check) + " " + str(gcommon.getMapDataByMapPos(pos[0], pos[1])))
+				#gcommon.setMapDataByMapPos(pos[0], pos[1], 7)
+			if check == False:
 				# 何かある
 				exist = True
 				if self.state == 1:
@@ -1258,15 +1273,15 @@ class RuinBase(EnemyBase):
 				gcommon.setMapDataByMapPos2(mpos[0], mpos[1], 0, self.mWidth, self.mHeight)
 				# 落ちる状態に移行
 				self.state = 1
-			self.y += 1
-			if self.y > 192:
+			self.y += self.direction
+			if self.y > 192 or self.y + self.bottom < 0:
 				self.remove()
 
 
 # 遺跡柱
 class RuinPillar1(RuinBase):
-	def __init__(self, x, y, size):
-		super(RuinPillar1, self).__init__(x, y, 2, size)
+	def __init__(self, x, y, direction, size):
+		super(RuinPillar1, self).__init__(x, y, direction, 2, size, 0)
 		self.size = size	# 高さ（8ドット単位） 2 - 6
 		self.hp = 30
 		self.bx = (self.size -2) * 2
@@ -1283,14 +1298,15 @@ class RuinPillar1(RuinBase):
 
 # 遺跡床
 class RuinFloor1(RuinBase):
-	def __init__(self, x, y, size):
-		super(RuinFloor1, self).__init__(x, y, size*2, 2)
+	def __init__(self, x, y, direction, size, pillarOffset):
+		super(RuinFloor1, self).__init__(x, y, direction, size*2, 2, pillarOffset)
 		self.size = size
-		self.left = 8
+		self.left = 0
 		self.top = 4
-		self.right = self.mWidth * 8 -9
+		self.right = self.mWidth * 8
 		self.bottom = self.mHeight * 8 -5
 		self.by = (self.size -2) * 2
+		self.ruinType = 1
 
 	def draw(self):
 		pyxel.bltm(self.x, self.y, 0, 10, self.by, self.size *2, 2, gcommon.TP_COLOR)
