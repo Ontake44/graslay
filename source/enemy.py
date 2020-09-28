@@ -1217,3 +1217,84 @@ class Shutter1(EnemyBase):
 		for i in range(self.size):
 			pyxel.blt(self.x, self.y + i * 16, 1, 64, 96, 16, 16)
 
+# 遺跡基本クラス
+class RuinBase(EnemyBase):
+	def __init__(self, x, y, mWidth, mHeight):
+		super(RuinBase, self).__init__()
+		self.x = x		# screen x
+		self.y = y		# screen y
+		self.mWidth = mWidth	# 幅（8ドット単位） 2 -6
+		self.mHeight = mHeight
+		self.left = 0
+		self.right = self.mWidth * 8 -1
+		self.top = 0
+		self.bottom = self.mHeight * 8 -1
+		self.hp = 999999
+		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.hitCheck = True
+		self.shotHitCheck = True
+
+	def update(self):
+		if self.x + self.right < 0:
+			self.remove()
+			return
+		exist = False
+		for i in range(self.mWidth):
+			if gcommon.isMapFreePos(self.x + i*8, self.y +self.mHeight * 8) == False:
+				# 何かある
+				exist = True
+				if self.state == 1:
+					# 落ちている状態だったら、そこを障害物として埋める
+					mpos = gcommon.screenPosToMapPos(self.x, self.y)
+					gcommon.setMapDataByMapPos2(mpos[0], mpos[1], gcommon.DUMMY_BLOCK_NO, self.mWidth, self.mHeight)
+					# 落ちていない状態とする
+					self.state = 0
+				break
+		if exist == False:
+			# 下に何もない
+			if self.state == 0:
+				# 今の場所をクリアする
+				mpos = gcommon.screenPosToMapPos(self.x, self.y)
+				gcommon.setMapDataByMapPos2(mpos[0], mpos[1], 0, self.mWidth, self.mHeight)
+				# 落ちる状態に移行
+				self.state = 1
+			self.y += 1
+			if self.y > 192:
+				self.remove()
+
+
+# 遺跡柱
+class RuinPillar1(RuinBase):
+	def __init__(self, x, y, size):
+		super(RuinPillar1, self).__init__(x, y, 2, size)
+		self.size = size	# 高さ（8ドット単位） 2 - 6
+		self.hp = 30
+		self.bx = (self.size -2) * 2
+
+	def draw(self):
+		pyxel.bltm(int(self.x), self.y, 0, self.bx, 0, 2, self.size * 8, gcommon.TP_COLOR)
+		#pyxel.rectb(self.x +self.left, self.y + self.top, self.right -self.left+1, self.bottom -self.top+1, 7)
+
+	# 破壊されたとき
+	def broken(self):
+		super(RuinPillar1, self).broken()
+		mpos = gcommon.screenPosToMapPos(self.x, self.y)
+		gcommon.setMapDataByMapPos2(mpos[0], mpos[1], 0, self.mWidth, self.mHeight)
+
+# 遺跡床
+class RuinFloor1(RuinBase):
+	def __init__(self, x, y, size):
+		super(RuinFloor1, self).__init__(x, y, size*2, 2)
+		self.size = size
+		self.left = 8
+		self.top = 4
+		self.right = self.mWidth * 8 -9
+		self.bottom = self.mHeight * 8 -5
+		self.by = (self.size -2) * 2
+
+	def draw(self):
+		pyxel.bltm(self.x, self.y, 0, 10, self.by, self.size *2, 2, gcommon.TP_COLOR)
+		#pyxel.rectb(self.x +self.left, self.y + self.top, self.right -self.left+1, self.bottom -self.top+1, 7)
+
+
+

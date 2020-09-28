@@ -108,6 +108,8 @@ TP_COLOR = 2
 SCREEN_MAX_X = 255
 SCREEN_MAX_Y = 191
 
+DUMMY_BLOCK_NO = 64
+
 # 64 direction table
 atan_table = []
 
@@ -217,7 +219,7 @@ def loadSettings():
 		global SOUND_ON
 		if playerStock >= 1 and playerStock <= 99:
 			START_REMAIN = playerStock
-		if startStage >= 1 and startStage <= 3:
+		if startStage >= 1 and startStage <= 4:
 			START_STAGE = startStage
 		if soundFlag == 0:
 			SOUND_ON = False
@@ -497,11 +499,11 @@ def getMapData(x, y):
 	global map_x
 	global map_y
 	global long_map
-	mx = int(map_x/8) + int((int(map_x)%8 + int(x))/8)
+	mx = int((map_x +x)/8)
 	if long_map:
-		my = (int(map_y/8) + int((int(map_y)%8 + int(y))/8)) & 127
+		my = int((map_y +y)/8) & 127
 	else:
-		my = int(map_y/8) + int((int(map_y)%8 + int(y))/8)
+		my = int((map_y +y)/8)
 	return getMapDataByMapPos(mx, my)
 
 def getMapDataByMapPos(mx, my):
@@ -532,9 +534,9 @@ def setMapData(x, y, p):
 	if ObjMgr.drawMap == None:
 		return
 	else:
-		mx = int(map_x/8) + int((int(map_x)%8 + int(x))/8)
+		mx = int((map_x +x)/8)
 		if long_map:
-			my = (int(map_y/8) + int((int(map_y)%8 + int(y))/8)) & 127
+			my = int((map_y +y)/8) & 127
 			# 2 * 3 = 6画面分
 			if mx>=0 and mx<256*6 and my>=0 and my<128:
 				tm = int(mx/512)
@@ -543,11 +545,17 @@ def setMapData(x, y, p):
 			else:
 				return
 		else:
-			my = int(map_y/8) + int((int(map_y)%8 + int(y))/8)
+			my = int((map_y +y)/8)
 			if mx>=0 and mx<256 and my>=0 and my<256:
 				pyxel.tilemap(0).set(mx, my, p)
 			else:
 				return
+
+def setMapDataByMapPos2(mx, my, p, cx, cy):
+	for yy in range(cy):
+		for xx in range(cx):
+			setMapDataByMapPos(mx +xx, my +yy, p)
+
 def setMapDataByMapPos(mx, my, p):
 	global long_map
 	if ObjMgr.drawMap == None:
@@ -572,13 +580,14 @@ def screenPosToMapPos(x, y):
 	global map_y
 	global long_map
 	if long_map:
-		return [int(map_x/8) + (int((int(map_x)%8 + int(x))/8), int(map_y/8) + int((int(map_y)%8 + int(y))/8)) & 127]
+		#return [int(map_x/8) + int((int(map_x)%8 + int(x))/8), int(int(map_y/8) + int((int(map_y)%8 + int(y))/8)) & 127]
+		return [int((map_x +x)/8), int((map_y +y)/8) & 127]
 	else:
-		return [int(map_x/8) + int((int(map_x)%8 + int(x))/8), int(map_y/8) + int((int(map_y)%8 + int(y))/8)]
+		return [int((map_x +x)/8), int((map_y +y)/8)]
 
 def screenPosToMapPosX(x):
 	global map_x
-	return int(map_x/8) + int((int(map_x)%8 + int(x))/8)
+	return int((map_x +x)/8)
 
 def isMapFree(no):
 	global mapFreeTable

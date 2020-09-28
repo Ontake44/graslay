@@ -96,8 +96,8 @@ class MyShip:
 				gcommon.cur_map_dy = -2
 			else:
 				self.y = self.y -2
-				if self.y < 0:
-					self.y = 0
+				if self.y < 2:
+					self.y = 2
 		elif pyxel.btn(pyxel.KEY_DOWN) or pyxel.btn(pyxel.GAMEPAD_1_DOWN):
 			# 縦は192/8 = 24キャラ
 			self.sprite = 1
@@ -227,9 +227,9 @@ class MyShot:
 		self.x = 0
 		self.y = 0
 		self.left = -4
-		self.top = -2
+		self.top = 0  #-2
 		self.right = 11
-		self.bottom = 9
+		self.bottom = 7 #9
 		self.dx = 0
 		self.dy = 0
 		self.sprite = sprite
@@ -396,8 +396,8 @@ class OptionMenu:
 					gcommon.START_REMAIN = 99
 			elif self.menuPos == OPTIONMENU_START_STAGE:
 				gcommon.START_STAGE += 1
-				if gcommon.START_STAGE > 3:
-					gcommon.START_STAGE = 3
+				if gcommon.START_STAGE > 4:
+					gcommon.START_STAGE = 4
 			elif self.menuPos == OPTIONMENU_SOUND:
 				gcommon.SOUND_ON = not gcommon.SOUND_ON
 		elif gcommon.checkLeftP():
@@ -579,6 +579,8 @@ class MapDraw3:
 			gcommon.cur_map_dy = 0
 
 	def update(self):
+		gcommon.map_x += gcommon.cur_scroll_x
+		gcommon.map_y += gcommon.cur_scroll_y
 		if gcommon.game_timer > 3550:
 			if gcommon.map_y > 336:
 				gcommon.map_y -= 0.50
@@ -632,8 +634,6 @@ class MapDraw3:
 				gcommon.map_y = 128 * 8 + gcommon.map_y
 			elif gcommon.map_y >= 128 * 8:
 				gcommon.map_y = gcommon.map_y - 128 * 8
-		gcommon.map_x += gcommon.cur_scroll_x
-		gcommon.map_y += gcommon.cur_scroll_y
 
 	def drawBackground(self):
 		pass
@@ -672,6 +672,48 @@ class MapDraw3:
 				else:
 					pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 
+class MapDraw4:
+	def __init__(self):
+		pass
+	
+	def init(self):
+		gcommon.map_x = -32 * 8
+		gcommon.map_y = 24*8
+
+	def update0(self):
+		pass
+
+	def update(self):
+		for i in range(0, 128):
+			my = 127 -i
+			mx = gcommon.screenPosToMapPosX(256)
+			n = gcommon.getMapDataByMapPos(mx, my)
+			if n == 394:
+				print("Pillar1")
+				pos = gcommon.mapPosToScreenPos(mx, my)
+				size = gcommon.getMapDataByMapPos(mx+1, my) -576
+				gcommon.setMapDataByMapPos2(mx, my, gcommon.DUMMY_BLOCK_NO, 2, size)
+				obj = enemy.RuinPillar1(pos[0], pos[1], size)
+				gcommon.ObjMgr.addObj(obj)
+			elif n == 395:
+				print("Floor1")
+				pos = gcommon.mapPosToScreenPos(mx, my)
+				size = gcommon.getMapDataByMapPos(mx+1, my) -576
+				gcommon.setMapDataByMapPos2(mx, my, gcommon.DUMMY_BLOCK_NO, size * 2, 2)
+				obj = enemy.RuinFloor1(pos[0], pos[1], size)
+				gcommon.ObjMgr.addObj(obj)
+		gcommon.map_x += gcommon.cur_scroll_x
+		gcommon.map_y += gcommon.cur_scroll_y
+
+	def drawBackground(self):
+		pass
+
+	def draw(self):
+		if gcommon.map_x < 0:
+			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+		else:
+			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, (int)(gcommon.map_x/8), (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+
 
 class StartMapDraw1:
 	def __init__(self, t):
@@ -701,6 +743,13 @@ class StartMapDraw3:
 		# gcommon.cur_scroll_x = 2.0
 		# gcommon.cur_scroll_y = 0.0
 		gcommon.ObjMgr.setDrawMap(MapDraw3())
+
+	def do(self):
+		pass
+
+class StartMapDraw4:
+	def __init__(self, t):
+		gcommon.ObjMgr.setDrawMap(MapDraw4())
 
 	def do(self):
 		pass
@@ -768,6 +817,14 @@ class MainGame:
 			gcommon.draw_star = True
 			loadMapData(0, "assets/graslay3-0.pyxmap")
 			loadMapData(1, "assets/graslay3-1.pyxmap")
+			pyxel.tilemap(1).refimg = 1
+		elif self.stage == 4:
+			pyxel.image(1).load(0,0,"assets/graslay4.png")
+			self.mapOffsetX = 0
+			gcommon.sync_map_y = False
+			gcommon.long_map = True
+			gcommon.draw_star = True
+			loadMapData(0, "assets/graslay4.pyxmap")
 			pyxel.tilemap(1).refimg = 1
 		#elif self.stage == 3:
 		#	pyxel.image(1).load(0,0,"assets\gra-den3a.png")
@@ -1030,6 +1087,8 @@ class MainGame:
 			self.initEvent2()
 		elif self.stage == 3:
 			self.initEvent3()
+		elif self.stage == 4:
+			self.initEvent4()
 	
 	def initEvent1(self):
 		self.eventTable =[ \
@@ -1064,6 +1123,11 @@ class MainGame:
 			[100,StartMapDraw3],		\
 		]
 
+	def initEvent4(self):
+		self.eventTable =[ \
+			[100,StartMapDraw4],		\
+		]
+
 	def initStory(self):
 		if self.stage == 1:
 			self.initStory1()
@@ -1071,6 +1135,8 @@ class MainGame:
 			self.initStory2()
 		elif self.stage == 3:
 			self.initStory3()
+		elif self.stage == 4:
+			self.initStory4()
 
 	def initStory1(self):
 		self.story=[ \
@@ -1226,6 +1292,9 @@ class MainGame:
 			[3730, boss.Boss3],		\
 		]
 
+	def initStory4(self):
+		self.story=[ \
+		]
 
 def parseCommandLine():
 	idx = 0
@@ -1290,7 +1359,7 @@ class App:
 		self.setScene(MainGame(stage))
 
 	def startNextStage(self):
-		if self.stage == 3:
+		if self.stage == 4:
 			self.startGameClear()
 		else:
 			self.startStage(self.stage+1)
