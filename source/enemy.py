@@ -425,7 +425,6 @@ class Battery1(EnemyBase):
 		self.first = 120
 		self.shot_speed = 2
 		self.remove_min_x = -16
-		self.dr8 = 4
 
 	def update(self):
 		if self.x < self.remove_min_x:
@@ -435,44 +434,46 @@ class Battery1(EnemyBase):
 			enemy_shot(self.x+8,self.y+6, self.shot_speed, 0)
 
 	def draw(self):
-		if self.cnt & 3 == 3:
-			self.dr8 = gcommon.get_direction_my(self.x+8, self.y +8)
-		y = int(self.y+0.5)
-		if self.mirror == 0:
-			if self.dr8  in (0, 1):
-				pyxel.blt(self.x, y, 1, 0, 96, -16, 16, gcommon.TP_COLOR)
-			elif self.dr8 == 2:
-				pyxel.blt(self.x, y, 1, 32, 96, 16, 16, gcommon.TP_COLOR)
-			elif self.dr8 in (3, 4):
-				pyxel.blt(self.x, y, 1, 0, 96, 16, 16, gcommon.TP_COLOR)
-			elif self.dr8 in (5, 6):
-				pyxel.blt(self.x, y, 1, 16, 96, 16, 16, gcommon.TP_COLOR)
-			elif self.dr8 == 7:
-				pyxel.blt(self.x, y, 1, 16, 96, -16, 16, gcommon.TP_COLOR)
-		else:
-			if self.dr8 == 0:
-				pyxel.blt(self.x, y, 1, 0, 96, -16, -16, gcommon.TP_COLOR)
-			elif self.dr8 == 1:
-				pyxel.blt(self.x, y, 1, 16, 96, -16, -16, gcommon.TP_COLOR)
-			elif self.dr8 == 2:
-				pyxel.blt(self.x, y, 1, 32, 96, 16, -16, gcommon.TP_COLOR)
-			elif self.dr8 == 3:
-				pyxel.blt(self.x, y, 1, 16, 96, 16, -16, gcommon.TP_COLOR)
-			elif self.dr8 == 4:
-				pyxel.blt(self.x, y, 1, 0, 96, 16, -16, gcommon.TP_COLOR)
-			elif self.dr8 == 5:
-				pyxel.blt(self.x, y, 1, 0, 96, 16, -16, gcommon.TP_COLOR)
-			elif self.dr8 == 6:
-				pyxel.blt(self.x, y, 1, 32, 96, 16, -16, gcommon.TP_COLOR)
-			elif self.dr8 == 7:
-				pyxel.blt(self.x, y, 1, 16, 96, -16, -16, gcommon.TP_COLOR)
+		drawBattery1(self.x, self.y, self.mirror)
 
+def drawBattery1(x, y, mirror):
+	dr8 = 0
+	dr8 = gcommon.get_direction_my(x+8, y +8)
+	y = int(y)
+	if mirror == 0:
+		if dr8  in (0, 1):
+			pyxel.blt(x, y, 1, 0, 96, -16, 16, gcommon.TP_COLOR)
+		elif dr8 == 2:
+			pyxel.blt(x, y, 1, 32, 96, 16, 16, gcommon.TP_COLOR)
+		elif dr8 in (3, 4):
+			pyxel.blt(x, y, 1, 0, 96, 16, 16, gcommon.TP_COLOR)
+		elif dr8 in (5, 6):
+			pyxel.blt(x, y, 1, 16, 96, 16, 16, gcommon.TP_COLOR)
+		elif dr8 == 7:
+			pyxel.blt(x, y, 1, 16, 96, -16, 16, gcommon.TP_COLOR)
+	else:
+		if dr8 == 0:
+			pyxel.blt(x, y, 1, 0, 96, -16, -16, gcommon.TP_COLOR)
+		elif dr8 == 1:
+			pyxel.blt(x, y, 1, 16, 96, -16, -16, gcommon.TP_COLOR)
+		elif dr8 == 2:
+			pyxel.blt(x, y, 1, 32, 96, 16, -16, gcommon.TP_COLOR)
+		elif dr8 == 3:
+			pyxel.blt(x, y, 1, 16, 96, 16, -16, gcommon.TP_COLOR)
+		elif dr8 == 4:
+			pyxel.blt(x, y, 1, 0, 96, 16, -16, gcommon.TP_COLOR)
+		elif dr8 == 5:
+			pyxel.blt(x, y, 1, 0, 96, 16, -16, gcommon.TP_COLOR)
+		elif dr8 == 6:
+			pyxel.blt(x, y, 1, 32, 96, 16, -16, gcommon.TP_COLOR)
+		elif dr8 == 7:
+			pyxel.blt(x, y, 1, 16, 96, -16, -16, gcommon.TP_COLOR)
 
 
 class StageClearText(EnemyBase):
 	def __init__(self, stage):
 		super(StageClearText, self).__init__()
-		self.t = gcommon.T_STAGE_START
+		t = gcommon.T_STAGE_START
 		self.x = 0
 		self.y = 0
 		self.stage = stage
@@ -1219,13 +1220,14 @@ class Shutter1(EnemyBase):
 
 # 遺跡基本クラス
 class RuinBase(EnemyBase):
-	def __init__(self, x, y, direction, mWidth, mHeight):
+	def __init__(self, mx, my, direction, mWidth, mHeight, needDummyBlock):
 		super(RuinBase, self).__init__()
-		self.x = x		# screen x
-		self.y = y		# screen y
+		pos = gcommon.mapPosToScreenPos(mx, my)
+		self.x = pos[0]		# screen x
+		self.y = pos[1]		# screen y
 		self.direction = direction
-		self.mWidth = mWidth	# 幅（8ドット単位） 2 -6
-		self.mHeight = mHeight
+		self.mWidth = mWidth	# 幅（8ドット単位）
+		self.mHeight = mHeight	# 高さ（8ドット単位）
 		self.left = 0
 		self.right = self.mWidth * 8 -1
 		self.top = 0
@@ -1234,7 +1236,11 @@ class RuinBase(EnemyBase):
 		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.hitCheck = True
 		self.shotHitCheck = True
-		self.ruinType = 0
+		self.needDummyBlock = needDummyBlock
+		if needDummyBlock:
+			gcommon.setMapDataByMapPos2(mx, my, gcommon.DUMMY_BLOCK_NO, mWidth, mHeight)
+		else:
+			gcommon.setMapDataByMapPos2(mx, my, 0, mWidth, mHeight)
 
 	def update(self):
 		if self.x + self.right < 0:
@@ -1247,38 +1253,42 @@ class RuinBase(EnemyBase):
 				check = gcommon.isMapFreePos(self.x + i*8, self.y +self.mHeight * 8)
 			else:
 				pos = gcommon.screenPosToMapPos(self.x + i*8, self.y -1)
-				#print("pre check")
 				check = gcommon.isMapFreeByMapPos(pos[0], pos[1])
-				#if self.ruinType == 1:
-				#	print("check = " + str(pos[0]) + " " + str(pos[1]) + str(check) + " " + str(gcommon.getMapDataByMapPos(pos[0], pos[1])))
-				#gcommon.setMapDataByMapPos(pos[0], pos[1], 7)
 			if check == False:
 				# 何かある
 				exist = True
 				if self.state == 1:
-					# 落ちている状態だったら、そこを障害物として埋める
-					mpos = gcommon.screenPosToMapPos(self.x, self.y)
-					gcommon.setMapDataByMapPos2(mpos[0], mpos[1], gcommon.DUMMY_BLOCK_NO, self.mWidth, self.mHeight)
+					if self.needDummyBlock:
+						# 落ちている状態だったら、そこを障害物として埋める
+						mpos = gcommon.screenPosToMapPos(self.x, self.y)
+						gcommon.setMapDataByMapPos2(mpos[0], mpos[1], gcommon.DUMMY_BLOCK_NO, self.mWidth, self.mHeight)
 					# 落ちていない状態とする
 					self.state = 0
 				break
 		if exist == False:
 			# 下に何もない
 			if self.state == 0:
-				# 今の場所をクリアする
-				mpos = gcommon.screenPosToMapPos(self.x, self.y)
-				gcommon.setMapDataByMapPos2(mpos[0], mpos[1], 0, self.mWidth, self.mHeight)
+				if self.needDummyBlock:
+					# 今の場所をクリアする
+					mpos = gcommon.screenPosToMapPos(self.x, self.y)
+					gcommon.setMapDataByMapPos2(mpos[0], mpos[1], 0, self.mWidth, self.mHeight)
 				# 落ちる状態に移行
 				self.state = 1
 			self.y += self.direction
 			if self.y > 192 or self.y + self.bottom < 0:
 				self.remove()
 
+	# 破壊されたとき
+	def broken(self):
+		super(RuinBase, self).broken()
+		mpos = gcommon.screenPosToMapPos(self.x, self.y)
+		gcommon.setMapDataByMapPos2(mpos[0], mpos[1], 0, self.mWidth, self.mHeight)
+
 
 # 遺跡柱
 class RuinPillar1(RuinBase):
-	def __init__(self, x, y, direction, size):
-		super(RuinPillar1, self).__init__(x, y, direction, 2, size)
+	def __init__(self, mx, my, direction, size):
+		super(RuinPillar1, self).__init__(mx, my, direction, 2, size, True)
 		self.size = size	# 高さ（8ドット単位） 2 - 6
 		self.hp = 30
 		self.bx = (self.size -2) * 2
@@ -1287,27 +1297,45 @@ class RuinPillar1(RuinBase):
 		pyxel.bltm(int(self.x), self.y, 0, self.bx, 0, 2, self.size * 8, gcommon.TP_COLOR)
 		#pyxel.rectb(self.x +self.left, self.y + self.top, self.right -self.left+1, self.bottom -self.top+1, 7)
 
-	# 破壊されたとき
-	def broken(self):
-		super(RuinPillar1, self).broken()
-		mpos = gcommon.screenPosToMapPos(self.x, self.y)
-		gcommon.setMapDataByMapPos2(mpos[0], mpos[1], 0, self.mWidth, self.mHeight)
 
 # 遺跡床
 class RuinFloor1(RuinBase):
-	def __init__(self, x, y, direction, size):
-		super(RuinFloor1, self).__init__(x, y, direction, size*2, 2)
+	def __init__(self, mx, my, direction, size):
+		super(RuinFloor1, self).__init__(mx, my, direction, size*2, 2, True)
 		self.size = size
 		self.left = 0
 		self.top = 4
 		self.right = self.mWidth * 8
 		self.bottom = self.mHeight * 8 -5
 		self.by = (self.size -2) * 2
-		self.ruinType = 1
 
 	def draw(self):
 		pyxel.bltm(self.x, self.y, 0, 10, self.by, self.size *2, 2, gcommon.TP_COLOR)
 		#pyxel.rectb(self.x +self.left, self.y + self.top, self.right -self.left+1, self.bottom -self.top+1, 7)
 
+# 遺跡と落ちる砲台
+class Battery2(RuinBase):
+	def __init__(self, mx, my, direction):
+		# direction  1:通常 -1:上下逆
+		super(Battery2, self).__init__(mx, my, direction, 2, 2, False)
+		self.left = 2
+		self.right = 13
+		if self.direction == 1:
+			self.top = 5
+			self.bottom = 15
+		else:
+			self.top = 0
+			self.bottom = 10
+		self.hp = 10
 
+	def update(self):
+		super(Battery2, self).update()
+		if self.cnt & 63 == 63:
+			enemy_shot(self.x+8,self.y+6, 2, 0)
+
+	def draw(self):
+		if self.direction == 1:
+			drawBattery1(self.x, self.y, 0)
+		else:
+			drawBattery1(self.x, self.y, 1)
 

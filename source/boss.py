@@ -655,6 +655,7 @@ class Boss2(enemy.EnemyBase):
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
 		gcommon.score+=self.score
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
 		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [], 300))
 
 
@@ -720,7 +721,7 @@ class Boss3Explosion(enemy.EnemyBase):
 				self.y, self.cnt**1.2 * 2,7)
 			#--circfill(self.x+(self.r-self.l)/2,
 			#-- self.y+(self.b-self.u)/2, self.cnt,7)
-			gcommon.circfill_obj_center(self, self.cnt**1.2, 7)
+			gcommon.circfill_obj_center(self, self.cnt**1.1, 7)
 			gcommon.draw_splash(self)
 
 		elif self.state==1:

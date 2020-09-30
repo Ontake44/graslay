@@ -595,6 +595,7 @@ class MapDraw3:
 				mx = gcommon.screenPosToMapPosX(256)
 				n = gcommon.getMapDataByMapPos(mx, my)
 				if n in (390, 391):
+					# 砲台
 					gcommon.setMapDataByMapPos(mx, my, 0)
 					obj = enemy.Battery1([0,0,mx, my, 0])
 					obj.first = 20
@@ -639,6 +640,7 @@ class MapDraw3:
 		pass
 
 	def draw(self):
+		# 上下ループマップなのでややこしい
 		if gcommon.map_x < 0:
 			if gcommon.map_y > (128 -24) * 8:
 				# 上を描く
@@ -690,31 +692,29 @@ class MapDraw4:
 			n = gcommon.getMapDataByMapPos(mx, my)
 			if n == 394:
 				# 柱
-				pos = gcommon.mapPosToScreenPos(mx, my)
 				size = gcommon.getMapDataByMapPos(mx+1, my) -576
-				gcommon.setMapDataByMapPos2(mx, my, gcommon.DUMMY_BLOCK_NO, 2, size)
-				obj = enemy.RuinPillar1(pos[0], pos[1], 1, size)
+				obj = enemy.RuinPillar1(mx, my, 1, size)
 				gcommon.ObjMgr.addObj(obj)
 			elif n == 395:
 				# 床
-				pos = gcommon.mapPosToScreenPos(mx, my)
 				size = gcommon.getMapDataByMapPos(mx+1, my) -576
-				gcommon.setMapDataByMapPos2(mx, my, gcommon.DUMMY_BLOCK_NO, size * 2, 2)
-				obj = enemy.RuinFloor1(pos[0], pos[1], 1, size)
+				obj = enemy.RuinFloor1(mx, my, 1, size)
 				gcommon.ObjMgr.addObj(obj)
 			if n == 396:
 				# 柱
-				pos = gcommon.mapPosToScreenPos(mx, my)
 				size = gcommon.getMapDataByMapPos(mx+1, my) -576
-				gcommon.setMapDataByMapPos2(mx, my, gcommon.DUMMY_BLOCK_NO, 2, size)
-				obj = enemy.RuinPillar1(pos[0], pos[1], -1, size)
+				obj = enemy.RuinPillar1(mx, my, -1, size)
 				gcommon.ObjMgr.addObj(obj)
 			elif n == 397:
 				# 床
-				pos = gcommon.mapPosToScreenPos(mx, my)
 				size = gcommon.getMapDataByMapPos(mx+1, my) -576
-				gcommon.setMapDataByMapPos2(mx, my, gcommon.DUMMY_BLOCK_NO, size * 2, 2)
-				obj = enemy.RuinFloor1(pos[0], pos[1], -1, size)
+				obj = enemy.RuinFloor1(mx, my, -1, size)
+				gcommon.ObjMgr.addObj(obj)
+			elif n in (390, 391):
+				# 砲台
+				obj = enemy.Battery2(mx, my, 1)
+				if n == 391:
+					obj.direction = -1
 				gcommon.ObjMgr.addObj(obj)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
