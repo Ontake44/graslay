@@ -152,6 +152,13 @@ class Boss1(enemy.EnemyBase):
 				pyxel.blt(bx, self.y +10, 1, sx, 208, 16, 40, gcommon.TP_COLOR)
 				bx -=16
 
+	def checkShotCollision(self, shot):
+		ret = super(Boss1, self).checkShotCollision(shot)
+		if ret:
+			rad = math.atan2(shot.dy, shot.dx)
+			enemy.Particle1.appendCenter(shot, rad)
+		return ret
+
 	def shotFix4(self):
 		enemy.enemy_shot_dr(self.x +48, self.y +22, 4, 1, 33)
 		enemy.enemy_shot_dr(self.x +52, self.y +16, 4, 1, 37)
@@ -633,6 +640,12 @@ class Boss2(enemy.EnemyBase):
 	def draw(self):
 		pyxel.blt(self.x, self.y, 1, 176, 208, 80, 48, gcommon.TP_COLOR)
 		
+	def checkShotCollision(self, shot):
+		ret = super(Boss2, self).checkShotCollision(shot)
+		if ret:
+			rad = math.atan2(shot.dy, shot.dx)
+			enemy.Particle1.appendCenter(shot, rad)
+		return ret
 
 	def nextTbl(self):
 		self.tblIndex +=1
@@ -706,7 +719,7 @@ class Boss3Explosion(enemy.EnemyBase):
 		if self.state == 0:
 			if self.cnt == 0:
 				gcommon.sound(gcommon.SOUND_BOSS_EXP)
-			elif self.cnt>200:
+			elif self.cnt>120:
 				#self.nextState()
 				self.remove()
 				#pyxel.play(1, 5)
@@ -721,7 +734,7 @@ class Boss3Explosion(enemy.EnemyBase):
 				self.y, self.cnt**1.2 * 2,7)
 			#--circfill(self.x+(self.r-self.l)/2,
 			#-- self.y+(self.b-self.u)/2, self.cnt,7)
-			gcommon.circfill_obj_center(self, self.cnt**1.1, 7)
+			gcommon.circfill_obj_center(self, self.cnt**1.2, 7)
 			gcommon.draw_splash(self)
 
 		elif self.state==1:

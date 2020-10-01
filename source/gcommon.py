@@ -418,6 +418,9 @@ def getCenterX(obj):
 def getCenterY(obj):
 	return obj.y + obj.top + (obj.bottom -obj.top+1)/2
 
+def getCenterPos(obj):
+	return [obj.x + obj.left + (obj.right -obj.left+1)/2, obj.y + obj.top + (obj.bottom -obj.top+1)/2]
+
 class ObjMgr:
 	myShip = None
 	# 自機弾

@@ -536,10 +536,12 @@ class Splash(EnemyBase):
 		self.y = cy
 		self.layer = layer
 		self.tbl = []
+		self.hitCheck = False
+		self.shotHitCheck = False
 		for i in range(0,200):
-			r = random.random() * 2 * 3.141592653
+			r = random.random() * 2 * math.pi
 			speed = random.random() * 6
-			s = SplashItem(cx, cy, speed * math.cos(r), speed * math.sin(r), random.randrange(50, 200))
+			s = SplashItem(cx, cy, speed * math.cos(r), speed * math.sin(r), random.randrange(100, 240))
 			self.tbl.append(s)
 
 	@classmethod
@@ -547,30 +549,32 @@ class Splash(EnemyBase):
 		gcommon.ObjMgr.objs.append(Splash(x, y, layer))
 	
 	def update(self):
-		for s in self.tbl:
-			s.x += s.dx
-			s.y += s.dy
-			s.dx *= 0.97
-			s.dy *= 0.97
-	
-	def draw(self):
 		newTbl = []
 		for s in self.tbl:
 			s.cnt -= 1
-			if s.cnt != 0:
+			if s.cnt > 0:
 				newTbl.append(s)
-				n = (s.life - s.cnt)/ s.life
-				if n > 0.5:
-					if s.cnt & 1 == 0:
-						continue
-				elif n > 0.6:
-					if s.cnt & 3 != 0:
-						continue
-				elif n > 0.8:
-					if s.cnt & 7 != 0:
-						continue
-				pyxel.pset(s.x, s.y, 7)
+				s.x += s.dx
+				s.y += s.dy
+				s.dx *= 0.97
+				s.dy *= 0.97
 		self.tbl = newTbl
+		if len(self.tbl) == 0:
+			self.remove()
+
+	def draw(self):
+		for s in self.tbl:
+			n = (s.life - s.cnt)/ s.life
+			if n > 0.5:
+				if s.cnt & 1 == 0:
+					continue
+			elif n > 0.6:
+				if s.cnt & 3 != 0:
+					continue
+			elif n > 0.8:
+				if s.cnt & 7 != 0:
+					continue
+			pyxel.pset(s.x, s.y, 7)
 
 
 class Fan1Group(EnemyBase):
@@ -1339,3 +1343,59 @@ class Battery2(RuinBase):
 		else:
 			drawBattery1(self.x, self.y, 1)
 
+
+class Particle1(EnemyBase):
+	def __init__(self, cx, cy, rad):
+		super(Particle1, self).__init__()
+		self.x = cx
+		self.y = cy
+		self.rad = rad
+		self.tbl = []
+		self.hitCheck = False
+		self.shotHitCheck = False
+		for i in range(0, 8):
+			r = rad + random.random() * math.pi/4 - math.pi/8
+			speed = random.random() * 6
+			s = SplashItem(cx, cy, speed * math.cos(r), speed * math.sin(r), random.randrange(10, 50))
+			self.tbl.append(s)
+
+	@classmethod
+	def append(cls, x, y, rad):
+		gcommon.ObjMgr.objs.append(Particle1(x, y, rad))
+
+	@classmethod
+	def appendPos(cls, pos, rad):
+		gcommon.ObjMgr.objs.append(Particle1(pos[0], pos[1], rad))
+
+	@classmethod
+	def appendCenter(cls, obj, rad):
+		pos = gcommon.getCenterPos(obj)
+		gcommon.ObjMgr.objs.append(Particle1(pos[0], pos[1], rad))
+
+	def update(self):
+		newTbl = []
+		for s in self.tbl:
+			s.cnt -= 1
+			if s.cnt > 0:
+				newTbl.append(s)
+				s.x += s.dx
+				s.y += s.dy
+				s.dx *= 0.97
+				s.dy *= 0.97
+		self.tbl = newTbl
+		if len(self.tbl) == 0:
+			self.remove()
+
+	def draw(self):
+		for s in self.tbl:
+			n = (s.life - s.cnt)/ s.life
+			if n > 0.5:
+				if s.cnt & 1 == 0:
+					continue
+			elif n > 0.6:
+				if s.cnt & 3 != 0:
+					continue
+			elif n > 0.8:
+				if s.cnt & 7 != 0:
+					continue
+			pyxel.pset(s.x, s.y, 7)
