@@ -20,8 +20,8 @@ class Boss1(enemy.EnemyBase):
 		self.layer = gcommon.C_LAYER_SKY
 		self.score = 5000
 		self.subcnt = 0
-		self.hitcolor1 = 3
-		self.hitcolor2 = 14
+		self.hitcolor1 = 9
+		self.hitcolor2 = 10
 		self.brake = False
 		self.beam = 0
 		self.subState = 0
@@ -188,6 +188,7 @@ class Boss1(enemy.EnemyBase):
 		gcommon.score+=self.score
 		self.remove()
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
 		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [], 300))
 
 
@@ -783,7 +784,7 @@ class Boss3(enemy.EnemyBase):
 		self.layer = gcommon.C_LAYER_SKY
 		self.score = 5000
 		self.subcnt = 0
-		self.hitcolor1 = 3
+		self.hitcolor1 = 13
 		self.hitcolor2 = 7
 		self.body = Boss3Body()
 		self.body.y = 72
@@ -983,6 +984,8 @@ class Boss3(enemy.EnemyBase):
 			hit = True
 		
 		if hit:
+			rad = math.atan2(shot.dy, shot.dx)
+			enemy.Particle1.appendCenter(shot, rad)
 			self.hp -= gcommon.SHOT_POWER
 			if self.hp <= 0:
 				self.broken()

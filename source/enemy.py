@@ -1279,7 +1279,7 @@ class RuinBase(EnemyBase):
 				# 落ちる状態に移行
 				self.state = 1
 			self.y += self.direction
-			if self.y > 192 or self.y + self.bottom < 0:
+			if self.y >= 384 or self.y + self.bottom < -192:
 				self.remove()
 
 	# 破壊されたとき
@@ -1351,6 +1351,7 @@ class Particle1(EnemyBase):
 		self.y = cy
 		self.rad = rad
 		self.tbl = []
+		self.layer = gcommon.C_LAYER_EXP_SKY
 		self.hitCheck = False
 		self.shotHitCheck = False
 		for i in range(0, 8):
