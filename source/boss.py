@@ -856,8 +856,8 @@ class Boss3(enemy.EnemyBase):
 				self.body.y = self.body_min_y
 				self.nextState()
 			elif self.cnt % 15 == 0:
-				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
-				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
+				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 2))
+				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 2))
 				gcommon.sound(gcommon.SOUND_SHOT3)
 			self.setBodyAnchorPos()
 		elif self.state == 4:
@@ -873,8 +873,8 @@ class Boss3(enemy.EnemyBase):
 
 			self.setBodyAnchorPos()
 			if self.cnt % 20 == 0:
-				enemy.enemy_shot(self.x+20, self.y+27, 4, 0)
-				enemy.enemy_shot(self.x+20, self.y+160-27, 4, 0)
+				enemy.enemy_shot(self.x+20, self.y+27, 2, 0)
+				enemy.enemy_shot(self.x+20, self.y+160-27, 2, 0)
 				gcommon.sound(gcommon.SOUND_SHOT2)
 			if self.cnt > 180:
 				self.nextState()
@@ -918,8 +918,8 @@ class Boss3(enemy.EnemyBase):
 				self.body.y = self.body_max_y
 				self.nextState()
 			elif self.cnt % 15 == 0:
-				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
-				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
+				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 2))
+				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 2))
 			self.setBodyAnchorPos()
 		elif self.state == 8:
 			# 中心に移動

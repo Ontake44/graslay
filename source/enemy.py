@@ -60,6 +60,7 @@ class EnemyBase:
 		self.shotHitCheck = True	# 自機弾との当たり判定
 		self.hitCheck = True	# 自機と敵との当たり判定
 		self.removeFlag = False
+		self.enemyShotCollision = False	# 敵弾との当たり判定を行う
 
 	def nextState(self):
 		self.state += 1
@@ -1199,6 +1200,7 @@ class Shutter1(EnemyBase):
 		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.hitCheck = True
 		self.shotHitCheck = True
+		self.enemyShotCollision = True
 
 	def update(self):
 		if self.x <= -16:
@@ -1222,14 +1224,16 @@ class Shutter1(EnemyBase):
 		for i in range(self.size):
 			pyxel.blt(self.x, self.y + i * 16, 1, 64, 96, 16, 16)
 
-# 遺跡基本クラス
-class RuinBase(EnemyBase):
+# 落下物基本クラス
+class FallingObject(EnemyBase):
 	def __init__(self, mx, my, direction, mWidth, mHeight, needDummyBlock):
-		super(RuinBase, self).__init__()
+		super(FallingObject, self).__init__()
 		pos = gcommon.mapPosToScreenPos(mx, my)
 		self.x = pos[0]		# screen x
 		self.y = pos[1]		# screen y
-		self.direction = direction
+		self.mx = mx
+		self.my = my
+		self.direction = direction		# 1 or -1
 		self.mWidth = mWidth	# 幅（8ドット単位）
 		self.mHeight = mHeight	# 高さ（8ドット単位）
 		self.left = 0
@@ -1240,13 +1244,18 @@ class RuinBase(EnemyBase):
 		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.hitCheck = True
 		self.shotHitCheck = True
-		self.needDummyBlock = needDummyBlock
-		if needDummyBlock:
-			gcommon.setMapDataByMapPos2(mx, my, gcommon.DUMMY_BLOCK_NO, mWidth, mHeight)
+		self.needDummyBlock = needDummyBlock	# 砲台などの場合False、壁はTrue
+		if self.needDummyBlock:
+			gcommon.setMapDataByMapPos2(self.mx, self.my, gcommon.DUMMY_BLOCK_NO, self.mWidth, self.mHeight)
 		else:
-			gcommon.setMapDataByMapPos2(mx, my, 0, mWidth, mHeight)
+			gcommon.setMapDataByMapPos2(self.mx, self.my, 0, self.mWidth, self.mHeight)
 
 	def update(self):
+		# if self.cnt == 0:
+		# 	if self.needDummyBlock:
+		# 		gcommon.setMapDataByMapPos2(self.mx, self.my, gcommon.DUMMY_BLOCK_NO, self.mWidth, self.mHeight)
+		# 	else:
+		# 		gcommon.setMapDataByMapPos2(self.mx, self.my, 0, self.mWidth, self.mHeight)
 		if self.x + self.right < 0:
 			self.remove()
 			return
@@ -1256,8 +1265,7 @@ class RuinBase(EnemyBase):
 			if self.direction == 1:
 				check = gcommon.isMapFreePos(self.x + i*8, self.y +self.mHeight * 8)
 			else:
-				pos = gcommon.screenPosToMapPos(self.x + i*8, self.y -1)
-				check = gcommon.isMapFreeByMapPos(pos[0], pos[1])
+				check = gcommon.isMapFreePos(self.x + i*8, self.y -1)
 			if check == False:
 				# 何かある
 				exist = True
@@ -1284,18 +1292,19 @@ class RuinBase(EnemyBase):
 
 	# 破壊されたとき
 	def broken(self):
-		super(RuinBase, self).broken()
+		super(FallingObject, self).broken()
 		mpos = gcommon.screenPosToMapPos(self.x, self.y)
 		gcommon.setMapDataByMapPos2(mpos[0], mpos[1], 0, self.mWidth, self.mHeight)
 
 
 # 遺跡柱
-class RuinPillar1(RuinBase):
+class RuinPillar1(FallingObject):
 	def __init__(self, mx, my, direction, size):
 		super(RuinPillar1, self).__init__(mx, my, direction, 2, size, True)
 		self.size = size	# 高さ（8ドット単位） 2 - 6
 		self.hp = 30
 		self.bx = (self.size -2) * 2
+		self.enemyShotCollision = True
 
 	def draw(self):
 		pyxel.bltm(int(self.x), self.y, 0, self.bx, 0, 2, self.size * 8, gcommon.TP_COLOR)
@@ -1303,7 +1312,7 @@ class RuinPillar1(RuinBase):
 
 
 # 遺跡床
-class RuinFloor1(RuinBase):
+class RuinFloor1(FallingObject):
 	def __init__(self, mx, my, direction, size):
 		super(RuinFloor1, self).__init__(mx, my, direction, size*2, 2, True)
 		self.size = size
@@ -1312,13 +1321,14 @@ class RuinFloor1(RuinBase):
 		self.right = self.mWidth * 8
 		self.bottom = self.mHeight * 8 -5
 		self.by = (self.size -2) * 2
+		self.enemyShotCollision = True
 
 	def draw(self):
-		pyxel.bltm(self.x, self.y, 0, 10, self.by, self.size *2, 2, gcommon.TP_COLOR)
+		pyxel.bltm(self.x, self.y, 0, 14, self.by, self.size *2, 2, gcommon.TP_COLOR)
 		#pyxel.rectb(self.x +self.left, self.y + self.top, self.right -self.left+1, self.bottom -self.top+1, 7)
 
 # 遺跡と落ちる砲台
-class Battery2(RuinBase):
+class Battery2(FallingObject):
 	def __init__(self, mx, my, direction):
 		# direction  1:通常 -1:上下逆
 		super(Battery2, self).__init__(mx, my, direction, 2, 2, False)

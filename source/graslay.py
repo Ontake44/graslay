@@ -893,26 +893,25 @@ class MainGame:
 				newShots.append(shot)
 		gcommon.ObjMgr.shots = newShots
 
-	
 		newObjs = []
 		for obj in gcommon.ObjMgr.objs:
-			if obj.layer == gcommon.C_LAYER_GRD 	\
-				or obj.layer==gcommon.C_LAYER_UNDER_GRD:
-				obj.x -= gcommon.cur_scroll_x
-				obj.y -= gcommon.cur_scroll_y
-			obj.x -= gcommon.cur_map_dx
-			obj.y -= gcommon.cur_map_dy
-			obj.update()
-			obj.cnt = obj.cnt + 1
 			if obj.removeFlag == False:
-				newObjs.append(obj)
+				if obj.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD, gcommon.C_LAYER_E_SHOT):
+					obj.x -= gcommon.cur_scroll_x
+					obj.y -= gcommon.cur_scroll_y
+				obj.x -= gcommon.cur_map_dx
+				obj.y -= gcommon.cur_map_dy
+				obj.update()
+				obj.cnt = obj.cnt + 1
+				if obj.removeFlag == False:
+					newObjs.append(obj)
 		gcommon.ObjMgr.objs = newObjs
-		
+
 		self.Collision()
 		
 		gcommon.game_timer = gcommon.game_timer + 1
 	
-	
+
 	def draw(self):
 		pyxel.cls(0)
 		pyxel.clip(0, 0, 256, 192)
@@ -1065,11 +1064,25 @@ class MainGame:
 						
 					if obj.removeFlag:
 						break
-		
+		# enemy shot and wallObj
+		for wallObj in gcommon.ObjMgr.objs:
+			if wallObj.removeFlag:
+				continue
+			if wallObj.enemyShotCollision == False:
+				continue
+			for obj in gcommon.ObjMgr.objs:
+				if obj.removeFlag:
+					continue
+				if obj.layer != gcommon.C_LAYER_E_SHOT:
+					continue
+				if gcommon.check_collision(wallObj, obj):
+					obj.removeFlag = True
+					break
+
 		# my ship & enemy
 		if gcommon.ObjMgr.myShip.sub_scene == 1:
 			for obj in gcommon.ObjMgr.objs:
-				if obj.hitCheck:
+				if obj.removeFlag == False and obj.hitCheck:
 					if obj.checkMyShipCollision():
 						self.my_broken()
 						break
