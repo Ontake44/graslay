@@ -249,6 +249,95 @@ class Boss2Base(enemy.EnemyBase):
 		pyxel.blt(int(self.x), self.y, 1, 32 + self.pos*72, 224, 72, 32, gcommon.TP_COLOR)
 		
 
+#
+# bossOffsetX : ボスでの相対座標
+# toBaseOffsetX : bossOffsetからの総体座標
+class Boss2Wire:
+	def __init__(self, bossOffsetX, bossOffsetY, toBaseOffsetX, toBaseOffsetY, life, clr):
+		self.bossOffsetX = bossOffsetX
+		self.bossOffsetY = bossOffsetY
+		self.baseOffsetX =  toBaseOffsetX
+		self.baseOffsetY =  toBaseOffsetY
+		self.x = 0
+		self.y = 0
+		self.dx = 0
+		self.dy = 0
+		self.lx = 0
+		self.ly = 0
+		self.life = life
+		self.clr = clr
+
+boss2Base2ColorTable = [1, 3, 5, 6, 8, 11, 12]
+
+# ボス２固定台
+class Boss2Base2(enemy.EnemyBase):
+	def __init__(self, bossObj):
+		super(Boss2Base2, self).__init__()
+		self.bossObj = bossObj
+		self.x = bossObj.x
+		self.y = bossObj.y
+		self.left = 16
+		self.top = 8
+		self.right = 56
+		self.bottom = 23
+		self.layer = gcommon.C_LAYER_EXP_SKY
+		self.hp = 50
+		self.hitcolor1 = 3
+		self.hitcolor2 = 10
+		self.exptype = gcommon.C_EXPTYPE_GRD_M
+		self.hitCheck = False
+		self.shotHitCheck = False
+		self.initTable()
+
+	def initTable(self):
+		self.boss2BaseTable = []
+		rad = math.pi * 70/180
+		while(rad < math.pi * 120/180):
+			clr = boss2Base2ColorTable[random.randrange(len(boss2Base2ColorTable))]
+			self.boss2BaseTable.append(Boss2Wire(
+				40 + math.cos(rad) * (20 + random.random() * 30),
+				30 - math.sin(rad) * (15 + random.random() * 10),
+				48 +math.cos(rad) * (90 + random.random() * 30),
+				30 -math.sin(rad) * (60 + random.random() * 15),
+				400 + int(random.random() * 50),
+				clr
+				))
+			self.boss2BaseTable.append(Boss2Wire(
+				40 + math.cos(rad) * (20 + random.random() * 30),
+				20 + math.sin(rad) * (15 + random.random() * 10),
+				48 + math.cos(rad) * (90 + random.random() * 30),
+				20 + math.sin(rad) * (60 + random.random() * 15),
+				400 + int(random.random() * 50),
+				clr
+				))
+			rad += math.pi * 4/180
+
+
+	def update(self):
+		self.x -= gcommon.cur_scroll_x
+		if self.x < -72:
+			self.remove()
+			return
+		for item in self.boss2BaseTable:
+			if item.life > self.cnt:
+				item.x = self.bossObj.x + item.bossOffsetX
+				item.y = self.bossObj.y + item.bossOffsetY
+			elif item.life == self.cnt:
+				item.lx = abs(self.x + item.baseOffsetX -item.x)
+				item.ly = abs(self.y + item.baseOffsetY -item.y)
+				rad = math.atan2(self.y + item.baseOffsetY - item.y, self.x + item.baseOffsetX -item.x)
+				item.dx = math.cos(rad) * 4
+				item.dy = math.sin(rad) * 4
+			else:
+				item.x += item.dx * abs(self.x + item.baseOffsetX -item.x)/item.lx
+				item.y += item.dy * abs(self.y + item.baseOffsetY -item.y)/item.ly
+
+	def draw(self):
+		for item in self.boss2BaseTable:
+			# ボス -> ベース
+			pyxel.line(item.x, item.y, self.x + item.baseOffsetX, self.y + item.baseOffsetY, item.clr)
+		
+
 
 # 触手
 # dr: 生えてる角度
@@ -520,25 +609,27 @@ class Boss2(enemy.EnemyBase):
 		gcommon.ObjMgr.addObj(self.feelers[2])
 		gcommon.ObjMgr.addObj(self.feelers[3])
 		
-		self.upperBase = Boss2Base(self,0)
-		self.lowerBase = Boss2Base(self,1)
-		gcommon.ObjMgr.addObj(self.upperBase)
-		gcommon.ObjMgr.addObj(self.lowerBase)
+		#self.upperBase = Boss2Base(self,0)
+		#self.lowerBase = Boss2Base(self,1)
+		#gcommon.ObjMgr.addObj(self.upperBase)
+		#gcommon.ObjMgr.addObj(self.lowerBase)
+		self.bossBase = Boss2Base2(self)
+		gcommon.ObjMgr.addObj(self.bossBase)
 
 	def update(self):
 		if self.state == 0:
-			if self.x <= 168:
-				if self.upperBase.removeFlag == False:
-					self.upperBase.broken()
-				if self.lowerBase.removeFlag == False:
-					self.lowerBase.broken()
+			if self.x <= 170:
+				#if self.upperBase.removeFlag == False:
+				#	self.upperBase.broken()
+				#if self.lowerBase.removeFlag == False:
+				#	self.lowerBase.broken()
 				self.nextState()
 		elif self.state == 1:
-			if self.cnt == 120:
+			if self.cnt == 80:
 				self.layer = gcommon.C_LAYER_SKY
-				self.nextState()
-				self.dx = 0.25
+				self.dx = 0.05
 				self.dy = 0.0
+				self.nextState()
 		elif self.state == 2:
 			self.x += self.dx
 			self.y += self.dy
@@ -1047,3 +1138,20 @@ class Boss3Shot(enemy.EnemyBase):
 		# pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
 		pyxel.blt(self.x, self.y, 1, 192, 96, 24, 8, gcommon.TP_COLOR)
 
+class Boss4(enemy.EnemyBase):
+	def __init__(self, t):
+		super(Boss4, self).__init__()
+		self.x = 256
+		self.y = 100
+		self.layer = gcommon.C_LAYER_SKY
+		self.left = 2
+		self.top = 2
+		self.right = 24 -2-1
+		self.bottom = 4
+		self.spread = 0
+
+	def update(self):
+		self.x -= 1
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, 1, 192, 96, 24, 8, gcommon.TP_COLOR)
