@@ -640,6 +640,7 @@ class MissileShip(EnemyBase):
 		self.dy = 0
 		self.layer = gcommon.C_LAYER_SKY
 		self.score = 100
+
 	def update(self):
 		if self.state == 0:
 			self.x += self.dx
@@ -664,7 +665,6 @@ class MissileShip(EnemyBase):
 				self.remove()
 		else:
 			self.x += self.dx
-		
 		
 	def draw(self):
 		if self.state in (0,1):
@@ -700,9 +700,92 @@ class Missile1(EnemyBase):
 			if self.dx > 3:
 				self.dx = 3
 		
+	def drawMissile(self):
+		pyxel.blt(self.x, self.y, 1, 48, 64, 32, 7, gcommon.TP_COLOR)
+				
+	def draw(self):
+		self.drawMissile()
+		if self.cnt & 2 == 0:
+			if self.cnt & 4 == 0:
+				pyxel.blt(self.x + 32, self.y, 1, 48, 72, 32, 7, gcommon.TP_COLOR)
+			else:
+				pyxel.blt(self.x + 32, self.y-1, 1, 48, 72, 32, -7, gcommon.TP_COLOR)
+
+class Missile2(EnemyBase):
+	def __init__(self, x, y, dy):
+		super(Missile2, self).__init__()
+		self.x = x
+		self.y = y
+		self.left = 2
+		self.top = 0
+		self.right = 31
+		self.bottom = 6
+		self.hp = 40
+		self.dx = dy
+		self.dy = 0
+		self.layer = gcommon.C_LAYER_SKY
+		self.score = 100
+	def update(self):
+		if self.state == 0:
+			self.y += self.dy
+			self.dy *= 0.95
+			if abs(self.dy) < 0.1:
+				self.dx = 0
+				self.nextState()
+		elif self.state == 1:
+			self.x += self.dx
+			self.dx -= 0.2
+			if self.dx > 3:
+				self.dx = 3
+		
+	def drawMissile(self):
+		pyxel.blt(self.x, self.y, 1, 80, 64, 32, 7, gcommon.TP_COLOR)
 		
 	def draw(self):
-		pyxel.blt(self.x, self.y, 1, 48, 64, 32, 7, gcommon.TP_COLOR)
+		self.drawMissile()
+		if self.cnt & 2 == 0:
+			if self.cnt & 4 == 0:
+				pyxel.blt(self.x + 32, self.y, 1, 48, 72, 32, 7, gcommon.TP_COLOR)
+			else:
+				pyxel.blt(self.x + 32, self.y-1, 1, 48, 72, 32, -7, gcommon.TP_COLOR)
+
+
+class Missile3(EnemyBase):
+	def __init__(self, x, y, dy):
+		super(Missile3, self).__init__()
+		self.x = x
+		self.y = y
+		self.left = 2
+		self.top = 0
+		self.right = 31
+		self.bottom = 6
+		self.hp = 30
+		self.dx = dy
+		self.dy = 0
+		self.layer = gcommon.C_LAYER_SKY
+		self.score = 100
+	def update(self):
+		if self.state == 0:
+			self.y += self.dy
+			self.dy *= 0.95
+			if abs(self.dy) < 0.1:
+				self.dx = 0
+				self.nextState()
+		elif self.state == 1:
+			self.x += self.dx
+			self.dx -= 0.2
+			if self.dx > 3:
+				self.dx = 3
+		if self.x < 32:
+			for i in range(16):
+				enemy_shot_dr(self.x + 8, self.y + 3, 2, 0, i*4)
+			self.remove()
+		
+	def drawMissile(self):
+		pyxel.blt(self.x, self.y, 1, 80, 72, 32, 7, gcommon.TP_COLOR)
+		
+	def draw(self):
+		self.drawMissile()
 		if self.cnt & 2 == 0:
 			if self.cnt & 4 == 0:
 				pyxel.blt(self.x + 32, self.y, 1, 48, 72, 32, 7, gcommon.TP_COLOR)
@@ -1241,7 +1324,7 @@ class FallingObject(EnemyBase):
 		self.top = 0
 		self.bottom = self.mHeight * 8 -1
 		self.hp = 999999
-		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.layer = gcommon.C_LAYER_GRD
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.needDummyBlock = needDummyBlock	# 砲台などの場合False、壁はTrue
@@ -1322,6 +1405,17 @@ class RuinFloor1(FallingObject):
 		self.bottom = self.mHeight * 8 -5
 		self.by = (self.size -2) * 2
 		self.enemyShotCollision = True
+
+	def update(self):
+		super(RuinFloor1, self).update()
+		if self.direction == 1:
+			if self.y > gcommon.SCREEN_MAX_Y:
+				self.remove()
+				return
+		else:
+			if self.y <= -16:
+				self.remove()
+				return
 
 	def draw(self):
 		pyxel.bltm(self.x, self.y, 0, 14, self.by, self.size *2, 2, gcommon.TP_COLOR)
@@ -1410,3 +1504,23 @@ class Particle1(EnemyBase):
 				if s.cnt & 7 != 0:
 					continue
 			pyxel.pset(s.x, s.y, 7)
+
+class Stage4BossAppear1:
+	def __init__(self, t):
+		#gcommon.setMapDataByMapPos2(256 +5, 152-128, 0, 18, 1)
+		#gcommon.setMapDataByMapPos2(256 +5, 175-128, 0, 18, 1)
+		gcommon.setMapDataByMapPos2(232, 24, 0, 12, 1)
+		gcommon.setMapDataByMapPos2(232, 47, 0, 12, 1)
+
+	def do(self):
+		pass
+
+class Stage4BossAppear2:
+	def __init__(self, t):
+		#gcommon.setMapDataByMapPos2(256 +23, 152-128, 0, 18, 1)
+		#gcommon.setMapDataByMapPos2(256 +23, 175-128, 0, 18, 1)
+		gcommon.setMapDataByMapPos2(244, 24, 0, 12, 1)
+		gcommon.setMapDataByMapPos2(244, 47, 0, 12, 1)
+
+	def do(self):
+		pass

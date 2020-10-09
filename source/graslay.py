@@ -650,8 +650,6 @@ class MapDraw3:
 					33, (24-128) +int(gcommon.map_y/8), gcommon.TP_COLOR)
 			else:
 				pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
-		#elif gcommon.map_x > (256 -32) * 8 and gcommon.map_x < :
-		#	pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, (int)(gcommon.map_x/8), (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 		else:
 			tm = int(gcommon.map_x/4096)
 			moffset = (int(gcommon.map_x/2048) & 1) * 128
@@ -723,10 +721,22 @@ class MapDraw4:
 		pass
 
 	def draw(self):
+		# if gcommon.map_x < 0:
+		# 	pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+		# else:
+		# 	pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, (int)(gcommon.map_x/8), (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+		# 上下ループマップなのでややこしい
 		if gcommon.map_x < 0:
 			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 		else:
-			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, (int)(gcommon.map_x/8), (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+			tm = int(gcommon.map_x/4096)
+			moffset = (int(gcommon.map_x/2048) & 1) * 128
+			w = int((gcommon.map_x %2048)/8)
+			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, gcommon.TP_COLOR)
+			if w >= 224:
+				tm2 = int((gcommon.map_x+256)/4096)
+				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
+				pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 
 
 class StartMapDraw1:
@@ -990,7 +1000,7 @@ class MainGame:
 				pyxel.blt(72 + 48*i, 192, 0, i * 48, 48, 48, 8)
 			
 		
-		#pyxel.text(120, 184, str(gcommon.game_timer), 7)
+		pyxel.text(120, 184, str(gcommon.game_timer), 7)
 		#pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)
 		#pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
@@ -1153,6 +1163,8 @@ class MainGame:
 	def initEvent4(self):
 		self.eventTable =[ \
 			[100,StartMapDraw4],		\
+			[4030, enemy.Stage4BossAppear1],	\
+			[4120, enemy.Stage4BossAppear2],	\
 		]
 
 	def initStory(self):
@@ -1321,6 +1333,7 @@ class MainGame:
 
 	def initStory4(self):
 		self.story=[ \
+			[4230, boss.Boss4, 0, 0],		\
 		]
 
 def parseCommandLine():
