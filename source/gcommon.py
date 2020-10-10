@@ -351,7 +351,7 @@ def is_outof_bound(obj):
 
 
 def checkShotKey():
-	if pyxel.btn(pyxel.KEY_SHIFT) or pyxel.btn(pyxel.GAMEPAD_1_A) or pyxel.btn(pyxel.GAMEPAD_1_Y):
+	if pyxel.btn(pyxel.KEY_SHIFT) or pyxel.btn(pyxel.KEY_X) or pyxel.btn(pyxel.GAMEPAD_1_A) or pyxel.btn(pyxel.GAMEPAD_1_Y):
 		return True
 	else:
 		return False

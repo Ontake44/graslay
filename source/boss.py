@@ -1161,6 +1161,8 @@ class Boss4(enemy.EnemyBase):
 		self.hp = 2000
 		self.subState = 0
 		self.subCnt = 0
+		self.hitcolor1 = 9
+		self.hitcolor2 = 10
 		self.missileState = 0
 		self.missileObj = [None, None, None]
 		self.missileIndex = 0
@@ -1303,7 +1305,7 @@ class Boss4(enemy.EnemyBase):
 		self.subCnt = 0
 
 	def draw(self):
-		if self.state in [2, 4]:
+		if self.state in [2, 4, 5 ,6 ,7, 8]:
 			if self.subState == 0:
 				# ミサイル発射準備
 				if self.subCnt < 32:
@@ -1331,9 +1333,16 @@ class Boss4(enemy.EnemyBase):
 
 		pyxel.blt(self.x, self.y, 1, 160, 200, 96, 56, gcommon.TP_COLOR)
 
+	def checkShotCollision(self, shot):
+		ret = super(Boss4, self).checkShotCollision(shot)
+		if ret:
+			enemy.Particle1.appendShotCenter(shot)
+		return ret
+
 	def broken(self):
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
-		gcommon.score+=self.score
+		gcommon.score += self.score
+		self.remove()
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
 		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [], 300))

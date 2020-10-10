@@ -1477,6 +1477,11 @@ class Particle1(EnemyBase):
 		pos = gcommon.getCenterPos(obj)
 		gcommon.ObjMgr.objs.append(Particle1(pos[0], pos[1], rad))
 
+	@classmethod
+	def appendShotCenter(cls, obj):
+		rad = math.atan2(obj.dy, obj.dx)
+		Particle1.appendCenter(obj, rad)
+
 	def update(self):
 		newTbl = []
 		for s in self.tbl:
