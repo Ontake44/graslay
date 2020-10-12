@@ -857,6 +857,7 @@ class MainGame:
 		#	gcommon.draw_star = True
 		pyxel.tilemap(0).refimg = 1
 		gcommon.mapFreeTable = [0, 32, 33, 34, 65, 66]
+		pyxel.playm(0, loop=True)
 
 	def skipGameTimer(self):
 		while(gcommon.game_timer < gcommon.START_GAME_TIMER):
