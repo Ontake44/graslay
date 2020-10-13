@@ -749,6 +749,16 @@ class StartMapDraw1:
 	def do(self):
 		pass
 
+class StartBossBGM:
+	def __init__(self, t):
+		pyxel.stop(0)
+		pyxel.load("assets/graslay_battle27.pyxres", False, False, True, True)
+		pyxel.playm(0, loop=True)
+
+	def do(self):
+		pass
+
+
 class StartMapDraw2:
 	def __init__(self, t):
 		#gcommon.drawMap = MapDraw2()
@@ -820,6 +830,7 @@ class MainGame:
 		self.pause = False
 		
 		if self.stage == 1:
+			pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay1.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = False
@@ -827,6 +838,7 @@ class MainGame:
 			gcommon.draw_star = True
 			loadMapData(0, "assets/graslay1.pyxmap")
 		elif self.stage == 2:
+			pyxel.load("assets/graslay_dangeon22.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay2.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = False
@@ -1137,6 +1149,7 @@ class MainGame:
 			[3460,SetMapScroll, 0, 0.5],
 			[3860,SetMapScroll, 0.25, 0.25],
 			[4600,SetMapScroll, 0.5, 0.0],
+			[4800, StartBossBGM],
 			[5800,EndMapDraw],		\
 		]
 
