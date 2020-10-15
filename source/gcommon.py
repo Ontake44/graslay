@@ -496,7 +496,7 @@ def checkDownP():
 	return pyxel.btnp(pyxel.KEY_DOWN) or pyxel.btnp(pyxel.GAMEPAD_1_DOWN)
 
 def checkShotKeyP():
-	if pyxel.btnp(pyxel.KEY_SHIFT) or pyxel.btnp(pyxel.GAMEPAD_1_A) or pyxel.btnp(pyxel.GAMEPAD_1_Y):
+	if pyxel.btnp(pyxel.KEY_SHIFT) or pyxel.btnp(pyxel.KEY_ENTER) or pyxel.btnp(pyxel.KEY_X) or pyxel.btnp(pyxel.GAMEPAD_1_A) or pyxel.btnp(pyxel.GAMEPAD_1_Y):
 		return True
 	else:
 		return False

@@ -825,9 +825,10 @@ class MainGame:
 		gcommon.map_y = 0
 		self.initStory()
 		self.initEvent()
+		self.pause = False
+		self.pauseMenuPos = 0
 		
 		self.skipGameTimer()
-		self.pause = False
 		
 		if self.stage == 1:
 			pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
@@ -846,6 +847,7 @@ class MainGame:
 			gcommon.draw_star = False
 			loadMapData(0, "assets/graslay2.pyxmap")
 		elif self.stage == 3:
+			pyxel.load("assets/graslay_rock03.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay3.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = True
@@ -881,12 +883,22 @@ class MainGame:
 	
 	def update(self):
 		if self.pause:
-			if pyxel.btnp(pyxel.KEY_F1) or pyxel.btnp(pyxel.GAMEPAD_1_START):
+			if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.GAMEPAD_1_START):
 				self.pause = False
+			elif gcommon.checkUpP() or gcommon.checkDownP():
+				self.pauseMenuPos = (self.pauseMenuPos + 1) & 1
+				return
+			elif gcommon.checkShotKeyP():
+				if self.pauseMenuPos == 0:
+					# CONTINUE
+					self.pause = False
+				else:
+					# EXIT
+					pyxel.quit()
 			else:
 				return
 		else:
-			if pyxel.btnp(pyxel.KEY_F1) or pyxel.btnp(pyxel.GAMEPAD_1_START):
+			if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.GAMEPAD_1_START):
 				self.pause = True
 				return
 
@@ -1021,9 +1033,18 @@ class MainGame:
 		#pyxel.text(200, 184, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
 
 		if self.pause:
-			pyxel.rect(127 -24, 192/2 -12, 48, 24, 0)
-			pyxel.rectb(127 -24, 192/2 -12, 48, 24, 7)
-			gcommon.showText2(-999, -999, "PAUSE")
+			self.drawPauseMenu()
+
+	def drawPauseMenu(self):
+		pyxel.rect(127 -40, 192/2 -32, 80, 38, 0)
+		pyxel.rectb(127 -39, 192/2 -31, 78, 36, 7)
+		pyxel.rect(127 -37, 192/2 -29, 74, 8, 1)
+		pyxel.text(127 -40 + 28, 192/2 -32 +4, "PAUSE", 7)
+
+		pyxel.rect(127 -40+4, 192/2 -32 +15 + self.pauseMenuPos * 10, 80-8, 8, 2)
+
+		pyxel.text(127-32 +10, 192/2 -32 +16, "CONTINUE", 7)
+		pyxel.text(127-32 +10, 192/2 -32 +26, "EXIT", 7)
 
 	def ExecuteStory(self):
 		while True:
@@ -1167,11 +1188,13 @@ class MainGame:
 			[4128,SetMapScroll, 0.5, 0.0],	\
 			[4608,SetMapScroll, 0.25, -0.25],	\
 			[5216,SetMapScroll, 0.50, 0.0],	\
+			[6300, StartBossBGM],
 		]
 
 	def initEvent3(self):
 		self.eventTable =[ \
 			[100,StartMapDraw3],		\
+			[3500,StartBossBGM],
 		]
 
 	def initEvent4(self):
@@ -1380,7 +1403,7 @@ class App:
 		# コマンドライン解析
 		parseCommandLine()
 		
-		pyxel.init(256, 200, caption="GRASLAY", fps=60)
+		pyxel.init(256, 200, caption="GRASLAY", fps=60, quit_key=pyxel.KEY_Q)
  		
 		pyxel.load("assets/graslay.pyxres")
 		pyxel.image(0).load(0,0,"assets/graslay0.png")
