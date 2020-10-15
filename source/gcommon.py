@@ -411,6 +411,13 @@ def sound(snd):
 				pyxel.stop(0)
 				pyxel.play(0, snd)
 
+def playBGM():
+	if (SOUND_ON):
+		pyxel.playm(0, loop=True)
+
+def playBossBGM():
+	if (SOUND_ON):
+		pyxel.playm(1, loop=False)
 
 def getCenterX(obj):
 	return obj.x + obj.left + (obj.right -obj.left+1)/2

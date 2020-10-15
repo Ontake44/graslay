@@ -753,7 +753,7 @@ class StartBossBGM:
 	def __init__(self, t):
 		pyxel.stop(0)
 		pyxel.load("assets/graslay_battle27.pyxres", False, False, True, True)
-		pyxel.playm(0, loop=True)
+		gcommon.playBGM()
 
 	def do(self):
 		pass
@@ -871,7 +871,7 @@ class MainGame:
 		#	gcommon.draw_star = True
 		pyxel.tilemap(0).refimg = 1
 		gcommon.mapFreeTable = [0, 32, 33, 34, 65, 66]
-		pyxel.playm(0, loop=True)
+		gcommon.playBGM()
 
 	def skipGameTimer(self):
 		while(gcommon.game_timer < gcommon.START_GAME_TIMER):

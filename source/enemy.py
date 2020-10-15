@@ -474,7 +474,6 @@ def drawBattery1(x, y, mirror):
 class StageClearText(EnemyBase):
 	def __init__(self, stage):
 		super(StageClearText, self).__init__()
-		t = gcommon.T_STAGE_START
 		self.x = 0
 		self.y = 0
 		self.stage = stage
@@ -1248,17 +1247,27 @@ class Delay(EnemyBase):
 class StageClear(EnemyBase):
 	def __init__(self, t):
 		super(StageClear, self).__init__()
+		self.layer = gcommon.C_LAYER_TEXT
+		self.x = gcommon.SCREEN_MAX_X +1
+		self.y = 90
 		self.hitCheck = False
 		self.shotHitCheck = False
+		self.text = "STAGE " + str(t[2]) + " CLEAR"
 		gcommon.ObjMgr.myShip.setSubScene(5)
+		gcommon.playBossBGM()
 
 	def update(self):
-		if self.cnt > 60:
-			self.remove()
-			gcommon.app.startNextStage()
+		if self.state == 0:
+			self.x -= 4
+			if self.x < 80:
+				self.nextState()
+		elif self.state == 1:
+			if self.cnt > 180:
+				self.remove()
+				gcommon.app.startNextStage()
 
 	def draw(self):
-		pass
+		gcommon.showText(self.x, self.y, self.text)
 
 class Shutter1(EnemyBase):
 	def __init__(self, x, y, direction, size, mode, speed, param1, param2):

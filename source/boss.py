@@ -189,7 +189,7 @@ class Boss1(enemy.EnemyBase):
 		self.remove()
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [], 300))
+		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,1], 240))
 
 
 # 波動砲発射前の、あの吸い込むようなやつ
@@ -761,7 +761,7 @@ class Boss2(enemy.EnemyBase):
 		gcommon.score+=self.score
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [], 300))
+		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,2], 240))
 
 
 def remove_all_battery():
@@ -1109,7 +1109,7 @@ class Boss3(enemy.EnemyBase):
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
 		gcommon.score+=self.score
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
-		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [], 300))
+		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,3], 240))
 
 class Boss3Shot(enemy.EnemyBase):
 	# x,y 弾の中心を指定
@@ -1345,4 +1345,4 @@ class Boss4(enemy.EnemyBase):
 		self.remove()
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [], 300))
+		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,4], 240))
