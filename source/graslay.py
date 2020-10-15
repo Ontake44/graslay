@@ -396,8 +396,8 @@ class OptionMenu:
 					gcommon.START_REMAIN = 99
 			elif self.menuPos == OPTIONMENU_START_STAGE:
 				gcommon.START_STAGE += 1
-				if gcommon.START_STAGE > 4:
-					gcommon.START_STAGE = 4
+				if gcommon.START_STAGE > 5:
+					gcommon.START_STAGE = 5
 			elif self.menuPos == OPTIONMENU_SOUND:
 				gcommon.SOUND_ON = not gcommon.SOUND_ON
 		elif gcommon.checkLeftP():
@@ -738,6 +738,115 @@ class MapDraw4:
 				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
 				pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 
+class MapDrawFactory:
+	def __init__(self):
+		pass
+
+	def init(self):
+		gcommon.map_x = -32 * 8
+		gcommon.map_y = 24*8
+		gcommon.cur_scroll_x = 0.5
+		gcommon.cur_scroll_y = 0.0
+	
+	def update0(self):
+		if gcommon.game_timer == 3550:
+			gcommon.sync_map_y = False
+			gcommon.cur_map_dy = 0
+
+	def update(self):
+		gcommon.map_x += gcommon.cur_scroll_x
+		gcommon.map_y += gcommon.cur_scroll_y
+		if gcommon.game_timer > 3550:
+			if gcommon.map_y > 336:
+				gcommon.map_y -= 0.50
+				if gcommon.map_y < 336:
+					gcommon.map_y = 336
+			elif gcommon.map_y < 336:
+				gcommon.map_y += 0.50
+				if gcommon.map_y > 336:
+					gcommon.map_y = 336
+		else:
+			for my in range(0, 128):
+				mx = gcommon.screenPosToMapPosX(256)
+				n = gcommon.getMapDataByMapPos(mx, my)
+				if n in (390, 391):
+					# 砲台
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					obj = enemy.Battery1([0,0,mx, my, 0])
+					obj.first = 20
+					obj.shot_speed = 3
+					if n == 391:
+						obj.mirror = 1
+					gcommon.ObjMgr.addObj(obj)
+				elif n in (394,395):
+					# シャッター
+					size = gcommon.getMapDataByMapPos(mx+1, my) -576
+					speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
+					param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
+					param2 = (gcommon.getMapDataByMapPos(mx+4, my) -576) * 20
+					for i in range(5):
+						gcommon.setMapDataByMapPos(mx +i, my, 0)
+					pos = gcommon.mapPosToScreenPos(mx, my)
+					if n == 394:
+						obj = enemy.Shutter1(pos[0], pos[1] +16*size, -1, size, 0, speed, param1, param2)
+					else:
+						obj = enemy.Shutter1(pos[0], pos[1] -32*size +8, 1, size, 0, speed, param1, param2)
+					gcommon.ObjMgr.addObj(obj)
+				elif n in (396,397):
+					size = gcommon.getMapDataByMapPos(mx+1, my) -576
+					speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
+					param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
+					param2 = (gcommon.getMapDataByMapPos(mx+4, my) -576) * 20
+					for i in range(5):
+						gcommon.setMapDataByMapPos(mx +i, my, 0)
+					pos = gcommon.mapPosToScreenPos(mx, my)
+					if n == 396:
+						obj = enemy.Shutter1(pos[0], pos[1], 1, size, 0, speed, param1, param2)
+					else:
+						obj = enemy.Shutter1(pos[0], pos[1] -16*size +8, -1, size, 0, speed, param1, param2)
+					gcommon.ObjMgr.addObj(obj)
+			gcommon.map_y += gcommon.cur_map_dy
+			if gcommon.map_y < 0:
+				gcommon.map_y = 128 * 8 + gcommon.map_y
+			elif gcommon.map_y >= 128 * 8:
+				gcommon.map_y = gcommon.map_y - 128 * 8
+
+	def drawBackground(self):
+		pass
+
+	def draw(self):
+		# 上下ループマップなのでややこしい
+		if gcommon.map_x < 0:
+			if gcommon.map_y > (128 -24) * 8:
+				# 上を描く
+				pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),
+					33, (128 - int(gcommon.map_y/8)), gcommon.TP_COLOR)
+				pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, 0,
+					33, (24-128) +int(gcommon.map_y/8), gcommon.TP_COLOR)
+			else:
+				pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+		else:
+			tm = int(gcommon.map_x/4096)
+			moffset = (int(gcommon.map_x/2048) & 1) * 128
+			w = int((gcommon.map_x %2048)/8)
+			if gcommon.map_y > (128 -24) * 8:
+				pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),
+					33, 128 - int(gcommon.map_y/8), gcommon.TP_COLOR)
+				pyxel.bltm(-1 * (int(gcommon.map_x) % 8), 128 * 8 - int(gcommon.map_y), tm, (int)((gcommon.map_x % 2048)/8), moffset,	
+					33, (24 -128) +int(gcommon.map_y/8)+1, gcommon.TP_COLOR)
+			else:
+				pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, gcommon.TP_COLOR)
+			if w >= 224:
+				tm2 = int((gcommon.map_x+256)/4096)
+				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
+				if gcommon.map_y > (128 -24) * 8:
+					pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),
+						33, 128 - int(gcommon.map_y/8), gcommon.TP_COLOR)
+					pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), 128 * 8 - int(gcommon.map_y), tm2, 0, moffset2,
+						33, (24 -128) +int(gcommon.map_y/8)+1, gcommon.TP_COLOR)
+				else:
+					pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+
 
 class StartMapDraw1:
 	def __init__(self, t):
@@ -771,11 +880,6 @@ class StartMapDraw2:
 
 class StartMapDraw3:
 	def __init__(self, t):
-		# gcommon.drawMap = MapDraw3()
-		# gcommon.map_x = -32 * 8
-		# gcommon.map_y = 24*8
-		# gcommon.cur_scroll_x = 2.0
-		# gcommon.cur_scroll_y = 0.0
 		gcommon.ObjMgr.setDrawMap(MapDraw3())
 
 	def do(self):
@@ -784,6 +888,13 @@ class StartMapDraw3:
 class StartMapDraw4:
 	def __init__(self, t):
 		gcommon.ObjMgr.setDrawMap(MapDraw4())
+
+	def do(self):
+		pass
+
+class StartMapDrawFactory:
+	def __init__(self, t):
+		gcommon.ObjMgr.setDrawMap(MapDrawFactory())
 
 	def do(self):
 		pass
@@ -863,6 +974,14 @@ class MainGame:
 			gcommon.long_map = True
 			gcommon.draw_star = True
 			loadMapData(0, "assets/graslay4.pyxmap")
+			pyxel.tilemap(1).refimg = 1
+		elif self.stage == 5:
+			pyxel.image(1).load(0,0,"assets/graslay_factory.png")
+			self.mapOffsetX = 0
+			gcommon.sync_map_y = True
+			gcommon.long_map = True
+			gcommon.draw_star = True
+			loadMapData(0, "assets/graslay_factory.pyxmap")
 			pyxel.tilemap(1).refimg = 1
 		#elif self.stage == 3:
 		#	pyxel.image(1).load(0,0,"assets\gra-den3a.png")
@@ -1160,6 +1279,8 @@ class MainGame:
 			self.initEvent3()
 		elif self.stage == 4:
 			self.initEvent4()
+		elif self.stage == 5:
+			self.initEventFactory()
 	
 	def initEvent1(self):
 		self.eventTable =[ \
@@ -1204,6 +1325,12 @@ class MainGame:
 			[4120, enemy.Stage4BossAppear2],	\
 		]
 
+	def initEventFactory(self):
+		self.eventTable =[ \
+			[100,StartMapDrawFactory],		\
+			[3500,StartBossBGM],
+		]
+
 	def initStory(self):
 		if self.stage == 1:
 			self.initStory1()
@@ -1213,6 +1340,8 @@ class MainGame:
 			self.initStory3()
 		elif self.stage == 4:
 			self.initStory4()
+		elif self.stage == 5:
+			self.initStoryFactory()
 
 	def initStory1(self):
 		self.story=[ \
@@ -1373,6 +1502,12 @@ class MainGame:
 			[4230, boss.Boss4, 0, 0],		\
 		]
 
+	def initStoryFactory(self):
+		self.story=[ \
+			[300, enemy.Wind1, 255, 8],		\
+			[4230, boss.Boss4, 0, 0],		\
+		]
+
 def parseCommandLine():
 	idx = 0
 	while(idx < len(sys.argv)):
@@ -1436,7 +1571,7 @@ class App:
 		self.setScene(MainGame(stage))
 
 	def startNextStage(self):
-		if self.stage == 4:
+		if self.stage == 5:
 			self.startGameClear()
 		else:
 			self.startStage(self.stage+1)

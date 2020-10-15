@@ -1538,3 +1538,28 @@ class Stage4BossAppear2:
 
 	def do(self):
 		pass
+
+
+class Wind1(EnemyBase):
+	def __init__(self, t):
+		super(Wind1, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.left = 4
+		self.top = 4
+		self.hp = 999999
+		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.hitCheck = False
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+
+	def update(self):
+		pass
+
+	def draw(self):
+		if self.cnt & 1 == 1:
+			for i in range(8):
+				pyxel.blt(self.x, self.y + i * 24 + self.cnt % 24, 1, 128, 128, 24 -(self.cnt & 2) * 24, 24, gcommon.TP_COLOR)
+		else:
+			for i in range(8):
+				pyxel.blt(self.x, self.y + i * 24 + (self.cnt % 48)/2, 1, 128, 128, 24 -(self.cnt & 2) * 24, 24, gcommon.TP_COLOR)

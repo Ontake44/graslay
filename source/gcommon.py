@@ -219,7 +219,7 @@ def loadSettings():
 		global SOUND_ON
 		if playerStock >= 1 and playerStock <= 99:
 			START_REMAIN = playerStock
-		if startStage >= 1 and startStage <= 4:
+		if startStage >= 1 and startStage <= 5:
 			START_STAGE = startStage
 		if soundFlag == 0:
 			SOUND_ON = False
