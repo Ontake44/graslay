@@ -1559,7 +1559,89 @@ class Wind1(EnemyBase):
 	def draw(self):
 		if self.cnt & 1 == 1:
 			for i in range(8):
-				pyxel.blt(self.x, self.y + i * 24 + self.cnt % 24, 1, 128, 128, 24 -(self.cnt & 2) * 24, 24, gcommon.TP_COLOR)
+				#pyxel.blt(self.x, self.y + i * 24 + self.cnt % 24, 1, 128, 128, 24 -(self.cnt & 2) * 24, 24, gcommon.TP_COLOR)
+				pyxel.blt(self.x, self.y + i * 24 + self.cnt % 24, 2, 0, 0, 24, 24, gcommon.TP_COLOR)
 		else:
 			for i in range(8):
-				pyxel.blt(self.x, self.y + i * 24 + (self.cnt % 48)/2, 1, 128, 128, 24 -(self.cnt & 2) * 24, 24, gcommon.TP_COLOR)
+				pyxel.blt(self.x, self.y + i * 24 + (self.cnt % 48)/2, 2, 0, 0, -24, 24, gcommon.TP_COLOR)
+
+
+circulatorBladePoints1 = [
+	[0,0],[0,61],[6,60],[12,0]
+]
+
+circulatorBladePoints2 = [
+	[0,0],[0,61],[-6,60],[-12,0]
+]
+
+class Circulator1(EnemyBase):
+	def __init__(self, x, y, direction):
+		super(Circulator1, self).__init__()
+		self.x = x
+		self.y = y
+		self.direction = direction
+		self.left = 4
+		self.top = 4
+		self.hp = 999999
+		self.layer = gcommon.C_LAYER_GRD
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+		self.rad = 0
+		self.xpoints1 = []
+		self.xpoints2 = []
+
+	def update(self):
+		if self.x < -80:
+			self.remove()
+			return
+		global circulatorBladePoints1
+		global circulatorBladePoints2
+		if self.direction == 1:
+			self.rad += math.pi /180
+			if self.rad > math.pi * 2:
+				self.rad -= math.pi *2
+		else:
+			self.rad -= math.pi /180
+			if self.rad < 0:
+				self.rad = math.pi *2 + self.rad
+		self.xpoints1 = []
+		self.xpoints2 = []
+		for i in range(4):
+			self.xpoints1.append(gcommon.getQuadrangleR([self.x, self.y],
+				circulatorBladePoints1, [0, -8], self.rad + math.pi*i/2))
+			self.xpoints2.append(gcommon.getQuadrangleR([self.x, self.y],
+				circulatorBladePoints2, [0, -8], self.rad + math.pi*i/2))
+
+	def draw(self):
+		for p in self.xpoints1:
+			gcommon.drawQuadrangle(p, 6)
+		for p in self.xpoints2:
+			gcommon.drawQuadrangle(p, 5)
+		#pyxel.blt(self.x-20, self.y-20, 1, 128, 56, 40, 40, gcommon.TP_COLOR)
+		pyxel.blt(self.x-12, self.y-12, 1, 168, 56, 24, 24, gcommon.TP_COLOR)
+
+	# 自機と敵との当たり判定
+	def checkMyShipCollision(self):
+		pos = gcommon.getCenterPos(gcommon.ObjMgr.myShip)
+		for p in self.xpoints1:
+			if gcommon.checkCollisionPointAndPolygon(pos, p):
+				return True
+		for p in self.xpoints2:
+			if gcommon.checkCollisionPointAndPolygon(pos, p):
+				return True
+		return False
+	
+	def checkShotCollision(self, shot):
+		pos = gcommon.getCenterPos(shot)
+		for p in self.xpoints1:
+			if gcommon.checkCollisionPointAndPolygon(pos, p):
+				return True
+		for p in self.xpoints2:
+			if gcommon.checkCollisionPointAndPolygon(pos, p):
+				return True
+		return False
+
+
+
+

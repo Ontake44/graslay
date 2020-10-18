@@ -778,19 +778,14 @@ class MapDrawFactory:
 					if n == 391:
 						obj.mirror = 1
 					gcommon.ObjMgr.addObj(obj)
-				elif n in (394,395):
-					# シャッター
-					size = gcommon.getMapDataByMapPos(mx+1, my) -576
-					speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
-					param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
-					param2 = (gcommon.getMapDataByMapPos(mx+4, my) -576) * 20
-					for i in range(5):
-						gcommon.setMapDataByMapPos(mx +i, my, 0)
+				elif n in (394, 395):
+					# サーキュレーター
+					gcommon.setMapDataByMapPos(mx, my, 0)
 					pos = gcommon.mapPosToScreenPos(mx, my)
 					if n == 394:
-						obj = enemy.Shutter1(pos[0], pos[1] +16*size, -1, size, 0, speed, param1, param2)
+						obj = enemy.Circulator1(pos[0] +85, pos[1] +3, 1)
 					else:
-						obj = enemy.Shutter1(pos[0], pos[1] -32*size +8, 1, size, 0, speed, param1, param2)
+						obj = enemy.Circulator1(pos[0] +85, pos[1] +3, -1)
 					gcommon.ObjMgr.addObj(obj)
 				elif n in (396,397):
 					size = gcommon.getMapDataByMapPos(mx+1, my) -576
@@ -949,6 +944,7 @@ class MainGame:
 			gcommon.long_map = False
 			gcommon.draw_star = True
 			loadMapData(0, "assets/graslay1.pyxmap")
+			loadMapAttribute("assets/graslay1.mapatr")
 		elif self.stage == 2:
 			pyxel.load("assets/graslay_dangeon22.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay2.png")
@@ -957,6 +953,7 @@ class MainGame:
 			gcommon.long_map = False
 			gcommon.draw_star = False
 			loadMapData(0, "assets/graslay2.pyxmap")
+			loadMapAttribute("assets/graslay2.mapatr")
 		elif self.stage == 3:
 			pyxel.load("assets/graslay_rock03.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay3.png")
@@ -966,6 +963,7 @@ class MainGame:
 			gcommon.draw_star = True
 			loadMapData(0, "assets/graslay3-0.pyxmap")
 			loadMapData(1, "assets/graslay3-1.pyxmap")
+			loadMapAttribute("assets/graslay3.mapatr")
 			pyxel.tilemap(1).refimg = 1
 		elif self.stage == 4:
 			pyxel.image(1).load(0,0,"assets/graslay4.png")
@@ -974,14 +972,17 @@ class MainGame:
 			gcommon.long_map = True
 			gcommon.draw_star = True
 			loadMapData(0, "assets/graslay4.pyxmap")
+			loadMapAttribute("assets/graslay4.mapatr")
 			pyxel.tilemap(1).refimg = 1
 		elif self.stage == 5:
 			pyxel.image(1).load(0,0,"assets/graslay_factory.png")
+			pyxel.image(2).load(0,0,"assets/graslay_factory-2.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = True
 			gcommon.long_map = True
 			gcommon.draw_star = True
 			loadMapData(0, "assets/graslay_factory.pyxmap")
+			loadMapAttribute("assets/graslay_factory.mapatr")
 			pyxel.tilemap(1).refimg = 1
 		#elif self.stage == 3:
 		#	pyxel.image(1).load(0,0,"assets\gra-den3a.png")
@@ -1523,6 +1524,11 @@ def loadMapData(tm, fileName):
 	lines = mapFile.readlines()
 	mapFile.close()
 	pyxel.tilemap(tm).set(0, 0, lines)
+
+def loadMapAttribute(fileName):
+	attrFile = open(resource_path(fileName), mode = "r")
+	gcommon.mapAttribute = attrFile.readlines()
+	attrFile.close()
 
 def resource_path(relative_path):
     try:

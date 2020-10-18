@@ -164,6 +164,8 @@ mapFreeTable = []
 
 star_ary = []
 
+mapAttribute = []
+
 # ====================================================================
 
 SETTINGS_FILE = ".graslay"
@@ -605,11 +607,14 @@ def screenPosToMapPosX(x):
 	return int((map_x +x)/8)
 
 def isMapFree(no):
-	global mapFreeTable
-	if no >= 512:
-		return True
-	else:
-		return no in mapFreeTable
+	global mapAttribute
+	return mapAttribute[no >> 5][no & 31] == "0"
+	#global mapFreeTable
+	#if no >= 512:
+	#	return True
+	#else:
+	#	return no in mapFreeTable
+
 
 def isMapFreePos(x, y):
 	no = getMapData(x, y)
@@ -654,3 +659,49 @@ def showText2(x, y, s):
 		elif code >= 48 and code <= 57:
 			pyxel.blt(x, y, 0, (code-48)*8, 120, 6, 8, TP_COLOR)
 		x += 6
+
+# ただの４角形（長方形とは限らない）
+#  points = [[0,0],[1,0], [1,1],[0,1]]
+def drawQuadrangle(points, clr):
+		pyxel.tri(points[0][0], points[0][1],
+		 points[1][0], points[1][1],
+		 points[2][0], points[2][1], clr)
+		pyxel.tri(
+		 points[0][0], points[0][1],
+		 points[2][0], points[2][1],
+		 points[3][0], points[3][1], clr)
+
+def getQuadrangleR(destPos, points, offsetPos, rad):
+	xpoints = []
+	for p in points:
+		x = destPos[0] + (p[0]- offsetPos[0]) * math.cos(rad) - (p[1] -offsetPos[1]) * math.sin(rad)
+		y = destPos[1] + ((p[0] -offsetPos[0]) * math.sin(rad) + (p[1] -offsetPos[1]) * math.cos(rad))
+		xpoints.append([x,y])
+	return xpoints
+
+
+def checkCollisionPointAndPolygonSub(pos, poly1, poly2):
+	if ((poly1[1] <= pos[1]) and (poly2[1] > pos[1])) or	\
+		((poly1[1] > pos[1]) and (poly2[1] <= pos[1])):
+		vt = (pos[1] -poly1[1])/(poly2[1] - poly1[1])
+		if pos[0] < (poly1[0] + (vt * (poly2[0] - poly1[0]))):
+			return 1
+	return 0
+
+# 点がポリゴンの中かどうかを返す
+def checkCollisionPointAndPolygon(pos, polyPoints):
+	cn = 0
+	last = len(polyPoints) -1
+	for i in range(last):
+		cn += checkCollisionPointAndPolygonSub(pos, polyPoints[i], polyPoints[i+1])
+	cn += checkCollisionPointAndPolygonSub(pos, polyPoints[last], polyPoints[0])
+	if cn % 2 == 1:
+		return True
+	else:
+		return False
+
+
+
+		
+
+
