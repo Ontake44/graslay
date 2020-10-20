@@ -99,12 +99,12 @@ class EnemyBase:
 	# 破壊されたとき
 	def broken(self):
 		layer = gcommon.C_LAYER_EXP_SKY
-		#if self.layer == gcommon.C_LAYER_GRD:
-		#	layer = gcommon.C_LAYER_EXP_GRD
+		if self.layer == gcommon.C_LAYER_GRD:
+			layer = gcommon.C_LAYER_GRD
 		
 		gcommon.score += self.score
 		
-		create_explosion2(self.x+(self.right-self.left+1)/2, self.y+(self.bottom-self.top+1)/2, layer, self.exptype, self.expsound)
+		create_explosion2(self.x+(self.right+self.left+1)/2, self.y+(self.bottom+self.top+1)/2, layer, self.exptype, self.expsound)
 		self.removeFlag = True
 
 
@@ -224,7 +224,7 @@ class Explosion(EnemyBase):
 
 	def update(self):
 		if self.size==1:
-			if self.cnt > 4*self.size:
+			if self.cnt >= 25:
 				self.removeFlag = True
 		elif self.size == 2:
 			if self.cnt>30:
@@ -236,7 +236,12 @@ class Explosion(EnemyBase):
 	
 	def draw(self):
 		if self.size==1:
-			pyxel.circb(self.x, self.y, self.cnt*2+1, 10)
+			#pyxel.circb(self.x, self.y, self.cnt*2+1, 10)
+			n = self.cnt>>2
+			if n <= 4:
+				pyxel.blt( self.x-8, self.y-8, 0, 0 + n*16, 144,
+					16, 16,
+					0)
 		elif self.size==2:
 			if self.cnt<8:
 				pyxel.circ(self.x, self.y, self.cnt*2+1, 10)
@@ -469,7 +474,6 @@ def drawBattery1(x, y, mirror):
 			pyxel.blt(x, y, 1, 32, 96, 16, -16, gcommon.TP_COLOR)
 		elif dr8 == 7:
 			pyxel.blt(x, y, 1, 16, 96, -16, -16, gcommon.TP_COLOR)
-
 
 class StageClearText(EnemyBase):
 	def __init__(self, stage):
