@@ -1346,3 +1346,199 @@ class Boss4(enemy.EnemyBase):
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
 		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,4], 240))
+
+
+bossFactoryFin1 = [
+	[10, 0],
+	[2, 23],
+	[9, 26],
+	[23, 26],
+	[31, 23],
+	[23, 0]
+]
+
+bossFactoryFin2 = [
+	[2, 23],
+	[1, 26],
+	[7, 30],
+	[26, 30],
+	[32, 26],
+	[31, 23]
+]
+
+# clr = 10 黄色の左横
+bossFactoryFinA1 = [
+	[10, 0],
+	[1, 25],
+	[15, 15]
+]
+# clr = 10 黄色の上
+bossFactoryFinA2 = [
+	[10, 0],
+	[16, 10],
+	[23, 0]
+]
+# clr = 4  茶色の左下
+bossFactoryFinA3 = [
+	[1, 26],
+	[7, 30],
+	[10, 21]
+]
+# clr = 4  茶色の真ん中
+bossFactoryFinA4 = [
+	[7, 30],
+	[26, 30],
+	[16.5, 7]
+]
+# clr = 4  茶色の右下
+bossFactoryFinA5 = [
+	[26, 30],
+	[21, 21],
+	[32, 26]
+]
+# clr = 4  茶色の右横
+bossFactoryFinA6 = [
+	[32, 26],
+	[15, 12],
+	[23, 0]
+]
+# clr = 9  オレンジの正面
+bossFactoryFinA7 = [
+	[12, 3],
+	[5, 23],
+	[8, 25],
+	[24, 25],
+	[28, 23],
+	[21, 3]
+]
+
+class BossFactory(enemy.EnemyBase):
+	def __init__(self, t):
+		super(BossFactory, self).__init__()
+		self.x = 256
+		self.y = 60
+		self.layer = gcommon.C_LAYER_SKY
+		self.left = 27
+		self.top = 8
+		self.right = 87
+		self.bottom = 45
+		self.hp = 2000
+		self.subState = 0
+		self.subCnt = 0
+		self.hitcolor1 = 9
+		self.hitcolor2 = 10
+		#self.xpoints1 = []
+		#self.xpoints2 = []
+		self.rad = 0.0
+		self.distance = 22.0
+		self.subState = 0
+		# どちらを開くか
+		self.finMode = 0
+		self.polygonList = []
+		self.polygonList.append(gcommon.Polygon(bossFactoryFinA1, 10))
+		self.polygonList.append(gcommon.Polygon(bossFactoryFinA2, 10))
+		self.polygonList.append(gcommon.Polygon(bossFactoryFinA3, 4))
+		self.polygonList.append(gcommon.Polygon(bossFactoryFinA4, 4))
+		self.polygonList.append(gcommon.Polygon(bossFactoryFinA5, 4))
+		self.polygonList.append(gcommon.Polygon(bossFactoryFinA6, 4))
+		self.polygonList.append(gcommon.Polygon(bossFactoryFinA7, 9))
+		self.xpolygonsList = []
+
+	def setSubState(self, subState):
+		self.subCnt = 0
+		self.subState = subState
+
+	def update(self):
+		self.rad += math.pi/64
+		if self.rad >= math.pi*2:
+			self.rad -= math.pi*2
+		if self.state == 0:
+			self.x -= gcommon.cur_scroll_x
+			if self.x <= 152:
+				self.nextState()
+		elif self.state == 1:
+			if self.subState == 0:
+				self.subCnt += 1
+				if self.subCnt == 30:
+					self.setSubState(1)
+			elif self.subState == 1:
+				# 開く
+				self.distance += 0.5
+				if self.distance > 38:
+					self.setSubState(2)
+			elif self.subState == 2:
+				# 開いている（攻撃）
+				self.subCnt += 1
+				if self.subCnt % 8 == 0:
+					if self.finMode == 0:
+						for i in range(4):
+							enemy.enemy_shot(
+								self.x +39.5 +math.cos(self.rad + math.pi/2 * i) * 32,
+								self.y +39.5 +math.sin(self.rad + math.pi/2 * i) * 32,
+								4, 0)
+					else:
+						for i in range(4):
+							enemy.enemy_shot(
+								self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+								self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+								3, 1)
+				if self.subCnt == 30:
+					self.setSubState(3)
+			elif self.subState == 3:
+				# 閉まる
+				self.distance -= 0.5
+				if self.distance < 22:
+					self.distance = 22.0
+					self.setSubState(0)
+					self.finMode = (self.finMode + 1) & 1
+		#self.xpoints1 = []
+		#self.xpoints2 = []
+		self.xpolygonsList = []
+		# Finの座標計算
+		for i in range(8):
+			distance = 22.0
+			if self.finMode == 0:
+				if i & 1 == 0:
+					distance = self.distance
+			else:
+				if i & 1 == 1:
+					distance = self.distance
+			#self.xpoints1.append(gcommon.getAnglePoints([self.x + 39.5, self.y +39.5],
+			#	bossFactoryFin1, [15.5, -distance], self.rad + math.pi/4 *i))
+			#self.xpoints2.append(gcommon.getAnglePoints([self.x + 39.5, self.y +39.5],
+			#	bossFactoryFin2, [15.5, -distance], self.rad + math.pi/4 *i))
+			self.xpolygonsList.append(gcommon.getAnglePolygons([self.x + 39.5, self.y +39.5],
+				self.polygonList, [15.5, -distance], self.rad + math.pi/4 *i))
+			#self.xpoints1.append(gcommon.getAnglePoints([self.x + 39.5, self.y +39.5],
+			#	bossFactoryFin1, [15.5, -distance], self.rad + math.pi/4 *i))
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, 2, 64, 48, 80, 80, gcommon.TP_COLOR)
+
+		# 中心の玉
+		for i in range(4):
+			pyxel.blt(
+				self.x +39.5 +math.cos(self.rad + math.pi/2 * i) * 14 -7.5,
+				self.y +39.5 +math.sin(self.rad + math.pi/2 * i) * 14 -7.5, 
+				2, 0, 32, 16, 16, gcommon.TP_COLOR)
+
+		# Finに隠れた砲台
+		for i in range(8):
+			if i & 1 == 0:
+				pyxel.blt(
+					self.x +39.5 +math.cos(self.rad + math.pi/4 * i) * 32 -7.5,
+					self.y +39.5 +math.sin(self.rad + math.pi/4 * i) * 32 -7.5, 
+					2, 16, 32, 16, 16, gcommon.TP_COLOR)
+			else:
+				pyxel.blt(
+					self.x +39.5 +math.cos(self.rad + math.pi/4 * i) * 32 -7.5,
+					self.y +39.5 +math.sin(self.rad + math.pi/4 * i) * 32 -7.5, 
+					2, 32, 32, 16, 16, gcommon.TP_COLOR)
+
+		# for p in self.xpoints2:
+		# 	gcommon.drawPolygon(p, 4)
+		# for p in self.xpoints1:
+		# 	gcommon.drawPolygon2(p, 9, 4)
+		for polygons in self.xpolygonsList:
+			gcommon.drawPolygons(polygons)
+

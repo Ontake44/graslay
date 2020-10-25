@@ -350,6 +350,8 @@ class Jumper1(EnemyBase):
 				self.dy = -self.dy
 		#elif gcommon.isMapFreePos(self.x + 8, self.y -4) == False:
 		#	self.dy = -self.dy
+		if self.cnt == 30:
+			enemy_shot(self.x +8, self.y +8, 2, 0)
 
 	def draw(self):
 		pyxel.blt(self.x, self.y, 1, 80, 64, 16, 16, gcommon.TP_COLOR)
@@ -379,6 +381,8 @@ class RollingFighter1(EnemyBase):
 		self.y = self.y + self.dy
 		self.dy = gcommon.sin_table[self.dr] * 2.0
 		self.dr = (self.dr + 1) & 63
+		if self.cnt == 30:
+			enemy_shot(self.x +8, self.y +8, 2, 0)
 
 	def draw(self):
 		pyxel.blt(self.x, self.y, 1, ((self.cnt>>1) &7) * 16, 80, 16, 16, gcommon.TP_COLOR)
@@ -1547,28 +1551,108 @@ class Stage4BossAppear2:
 class Wind1(EnemyBase):
 	def __init__(self, t):
 		super(Wind1, self).__init__()
-		self.x = t[2]
-		self.y = t[3]
-		self.left = 4
-		self.top = 4
+		pos = gcommon.mapPosToScreenPos(t[2], t[3])
+		self.x = pos[0]
+		self.y = pos[1]
+		self.direction = t[4] # direction_mapに従う 2:下から上  6:上から下 0:右  4:左
+		self.size = t[5]	# 24ドット単位
+		self.left = 0
+		self.top = 0
+		if self.direction == 2:
+			self.x += 4
+			self.right = 23
+			self.top = -24 * self.size
+			self.bottom = 7
+		elif self.direction == 6:
+			self.x += 5
+			self.right = 23
+			self.top = 0
+			self.bottom = 24 * self.size
+		elif self.direction == 0:
+			self.y += 4
+			self.right = 24 * self.size
+			self.bottom = 23
+		elif self.direction == 4:
+			self.y += 4
+			self.left = -24 * self.size
+			self.right = 15
+			self.bottom = 23
 		self.hp = 999999
 		self.layer = gcommon.C_LAYER_UNDER_GRD
-		self.hitCheck = False
+		self.hitCheck = True
 		self.shotHitCheck = False
 		self.enemyShotCollision = False
 
+	@classmethod
+	def create(cls, x, y, direction, size):
+		return Wind1([0, 0, x, y, direction, size])
+
 	def update(self):
-		pass
+		if self.x + self.right < 0:
+			self.remove()
 
 	def draw(self):
-		if self.cnt & 1 == 1:
-			for i in range(8):
-				#pyxel.blt(self.x, self.y + i * 24 + self.cnt % 24, 1, 128, 128, 24 -(self.cnt & 2) * 24, 24, gcommon.TP_COLOR)
-				pyxel.blt(self.x, self.y + i * 24 + self.cnt % 24, 2, 0, 0, 24, 24, gcommon.TP_COLOR)
-		else:
-			for i in range(8):
-				pyxel.blt(self.x, self.y + i * 24 + (self.cnt % 48)/2, 2, 0, 0, -24, 24, gcommon.TP_COLOR)
+		if self.direction == 6:
+			# 上から下
+			sy = self.y -24
+			if self.cnt & 1 == 1:
+				for i in range(self.size):
+					y = sy + i * 24 + (self.cnt % 24)
+					pyxel.blt(self.x, y, 2, 0, 0, 24, 24, gcommon.TP_COLOR)
+			else:
+				for i in range(self.size):
+					y = sy + i * 24 + (self.cnt % 48)/2
+					pyxel.blt(self.x, y, 2, 0, 0, -24, 24, gcommon.TP_COLOR)
+		elif self.direction == 2:
+			# 下から上
+			sy = self.y +8
+			if self.cnt & 1 == 1:
+				for i in range(self.size):
+					y = sy - i * 24 - (self.cnt % 24)
+					pyxel.blt(self.x, y, 2, 0, 0, 24, 24, gcommon.TP_COLOR)
+			else:
+				for i in range(self.size):
+					y = sy - i * 24 - (self.cnt % 48)/2
+					pyxel.blt(self.x, y, 2, 0, 0, -24, 24, gcommon.TP_COLOR)
+		elif self.direction == 0:
+			# 右
+			sx = self.x -24
+			if self.cnt & 1 == 1:
+				for i in range(self.size):
+					x = sx + i * 24 + (self.cnt % 24)
+					pyxel.blt(x, self.y, 2, 0, 0, 24, 24, gcommon.TP_COLOR)
+			else:
+				for i in range(self.size):
+					x = sx + i * 24 + (self.cnt % 48)/2
+					pyxel.blt(x, self.y, 2, 0, 0, -24, 24, gcommon.TP_COLOR)
+		elif self.direction == 4:
+			# 右
+			sx = self.x +8
+			if self.cnt & 1 == 1:
+				for i in range(self.size):
+					x = sx - i * 24 - (self.cnt % 24)
+					pyxel.blt(x, self.y, 2, 0, 0, 24, 24, gcommon.TP_COLOR)
+			else:
+				for i in range(self.size):
+					x = sx - i * 24 - (self.cnt % 48)/2
+					pyxel.blt(x, self.y, 2, 0, 0, -24, 24, gcommon.TP_COLOR)
 
+	# 自機と敵との当たり判定
+	# ここで自機が動かされる
+	def checkMyShipCollision(self):
+		if gcommon.check_collision(self, gcommon.ObjMgr.myShip):
+			#gcommon.cur_map_dy = self.direction/2
+			gcommon.ObjMgr.myShip.x += gcommon.direction_map[self.direction][0]/2
+			if gcommon.ObjMgr.myShip.x < 0:
+				gcommon.ObjMgr.myShip.x = 0
+			elif gcommon.ObjMgr.myShip.x > 240:
+				gcommon.ObjMgr.myShip.x = 240
+			gcommon.ObjMgr.myShip.y += gcommon.direction_map[self.direction][1]/2
+			if gcommon.ObjMgr.myShip.y < 2:
+				gcommon.ObjMgr.myShip.y = 2
+			elif gcommon.ObjMgr.myShip.y > 176:
+				gcommon.ObjMgr.myShip.y = 176
+		return False		
 
 circulatorBladePoints1 = [
 	[0,0],[0,61],[6,60],[12,0]
@@ -1612,9 +1696,9 @@ class Circulator1(EnemyBase):
 		self.xpoints1 = []
 		self.xpoints2 = []
 		for i in range(4):
-			self.xpoints1.append(gcommon.getQuadrangleR([self.x, self.y],
+			self.xpoints1.append(gcommon.getAnglePoints([self.x, self.y],
 				circulatorBladePoints1, [0, -8], self.rad + math.pi*i/2))
-			self.xpoints2.append(gcommon.getQuadrangleR([self.x, self.y],
+			self.xpoints2.append(gcommon.getAnglePoints([self.x, self.y],
 				circulatorBladePoints2, [0, -8], self.rad + math.pi*i/2))
 
 	def draw(self):
@@ -1623,7 +1707,7 @@ class Circulator1(EnemyBase):
 		for p in self.xpoints2:
 			gcommon.drawQuadrangle(p, 5)
 		#pyxel.blt(self.x-20, self.y-20, 1, 128, 56, 40, 40, gcommon.TP_COLOR)
-		pyxel.blt(self.x-12, self.y-12, 1, 168, 56, 24, 24, gcommon.TP_COLOR)
+		pyxel.blt(self.x-12, self.y-12, 2, 24, 0, 24, 24, gcommon.TP_COLOR)
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
@@ -1646,6 +1730,103 @@ class Circulator1(EnemyBase):
 				return True
 		return False
 
+# リフトで移動する砲台
+class Battery3(EnemyBase):
+	def __init__(self, x, y, direction):
+		# direction  1:下 -1:上
+		super(Battery3, self).__init__()
+		self.x = x
+		self.y = y
+		self.direction = direction
+		self.left = 2
+		self.right = 13
+		if self.direction == 1:
+			self.top = 5
+			self.bottom = 15
+		else:
+			self.top = 0
+			self.bottom = 10
+		self.hp = 10
+
+	def update(self):
+		self.y += self.direction * 0.5
+		if self.direction == 1 and self.y > gcommon.SCREEN_MAX_Y:
+			self.remove()
+			return
+		elif self.direction == -1 and self.y + self.bottom < 0:
+			self.remove()
+			return
+		elif self.x < -16:
+			self.remove()
+			return
+		if self.cnt & 63 == 63:
+			enemy_shot(self.x+8,self.y+6, 2, 0)
+
+	def draw(self):
+		drawBattery1(self.x, self.y, 0)
 
 
+class Lift1(EnemyBase):
+	def __init__(self, x, y, direction):
+		super(Lift1, self).__init__()
+		self.x = x
+		self.y = y
+		self.direction = direction	# 1:下  -1:上
+		self.left = 4
+		self.top = 0
+		self.right = 63
+		self.bottom = 15
+		self.hp = 999999
+		self.layer = gcommon.C_LAYER_GRD
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = True
+
+	def update(self):
+		self.y += self.direction * 0.5
+		if self.direction == 1 and self.y > gcommon.SCREEN_MAX_Y:
+			self.remove()
+		elif self.direction == -1 and self.y + self.bottom < 0:
+			self.remove()
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, 2, 48, 0, 64, 16, gcommon.TP_COLOR)
+
+
+class LiftAppear1(EnemyBase):
+	def __init__(self, mx, my, direction):
+		super(LiftAppear1, self).__init__()
+		pos = gcommon.mapPosToScreenPos(mx, my)
+		self.x = pos[0]
+		self.y = pos[1]
+		self.direction = direction	# 1:下  -1:上
+		self.left = 4
+		self.top = 4
+		self.right = 6
+		self.bottom = 15
+		self.hp = 999999
+		self.layer = gcommon.C_LAYER_GRD
+		self.hitCheck = False
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+		self.interval = 120
+
+	def update(self):
+		if self.cnt % self.interval == 0:
+			self.createLift()
+		if self.x + self.right < 0:
+			self.remove()
+
+	def draw(self):
+		pass
+
+	def createLift(self):
+		if self.direction == 1:
+			# 下
+			gcommon.ObjMgr.addObj(Lift1(self.x, -16, self.direction))
+			gcommon.ObjMgr.addObj(Battery3(self.x +16, -32, self.direction))
+		else:
+			# 上
+			gcommon.ObjMgr.addObj(Lift1(self.x, gcommon.SCREEN_MAX_Y+1+16, self.direction))
+			gcommon.ObjMgr.addObj(Battery3(self.x +16, gcommon.SCREEN_MAX_Y+1, self.direction))
 

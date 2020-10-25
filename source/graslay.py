@@ -29,7 +29,7 @@ class MyShip:
 		self.setStartPosition()
 		
 	def update(self):
-		if gcommon.sync_map_y:
+		if gcommon.sync_map_y != 0:
 			gcommon.cur_map_dy = 0
 		if self.sub_scene == 1:
 			# ゲーム中
@@ -48,7 +48,7 @@ class MyShip:
 					self.cnt = 0
 					gcommon.power = gcommon.START_MY_POWER
 					self.sprite = 1
-					self.setStartPosition()
+					#self.setStartPosition()
 					self.x = -16
 		elif self.sub_scene == 3:
 			# 復活中
@@ -92,8 +92,12 @@ class MyShip:
 				self.x = 240
 		if pyxel.btn(pyxel.KEY_UP) or pyxel.btn(pyxel.GAMEPAD_1_UP):
 			self.sprite = 2
-			if gcommon.sync_map_y:
+			if gcommon.sync_map_y == 1:
 				gcommon.cur_map_dy = -2
+			elif gcommon.sync_map_y == 2:
+				if self.y > 2:
+					gcommon.cur_map_dy = -1
+					self.y = self.y -1
 			else:
 				self.y = self.y -2
 				if self.y < 2:
@@ -101,8 +105,12 @@ class MyShip:
 		elif pyxel.btn(pyxel.KEY_DOWN) or pyxel.btn(pyxel.GAMEPAD_1_DOWN):
 			# 縦は192/8 = 24キャラ
 			self.sprite = 1
-			if gcommon.sync_map_y:
+			if gcommon.sync_map_y == 1:
 				gcommon.cur_map_dy = 2
+			elif gcommon.sync_map_y == 2:
+				if self.y < 176:
+					gcommon.cur_map_dy = 1
+					self.y = self.y +1
 			else:
 				self.y = self.y +2
 				if self.y > 176:
@@ -509,7 +517,7 @@ class GameClear:
 		gcommon.TextHCenter(60*2, "GAME CLEAR", 8, -1)
 
 
-class MapDraw:
+class MapDraw1:
 	def __init__(self):
 		pass
 	
@@ -517,10 +525,10 @@ class MapDraw:
 		gcommon.map_x = -32 * 8
 		gcommon.map_y = 24*8
 
-	def update0(self):
+	def update0(self, skip):
 		pass
 
-	def update(self):
+	def update(self, skip):
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 
@@ -541,10 +549,10 @@ class MapDraw2:
 		gcommon.map_x = 0
 		gcommon.map_y = 24*8
 
-	def update0(self):
+	def update0(self, skip):
 		pass
 
-	def update(self):
+	def update(self, skip):
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 	
@@ -573,12 +581,12 @@ class MapDraw3:
 		gcommon.cur_scroll_x = 2.0
 		gcommon.cur_scroll_y = 0.0
 	
-	def update0(self):
+	def update0(self, skip):
 		if gcommon.game_timer == 3550:
-			gcommon.sync_map_y = False
+			gcommon.sync_map_y = 0
 			gcommon.cur_map_dy = 0
 
-	def update(self):
+	def update(self, skip):
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 		if gcommon.game_timer > 3550:
@@ -591,45 +599,47 @@ class MapDraw3:
 				if gcommon.map_y > 336:
 					gcommon.map_y = 336
 		else:
-			for my in range(0, 128):
-				mx = gcommon.screenPosToMapPosX(256)
-				n = gcommon.getMapDataByMapPos(mx, my)
-				if n in (390, 391):
-					# 砲台
-					gcommon.setMapDataByMapPos(mx, my, 0)
-					obj = enemy.Battery1([0,0,mx, my, 0])
-					obj.first = 20
-					obj.shot_speed = 3
-					if n == 391:
-						obj.mirror = 1
-					gcommon.ObjMgr.addObj(obj)
-				elif n in (394,395):
-					# シャッター
-					size = gcommon.getMapDataByMapPos(mx+1, my) -576
-					speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
-					param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
-					param2 = (gcommon.getMapDataByMapPos(mx+4, my) -576) * 20
-					for i in range(5):
-						gcommon.setMapDataByMapPos(mx +i, my, 0)
-					pos = gcommon.mapPosToScreenPos(mx, my)
-					if n == 394:
-						obj = enemy.Shutter1(pos[0], pos[1] +16*size, -1, size, 0, speed, param1, param2)
-					else:
-						obj = enemy.Shutter1(pos[0], pos[1] -32*size +8, 1, size, 0, speed, param1, param2)
-					gcommon.ObjMgr.addObj(obj)
-				elif n in (396,397):
-					size = gcommon.getMapDataByMapPos(mx+1, my) -576
-					speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
-					param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
-					param2 = (gcommon.getMapDataByMapPos(mx+4, my) -576) * 20
-					for i in range(5):
-						gcommon.setMapDataByMapPos(mx +i, my, 0)
-					pos = gcommon.mapPosToScreenPos(mx, my)
-					if n == 396:
-						obj = enemy.Shutter1(pos[0], pos[1], 1, size, 0, speed, param1, param2)
-					else:
-						obj = enemy.Shutter1(pos[0], pos[1] -16*size +8, -1, size, 0, speed, param1, param2)
-					gcommon.ObjMgr.addObj(obj)
+			if skip == False:
+				# スキップ時はマップデータやオブジェクト追加しない
+				for my in range(0, 128):
+					mx = gcommon.screenPosToMapPosX(256)
+					n = gcommon.getMapDataByMapPos(mx, my)
+					if n in (390, 391):
+						# 砲台
+						gcommon.setMapDataByMapPos(mx, my, 0)
+						obj = enemy.Battery1([0,0,mx, my, 0])
+						obj.first = 20
+						obj.shot_speed = 3
+						if n == 391:
+							obj.mirror = 1
+						gcommon.ObjMgr.addObj(obj)
+					elif n in (394,395):
+						# シャッター
+						size = gcommon.getMapDataByMapPos(mx+1, my) -576
+						speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
+						param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
+						param2 = (gcommon.getMapDataByMapPos(mx+4, my) -576) * 20
+						for i in range(5):
+							gcommon.setMapDataByMapPos(mx +i, my, 0)
+						pos = gcommon.mapPosToScreenPos(mx, my)
+						if n == 394:
+							obj = enemy.Shutter1(pos[0], pos[1] +16*size, -1, size, 0, speed, param1, param2)
+						else:
+							obj = enemy.Shutter1(pos[0], pos[1] -32*size +8, 1, size, 0, speed, param1, param2)
+						gcommon.ObjMgr.addObj(obj)
+					elif n in (396,397):
+						size = gcommon.getMapDataByMapPos(mx+1, my) -576
+						speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
+						param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
+						param2 = (gcommon.getMapDataByMapPos(mx+4, my) -576) * 20
+						for i in range(5):
+							gcommon.setMapDataByMapPos(mx +i, my, 0)
+						pos = gcommon.mapPosToScreenPos(mx, my)
+						if n == 396:
+							obj = enemy.Shutter1(pos[0], pos[1], 1, size, 0, speed, param1, param2)
+						else:
+							obj = enemy.Shutter1(pos[0], pos[1] -16*size +8, -1, size, 0, speed, param1, param2)
+						gcommon.ObjMgr.addObj(obj)
 			gcommon.map_y += gcommon.cur_map_dy
 			if gcommon.map_y < 0:
 				gcommon.map_y = 128 * 8 + gcommon.map_y
@@ -680,40 +690,42 @@ class MapDraw4:
 		gcommon.map_x = -32 * 8
 		gcommon.map_y = 24*8
 
-	def update0(self):
+	def update0(self, skip):
 		pass
 
-	def update(self):
-		for i in range(0, 128):
-			my = 127 -i
-			mx = gcommon.screenPosToMapPosX(256)
-			n = gcommon.getMapDataByMapPos(mx, my)
-			if n == 394:
-				# 柱
-				size = gcommon.getMapDataByMapPos(mx+1, my) -576
-				obj = enemy.RuinPillar1(mx, my, 1, size)
-				gcommon.ObjMgr.addObj(obj)
-			elif n == 395:
-				# 床
-				size = gcommon.getMapDataByMapPos(mx+1, my) -576
-				obj = enemy.RuinFloor1(mx, my, 1, size)
-				gcommon.ObjMgr.addObj(obj)
-			if n == 396:
-				# 柱
-				size = gcommon.getMapDataByMapPos(mx+1, my) -576
-				obj = enemy.RuinPillar1(mx, my, -1, size)
-				gcommon.ObjMgr.addObj(obj)
-			elif n == 397:
-				# 床
-				size = gcommon.getMapDataByMapPos(mx+1, my) -576
-				obj = enemy.RuinFloor1(mx, my, -1, size)
-				gcommon.ObjMgr.addObj(obj)
-			elif n in (390, 391):
-				# 砲台
-				obj = enemy.Battery2(mx, my, 1)
-				if n == 391:
-					obj.direction = -1
-				gcommon.ObjMgr.addObj(obj)
+	def update(self, skip):
+		if skip == False:
+			# スキップ時はマップデータやオブジェクト追加しない
+			for i in range(0, 128):
+				my = 127 -i
+				mx = gcommon.screenPosToMapPosX(256)
+				n = gcommon.getMapDataByMapPos(mx, my)
+				if n == 394:
+					# 柱
+					size = gcommon.getMapDataByMapPos(mx+1, my) -576
+					obj = enemy.RuinPillar1(mx, my, 1, size)
+					gcommon.ObjMgr.addObj(obj)
+				elif n == 395:
+					# 床
+					size = gcommon.getMapDataByMapPos(mx+1, my) -576
+					obj = enemy.RuinFloor1(mx, my, 1, size)
+					gcommon.ObjMgr.addObj(obj)
+				if n == 396:
+					# 柱
+					size = gcommon.getMapDataByMapPos(mx+1, my) -576
+					obj = enemy.RuinPillar1(mx, my, -1, size)
+					gcommon.ObjMgr.addObj(obj)
+				elif n == 397:
+					# 床
+					size = gcommon.getMapDataByMapPos(mx+1, my) -576
+					obj = enemy.RuinFloor1(mx, my, -1, size)
+					gcommon.ObjMgr.addObj(obj)
+				elif n in (390, 391):
+					# 砲台
+					obj = enemy.Battery2(mx, my, 1)
+					if n == 391:
+						obj.direction = -1
+					gcommon.ObjMgr.addObj(obj)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 
@@ -748,15 +760,16 @@ class MapDrawFactory:
 		gcommon.cur_scroll_x = 0.5
 		gcommon.cur_scroll_y = 0.0
 	
-	def update0(self):
+	def update0(self, skip):
 		if gcommon.game_timer == 3550:
-			gcommon.sync_map_y = False
+			gcommon.sync_map_y = 0
 			gcommon.cur_map_dy = 0
 
-	def update(self):
-		gcommon.map_x += gcommon.cur_scroll_x
-		gcommon.map_y += gcommon.cur_scroll_y
-		if gcommon.game_timer > 3550:
+	def update(self, skip):
+		#gcommon.map_x += gcommon.cur_scroll_x
+		#gcommon.map_y += gcommon.cur_scroll_y
+		if gcommon.game_timer > 15000:
+			# ボス出現
 			if gcommon.map_y > 336:
 				gcommon.map_y -= 0.50
 				if gcommon.map_y < 336:
@@ -766,40 +779,68 @@ class MapDrawFactory:
 				if gcommon.map_y > 336:
 					gcommon.map_y = 336
 		else:
-			for my in range(0, 128):
-				mx = gcommon.screenPosToMapPosX(256)
-				n = gcommon.getMapDataByMapPos(mx, my)
-				if n in (390, 391):
-					# 砲台
-					gcommon.setMapDataByMapPos(mx, my, 0)
-					obj = enemy.Battery1([0,0,mx, my, 0])
-					obj.first = 20
-					obj.shot_speed = 3
-					if n == 391:
-						obj.mirror = 1
-					gcommon.ObjMgr.addObj(obj)
-				elif n in (394, 395):
-					# サーキュレーター
-					gcommon.setMapDataByMapPos(mx, my, 0)
-					pos = gcommon.mapPosToScreenPos(mx, my)
-					if n == 394:
-						obj = enemy.Circulator1(pos[0] +85, pos[1] +3, 1)
-					else:
-						obj = enemy.Circulator1(pos[0] +85, pos[1] +3, -1)
-					gcommon.ObjMgr.addObj(obj)
-				elif n in (396,397):
-					size = gcommon.getMapDataByMapPos(mx+1, my) -576
-					speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
-					param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
-					param2 = (gcommon.getMapDataByMapPos(mx+4, my) -576) * 20
-					for i in range(5):
-						gcommon.setMapDataByMapPos(mx +i, my, 0)
-					pos = gcommon.mapPosToScreenPos(mx, my)
-					if n == 396:
-						obj = enemy.Shutter1(pos[0], pos[1], 1, size, 0, speed, param1, param2)
-					else:
-						obj = enemy.Shutter1(pos[0], pos[1] -16*size +8, -1, size, 0, speed, param1, param2)
-					gcommon.ObjMgr.addObj(obj)
+			if skip == False:
+				for my in range(0, 128):
+					mx = gcommon.screenPosToMapPosX(256)
+					n = gcommon.getMapDataByMapPos(mx, my)
+					if n in (390, 391):
+						# 砲台
+						gcommon.setMapDataByMapPos(mx, my, 0)
+						obj = enemy.Battery1([0,0,mx, my, 0])
+						obj.first = 20
+						if n == 391:
+							obj.mirror = 1
+						gcommon.ObjMgr.addObj(obj)
+					elif n in (394, 395):
+						# サーキュレーター
+						gcommon.setMapDataByMapPos(mx, my, 0)
+						pos = gcommon.mapPosToScreenPos(mx, my)
+						if n == 394:
+							obj = enemy.Circulator1(pos[0] +85, pos[1] +3, 1)
+						else:
+							obj = enemy.Circulator1(pos[0] +85, pos[1] +3, -1)
+						gcommon.ObjMgr.addObj(obj)
+					elif n in (396,397):
+						# シャッター
+						size = gcommon.getMapDataByMapPos(mx+1, my) -576
+						speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
+						param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
+						param2 = (gcommon.getMapDataByMapPos(mx+4, my) -576) * 20
+						for i in range(5):
+							gcommon.setMapDataByMapPos(mx +i, my, 0)
+						pos = gcommon.mapPosToScreenPos(mx, my)
+						if n == 396:
+							obj = enemy.Shutter1(pos[0], pos[1], 1, size, 0, speed, param1, param2)
+						else:
+							obj = enemy.Shutter1(pos[0], pos[1] -16*size +8, -1, size, 0, speed, param1, param2)
+						gcommon.ObjMgr.addObj(obj)
+					elif n in (398, 399, 400, 401):
+						# 排気
+						size = gcommon.getMapDataByMapPos(mx+1, my) -576
+						for i in range(2):
+							gcommon.setMapDataByMapPos(mx +i, my, 0)
+						dr = 0
+						if n == 398:
+							dr = 2
+							# 下から上
+						elif n == 399:
+							# 上から下
+							dr = 6
+						elif n == 400:
+							# 右
+							dr = 0
+						else:
+							# 左
+							dr = 4
+						gcommon.ObjMgr.addObj(enemy.Wind1.create(mx, my, dr, size))
+					elif n == 402:
+						gcommon.setMapDataByMapPos(mx, my, 0)
+						gcommon.ObjMgr.addObj(enemy.LiftAppear1(mx, my, -1))
+					elif n == 403:
+						gcommon.setMapDataByMapPos(mx, my, 0)
+						gcommon.ObjMgr.addObj(enemy.LiftAppear1(mx, my, 1))
+			gcommon.map_x += gcommon.cur_scroll_x
+			gcommon.map_y += gcommon.cur_scroll_y
 			gcommon.map_y += gcommon.cur_map_dy
 			if gcommon.map_y < 0:
 				gcommon.map_y = 128 * 8 + gcommon.map_y
@@ -848,7 +889,7 @@ class StartMapDraw1:
 		#gcommon.drawMap = MapDraw()
 		#gcommon.map_x = -32 * 8
 		#gcommon.map_y = 24*8
-		gcommon.ObjMgr.setDrawMap(MapDraw())
+		gcommon.ObjMgr.setDrawMap(MapDraw1())
 
 	def do(self):
 		pass
@@ -934,13 +975,13 @@ class MainGame:
 		self.pause = False
 		self.pauseMenuPos = 0
 		
-		self.skipGameTimer()
+		#self.skipGameTimer()
 		
 		if self.stage == 1:
 			pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay1.png")
 			self.mapOffsetX = 0
-			gcommon.sync_map_y = False
+			gcommon.sync_map_y = 0
 			gcommon.long_map = False
 			gcommon.draw_star = True
 			loadMapData(0, "assets/graslay1.pyxmap")
@@ -949,7 +990,7 @@ class MainGame:
 			pyxel.load("assets/graslay_dangeon22.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay2.png")
 			self.mapOffsetX = 0
-			gcommon.sync_map_y = False
+			gcommon.sync_map_y = 0
 			gcommon.long_map = False
 			gcommon.draw_star = False
 			loadMapData(0, "assets/graslay2.pyxmap")
@@ -958,7 +999,7 @@ class MainGame:
 			pyxel.load("assets/graslay_rock03.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay3.png")
 			self.mapOffsetX = 0
-			gcommon.sync_map_y = True
+			gcommon.sync_map_y = 1
 			gcommon.long_map = True
 			gcommon.draw_star = True
 			loadMapData(0, "assets/graslay3-0.pyxmap")
@@ -968,7 +1009,7 @@ class MainGame:
 		elif self.stage == 4:
 			pyxel.image(1).load(0,0,"assets/graslay4.png")
 			self.mapOffsetX = 0
-			gcommon.sync_map_y = False
+			gcommon.sync_map_y = 0
 			gcommon.long_map = True
 			gcommon.draw_star = True
 			loadMapData(0, "assets/graslay4.pyxmap")
@@ -978,7 +1019,7 @@ class MainGame:
 			pyxel.image(1).load(0,0,"assets/graslay_factory.png")
 			pyxel.image(2).load(0,0,"assets/graslay_factory-2.png")
 			self.mapOffsetX = 0
-			gcommon.sync_map_y = True
+			gcommon.sync_map_y = 0
 			gcommon.long_map = True
 			gcommon.draw_star = True
 			loadMapData(0, "assets/graslay_factory.pyxmap")
@@ -989,15 +1030,19 @@ class MainGame:
 		#	pyxel.image(2).load(0,0,"assets\gra-den3b.png")
 		#	self.mapOffsetX = 64
 		#	gcommon.draw_star = True
+
+		self.skipGameTimer()
+
 		pyxel.tilemap(0).refimg = 1
 		gcommon.mapFreeTable = [0, 32, 33, 34, 65, 66]
 		gcommon.playBGM()
 
+	# デバッグ用のゲームタイマースキップ
 	def skipGameTimer(self):
 		while(gcommon.game_timer < gcommon.START_GAME_TIMER):
 			self.ExecuteEvent()
-			gcommon.ObjMgr.updateDrawMap0()
-			gcommon.ObjMgr.updateDrawMap()
+			gcommon.ObjMgr.updateDrawMap0(True)
+			gcommon.ObjMgr.updateDrawMap(True)
 			
 			gcommon.game_timer = gcommon.game_timer + 1	
 	
@@ -1031,13 +1076,13 @@ class MainGame:
 		self.ExecuteEvent()
 
 		# マップ処理０
-		gcommon.ObjMgr.updateDrawMap0()
+		gcommon.ObjMgr.updateDrawMap0(False)
 
 		# 自機移動
 		gcommon.ObjMgr.myShip.update()
 
 		# マップ処理
-		gcommon.ObjMgr.updateDrawMap()
+		gcommon.ObjMgr.updateDrawMap(False)
 
 		self.ExecuteStory()
 
@@ -1329,6 +1374,10 @@ class MainGame:
 	def initEventFactory(self):
 		self.eventTable =[ \
 			[100,StartMapDrawFactory],		\
+			[2040,SetMapScroll, 0.25, 0.25],	\
+			[3192,SetMapScroll, 0.5, 0.0],	\
+			[4400,SetMapScroll, 0.25, -0.25],	\
+			[5616,SetMapScroll, 0.5, 0.0],	\
 			[3500,StartBossBGM],
 		]
 
@@ -1392,8 +1441,12 @@ class MainGame:
 			[2500, enemy.Battery1, 105, 24, 0],		\
 			[2700, enemy.RollingFighter1Group, 24, 15, 4],		\
 			[2760, enemy.RollingFighter1Group, 80, 15, 4],		\
+			[2800, enemy.RollingFighter1Group, 40, 15, 4],		\
+			[2860, enemy.RollingFighter1Group, 120, 15, 4],		\
 			[3100, enemy.MissileShip, 40, 160],		\
 			[3100, enemy.MissileShip, 80, 200],		\
+			[3240, enemy.Jumper1, 256, 30, -0.1],		\
+			[3280, enemy.Jumper1, 256, 50, 0.1],		\
 			[3350, enemy.Battery1, 144, 33, 1],		\
 			[3350, enemy.Battery1, 144, 35, 0],		\
 			[3360, enemy.Battery1, 146, 33, 1],		\
@@ -1505,8 +1558,21 @@ class MainGame:
 
 	def initStoryFactory(self):
 		self.story=[ \
-			[300, enemy.Wind1, 255, 8],		\
-			[4230, boss.Boss4, 0, 0],		\
+			[1200, enemy.RollingFighter1Group, 42, 15, 4],		\
+			[1300, enemy.RollingFighter1Group, 58, 15, 4],		\
+			[2030, enemy.RollingFighter1Group, 42, 15, 4],		\
+			[2100, enemy.RollingFighter1Group, 58, 15, 4],		\
+			[2200, enemy.RollingFighter1Group, 42, 15, 4],		\
+			[3200, enemy.RollingFighter1Group, 32, 15, 4],		\
+			[3230, enemy.RollingFighter1Group, 100, 15, 4],		\
+			[3260, enemy.RollingFighter1Group, 120, 15, 4],		\
+			[3600, enemy.RollingFighter1Group, 42, 15, 4],		\
+			[3660, enemy.RollingFighter1Group, 80, 15, 4],		\
+			[4500, enemy.Jumper1, 256, 20, 0.05],		\
+			[4530, enemy.Jumper1, 256, 30, 0.05],		\
+			[4600, enemy.Jumper1, 256, 20, 0.05],		\
+			[4630, enemy.Jumper1, 256, 30, 0.05],		\
+			[6850, boss.BossFactory, 0, 0],		\
 		]
 
 def parseCommandLine():

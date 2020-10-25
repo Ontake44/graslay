@@ -147,7 +147,7 @@ cur_map_dy = 0.0
 map_x = 0.0
 map_y = 0.0
 
-sync_map_y = True
+sync_map_y = 0
 
 long_map = False
 
@@ -193,6 +193,14 @@ class Rect:
 	def height(self):
 		return self.height - self.top +1
 
+class Polygon:
+	def __init__(self, points, clr):
+		self.points = points
+		self.clr = clr
+
+class Polygons:
+	def __init__(self, polygons):
+		self.polygons = polygons
 
 
 def initStar():
@@ -464,18 +472,18 @@ class ObjMgr:
 		cls.nextDrawMap = obj
 
 	@classmethod
-	def updateDrawMap0(cls):
+	def updateDrawMap0(cls, skip):
 		if cls.nextDrawMap != None:
 			cls.nextDrawMap.init()
 			cls.drawMap = cls.nextDrawMap
 			cls.nextDrawMap = None
 		if cls.drawMap != None:
-			cls.drawMap.update0()
+			cls.drawMap.update0(skip)
 
 	@classmethod
-	def updateDrawMap(cls):
+	def updateDrawMap(cls, skip):
 		if cls.drawMap != None:
-			cls.drawMap.update()
+			cls.drawMap.update(skip)
 
 	@classmethod
 	def drawDrawMapBackground(cls):
@@ -636,7 +644,7 @@ def mapPosToScreenPos(mx, my):
 	if ObjMgr.drawMap == None:
 		return [-9999,-9999]
 	else:
-		return [mx * 8 - map_x, my * 8 - map_y]
+		return [mx * 8 - int(map_x), my * 8 - map_y]
 
 def showText(x, y, s):
 	for c in s:
@@ -671,13 +679,54 @@ def drawQuadrangle(points, clr):
 		 points[2][0], points[2][1],
 		 points[3][0], points[3][1], clr)
 
-def getQuadrangleR(destPos, points, offsetPos, rad):
+def drawPolygon(poly, clr):
+	sx = poly[0][0]
+	sy = poly[0][1]
+	for i in range(len(poly)-2):
+		pyxel.tri(sx, sy, 
+			poly[i+1][0], poly[i+1][1],
+			poly[i+2][0], poly[i+2][1], clr)	
+
+def drawPolygon2(poly, clr1, clr2):
+	drawPolygon(poly, clr1)
+	last = len(poly) -1
+	for i in range(last):
+		pyxel.line(poly[i][0], poly[i][1], poly[i+1][0], poly[i+1][1], clr2)
+	pyxel.line(poly[last][0], poly[last][1], poly[0][0], poly[0][1], clr2)
+
+# Polygonクラス指定で描く
+def drawPolygon3(polygon):
+	poly = polygon.points
+	sx = poly[0][0]
+	sy = poly[0][1]
+	for i in range(len(poly)-2):
+		pyxel.tri(sx, sy, 
+			poly[i+1][0], poly[i+1][1],
+			poly[i+2][0], poly[i+2][1], polygon.clr)	
+
+def drawPolygons(polys):
+	for p in polys.polygons:
+		drawPolygon3(p)
+
+def getAnglePoints(destPos, points, offsetPos, rad):
 	xpoints = []
 	for p in points:
 		x = destPos[0] + (p[0]- offsetPos[0]) * math.cos(rad) - (p[1] -offsetPos[1]) * math.sin(rad)
 		y = destPos[1] + ((p[0] -offsetPos[0]) * math.sin(rad) + (p[1] -offsetPos[1]) * math.cos(rad))
 		xpoints.append([x,y])
 	return xpoints
+
+def getAnglePolygons(destPos, polygons, offsetPos, rad):
+	xpolygons = []
+	for poly in polygons:
+		xpoints = []
+		for p in poly.points:
+			x = destPos[0] + (p[0]- offsetPos[0]) * math.cos(rad) - (p[1] -offsetPos[1]) * math.sin(rad)
+			y = destPos[1] + ((p[0] -offsetPos[0]) * math.sin(rad) + (p[1] -offsetPos[1]) * math.cos(rad))
+			xpoints.append([x,y])
+		xpoly = Polygon(xpoints, poly.clr)
+		xpolygons.append(xpoly)
+	return Polygons(xpolygons)
 
 
 def checkCollisionPointAndPolygonSub(pos, poly1, poly2):
