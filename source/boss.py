@@ -493,6 +493,7 @@ class Feeler(enemy.EnemyBase):
 					return True
 			return False
 
+# 伸びる触手
 class Boss2Cell(enemy.EnemyBase):
 	def __init__(self, parentObj, x, y, firstDr):
 		super(Boss2Cell, self).__init__()
@@ -530,7 +531,7 @@ class Boss2Cell(enemy.EnemyBase):
 			if self.cnt > 20:
 				self.nextState()
 		elif self.state == 2:
-			del self.cells[-1]
+			del self.cells[-1]	# 最後から消す
 			if len(self.cells) == 0:
 				self.remove()
 
@@ -1348,6 +1349,53 @@ class Boss4(enemy.EnemyBase):
 		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,4], 240))
 
 
+class BossFactoryShot1(enemy.EnemyBase):
+	def __init__(self, x, y):
+		super(BossFactoryShot1, self).__init__()
+		self.x = x
+		self.y = y
+		self.dr = -1
+		self.left = 5
+		self.top = 5
+		self.right = 17
+		self.bottom = 17
+		self.hp = 30
+		self.layer = gcommon.C_LAYER_E_SHOT
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+		self.speed = 1
+
+	def update(self):
+		if self.cnt & 2 == 0 and self.cnt <= 63:
+			tempDr = gcommon.get_atan_no_to_ship(self.x +11, self.y +11)
+			if self.dr == -1:
+				self.dr = tempDr
+			else:
+				rr = tempDr - self.dr
+				if rr == 0:
+					pass
+				elif  (tempDr - self.dr) > 0:
+					self.dr = (self.dr + 1) & 63
+				else:
+					self.dr = (self.dr - 1) & 63
+		self.x += gcommon.cos_table[self.dr] * self.speed
+		self.y += gcommon.sin_table[self.dr] * self.speed
+		if self.speed < 4:
+			self.speed += 0.05
+		if self.x <= -24 or self.x > gcommon.SCREEN_MAX_X:
+			self.remove()
+		elif self.y <= -24 or self.y > gcommon.SCREEN_MAX_Y:
+			self.remove()
+
+
+	def draw(self):
+		if self.cnt & 2 == 2:
+			pyxel.blt(self.x, self.y, 2, 0, 96, 24, 24, gcommon.TP_COLOR)
+		else:
+			pyxel.blt(self.x, self.y, 2, 24, 96, 24, 24, gcommon.TP_COLOR)
+
+
 bossFactoryFin1 = [
 	[10, 0],
 	[2, 23],
@@ -1368,55 +1416,38 @@ bossFactoryFin2 = [
 
 # clr = 10 黄色の左横
 bossFactoryFinA1 = [
-	[10, 0],
-	[1, 25],
-	[15, 15]
+	[10, 0],	[1, 25],	[15, 15]
 ]
 # clr = 10 黄色の上
 bossFactoryFinA2 = [
-	[10, 0],
-	[16, 10],
-	[23, 0]
+	[10, 0],	[16, 10],	[23, 0]
 ]
 # clr = 4  茶色の左下
 bossFactoryFinA3 = [
-	[1, 26],
-	[7, 30],
-	[10, 21]
+	[1, 26],	[7, 30],	[10, 21]
 ]
 # clr = 4  茶色の真ん中
 bossFactoryFinA4 = [
-	[7, 30],
-	[26, 30],
-	[16.5, 7]
+	[7, 30],	[26, 30],	[16.5, 7]
 ]
 # clr = 4  茶色の右下
 bossFactoryFinA5 = [
-	[26, 30],
-	[21, 21],
-	[32, 26]
+	[26, 30],	[21, 21],	[32, 26]
 ]
 # clr = 4  茶色の右横
 bossFactoryFinA6 = [
-	[32, 26],
-	[15, 12],
-	[23, 0]
+	[32, 26],	[15, 12],	[23, 0]
 ]
 # clr = 9  オレンジの正面
 bossFactoryFinA7 = [
-	[12, 3],
-	[5, 23],
-	[8, 25],
-	[24, 25],
-	[28, 23],
-	[21, 3]
+	[12, 3],	[5, 23],	[8, 25],	[24, 25],	[28, 23],	[21, 3]
 ]
 
 class BossFactory(enemy.EnemyBase):
 	def __init__(self, t):
 		super(BossFactory, self).__init__()
-		self.x = 256
-		self.y = 60
+		self.x = 80
+		self.y = -120
 		self.layer = gcommon.C_LAYER_SKY
 		self.left = 27
 		self.top = 8
@@ -1430,8 +1461,13 @@ class BossFactory(enemy.EnemyBase):
 		#self.xpoints1 = []
 		#self.xpoints2 = []
 		self.rad = 0.0
+		self.omega = math.pi/64		# 角速度
 		self.distance = 22.0
 		self.subState = 0
+		self.dx = 1
+		self.dy = 2
+		self.subStateCycle = 0
+		self.moveState = 0
 		# どちらを開くか
 		self.finMode = 0
 		self.polygonList = []
@@ -1449,13 +1485,49 @@ class BossFactory(enemy.EnemyBase):
 		self.subState = subState
 
 	def update(self):
-		self.rad += math.pi/64
+		self.rad += self.omega
 		if self.rad >= math.pi*2:
 			self.rad -= math.pi*2
 		if self.state == 0:
-			self.x -= gcommon.cur_scroll_x
-			if self.x <= 152:
-				self.nextState()
+			self.subCnt += 1
+			if self.subState == 0:
+				# 後ろから落下
+				self.x += self.dx
+				self.y += self.dy
+				self.dy += 0.2
+				if self.y > 80:
+					self.dy = -self.dy * 0.8
+				if self.x > 280:
+					self.dx = -self.dx
+					# 回転を逆にする
+					self.omega = -math.pi/128
+					self.setSubState(1)
+			#self.x -= gcommon.cur_scroll_x
+			#if self.x <= 152:
+			#	self.nextState()
+			elif self.subState == 1:
+				# 右端から戻ってくる
+				self.x += self.dx
+				self.y += self.dy
+				self.dy += 0.2
+				if self.y > 80:
+					self.dy = -self.dy
+				if self.x <= 152:
+					self.omega = -math.pi/64
+					self.setSubState(2)
+			elif self.subState == 2:
+				# 規定位置まで移動
+				self.y -= 1
+				if self.y < 50:
+					self.y = 50
+				if self.subCnt > 30:
+					self.subCnt = 0
+					self.subState = 0
+					self.dx = 0
+					self.dy = -2
+					self.moveState = 0	# 0:上に移動
+					self.subStateCycle = 0
+					self.nextState()
 		elif self.state == 1:
 			if self.subState == 0:
 				self.subCnt += 1
@@ -1469,19 +1541,24 @@ class BossFactory(enemy.EnemyBase):
 			elif self.subState == 2:
 				# 開いている（攻撃）
 				self.subCnt += 1
-				if self.subCnt % 8 == 0:
-					if self.finMode == 0:
+				if self.finMode == 0:
+					if self.subCnt & 7 == 0:
 						for i in range(4):
 							enemy.enemy_shot(
 								self.x +39.5 +math.cos(self.rad + math.pi/2 * i) * 32,
 								self.y +39.5 +math.sin(self.rad + math.pi/2 * i) * 32,
 								4, 0)
-					else:
+				else:
+					if self.subCnt % 12 == 0:
 						for i in range(4):
-							enemy.enemy_shot(
-								self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
-								self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32,
-								3, 1)
+							#enemy.enemy_shot(
+							#	self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+							#	self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+							#	3, 1)
+							gcommon.ObjMgr.objs.append(
+									BossFactoryShot1(
+										self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+										self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32))
 				if self.subCnt == 30:
 					self.setSubState(3)
 			elif self.subState == 3:
@@ -1489,8 +1566,32 @@ class BossFactory(enemy.EnemyBase):
 				self.distance -= 0.5
 				if self.distance < 22:
 					self.distance = 22.0
+					self.subStateCycle += 1
 					self.setSubState(0)
 					self.finMode = (self.finMode + 1) & 1
+			# state:1での移動
+			if self.subStateCycle > 1:
+				# 最初は移動しない
+				if self.moveState == 0:
+					# 上に移動
+					self.y += self.dy
+					if self.y < 30:
+						self.dy += 0.05
+						if self.dy >= 0.0:
+							self.dy = 0.05
+							self.moveState = 1
+					elif self.dy > -2.0:
+						self.dy -= 0.05
+				else:
+					# 下に移動
+					self.y += self.dy
+					if self.y > 100:
+						self.dy -= 0.05
+						if self.dy <= 0.0:
+							self.dy = -0.05
+							self.moveState = 0
+					elif self.dy < 2.0:
+						self.dy += 0.05
 		#self.xpoints1 = []
 		#self.xpoints2 = []
 		self.xpolygonsList = []
@@ -1513,6 +1614,7 @@ class BossFactory(enemy.EnemyBase):
 			#	bossFactoryFin1, [15.5, -distance], self.rad + math.pi/4 *i))
 
 	def draw(self):
+		# 本体のドーナツ部
 		pyxel.blt(self.x, self.y, 2, 64, 48, 80, 80, gcommon.TP_COLOR)
 
 		# 中心の玉

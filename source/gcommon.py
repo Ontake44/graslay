@@ -418,7 +418,7 @@ def sound(snd):
 			pyxel.play(0, snd)
 		else:
 			if sound_priority[int(n/10)]<sound_priority[snd]:
-				pyxel.stop(0)
+				#pyxel.stop(0)
 				pyxel.play(0, snd)
 
 def playBGM():
