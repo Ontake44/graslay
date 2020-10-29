@@ -984,6 +984,7 @@ class MainGame:
 			gcommon.sync_map_y = 0
 			gcommon.long_map = False
 			gcommon.draw_star = True
+			gcommon.eshot_sync_scroll = False
 			loadMapData(0, "assets/graslay1.pyxmap")
 			loadMapAttribute("assets/graslay1.mapatr")
 		elif self.stage == 2:
@@ -993,6 +994,7 @@ class MainGame:
 			gcommon.sync_map_y = 0
 			gcommon.long_map = False
 			gcommon.draw_star = False
+			gcommon.eshot_sync_scroll = False
 			loadMapData(0, "assets/graslay2.pyxmap")
 			loadMapAttribute("assets/graslay2.mapatr")
 		elif self.stage == 3:
@@ -1002,6 +1004,7 @@ class MainGame:
 			gcommon.sync_map_y = 1
 			gcommon.long_map = True
 			gcommon.draw_star = True
+			gcommon.eshot_sync_scroll = True
 			loadMapData(0, "assets/graslay3-0.pyxmap")
 			loadMapData(1, "assets/graslay3-1.pyxmap")
 			loadMapAttribute("assets/graslay3.mapatr")
@@ -1012,6 +1015,7 @@ class MainGame:
 			gcommon.sync_map_y = 0
 			gcommon.long_map = True
 			gcommon.draw_star = True
+			gcommon.eshot_sync_scroll = False
 			loadMapData(0, "assets/graslay4.pyxmap")
 			loadMapAttribute("assets/graslay4.mapatr")
 			pyxel.tilemap(1).refimg = 1
@@ -1022,6 +1026,7 @@ class MainGame:
 			gcommon.sync_map_y = 0
 			gcommon.long_map = True
 			gcommon.draw_star = True
+			gcommon.eshot_sync_scroll = False
 			loadMapData(0, "assets/graslay_factory.pyxmap")
 			loadMapAttribute("assets/graslay_factory.mapatr")
 			pyxel.tilemap(1).refimg = 1
@@ -1096,9 +1101,14 @@ class MainGame:
 		newObjs = []
 		for obj in gcommon.ObjMgr.objs:
 			if obj.removeFlag == False:
-				if obj.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD, gcommon.C_LAYER_E_SHOT):
-					obj.x -= gcommon.cur_scroll_x
-					obj.y -= gcommon.cur_scroll_y
+				if gcommon.eshot_sync_scroll:
+					if obj.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD, gcommon.C_LAYER_E_SHOT):
+						obj.x -= gcommon.cur_scroll_x
+						obj.y -= gcommon.cur_scroll_y
+				else:
+					if obj.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD):
+						obj.x -= gcommon.cur_scroll_x
+						obj.y -= gcommon.cur_scroll_y
 				obj.x -= gcommon.cur_map_dx
 				obj.y -= gcommon.cur_map_dy
 				obj.update()
@@ -1378,7 +1388,8 @@ class MainGame:
 			[3192,SetMapScroll, 0.5, 0.0],	\
 			[4400,SetMapScroll, 0.25, -0.25],	\
 			[5616,SetMapScroll, 0.5, 0.0],	\
-			[3500,StartBossBGM],
+			[6500,StartBossBGM],	\
+		#	[7800,EndMapDraw],		\
 		]
 
 	def initStory(self):

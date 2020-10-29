@@ -108,6 +108,9 @@ TP_COLOR = 2
 SCREEN_MAX_X = 255
 SCREEN_MAX_Y = 191
 
+SCREEN_WIDTH = 256
+SCREEN_HEIGHT = 192
+
 DUMMY_BLOCK_NO = 64
 
 # 64 direction table
@@ -148,6 +151,8 @@ map_x = 0.0
 map_y = 0.0
 
 sync_map_y = 0
+
+eshot_sync_scroll = False
 
 long_map = False
 
@@ -284,7 +289,7 @@ def atan2x(x, y):
 def get_atan(x1,y1,x2,y2,offsetdr):
 	return atan_table[get_atan_no(x1,y1,x2,y2)+offsetdr & 63]
 
-
+# (x1,y1)から見て(x2,y2)の方向
 # return 0-63
 def get_atan_no(x1,y1,x2,y2):
 	r = atan2x(x2-x1, y2-y1)
@@ -295,7 +300,7 @@ def get_atan_no(x1,y1,x2,y2):
 		for i in range(1,63): # i=2,64 do
 			if r<(atan_table[i]+rr):
 				return i
-		return 0
+		return 63
 
 def get_atan_no_to_ship(x,y):
 	return get_atan_no(x, y, ObjMgr.myShip.x+8, ObjMgr.myShip.y+8)
@@ -305,6 +310,15 @@ def get_atan_to_ship(x, y):
 
 def get_atan_to_ship2(x, y, offsetdr):
 		return get_atan(x, y, ObjMgr.myShip.x +8, ObjMgr.myShip.y+8, offsetdr)
+
+# r1からみて、r2が右側(-1)か左側(1)のどちらかを返す
+def get_leftOrRight(r1, r2):
+	rr1 = (r2 - r1) & 63
+	rr2 = (r1 - r2) & 63
+	if rr1 < rr2:
+		return 1
+	else:
+		return -1
 
 # return 0-7
 def get_direction_my(x, y):
@@ -422,10 +436,12 @@ def sound(snd):
 				pyxel.play(0, snd)
 
 def playBGM():
+	pass
 	if (SOUND_ON):
 		pyxel.playm(0, loop=True)
 
 def playBossBGM():
+	pass
 	if (SOUND_ON):
 		pyxel.playm(1, loop=False)
 
@@ -710,19 +726,23 @@ def drawPolygons(polys):
 
 def getAnglePoints(destPos, points, offsetPos, rad):
 	xpoints = []
+	c = math.cos(rad)
+	s = math.sin(rad)
 	for p in points:
-		x = destPos[0] + (p[0]- offsetPos[0]) * math.cos(rad) - (p[1] -offsetPos[1]) * math.sin(rad)
-		y = destPos[1] + ((p[0] -offsetPos[0]) * math.sin(rad) + (p[1] -offsetPos[1]) * math.cos(rad))
+		x = destPos[0] + (p[0]- offsetPos[0]) * c - (p[1] -offsetPos[1]) * s
+		y = destPos[1] + ((p[0] -offsetPos[0]) * s + (p[1] -offsetPos[1]) * c)
 		xpoints.append([x,y])
 	return xpoints
 
 def getAnglePolygons(destPos, polygons, offsetPos, rad):
 	xpolygons = []
+	c = math.cos(rad)
+	s = math.sin(rad)
 	for poly in polygons:
 		xpoints = []
 		for p in poly.points:
-			x = destPos[0] + (p[0]- offsetPos[0]) * math.cos(rad) - (p[1] -offsetPos[1]) * math.sin(rad)
-			y = destPos[1] + ((p[0] -offsetPos[0]) * math.sin(rad) + (p[1] -offsetPos[1]) * math.cos(rad))
+			x = destPos[0] + (p[0]- offsetPos[0]) * c - (p[1] -offsetPos[1]) * s
+			y = destPos[1] + ((p[0] -offsetPos[0]) * s + (p[1] -offsetPos[1]) * c)
 			xpoints.append([x,y])
 		xpoly = Polygon(xpoints, poly.clr)
 		xpolygons.append(xpoly)

@@ -59,8 +59,8 @@ class EnemyBase:
 		self.score = 0
 		self.shotHitCheck = True	# 自機弾との当たり判定
 		self.hitCheck = True	# 自機と敵との当たり判定
-		self.removeFlag = False
 		self.enemyShotCollision = False	# 敵弾との当たり判定を行う
+		self.removeFlag = False
 
 	def nextState(self):
 		self.state += 1
