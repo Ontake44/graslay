@@ -431,9 +431,13 @@ def sound(snd):
 		if (n == -1):
 			pyxel.play(0, snd)
 		else:
-			if sound_priority[int(n/10)]<sound_priority[snd]:
-				#pyxel.stop(0)
-				pyxel.play(0, snd)
+			sn = int(n/100)
+			if sn < len(sound_priority):
+				if sound_priority[sn]<sound_priority[snd]:
+					pyxel.stop(0)
+					pyxel.play(0, snd)
+			else:
+				print("Illegal sound number! " + str(sn))
 
 def playBGM():
 	pass

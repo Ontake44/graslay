@@ -1010,6 +1010,7 @@ class MainGame:
 			loadMapAttribute("assets/graslay3.mapatr")
 			pyxel.tilemap(1).refimg = 1
 		elif self.stage == 4:
+			pyxel.load("assets/graslay_dangeon15.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay4.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = 0
@@ -1020,6 +1021,7 @@ class MainGame:
 			loadMapAttribute("assets/graslay4.mapatr")
 			pyxel.tilemap(1).refimg = 1
 		elif self.stage == 5:
+			pyxel.load("assets/graslay_dangeon10.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay_factory.png")
 			pyxel.image(2).load(0,0,"assets/graslay_factory-2.png")
 			self.mapOffsetX = 0
@@ -1377,6 +1379,7 @@ class MainGame:
 	def initEvent4(self):
 		self.eventTable =[ \
 			[100,StartMapDraw4],		\
+			[3900, StartBossBGM],
 			[4030, enemy.Stage4BossAppear1],	\
 			[4120, enemy.Stage4BossAppear2],	\
 		]
