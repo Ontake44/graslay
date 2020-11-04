@@ -1392,7 +1392,7 @@ class MainGame:
 			[4400,SetMapScroll, 0.25, -0.25],	\
 			[5616,SetMapScroll, 0.5, 0.0],	\
 			[6500,StartBossBGM],	\
-		#	[7800,EndMapDraw],		\
+			[7800,EndMapDraw],		\
 		]
 
 	def initStory(self):
