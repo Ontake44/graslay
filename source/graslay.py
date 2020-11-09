@@ -404,8 +404,8 @@ class OptionMenu:
 					gcommon.START_REMAIN = 99
 			elif self.menuPos == OPTIONMENU_START_STAGE:
 				gcommon.START_STAGE += 1
-				if gcommon.START_STAGE > 5:
-					gcommon.START_STAGE = 5
+				if gcommon.START_STAGE > 6:
+					gcommon.START_STAGE = 6
 			elif self.menuPos == OPTIONMENU_SOUND:
 				gcommon.SOUND_ON = not gcommon.SOUND_ON
 		elif gcommon.checkLeftP():
@@ -533,7 +533,11 @@ class MapDraw1:
 		gcommon.map_y += gcommon.cur_scroll_y
 
 	def drawBackground(self):
-		pass
+		if gcommon.map_x < 0:
+			pyxel.bltm(-1 * int(gcommon.map_x/2), 0, 1, 0, 0,33,33, gcommon.TP_COLOR)
+		else:
+			pyxel.bltm(-1 * (int(gcommon.map_x/2) % 8), 0, 1, (int)(gcommon.map_x/16), 0,33,33, gcommon.TP_COLOR)
+
 
 	def draw(self):
 		if gcommon.map_x < 0:
@@ -884,6 +888,74 @@ class MapDrawFactory:
 					pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 
 
+class MapDrawLast:
+	def __init__(self):
+		pass
+	
+	def init(self):
+		gcommon.map_x = -32 * 8
+		gcommon.map_y = 24*8
+
+	def update0(self, skip):
+		pass
+
+	def update(self, skip):
+		if skip == False:
+			# スキップ時はマップデータやオブジェクト追加しない
+			for i in range(0, 128):
+				my = 127 -i
+				mx = gcommon.screenPosToMapPosX(256)
+				n = gcommon.getMapDataByMapPos(mx, my)
+				if n == 394:
+					# 柱
+					size = gcommon.getMapDataByMapPos(mx+1, my) -576
+					obj = enemy.RuinPillar1(mx, my, 1, size)
+					gcommon.ObjMgr.addObj(obj)
+				elif n == 395:
+					# 床
+					size = gcommon.getMapDataByMapPos(mx+1, my) -576
+					obj = enemy.RuinFloor1(mx, my, 1, size)
+					gcommon.ObjMgr.addObj(obj)
+				if n == 396:
+					# 柱
+					size = gcommon.getMapDataByMapPos(mx+1, my) -576
+					obj = enemy.RuinPillar1(mx, my, -1, size)
+					gcommon.ObjMgr.addObj(obj)
+				elif n == 397:
+					# 床
+					size = gcommon.getMapDataByMapPos(mx+1, my) -576
+					obj = enemy.RuinFloor1(mx, my, -1, size)
+					gcommon.ObjMgr.addObj(obj)
+				elif n in (390, 391):
+					# 砲台
+					obj = enemy.Battery2(mx, my, 1)
+					if n == 391:
+						obj.direction = -1
+					gcommon.ObjMgr.addObj(obj)
+		gcommon.map_x += gcommon.cur_scroll_x
+		gcommon.map_y += gcommon.cur_scroll_y
+
+	def drawBackground(self):
+		pass
+
+	def draw(self):
+		# if gcommon.map_x < 0:
+		# 	pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+		# else:
+		# 	pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, (int)(gcommon.map_x/8), (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+		# 上下ループマップなのでややこしい
+		if gcommon.map_x < 0:
+			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, 3)
+		else:
+			tm = int(gcommon.map_x/4096)
+			moffset = (int(gcommon.map_x/2048) & 1) * 128
+			w = int((gcommon.map_x %2048)/8)
+			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, 3)
+			if w >= 224:
+				tm2 = int((gcommon.map_x+256)/4096)
+				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
+				pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, 3)
+
 class StartMapDraw1:
 	def __init__(self, t):
 		#gcommon.drawMap = MapDraw()
@@ -935,9 +1007,16 @@ class StartMapDrawFactory:
 	def do(self):
 		pass
 
+class StartMapDrawLast:
+	def __init__(self, t):
+		gcommon.ObjMgr.setDrawMap(MapDrawLast())
+
+	def do(self):
+		pass
+
 class EndMapDraw:
 	def __init__(self, t):
-		gcommon.drawMap = None
+		gcommon.ObjMgr.removeDrawMap()
 
 	def do(self):
 		pass
@@ -986,7 +1065,9 @@ class MainGame:
 			gcommon.draw_star = True
 			gcommon.eshot_sync_scroll = False
 			loadMapData(0, "assets/graslay1.pyxmap")
+			loadMapData(1, "assets/graslay1b.pyxmap")
 			loadMapAttribute("assets/graslay1.mapatr")
+			pyxel.tilemap(1).refimg = 1
 		elif self.stage == 2:
 			pyxel.load("assets/graslay_dangeon22.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay2.png")
@@ -1031,6 +1112,18 @@ class MainGame:
 			gcommon.eshot_sync_scroll = False
 			loadMapData(0, "assets/graslay_factory.pyxmap")
 			loadMapAttribute("assets/graslay_factory.mapatr")
+			pyxel.tilemap(1).refimg = 1
+		elif self.stage == 6:
+			pyxel.load("assets/graslay_dangeon10.pyxres", False, False, True, True)
+			pyxel.image(1).load(0,0,"assets/graslay_last.png")
+			pyxel.image(2).load(0,0,"assets/graslay_last-2.png")
+			self.mapOffsetX = 0
+			gcommon.sync_map_y = 0
+			gcommon.long_map = True
+			gcommon.draw_star = True
+			gcommon.eshot_sync_scroll = False
+			loadMapData(0, "assets/graslay_last.pyxmap")
+			loadMapAttribute("assets/graslay_last.mapatr")
 			pyxel.tilemap(1).refimg = 1
 		#elif self.stage == 3:
 		#	pyxel.image(1).load(0,0,"assets\gra-den3a.png")
@@ -1207,7 +1300,7 @@ class MainGame:
 		#pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
 		# マップ位置表示
-		#pyxel.text(200, 184, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
+		pyxel.text(200, 184, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
 
 		if self.pause:
 			self.drawPauseMenu()
@@ -1339,6 +1432,8 @@ class MainGame:
 			self.initEvent4()
 		elif self.stage == 5:
 			self.initEventFactory()
+		elif self.stage == 6:
+			self.initEventLast()
 	
 	def initEvent1(self):
 		self.eventTable =[ \
@@ -1350,7 +1445,7 @@ class MainGame:
 			[3860,SetMapScroll, 0.25, 0.25],
 			[4600,SetMapScroll, 0.5, 0.0],
 			[4800, StartBossBGM],
-			[5800,EndMapDraw],		\
+			[6000,EndMapDraw],		\
 		]
 
 	def initEvent2(self):
@@ -1395,6 +1490,11 @@ class MainGame:
 			[7800,EndMapDraw],		\
 		]
 
+	def initEventLast(self):
+		self.eventTable =[ \
+			[100,StartMapDrawLast],		\
+		]
+
 	def initStory(self):
 		if self.stage == 1:
 			self.initStory1()
@@ -1406,6 +1506,8 @@ class MainGame:
 			self.initStory4()
 		elif self.stage == 5:
 			self.initStoryFactory()
+		elif self.stage == 6:
+			self.initStoryLast()
 
 	def initStory1(self):
 		self.story=[ \
@@ -1416,11 +1518,11 @@ class MainGame:
 			[500, enemy.MissileShip, 40, 160],		\
 			[530, enemy.MissileShip, 120, 200],		\
 			[630, enemy.RollingFighter1Group, 42, 15, 4],		\
-			[700, enemy.Battery1, 2, 28, 1],		\
-			[700, enemy.Battery1, 2, 42, 0],		\
+			[700, enemy.Battery1, 2+5, 28, 1],		\
+			[700, enemy.Battery1, 2+5, 42, 0],		\
 			[720, enemy.RollingFighter1Group, 100, 15, 4],		\
-			[730, enemy.Battery1, 8, 41, 0],		\
-			[730, enemy.Battery1, 8, 29, 1],		\
+			[730, enemy.Battery1, 8+6, 41, 0],		\
+			[730, enemy.Battery1, 8+6, 29, 1],		\
 			[800, enemy.RollingFighter1Group, 42, 15, 4],		\
 			[900, enemy.RollingFighter1Group, 100, 15, 4],		\
 			[1100, enemy.Jumper1, 256, 70, 0.1],		\
@@ -1587,6 +1689,12 @@ class MainGame:
 			[4600, enemy.Jumper1, 256, 20, 0.05],		\
 			[4630, enemy.Jumper1, 256, 30, 0.05],		\
 			[6850, boss.BossFactory, 0, 0],		\
+		]
+
+	def initStoryLast(self):
+		self.story=[ \
+			#[260, enemy.Walker1, 256, 82],		\
+			[210, enemy.Spider1, 300, 64.5],		\
 		]
 
 def parseCommandLine():

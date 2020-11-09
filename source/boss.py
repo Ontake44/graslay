@@ -184,6 +184,7 @@ class Boss1(enemy.EnemyBase):
 		self.setState(100)
 		self.shotHitCheck = False
 		self.beamObj.remove()
+		gcommon.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
 		gcommon.score+=self.score
 		self.remove()
@@ -758,6 +759,7 @@ class Boss2(enemy.EnemyBase):
 		for feeler in self.feelers:
 			feeler.remove()
 		self.remove()
+		gcommon.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
 		gcommon.score+=self.score
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
@@ -1107,6 +1109,7 @@ class Boss3(enemy.EnemyBase):
 
 	def broken(self):
 		self.remove()
+		gcommon.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
 		gcommon.score+=self.score
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
@@ -1341,9 +1344,10 @@ class Boss4(enemy.EnemyBase):
 		return ret
 
 	def broken(self):
+		self.remove()
+		gcommon.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
 		gcommon.score += self.score
-		self.remove()
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
 		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,4], 240))
@@ -1794,9 +1798,10 @@ class BossFactory(enemy.EnemyBase):
 		return math.hypot(self.x+39.5-pos[0], self.y+39.5 -pos[1]) <40
 
 	def broken(self):
+		self.remove()
+		gcommon.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
 		gcommon.score += self.score
-		self.remove()
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
 		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,5], 240))

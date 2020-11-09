@@ -234,7 +234,7 @@ def loadSettings():
 		global SOUND_ON
 		if playerStock >= 1 and playerStock <= 99:
 			START_REMAIN = playerStock
-		if startStage >= 1 and startStage <= 5:
+		if startStage >= 1 and startStage <= 6:
 			START_STAGE = startStage
 		if soundFlag == 0:
 			SOUND_ON = False
@@ -490,6 +490,10 @@ class ObjMgr:
 	@classmethod
 	def setDrawMap(cls, obj):
 		cls.nextDrawMap = obj
+
+	@classmethod
+	def removeDrawMap(cls):
+		cls.drawMap = None
 
 	@classmethod
 	def updateDrawMap0(cls, skip):
@@ -773,8 +777,15 @@ def checkCollisionPointAndPolygon(pos, polyPoints):
 	else:
 		return False
 
+# 画面の敵弾を消去する
+def removeEnemyShot():
+	newObjs = []
+	for obj in ObjMgr.objs:
+		if obj.removeFlag == False and obj.layer == C_LAYER_E_SHOT:
+			obj.remove()
+		else:
+			newObjs.append(obj)
+	ObjMgr.objs = newObjs
 
-
-		
 
 

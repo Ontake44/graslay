@@ -1830,3 +1830,278 @@ class LiftAppear1(EnemyBase):
 			gcommon.ObjMgr.addObj(Lift1(self.x, gcommon.SCREEN_MAX_Y+1+16, self.direction))
 			gcommon.ObjMgr.addObj(Battery3(self.x +16, gcommon.SCREEN_MAX_Y+1, self.direction))
 
+# 脚下側左
+waker1LowerLeg1 = [
+	[2,34],[15,3],[5,37]
+]
+
+# 
+waker1LowerLeg2 = [
+	[5,37],[15,3],[24,3],[20,37],[15,39]
+]
+
+waker1LowerLeg3 = [
+	[20,37],[24,3],[26,5],[26,34]
+]
+
+waker1UpperLeg1 = [
+	[0,2],[3,0],[3,28],[0,26]
+]
+waker1UpperLeg2 = [
+	[3,0],[8,0],[8,28],[3,28]
+]
+waker1UpperLeg3 = [
+	[8,0],[11,2],[11,26],[8,28]
+]
+
+# ２円の交点を求める
+def get2CirclesIntersection(pos1, r1, pos2, r2):
+	a = 2 * (pos2[0] - pos1[0])
+	b = 2 * (pos2[1] - pos1[1])
+	c = (pos1[0]+pos2[0])*(pos1[0] -pos2[0])+ (pos1[1]+pos2[1])*(pos1[1]-pos2[1]) + (r2+r1)*(r2-r1)
+	D = abs(a * pos1[0] + b * pos1[1] + c)
+	x1 = (a * D - b * math.sqrt((a*a + b*b) * r1*r1 - D*D))/(a*a + b*b) + pos1[0]
+	y1 = (b * D + a * math.sqrt((a*a + b*b) * r1*r1 - D*D))/(a*a + b*b) + pos1[1]
+	x2 = (a * D + b * math.sqrt((a*a + b*b) * r1*r1 - D*D))/(a*a + b*b) + pos1[0]
+	y2 = (b * D - a * math.sqrt((a*a + b*b) * r1*r1 - D*D))/(a*a + b*b) + pos1[1]
+	return [[x1, y1], [x2, y2]]
+
+
+class Walker1(EnemyBase):
+	A_length = 24  # Pを中心とする円の半径
+	B_length = 34  # Rを中心とする円の半径
+	C_length = 15
+	def __init__(self, t):
+		super(Walker1, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.left = 4
+		self.top = 4
+		self.right = 19
+		self.bottom = 19
+		self.hp = 500
+		self.layer = gcommon.C_LAYER_GRD
+		self.score = 200
+		self.gy = 50
+
+		self.mode = 1
+		
+		self.PPoint = [0, 0]
+
+		self.RStart = [-19, self.gy]
+		self.REnd = [14, self.gy]
+
+		self.QStart = []
+		self.QEnd = []
+
+		self.SPoint = [(self.REnd[0]+self.RStart[0])/2.0, self.RStart[1]+15]
+		self.SRadius = 0
+
+		self.counter = 0
+		self.stepCount = 35
+		
+		self.RArray = []
+		self.colorTable = [[12,5,1],[6,12,5]]
+
+		# R中心の円と、P中心の円から、Q点を求める
+		tt = get2CirclesIntersection(self.RStart, Walker1.B_length, self.PPoint, Walker1.A_length)
+		self.QStart = tt[0]
+		tt = get2CirclesIntersection(self.REnd, Walker1.B_length, self.PPoint, Walker1.A_length)
+		self.QEnd = tt[0]
+		
+		self.SRadius = math.sqrt( math.pow(self.RStart[0] - self.SPoint[0], 2) + math.pow(self.RStart[1] - self.SPoint[1], 2))
+
+		self.atanStart = math.atan2((self.RStart[1] - self.SPoint[1]), (self.RStart[0] - self.SPoint[0]))
+		self.atanEnd = math.atan2((self.REnd[1] - self.SPoint[1]), (self.REnd[0] - self.SPoint[0]))
+
+		for i in range(self.stepCount):
+			rad2 = self.atanStart + (self.atanEnd - self.atanStart) * i /self.stepCount
+			R2 = [self.SPoint[0] + math.cos(rad2) * self.SRadius, self.SPoint[1] + math.sin(rad2) * self.SRadius]
+			
+			self.RArray.append(R2)
+		
+		for i in range(self.stepCount):
+			R2 = [self.RStart[0] + (self.REnd[0]-self.RStart[0]) * (self.stepCount -i)/self.stepCount,
+				self.RStart[1] + (self.REnd[1]-self.RStart[1]) * (self.stepCount -i)/self.stepCount]
+			self.RArray.append(R2)
+
+	def update(self):
+		if self.state == 0:
+			if self.x < 150:
+				self.nextState()
+		elif self.state == 1:
+			self.x += 1
+			self.counter += 1
+			if self.counter == len(self.RArray)/2:
+				self.nextState()
+		elif self.state == 2:
+			if self.x < 150:
+				self.nextState()
+		elif self.state == 3:
+			self.x += 1
+			self.counter += 1
+			if self.counter == len(self.RArray):
+				self.counter = 0
+				self.setState(0)
+
+	def draw(self):
+		ox = 44
+		oy = 36
+		for i in range(2):
+			if i == 1:
+				pyxel.blt(self.x, self.y, 2, 0, 0, 72, 48, gcommon.TP_COLOR)
+
+			R2 = self.RArray[(self.counter + self.stepCount * i) % (self.stepCount*2)]
+			pyxel.blt(self.x +18 +R2[0], self.y +28 +R2[1], 2, 0, 56, 48, 16, gcommon.TP_COLOR)
+			
+			tt = get2CirclesIntersection(R2, Walker1.B_length, self.PPoint, Walker1.A_length)
+			Q2 = tt[0]
+
+			polygonList = []
+			polygonList.append(gcommon.Polygon(waker1UpperLeg1, self.colorTable[1][0]))
+			polygonList.append(gcommon.Polygon(waker1UpperLeg2, self.colorTable[1][1]))
+			polygonList.append(gcommon.Polygon(waker1UpperLeg3, self.colorTable[1][2]))
+			rad = math.atan2(Q2[1] -self.PPoint[1], Q2[0] -self.PPoint[0])
+			gcommon.drawPolygons(gcommon.getAnglePolygons([self.x +ox +self.PPoint[0], self.y +oy +self.PPoint[1]], polygonList, [6.5,3], rad - math.pi/2))
+
+			polygonList = []
+			polygonList.append(gcommon.Polygon(waker1LowerLeg1, self.colorTable[1][0]))
+			polygonList.append(gcommon.Polygon(waker1LowerLeg2, self.colorTable[1][1]))
+			polygonList.append(gcommon.Polygon(waker1LowerLeg3, self.colorTable[1][2]))
+			rad = math.atan2(R2[1]- Q2[1], R2[0]-Q2[0])
+			gcommon.drawPolygons(gcommon.getAnglePolygons([self.x +ox +Q2[0], self.y +oy +Q2[1]], polygonList, [20,6], rad - math.pi/2 - math.pi/32))
+
+			pyxel.blt(self.x, self.y, 2, 0, 0, 58, 39, gcommon.TP_COLOR)
+			if i == 1:
+				pyxel.blt(self.x +ox -16 +Q2[0], self.y +oy -12 +Q2[1], 2, 48, 48, 24, 24, gcommon.TP_COLOR)
+
+spider1Leg1a = [
+	[0,0],[11,0],[11,25],[0,25]
+]
+spider1Leg1b = [
+	[2,0],[9,0],[9,25],[2,25]
+]
+spider1Leg1c = [
+	[4,0],[7,0],[7,25],[4,25]
+]
+
+spider1Leg2a = [
+	[0,0],[9,0],[9,25],[0,25]
+]
+spider1Leg2b = [
+	[2,0],[7,0],[7,25],[2,25]
+]
+spider1Leg2c = [
+	[4,0],[5,0],[5,25],[4,25]
+]
+
+spider1Leg3a = [
+	[0,0],[5,0],[5,25],[0,25]
+]
+spider1Leg3b = [
+	[1,0],[4,0],[4,25],[1,25]
+]
+spider1Leg3c = [
+	[2,0],[3,0],[3,25],[2,25]
+]
+
+class Spider1(EnemyBase):
+	def __init__(self, t):
+		super(Spider1, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.left = 4
+		self.top = 4
+		self.right = 19
+		self.bottom = 19
+		self.hp = 500
+		self.layer = gcommon.C_LAYER_GRD
+		self.score = 200
+		self.legPos = 0
+		self.legMax = 40
+		self.legAngle = 18
+		self.rad1 = 0
+		self.legHeight = 48.5
+		self.moveState = 0
+
+	def update(self):
+		self.rad1 = self.legPos * math.pi * 2  * self.legAngle * 2/360 /self.legMax
+		if self.state == 0:
+			if self.x < 120:
+				self.nextState()
+		elif self.state == 1:
+			self.x += 1
+			self.moveState = 0
+			self.legPos += 1
+			if self.legPos == self.legMax:
+				self.nextState()
+				self.moveState = 1
+		elif self.state == 2:
+			if self.x < 120:
+				self.nextState()
+		else:
+			self.x += 1
+			self.legPos -= 1
+			if self.legPos == 0:
+				self.setState(0)
+				self.moveState = 0
+
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, 2, 72, 64, 64, 64, gcommon.TP_COLOR)
+		# 1
+		self.drawLeg(self.x +8, self.y+8, math.pi * 2 * (90+15 + self.legAngle/2 + self.legAngle)/360, -1, 0, -1)
+		# 2
+		self.drawLeg(self.x +55, self.y+8, math.pi * 2 * (90-15 -self.legAngle/2 - self.legAngle)/360, 1, 1, -1)
+		# 3
+		self.drawLeg(self.x +8, self.y+55, math.pi * 2 * (-90-15 -self.legAngle/2 + self.legAngle)/360, -1, 1, 1)
+		# 4
+		self.drawLeg(self.x +55, self.y+55, math.pi * 2 * (-90+15+ self.legAngle/2 - self.legAngle)/360, 1, 0, 1)
+		# x1 = self.x + 8
+		# y1 = self.y + 8
+		# x2 = x1 + math.cos(math.pi * 2 * (90 + self.legAngle)/360  - self.rad1) * self.legLength
+		# y2 = y1 - math.sin(math.pi * 2 * (90 + self.legAngle)/360  - self.rad1) * self.legLength
+		# pyxel.line(x1, y1, x2, y2, 7)
+		# x1 = self.x + 55
+		# y1 = self.y + 55
+		# x2 = x1 + math.cos(-math.pi * 2 * (90 + self.legAngle)/360 + self.rad1) * self.legLength
+		# y2 = y1 - math.sin(-math.pi * 2 * (90 + self.legAngle)/360 + self.rad1) * self.legLength
+		# pyxel.line(x1, y1, x2, y2, 7)
+
+	def drawLeg(self, x, y, angleOffset, signFlag, shrinkState, isLower):
+		x1 = x
+		y1 = y
+		rad = angleOffset  + signFlag * self.rad1
+		# Y方向の長さから、斜辺の長さを得る
+		length = abs(self.legHeight / math.sin(rad))
+		if shrinkState == self.moveState:
+			# 脚が上がっているので縮む
+			length = length -  math.sin(self.legPos * math.pi/ self.legMax) * length * 0.3
+		# x2,y2は先端の座標
+		x2 = x1 + math.cos(rad) * length
+		y2 = y1 - math.sin(rad) * length
+		#pyxel.line(x1, y1, x2, y2, 7)
+		px = x1 + math.cos(rad) * (length -25)
+		py = y1 - math.sin(rad) * (length -25)
+		polygonList = []
+		polygonList.append(gcommon.Polygon(spider1Leg3a, 5))
+		polygonList.append(gcommon.Polygon(spider1Leg3b, 13))
+		polygonList.append(gcommon.Polygon(spider1Leg3c, 7))
+		gcommon.drawPolygons(gcommon.getAnglePolygons([px, py], polygonList, [2.5,0], -rad - math.pi/2))
+		px = x1 + math.cos(rad) * (length -25)/2
+		py = y1 - math.sin(rad) * (length -25)/2
+		polygonList = []
+		polygonList.append(gcommon.Polygon(spider1Leg2a, 5))
+		polygonList.append(gcommon.Polygon(spider1Leg2b, 13))
+		polygonList.append(gcommon.Polygon(spider1Leg2c, 7))
+		gcommon.drawPolygons(gcommon.getAnglePolygons([px, py], polygonList, [4.5,0], -rad - math.pi/2))
+		polygonList = []
+		polygonList.append(gcommon.Polygon(spider1Leg1a, 4))
+		polygonList.append(gcommon.Polygon(spider1Leg1b, 9))
+		polygonList.append(gcommon.Polygon(spider1Leg1c, 10))
+		gcommon.drawPolygons(gcommon.getAnglePolygons([x1, y1], polygonList, [5.5,0], -rad - math.pi/2))
+		# 付け根の丸いやつ
+		pyxel.blt(x -7.5, y -7.5, 2, 96, 128, 16, 16, gcommon.TP_COLOR)
+		# かかとを描く
+		pyxel.blt(x2 - 11.5, y2 -8, 2, 72, 128, 24, 16 * isLower, gcommon.TP_COLOR)
+
