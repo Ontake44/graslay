@@ -582,18 +582,21 @@ class MapDraw3:
 	def init(self):
 		gcommon.map_x = -32 * 8
 		gcommon.map_y = 24*8
+		gcommon.back_map_x = -32 * 8/4
+		gcommon.back_map_y = 0
 		gcommon.cur_scroll_x = 2.0
 		gcommon.cur_scroll_y = 0.0
 	
 	def update0(self, skip):
-		if gcommon.game_timer == 3550:
+		if gcommon.game_timer == 3550+128:
 			gcommon.sync_map_y = 0
 			gcommon.cur_map_dy = 0
 
 	def update(self, skip):
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
-		if gcommon.game_timer > 3550:
+		gcommon.back_map_x += gcommon.cur_scroll_x/4
+		if gcommon.game_timer > 3550+128:
 			if gcommon.map_y > 336:
 				gcommon.map_y -= 0.50
 				if gcommon.map_y < 336:
@@ -651,7 +654,13 @@ class MapDraw3:
 				gcommon.map_y = gcommon.map_y - 128 * 8
 
 	def drawBackground(self):
-		pass
+		if gcommon.back_map_x < 0:
+			pyxel.bltm(-1 * int(gcommon.back_map_x), 0, 2, 0, 103,33,33, gcommon.TP_COLOR)
+		else:
+			mx = (int)(gcommon.back_map_x/8)
+			if mx >= 183:
+				mx = 183 + ((mx - 183)%21)
+			pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 2, mx, 103,33,33, gcommon.TP_COLOR)
 
 	def draw(self):
 		# 上下ループマップなのでややこしい
@@ -1088,8 +1097,10 @@ class MainGame:
 			gcommon.eshot_sync_scroll = True
 			loadMapData(0, "assets/graslay3-0.pyxmap")
 			loadMapData(1, "assets/graslay3-1.pyxmap")
+			loadMapData(2, "assets/graslay3b.pyxmap")
 			loadMapAttribute("assets/graslay3.mapatr")
 			pyxel.tilemap(1).refimg = 1
+			pyxel.tilemap(2).refimg = 1
 		elif self.stage == 4:
 			pyxel.load("assets/graslay_dangeon15.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay4.png")
@@ -1468,7 +1479,7 @@ class MainGame:
 	def initEvent3(self):
 		self.eventTable =[ \
 			[100,StartMapDraw3],		\
-			[3500,StartBossBGM],
+			[3500+128,StartBossBGM],
 		]
 
 	def initEvent4(self):
@@ -1664,7 +1675,7 @@ class MainGame:
 
 	def initStory3(self):
 		self.story=[ \
-			[3730, boss.Boss3],		\
+			[3730+128, boss.Boss3],		\
 		]
 
 	def initStory4(self):

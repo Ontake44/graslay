@@ -150,6 +150,9 @@ cur_map_dy = 0.0
 map_x = 0.0
 map_y = 0.0
 
+back_map_x = 0.0
+back_map_y = 0.0
+
 sync_map_y = 0
 
 eshot_sync_scroll = False

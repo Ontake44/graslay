@@ -463,7 +463,7 @@ class Feeler(enemy.EnemyBase):
 		if shot.removeFlag:
 			return False
 		hit = False
-		if len(self.cells)> 0:
+		if self.state != 0 and len(self.cells)> 0:
 			# 触手部の当たり判定（先端のみ）
 			pos = self.cells[len(self.cells) -1]
 			x = self.x +pos[0]
@@ -1046,7 +1046,7 @@ class Boss3(enemy.EnemyBase):
 			self.setBodyAnchorPos()
 
 		# マップループ
-		if gcommon.map_x >= 6800:
+		if gcommon.map_x >= 6800 + 256:
 			gcommon.map_x -= 8*4
 
 	def draw(self):
