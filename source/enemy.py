@@ -1836,12 +1836,18 @@ waker1LowerLeg1 = [
 ]
 
 # 
+# waker1LowerLeg2 = [
+# 	[5,37],[15,3],[24,3],[20,37],[15,39]
+# ]
 waker1LowerLeg2 = [
-	[5,37],[15,3],[24,3],[20,37],[15,39]
+	[5,37],[15,3],[20,3],[12,39]
 ]
 
+# waker1LowerLeg3 = [
+# 	[20,37],[24,3],[26,5],[26,34]
+# ]
 waker1LowerLeg3 = [
-	[20,37],[24,3],[26,5],[26,34]
+	[12,39],[20,3],[22,5],[16,37]
 ]
 
 waker1UpperLeg1 = [
@@ -1867,6 +1873,68 @@ def get2CirclesIntersection(pos1, r1, pos2, r2):
 	return [[x1, y1], [x2, y2]]
 
 
+class HomingMissile1(EnemyBase):
+	directionTable = [
+		[0, 1, 1],	# 0
+		[1, 1, 1],	# 1
+		[2, 1, 1],	# 2
+		[3, 1, 1],	# 3
+		[4, 1, 1],	# 4
+		[3, -1, 1],	# 5
+		[2, -1, 1],	# 6
+		[1, -1, 1],	# 7
+		[0, -1, 1],	# 8
+		[1, -1, -1],	# 9
+		[2, -1, -1],	# 10
+		[3, -1, -1],	# 11
+		[4, -1, -1],	# 12
+		[3, 1, -1],		# 13
+		[2, 1, -1],		# 14
+		[1, 1, -1]		# 15
+	]
+	def __init__(self, x, y):
+		super(HomingMissile1, self).__init__()
+		self.x = x
+		self.y = y
+		self.left = -4
+		self.top = -4
+		self.right = 4
+		self.bottom = 4
+		self.hp = 10
+		self.dr = 32
+		self.layer = gcommon.C_LAYER_SKY
+		self.score = 100
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+	
+	def update(self):
+		if self.x < -16 or self.x > gcommon.SCREEN_MAX_X or self.y <-16 or self.y > gcommon.SCREEN_MAX_Y:
+			self.remove()
+			return
+		if self.cnt < 120 and self.cnt & 1 == 0:
+			tempDr = gcommon.get_atan_no_to_ship(self.x, self.y)
+			self.dr = (self.dr + gcommon.get_leftOrRight(self.dr, tempDr)) & 63
+		self.x += math.cos(gcommon.atan_table[self.dr & 63]) * 2
+		self.y += math.sin(gcommon.atan_table[self.dr & 63]) * 2
+		
+				
+	def draw(self):
+		d = ((self.dr + 2) & 63)>>2
+		fx = math.cos(gcommon.atan_table[d<<2]) * 8
+		fy = math.sin(gcommon.atan_table[d<<2]) * 8
+		if self.cnt & 2 == 0:
+			if self.cnt & 1 == 0:
+				pyxel.blt(self.x -7.5 -fx, self.y -7.5 -fy, 2, 80, 176, 16, 16, gcommon.TP_COLOR)
+			else:
+				pyxel.blt(self.x -7.5 -fx, self.y -7.5 -fy, 2, 96, 176, 16, 16, gcommon.TP_COLOR)
+		t = HomingMissile1.directionTable[d]
+		pyxel.blt(self.x -7.5, self.y -7.5, 2, t[0] * 16, 176, 16 * t[1], 16 * -t[2], gcommon.TP_COLOR)
+
+
+#    P
+#      Q
+#   R
 class Walker1(EnemyBase):
 	A_length = 24  # Pを中心とする円の半径
 	B_length = 34  # Rを中心とする円の半径
@@ -1874,21 +1942,22 @@ class Walker1(EnemyBase):
 	def __init__(self, t):
 		super(Walker1, self).__init__()
 		self.x = t[2]
-		self.y = t[3]
-		self.left = 4
-		self.top = 4
-		self.right = 19
-		self.bottom = 19
-		self.hp = 500
+		self.y = gcommon.mapYToScreenY(t[3])
+		self.left = 16
+		self.top = 24
+		self.right = 55
+		self.bottom = 47
+		self.hp = 20000
 		self.layer = gcommon.C_LAYER_GRD
 		self.score = 200
+		self.exptype = gcommon.C_EXPTYPE_GRD_M
 		self.gy = 50
 
-		self.mode = 1
-		
+			
 		self.PPoint = [0, 0]
 
-		self.RStart = [-19, self.gy]
+		#self.RStart = [-19, self.gy]
+		self.RStart = [-12, self.gy]
 		self.REnd = [14, self.gy]
 
 		self.QStart = []
@@ -1899,6 +1968,8 @@ class Walker1(EnemyBase):
 
 		self.counter = 0
 		self.stepCount = 35
+		self.stateCycle = 0
+		self.mode = 0
 		
 		self.RArray = []
 		self.colorTable = [[12,5,1],[6,12,5]]
@@ -1926,33 +1997,51 @@ class Walker1(EnemyBase):
 			self.RArray.append(R2)
 
 	def update(self):
-		if self.state == 0:
-			if self.x < 150:
-				self.nextState()
-		elif self.state == 1:
+		if self.x < -60:
+			self.remove()
+			return
+		if self.mode == 0:
+			if (self.stateCycle % 3 == 0 and self.x < 150) or (self.stateCycle % 3 != 0 and self.x < 100):
+				mx = gcommon.screenPosToMapPosX(self.x)
+				if mx > 44:
+					self.setMode(4)
+				else:
+					self.nextMode()
+		elif self.mode == 1:
 			self.x += 1
 			self.counter += 1
 			if self.counter == len(self.RArray)/2:
-				self.nextState()
-		elif self.state == 2:
-			if self.x < 150:
-				self.nextState()
-		elif self.state == 3:
+				self.nextMode()
+		elif self.mode == 2:
+			if (self.stateCycle % 3 == 0 and self.x < 150) or (self.stateCycle % 3 != 0 and self.x < 100):
+				self.nextMode()
+		elif self.mode == 3:
 			self.x += 1
 			self.counter += 1
 			if self.counter == len(self.RArray):
 				self.counter = 0
-				self.setState(0)
+				self.stateCycle += 1
+				self.setMode(0)
+		if self.cnt > 120 and self.cnt & 31 ==0:
+			gcommon.ObjMgr.addObj(HomingMissile1(self.x + 20, self.y +10))
+			enemy_shot(self.x +35, self.y +31, 2, 0)
+
+	def nextMode(self):
+		self.mode = self.mode + 1
+
+	def setMode(self, mode):
+		self.mode = mode
 
 	def draw(self):
-		ox = 44
+		ox = 44 -8
 		oy = 36
 		for i in range(2):
 			if i == 1:
-				pyxel.blt(self.x, self.y, 2, 0, 0, 72, 48, gcommon.TP_COLOR)
+				pyxel.blt(self.x, self.y, 2, 0, 0, 58, 48, gcommon.TP_COLOR)
 
 			R2 = self.RArray[(self.counter + self.stepCount * i) % (self.stepCount*2)]
-			pyxel.blt(self.x +18 +R2[0], self.y +28 +R2[1], 2, 0, 56, 48, 16, gcommon.TP_COLOR)
+			# 足首
+			pyxel.blt(self.x +8 +R2[0], self.y +28 +R2[1], 2, 0, 56, 48, 16, gcommon.TP_COLOR)
 			
 			tt = get2CirclesIntersection(R2, Walker1.B_length, self.PPoint, Walker1.A_length)
 			Q2 = tt[0]
@@ -2107,4 +2196,48 @@ class Spider1(EnemyBase):
 		pyxel.blt(x -7.5, y -7.5, 2, 96, 128, 16, 16, gcommon.TP_COLOR)
 		# かかとを描く
 		pyxel.blt(x2 - 11.5, y2 -8, 2, 72, 128, 24, 16 * isLower, gcommon.TP_COLOR)
+
+class Shutter2(EnemyBase):
+	poly1 = [
+		[2, 32], [5,0], [10,0], [13,32]
+	]
+	poly2 = [
+		[2, 32], [5,0], [4,32]
+	]
+	poly3 = [
+		[11, 32], [10,0], [13,32]
+	]
+	def __init__(self, x, y, isUpper, waitTime):
+		super(Shutter2, self).__init__()
+		self.x = x
+		self.y = y
+		self.left = -4
+		self.top = -4
+		self.right = 4
+		self.bottom = 4
+		self.hp = 10
+		self.rad1 = 0
+		self.isUpper = isUpper
+		self.waitTime = waitTime
+		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+		self.polygonList1 = []
+		self.polygonList1.append(gcommon.Polygon(Shutter2.poly1, 13))
+		self.polygonList1.append(gcommon.Polygon(Shutter2.poly2, 6))
+		self.polygonList1.append(gcommon.Polygon(Shutter2.poly3, 5))
+
+	def update(self):
+		if self.cnt > self.waitTime and self.rad1 < math.pi:
+			self.rad1 += math.pi * 2/360
+			if self.rad1 > math.pi:
+				self.rad1 = math.pi
+		
+	def draw(self):
+		if self.isUpper:
+			gcommon.drawPolygons(gcommon.getAnglePolygons2([self.x, self.y], self.polygonList1, [7.5,28], -self.rad1 +math.pi, 1, -1))
+		else:
+			gcommon.drawPolygons(gcommon.getAnglePolygons2([self.x, self.y], self.polygonList1, [7.5,28], self.rad1 -math.pi, 1, 1))
+
 

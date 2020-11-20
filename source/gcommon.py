@@ -673,6 +673,9 @@ def mapPosToScreenPos(mx, my):
 	else:
 		return [mx * 8 - int(map_x), my * 8 - map_y]
 
+def mapYToScreenY(y):
+	return y - map_y
+
 def showText(x, y, s):
 	for c in s:
 		code = ord(c)
@@ -759,6 +762,19 @@ def getAnglePolygons(destPos, polygons, offsetPos, rad):
 		xpolygons.append(xpoly)
 	return Polygons(xpolygons)
 
+def getAnglePolygons2(destPos, polygons, offsetPos, rad, dx, dy):
+	xpolygons = []
+	c = math.cos(rad)
+	s = math.sin(rad)
+	for poly in polygons:
+		xpoints = []
+		for p in poly.points:
+			x = destPos[0] + (p[0]- offsetPos[0]) * c * dx- (p[1] -offsetPos[1]) * s * dy
+			y = destPos[1] + ((p[0] -offsetPos[0]) * s * dx+ (p[1] -offsetPos[1]) * c * dy)
+			xpoints.append([x,y])
+		xpoly = Polygon(xpoints, poly.clr)
+		xpolygons.append(xpoly)
+	return Polygons(xpolygons)
 
 def checkCollisionPointAndPolygonSub(pos, poly1, poly2):
 	if ((poly1[1] <= pos[1]) and (poly2[1] > pos[1])) or	\

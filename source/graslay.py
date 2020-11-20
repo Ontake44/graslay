@@ -566,10 +566,8 @@ class MapDraw2:
 		pyxel.bltm(dx, 0, 0, sx, 128, 33,33, gcommon.TP_COLOR)
 
 	def draw(self):
-		dx = -1.0 * (int(gcommon.map_x/2) % 8)
-		dy = -1.0 * (int(gcommon.map_y/2) % 8)
-		#sx = (int(gcommon.map_x/16)%3)
-		#sy = 128 +(int(gcommon.map_y/16)%3)
+		if gcommon.game_timer > 7400:
+			return
 		if gcommon.map_x < 0:
 			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 		else:
@@ -702,6 +700,8 @@ class MapDraw4:
 	def init(self):
 		gcommon.map_x = -32 * 8
 		gcommon.map_y = 24*8
+		gcommon.back_map_x = -32 * 8/2
+		gcommon.back_map_y = 0
 
 	def update0(self, skip):
 		pass
@@ -741,9 +741,14 @@ class MapDraw4:
 					gcommon.ObjMgr.addObj(obj)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
+		gcommon.back_map_x += gcommon.cur_scroll_x/2
 
 	def drawBackground(self):
-		pass
+		if gcommon.back_map_x < 0:
+			pyxel.bltm(-1 * int(gcommon.back_map_x), 0, 1, 0, 24,33,33, gcommon.TP_COLOR)
+		else:
+			mx = (int)(gcommon.back_map_x/8)
+			pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, gcommon.TP_COLOR)
 
 	def draw(self):
 		# if gcommon.map_x < 0:
@@ -915,34 +920,24 @@ class MapDrawLast:
 				my = 127 -i
 				mx = gcommon.screenPosToMapPosX(256)
 				n = gcommon.getMapDataByMapPos(mx, my)
-				if n == 394:
-					# 柱
-					size = gcommon.getMapDataByMapPos(mx+1, my) -576
-					obj = enemy.RuinPillar1(mx, my, 1, size)
+				if n == 392:
+					# シャッター
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					pos = gcommon.mapPosToScreenPos(mx, my)
+					obj = enemy.Shutter2(pos[0] +8, pos[1] +28, False, 90)
 					gcommon.ObjMgr.addObj(obj)
-				elif n == 395:
-					# 床
-					size = gcommon.getMapDataByMapPos(mx+1, my) -576
-					obj = enemy.RuinFloor1(mx, my, 1, size)
-					gcommon.ObjMgr.addObj(obj)
-				if n == 396:
-					# 柱
-					size = gcommon.getMapDataByMapPos(mx+1, my) -576
-					obj = enemy.RuinPillar1(mx, my, -1, size)
-					gcommon.ObjMgr.addObj(obj)
-				elif n == 397:
-					# 床
-					size = gcommon.getMapDataByMapPos(mx+1, my) -576
-					obj = enemy.RuinFloor1(mx, my, -1, size)
+					obj = enemy.Shutter2(pos[0] +8, pos[1] -30, True, 180)
 					gcommon.ObjMgr.addObj(obj)
 				elif n in (390, 391):
 					# 砲台
+					gcommon.setMapDataByMapPos(mx, my, 0)
 					obj = enemy.Battery2(mx, my, 1)
 					if n == 391:
 						obj.direction = -1
 					gcommon.ObjMgr.addObj(obj)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
+		gcommon.map_y += gcommon.cur_map_dy
 
 	def drawBackground(self):
 		pass
@@ -1110,6 +1105,7 @@ class MainGame:
 			gcommon.draw_star = True
 			gcommon.eshot_sync_scroll = False
 			loadMapData(0, "assets/graslay4.pyxmap")
+			loadMapData(1, "assets/graslay4b.pyxmap")
 			loadMapAttribute("assets/graslay4.mapatr")
 			pyxel.tilemap(1).refimg = 1
 		elif self.stage == 5:
@@ -1311,7 +1307,7 @@ class MainGame:
 		#pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
 		# マップ位置表示
-		pyxel.text(200, 184, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
+		#pyxel.text(200, 184, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
 
 		if self.pause:
 			self.drawPauseMenu()
@@ -1488,6 +1484,7 @@ class MainGame:
 			[3900, StartBossBGM],
 			[4030, enemy.Stage4BossAppear1],	\
 			[4120, enemy.Stage4BossAppear2],	\
+			[5100,EndMapDraw],		\
 		]
 
 	def initEventFactory(self):
@@ -1704,8 +1701,8 @@ class MainGame:
 
 	def initStoryLast(self):
 		self.story=[ \
-			#[260, enemy.Walker1, 256, 82],		\
-			[210, enemy.Spider1, 300, 64.5],		\
+			[260, enemy.Walker1, 256, 266],		\
+			#[210, enemy.Spider1, 300, 64.5],		\
 		]
 
 def parseCommandLine():
