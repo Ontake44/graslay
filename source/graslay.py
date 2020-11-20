@@ -1702,7 +1702,7 @@ class MainGame:
 	def initStoryLast(self):
 		self.story=[ \
 			[260, enemy.Walker1, 256, 266],		\
-			#[210, enemy.Spider1, 300, 64.5],		\
+			[3000, enemy.Spider1, 300, 64.5],		\
 		]
 
 def parseCommandLine():

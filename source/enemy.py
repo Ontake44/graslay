@@ -2110,14 +2110,14 @@ class Spider1(EnemyBase):
 		self.layer = gcommon.C_LAYER_GRD
 		self.score = 200
 		self.legPos = 0
-		self.legMax = 40
-		self.legAngle = 18
+		self.legMax = 36
+		self.legAngle = 35		# 18
 		self.rad1 = 0
 		self.legHeight = 48.5
 		self.moveState = 0
 
 	def update(self):
-		self.rad1 = self.legPos * math.pi * 2  * self.legAngle * 2/360 /self.legMax
+		self.rad1 = self.legPos * math.pi * 2  * self.legAngle /360 /self.legMax
 		if self.state == 0:
 			if self.x < 120:
 				self.nextState()
@@ -2138,17 +2138,23 @@ class Spider1(EnemyBase):
 				self.setState(0)
 				self.moveState = 0
 
-
+	# 1  2  3
+	# 4  5  6
 	def draw(self):
-		pyxel.blt(self.x, self.y, 2, 72, 64, 64, 64, gcommon.TP_COLOR)
+		pyxel.blt(self.x, self.y, 2, 72, 0, 112, 64, gcommon.TP_COLOR)
 		# 1
-		self.drawLeg(self.x +8, self.y+8, math.pi * 2 * (90+15 + self.legAngle/2 + self.legAngle)/360, -1, 0, -1)
+		self.drawLeg(self.x +7.5, self.y+8, math.pi * 2 * (90 + self.legAngle/2 +20)/360, -1, 0, -1)
 		# 2
-		self.drawLeg(self.x +55, self.y+8, math.pi * 2 * (90-15 -self.legAngle/2 - self.legAngle)/360, 1, 1, -1)
+		self.drawLeg(self.x +54, self.y+8, math.pi * 2 * (90 -self.legAngle/2)/360, 1, 1, -1)
 		# 3
-		self.drawLeg(self.x +8, self.y+55, math.pi * 2 * (-90-15 -self.legAngle/2 + self.legAngle)/360, -1, 1, 1)
+		self.drawLeg(self.x +103.5, self.y+8, math.pi * 2 * (90 + self.legAngle/2 -20)/360, -1, 0, -1)
+
 		# 4
-		self.drawLeg(self.x +55, self.y+55, math.pi * 2 * (-90+15+ self.legAngle/2 - self.legAngle)/360, 1, 0, 1)
+		self.drawLeg(self.x +7.5, self.y+55, math.pi * 2 * (-90 +self.legAngle/2 -20)/360, -1, 1, 1)
+		# 5
+		self.drawLeg(self.x +54, self.y+55, math.pi * 2 * (-90 -self.legAngle/2)/360, 1, 0, 1)
+		# 6
+		self.drawLeg(self.x +103.5, self.y+55, math.pi * 2 * (-90 +self.legAngle/2 +20)/360, -1, 1, 1)
 		# x1 = self.x + 8
 		# y1 = self.y + 8
 		# x2 = x1 + math.cos(math.pi * 2 * (90 + self.legAngle)/360  - self.rad1) * self.legLength
