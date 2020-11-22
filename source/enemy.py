@@ -1947,7 +1947,7 @@ class Walker1(EnemyBase):
 		self.top = 24
 		self.right = 55
 		self.bottom = 47
-		self.hp = 20000
+		self.hp = 500
 		self.layer = gcommon.C_LAYER_GRD
 		self.score = 200
 		self.exptype = gcommon.C_EXPTYPE_GRD_M
@@ -2115,27 +2115,43 @@ class Spider1(EnemyBase):
 		self.rad1 = 0
 		self.legHeight = 48.5
 		self.moveState = 0
+		self.state = 2
 
 	def update(self):
 		self.rad1 = self.legPos * math.pi * 2  * self.legAngle /360 /self.legMax
 		if self.state == 0:
-			if self.x < 120:
+			if self.x < 90:
 				self.nextState()
 		elif self.state == 1:
-			self.x += 1
-			self.moveState = 0
-			self.legPos += 1
-			if self.legPos == self.legMax:
+			self.walkForward()
+			if self.x >= 180:
 				self.nextState()
-				self.moveState = 1
 		elif self.state == 2:
-			if self.x < 120:
-				self.nextState()
+			self.walkBackward()
+			if self.x < 30:
+				self.setState(1)
+
+	# 左に歩く
+	def walkForward(self):
+		self.x += 1
+		if self.moveState == 0:
+			self.legPos += 1
+			if self.legPos >= self.legMax:
+				self.moveState = 1
 		else:
-			self.x += 1
 			self.legPos -= 1
-			if self.legPos == 0:
-				self.setState(0)
+			if self.legPos <= 0:
+				self.moveState = 0
+	# 右に歩く
+	def walkBackward(self):
+		self.x -= 1
+		if self.moveState == 0:
+			self.legPos -= 1
+			if self.legPos <= 0:
+				self.moveState = 1
+		else:
+			self.legPos += 1
+			if self.legPos >= self.legMax:
 				self.moveState = 0
 
 	# 1  2  3
@@ -2221,13 +2237,12 @@ class Shutter2(EnemyBase):
 		self.top = -4
 		self.right = 4
 		self.bottom = 4
-		self.hp = 10
 		self.rad1 = 0
 		self.isUpper = isUpper
 		self.waitTime = waitTime
 		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.hitCheck = True
-		self.shotHitCheck = True
+		self.shotHitCheck = False
 		self.enemyShotCollision = False
 		self.polygonList1 = []
 		self.polygonList1.append(gcommon.Polygon(Shutter2.poly1, 13))
@@ -2246,4 +2261,100 @@ class Shutter2(EnemyBase):
 		else:
 			gcommon.drawPolygons(gcommon.getAnglePolygons2([self.x, self.y], self.polygonList1, [7.5,28], self.rad1 -math.pi, 1, 1))
 
+def drawTank1(x, y, mirror):
+	dr8 = 0
+	dr8 = gcommon.get_direction_my(x+8, y +8)
+	sx = 0
+	sy = 224
+	width = 24
+	height = 24
+	y = int(y)
+	if mirror == 0:
+		if dr8  in (0, 1):
+			pyxel.blt(x, y, 1, sx, sy, -width, height, gcommon.TP_COLOR)
+		elif dr8 == 2:
+			pyxel.blt(x, y, 1, sx +96, sy, width, height, gcommon.TP_COLOR)
+		elif dr8 in (3, 4):
+			pyxel.blt(x, y, 1, sx, sy, width, height, gcommon.TP_COLOR)
+		elif dr8 in (5, 6):
+			pyxel.blt(x, y, 1, sx +72, sy, width, height, gcommon.TP_COLOR)
+		elif dr8 == 7:
+			pyxel.blt(x, y, 1, sx +72, sy, -width, height, gcommon.TP_COLOR)
+	else:
+		if dr8 == 0:
+			pyxel.blt(x, y, 1, sx, sy, -width, -height, gcommon.TP_COLOR)
+		elif dr8 == 1:
+			pyxel.blt(x, y, 1, sx +72, sy, -width, -height, gcommon.TP_COLOR)
+		elif dr8 == 2:
+			pyxel.blt(x, y, 1, sx +96, sy, width, -height, gcommon.TP_COLOR)
+		elif dr8 == 3:
+			pyxel.blt(x, y, 1, sx +72, sy, width, -height, gcommon.TP_COLOR)
+		elif dr8 == 4:
+			pyxel.blt(x, y, 1, sx, sy, width, -height, gcommon.TP_COLOR)
+		elif dr8 == 5:
+			pyxel.blt(x, y, 1, sx, sy, width, -height, gcommon.TP_COLOR)
+		elif dr8 == 6:
+			pyxel.blt(x, y, 1, sx +96, sy, width, -height, gcommon.TP_COLOR)
+		elif dr8 == 7:
+			pyxel.blt(x, y, 1, sx +72, sy, -width, -height, gcommon.TP_COLOR)
 
+class Tank1(EnemyBase):
+	# 0 :左に移動, 移動先座標
+	# 1 :右に移動, 移動先座標
+	# 2 :攻撃, 0
+	actionPatterns = [
+		[[0, 50], [2, 0], [1, 200], [2, 0], [0, -20]],
+		[[1, 200],[2, 0], [0, 50], [2, 0], [1, 150], [0, -20]],
+		[[1, 150],[2, 0], [0, 50], [2, 0], [1, 100], [2, 0], [0, -20]]
+	]
+	def __init__(self, t):
+		super(Tank1, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.mirror = t[4]	# 0: normal 1:上下逆
+		self.actionPattern = t[5]
+		self.left = 4
+		self.top = 4
+		self.right = 19
+		self.bottom = 19
+		self.hp = 10
+		self.layer = gcommon.C_LAYER_GRD
+		self.actions = Tank1.actionPatterns[self.actionPattern]
+
+	def update(self):
+		action = self.actions[self.state][0]
+		param = self.actions[self.state][1]
+		if action == 0:
+			# 右から左に移動
+			self.x -= 1
+			if self.x <= -16:
+				self.remove()
+			elif self.x <= param:
+				self.nextState()
+		elif action == 1:
+			# 左から右に移動
+			self.x += 1
+			self.x += gcommon.cur_scroll_x
+			if self.x > gcommon.SCREEN_MAX_X:
+				self.remove()
+			elif self.x >= param:
+				self.nextState()
+		elif action == 2:
+			if self.cnt == 30:
+				enemy_shot(self.x+8,self.y+10, 2, 0)
+			if self.cnt >= 60:
+				self.nextState()
+
+	def draw(self):
+		action = self.actions[self.state][0]
+		if action == 2:
+			drawTank1(self.x, self.y, self.mirror)
+		else:
+			height = 24
+			if self.mirror == 1:
+				height = -height
+			sx = ((self.cnt>>2) % 3) * 24
+			if action == 0:
+				pyxel.blt(self.x, self.y, 1, sx, 224, 24, height, gcommon.TP_COLOR)
+			elif action == 1:
+				pyxel.blt(self.x, self.y, 1, sx, 224, -24, height, gcommon.TP_COLOR)

@@ -1702,7 +1702,13 @@ class MainGame:
 	def initStoryLast(self):
 		self.story=[ \
 			[260, enemy.Walker1, 256, 266],		\
-			[3000, enemy.Spider1, 300, 64.5],		\
+			[500, enemy.Tank1, 256, 144, 0, 0],	\
+			[530, enemy.Tank1, 256, 24, 1, 0],	\
+			[600, enemy.Tank1, -16, 144, 0, 1],	\
+			[630, enemy.Tank1, -16, 24, 1, 1],	\
+			[800, enemy.Tank1, -16, 144, 0, 2],	\
+			[830, enemy.Tank1, -16, 24, 1, 2],	\
+			[3200, enemy.Spider1, 300, 64.5],		\
 		]
 
 def parseCommandLine():
