@@ -228,6 +228,7 @@ class Boss2Base(enemy.EnemyBase):
 		self.right = 56
 		self.bottom = 23
 		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.ground = True
 		self.hp = 50
 		self.hitcolor1 = 3
 		self.hitcolor2 = 10
@@ -589,6 +590,7 @@ class Boss2(enemy.EnemyBase):
 		self.bottom = 38
 		self.hp = 32000
 		self.layer = gcommon.C_LAYER_GRD
+		self.ground = True
 		self.score = 5000
 		self.subcnt = 0
 		self.dx = 0.5
@@ -629,6 +631,7 @@ class Boss2(enemy.EnemyBase):
 		elif self.state == 1:
 			if self.cnt == 80:
 				self.layer = gcommon.C_LAYER_SKY
+				self.ground = False
 				self.dx = 0.05
 				self.dy = 0.0
 				self.nextState()

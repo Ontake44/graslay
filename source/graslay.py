@@ -935,6 +935,11 @@ class MapDrawLast:
 					if n == 391:
 						obj.direction = -1
 					gcommon.ObjMgr.addObj(obj)
+				elif n in (422, 423):
+					# ミサイル砲台
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					obj = enemy.MissileBattery1(mx, my, (n == 423))
+					gcommon.ObjMgr.addObj(obj)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 		gcommon.map_y += gcommon.cur_map_dy
@@ -1204,11 +1209,13 @@ class MainGame:
 		for obj in gcommon.ObjMgr.objs:
 			if obj.removeFlag == False:
 				if gcommon.eshot_sync_scroll:
-					if obj.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD, gcommon.C_LAYER_E_SHOT):
+					#if obj.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD, gcommon.C_LAYER_E_SHOT):
+					if obj.ground:
 						obj.x -= gcommon.cur_scroll_x
 						obj.y -= gcommon.cur_scroll_y
 				else:
-					if obj.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD):
+					#if obj.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD):
+					if obj.ground:
 						obj.x -= gcommon.cur_scroll_x
 						obj.y -= gcommon.cur_scroll_y
 				obj.x -= gcommon.cur_map_dx
@@ -1701,13 +1708,17 @@ class MainGame:
 
 	def initStoryLast(self):
 		self.story=[ \
-			[260, enemy.Walker1, 256, 266],		\
-			[500, enemy.Tank1, 256, 144, 0, 0],	\
-			[530, enemy.Tank1, 256, 24, 1, 0],	\
-			[600, enemy.Tank1, -16, 144, 0, 1],	\
-			[630, enemy.Tank1, -16, 24, 1, 1],	\
-			[800, enemy.Tank1, -16, 144, 0, 2],	\
-			[830, enemy.Tank1, -16, 24, 1, 2],	\
+			[100, enemy.Fighter2, 256, 30, 190, 1],	\
+			[120, enemy.Fighter2, 256, 120, 230, -1],	\
+			#[260, enemy.Walker1, 256, 266],		\
+			[380, enemy.Tank1, 256, 144, 0, 0],	\
+			[400, enemy.Tank1, 256, 24, 1, 0],	\
+			[630, enemy.Tank1, -24, 144, 0, 1],	\
+			[650, enemy.Tank1, -24, 24, 1, 1],	\
+			[800, enemy.Tank1, -24, 144, 0, 2],	\
+			[830, enemy.Tank1, -24, 24, 1, 2],	\
+			[900, enemy.Tank1, -24, 144, 0, 3],	\
+			[930, enemy.Tank1, -24, 24, 1, 3],	\
 			[3200, enemy.Spider1, 300, 64.5],		\
 		]
 

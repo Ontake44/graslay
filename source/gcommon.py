@@ -785,6 +785,8 @@ def checkCollisionPointAndPolygonSub(pos, poly1, poly2):
 	return 0
 
 # 点がポリゴンの中かどうかを返す
+#  pos = [x, y]
+#  polyPoints = [[x1, y1],[x2, y2] ..]
 def checkCollisionPointAndPolygon(pos, polyPoints):
 	cn = 0
 	last = len(polyPoints) -1
@@ -807,4 +809,8 @@ def removeEnemyShot():
 	ObjMgr.objs = newObjs
 
 
+def easeOutBack(x):
+	c1 = 1.70158
+	c3 = c1 + 1
+	return 1 + c3 * math.pow(x - 1, 3) + c1 * math.pow(x - 1, 2)
 

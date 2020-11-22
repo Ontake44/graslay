@@ -57,6 +57,7 @@ class EnemyBase:
 		self.exptype = gcommon.C_EXPTYPE_SKY_S
 		self.expsound = -1
 		self.score = 0
+		self.ground = False
 		self.shotHitCheck = True	# 自機弾との当たり判定
 		self.hitCheck = True	# 自機と敵との当たり判定
 		self.enemyShotCollision = False	# 敵弾との当たり判定を行う
@@ -427,6 +428,7 @@ class Battery1(EnemyBase):
 			self.bottom = 10
 		self.hp = 10
 		self.layer = gcommon.C_LAYER_GRD
+		self.ground = True
 		self.score = 300
 		self.hitcolor1 = 5
 		self.hitcolor2 = 6
@@ -807,6 +809,7 @@ class DockArm(EnemyBase):
 		self.x = pos[0]
 		self.y = pos[1]
 		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.ground = True
 		self.shotHitCheck = False
 		self.hitCheck = False
 		self.startCnt = t[4]
@@ -907,6 +910,7 @@ class Cell2(EnemyBase):
 		self.hp = 100
 		#self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.layer = gcommon.C_LAYER_GRD
+		self.ground = True
 		self.score = 200
 
 	def update(self):
@@ -954,6 +958,7 @@ class Worm1(EnemyBase):
 		self.hp = 60
 		#self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.layer = gcommon.C_LAYER_GRD
+		self.ground = True
 		self.score = 100
 		self.dr = 48
 		self.offsetX = 4
@@ -1165,6 +1170,7 @@ class Worm2(EnemyBase):
 		self.hp = 600
 		#self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.layer = gcommon.C_LAYER_GRD
+		self.ground = True
 		self.score = 100
 		self.tblIndex = 0
 		self.subcnt = self.tbl[self.tblIndex][0]
@@ -1220,6 +1226,7 @@ class Worm2Group(EnemyBase):
 		self.cellCount = t[5]
 		self.tbl = t[6]
 		self.layer = gcommon.C_LAYER_GRD
+		self.ground = True
 		self.hitCheck = False
 		self.shotHitCheck = False
 
@@ -1298,6 +1305,7 @@ class Shutter1(EnemyBase):
 		self.bottom = 16 * self.size
 		self.hp = 999999
 		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.ground = True
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = True
@@ -1342,6 +1350,7 @@ class FallingObject(EnemyBase):
 		self.bottom = self.mHeight * 8 -1
 		self.hp = 999999
 		self.layer = gcommon.C_LAYER_GRD
+		self.ground = True
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.needDummyBlock = needDummyBlock	# 砲台などの場合False、壁はTrue
@@ -1579,6 +1588,7 @@ class Wind1(EnemyBase):
 			self.bottom = 23
 		self.hp = 999999
 		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.ground = True
 		self.hitCheck = True
 		self.shotHitCheck = False
 		self.enemyShotCollision = False
@@ -1672,6 +1682,7 @@ class Circulator1(EnemyBase):
 		self.top = 4
 		self.hp = 999999
 		self.layer = gcommon.C_LAYER_GRD
+		self.ground = True
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
@@ -1738,6 +1749,7 @@ class Battery3(EnemyBase):
 		self.x = x
 		self.y = y
 		self.direction = direction
+		self.ground = True
 		self.left = 2
 		self.right = 13
 		if self.direction == 1:
@@ -1778,6 +1790,7 @@ class Lift1(EnemyBase):
 		self.bottom = 15
 		self.hp = 999999
 		self.layer = gcommon.C_LAYER_GRD
+		self.ground = True
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = True
@@ -1806,6 +1819,7 @@ class LiftAppear1(EnemyBase):
 		self.bottom = 15
 		self.hp = 999999
 		self.layer = gcommon.C_LAYER_GRD
+		self.ground = True
 		self.hitCheck = False
 		self.shotHitCheck = False
 		self.enemyShotCollision = False
@@ -1892,7 +1906,7 @@ class HomingMissile1(EnemyBase):
 		[2, 1, -1],		# 14
 		[1, 1, -1]		# 15
 	]
-	def __init__(self, x, y):
+	def __init__(self, x, y, dr):
 		super(HomingMissile1, self).__init__()
 		self.x = x
 		self.y = y
@@ -1901,7 +1915,7 @@ class HomingMissile1(EnemyBase):
 		self.right = 4
 		self.bottom = 4
 		self.hp = 10
-		self.dr = 32
+		self.dr = dr
 		self.layer = gcommon.C_LAYER_SKY
 		self.score = 100
 		self.hitCheck = True
@@ -1949,6 +1963,7 @@ class Walker1(EnemyBase):
 		self.bottom = 47
 		self.hp = 500
 		self.layer = gcommon.C_LAYER_GRD
+		self.ground = True
 		self.score = 200
 		self.exptype = gcommon.C_EXPTYPE_GRD_M
 		self.gy = 50
@@ -2023,7 +2038,7 @@ class Walker1(EnemyBase):
 				self.stateCycle += 1
 				self.setMode(0)
 		if self.cnt > 120 and self.cnt & 31 ==0:
-			gcommon.ObjMgr.addObj(HomingMissile1(self.x + 20, self.y +10))
+			gcommon.ObjMgr.addObj(HomingMissile1(self.x + 20, self.y +10, 32))
 			enemy_shot(self.x +35, self.y +31, 2, 0)
 
 	def nextMode(self):
@@ -2031,6 +2046,13 @@ class Walker1(EnemyBase):
 
 	def setMode(self, mode):
 		self.mode = mode
+
+	def checkShotCollision(self, shot):
+		ret = super(Walker1, self).checkShotCollision(shot)
+		if ret:
+			rad = math.atan2(shot.dy, shot.dx)
+			Particle1.appendCenter(shot, rad)
+		return ret
 
 	def draw(self):
 		ox = 44 -8
@@ -2108,6 +2130,7 @@ class Spider1(EnemyBase):
 		self.bottom = 19
 		self.hp = 500
 		self.layer = gcommon.C_LAYER_GRD
+		self.ground = True
 		self.score = 200
 		self.legPos = 0
 		self.legMax = 36
@@ -2219,6 +2242,7 @@ class Spider1(EnemyBase):
 		# かかとを描く
 		pyxel.blt(x2 - 11.5, y2 -8, 2, 72, 128, 24, 16 * isLower, gcommon.TP_COLOR)
 
+# 回転するシャッター
 class Shutter2(EnemyBase):
 	poly1 = [
 		[2, 32], [5,0], [10,0], [13,32]
@@ -2241,6 +2265,7 @@ class Shutter2(EnemyBase):
 		self.isUpper = isUpper
 		self.waitTime = waitTime
 		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.ground = True
 		self.hitCheck = True
 		self.shotHitCheck = False
 		self.enemyShotCollision = False
@@ -2248,18 +2273,37 @@ class Shutter2(EnemyBase):
 		self.polygonList1.append(gcommon.Polygon(Shutter2.poly1, 13))
 		self.polygonList1.append(gcommon.Polygon(Shutter2.poly2, 6))
 		self.polygonList1.append(gcommon.Polygon(Shutter2.poly3, 5))
+		self.xpolygonList1 = []
 
 	def update(self):
 		if self.cnt > self.waitTime and self.rad1 < math.pi:
 			self.rad1 += math.pi * 2/360
 			if self.rad1 > math.pi:
 				self.rad1 = math.pi
-		
+		 
+		if self.isUpper:
+			self.xpolygonList1 = gcommon.getAnglePolygons2([self.x, self.y], self.polygonList1, [7.5,28], -self.rad1 +math.pi, 1, -1)
+		else:
+			self.xpolygonList1 = gcommon.getAnglePolygons2([self.x, self.y], self.polygonList1, [7.5,28], self.rad1 -math.pi, 1, 1)
+
 	def draw(self):
 		if self.isUpper:
-			gcommon.drawPolygons(gcommon.getAnglePolygons2([self.x, self.y], self.polygonList1, [7.5,28], -self.rad1 +math.pi, 1, -1))
+			gcommon.drawPolygons(self.xpolygonList1)
 		else:
-			gcommon.drawPolygons(gcommon.getAnglePolygons2([self.x, self.y], self.polygonList1, [7.5,28], self.rad1 -math.pi, 1, 1))
+			gcommon.drawPolygons(self.xpolygonList1)
+
+	# 自機と敵との当たり判定
+	def checkMyShipCollision(self):
+		pos = gcommon.getCenterPos(gcommon.ObjMgr.myShip)
+		if gcommon.checkCollisionPointAndPolygon(pos, self.xpolygonList1.polygons[0].points):
+			return True
+		return False
+	
+	def checkShotCollision(self, shot):
+		pos = gcommon.getCenterPos(shot)
+		if gcommon.checkCollisionPointAndPolygon(pos, self.xpolygonList1.polygons[0].points):
+			return True
+		return False
 
 def drawTank1(x, y, mirror):
 	dr8 = 0
@@ -2303,9 +2347,10 @@ class Tank1(EnemyBase):
 	# 1 :右に移動, 移動先座標
 	# 2 :攻撃, 0
 	actionPatterns = [
-		[[0, 50], [2, 0], [1, 200], [2, 0], [0, -20]],
-		[[1, 200],[2, 0], [0, 50], [2, 0], [1, 150], [0, -20]],
-		[[1, 150],[2, 0], [0, 50], [2, 0], [1, 100], [2, 0], [0, -20]]
+		[[0, 50], [2, 0], [1, 200], [2, 0], [0, -30]],
+		[[1, 200],[2, 0], [0, 50], [2, 0], [1, 150], [0, -30]],
+		[[1, 150],[2, 0], [0, 50], [2, 0], [1, 100], [2, 0], [0, -30]],
+		[[1, 60], [2, 0], [0, -30]],
 	]
 	def __init__(self, t):
 		super(Tank1, self).__init__()
@@ -2313,12 +2358,17 @@ class Tank1(EnemyBase):
 		self.y = t[3]
 		self.mirror = t[4]	# 0: normal 1:上下逆
 		self.actionPattern = t[5]
-		self.left = 4
-		self.top = 4
+		if self.mirror:
+			self.top = 6
+			self.bottom = 20
+		else:
+			self.top = 3
+			self.bottom = 17
+		self.left = 5
 		self.right = 19
-		self.bottom = 19
 		self.hp = 10
 		self.layer = gcommon.C_LAYER_GRD
+		self.ground = True
 		self.actions = Tank1.actionPatterns[self.actionPattern]
 
 	def update(self):
@@ -2327,7 +2377,7 @@ class Tank1(EnemyBase):
 		if action == 0:
 			# 右から左に移動
 			self.x -= 1
-			if self.x <= -16:
+			if self.x <= -24:
 				self.remove()
 			elif self.x <= param:
 				self.nextState()
@@ -2358,3 +2408,100 @@ class Tank1(EnemyBase):
 				pyxel.blt(self.x, self.y, 1, sx, 224, 24, height, gcommon.TP_COLOR)
 			elif action == 1:
 				pyxel.blt(self.x, self.y, 1, sx, 224, -24, height, gcommon.TP_COLOR)
+
+
+class Laser1(EnemyBase):
+	def __init__(self, x, y):
+		super(Laser1, self).__init__()
+		self.x = x
+		self.y = y
+		self.speed = 4
+		self.left = 2
+		self.top = 0
+		self.right = 13
+		self.bottom = 1
+		self.layer = gcommon.C_LAYER_SKY
+		self.hitCheck = True
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+
+	def update(self):
+		self.x -= self.speed
+		if self.x <= -16:
+			self.remove()
+	
+	def draw(self):
+		pyxel.blt(self.x, self.y, 1, 64, 168, 16, 2, gcommon.TP_COLOR)
+
+# レーザーを打ってくる戦闘機
+class Fighter2(EnemyBase):
+	def __init__(self, t):
+		super(Fighter2, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.brakeX = t[4]
+		self.dx = -3
+		self.direction = t[5]	# -1: 上  1:下
+		self.left = 5
+		self.top = 4
+		self.right = 21
+		self.bottom = 19
+		self.hp = 30
+		self.layer = gcommon.C_LAYER_SKY
+		self.ground = False
+
+	def update(self):
+		if self.state == 0:
+			self.x += self.dx
+			if self.x <= self.brakeX:
+				self.dx += 0.1
+				if self.dx >= -0.1:
+					self.nextState()
+		elif self.state == 1:
+			self.y += self.direction * 0.5
+			if self.cnt % 20 == 0:
+				gcommon.ObjMgr.addObj(Laser1(self.x, self.y +4))
+				gcommon.ObjMgr.addObj(Laser1(self.x, self.y +26))
+			if self.cnt > 120:
+				self.dx = 0.0
+				self.nextState()
+		elif self.state == 2:
+			self.x += self.dx
+			if self.dx > -4.0:
+				self.dx -= 0.05
+			if self.x <= -32:
+				self.remove()
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, 1, 32, 168, 32, 32, gcommon.TP_COLOR)
+
+# ミサイル砲台
+class MissileBattery1(EnemyBase):
+	def __init__(self, mx, my, mirror):
+		super(MissileBattery1, self).__init__()
+		pos = gcommon.mapPosToScreenPos(mx, my)
+		self.x = pos[0]
+		self.y = pos[1]
+		self.mirror = mirror
+		self.left = 2
+		self.top = 2
+		self.right = 29
+		self.bottom = 29
+		self.hp = 30
+		self.layer = gcommon.C_LAYER_GRD
+		self.ground = True
+		self.first = 120
+		self.interval = 120
+
+	def update(self):
+		if self.cnt == self.first or (self.cnt != 0 and (self.cnt % self.interval == 0)):
+			if self.mirror:
+				gcommon.ObjMgr.addObj(HomingMissile1(self.x + 7.5, self.y +12, 16))
+			else:
+				gcommon.ObjMgr.addObj(HomingMissile1(self.x + 7.5, self.y +4, 48))
+
+	def draw(self):
+		if self.mirror:
+			pyxel.blt(self.x, self.y, 1, 0, 184, 16, -16, gcommon.TP_COLOR)
+		else:
+			pyxel.blt(self.x, self.y, 1, 0, 184, 16, 16, gcommon.TP_COLOR)
