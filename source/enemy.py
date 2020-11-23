@@ -2342,6 +2342,7 @@ def drawTank1(x, y, mirror):
 		elif dr8 == 7:
 			pyxel.blt(x, y, 1, sx +72, sy, -width, -height, gcommon.TP_COLOR)
 
+# TANKと言いつつ、歩行型移動砲台
 class Tank1(EnemyBase):
 	# 0 :左に移動, 移動先座標
 	# 1 :右に移動, 移動先座標
@@ -2505,3 +2506,72 @@ class MissileBattery1(EnemyBase):
 			pyxel.blt(self.x, self.y, 1, 0, 184, 16, -16, gcommon.TP_COLOR)
 		else:
 			pyxel.blt(self.x, self.y, 1, 0, 184, 16, 16, gcommon.TP_COLOR)
+
+# ファン２
+class Fan2(EnemyBase):
+	def __init__(self, x, y, direction):
+		super(Fan2, self).__init__()
+		self.x = x
+		self.y = y
+		self.direction = direction	# 1:下方向  -1:上方向
+		self.left = 2
+		self.top = 2
+		self.right = 13
+		self.bottom = 13
+		self.hp = 1
+		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.ground = True
+
+	def update(self):
+		if self.state == 0:
+			if self.cnt > 20:
+				self.nextState()
+		elif self.state == 1:
+			self.y += self.direction
+			if self.direction == 1:
+				if self.y > gcommon.ObjMgr.myShip.y:
+					self.nextState()
+			else:
+				if self.y < gcommon.ObjMgr.myShip.y:
+					self.nextState()
+		else:
+			self.x -= 2
+
+	def draw(self):
+		if self.cnt % 2 == 0:
+			pyxel.blt(self.x, self.y, 1, 0, 168, 16, 16, gcommon.TP_COLOR)
+		else:
+			pyxel.blt(self.x, self.y, 1, 16, 168, 16, 16, gcommon.TP_COLOR)
+
+class Fan2Group(EnemyBase):
+	def __init__(self, mx, my, direction, waitTime):
+		super(Fan2Group, self).__init__()
+		pos = gcommon.mapPosToScreenPos(mx, my)
+		self.x = pos[0]
+		self.y = pos[1]
+		self.ground = True
+		self.direction = direction
+		self.waitTime = waitTime
+		self.interval = 20
+		self.max = 10
+		self.cnt2 = 0
+		self.hitCheck = False
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+
+	def update(self):
+		if self.state == 0:
+			if self.cnt > self.waitTime:
+				self.nextState()
+		elif self.state == 1:
+			if self.cnt % self.interval == 0:
+				if self.direction == 1:
+					gcommon.ObjMgr.addObj(Fan2(self.x, self.y -16, self.direction))
+				else:
+					gcommon.ObjMgr.addObj(Fan2(self.x, self.y +8, self.direction))
+				self.cnt2 += 1
+				if self.cnt2 >= self.max:
+					self.remove()
+
+	def draw(self):
+		pass

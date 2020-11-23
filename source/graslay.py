@@ -940,6 +940,16 @@ class MapDrawLast:
 					gcommon.setMapDataByMapPos(mx, my, 0)
 					obj = enemy.MissileBattery1(mx, my, (n == 423))
 					gcommon.ObjMgr.addObj(obj)
+				elif n in (393, 394):
+					waitCount = gcommon.getMapDataByMapPos(mx+1, my) -224
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					gcommon.setMapDataByMapPos(mx+1, my, 0)
+					if n == 393:
+						obj = enemy.Fan2Group(mx, my, -1, waitCount * 30)
+					else:
+						obj = enemy.Fan2Group(mx, my, 1, waitCount * 30)
+					gcommon.ObjMgr.addObj(obj)
+
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 		gcommon.map_y += gcommon.cur_map_dy
@@ -1710,15 +1720,23 @@ class MainGame:
 		self.story=[ \
 			[100, enemy.Fighter2, 256, 30, 190, 1],	\
 			[120, enemy.Fighter2, 256, 120, 230, -1],	\
-			#[260, enemy.Walker1, 256, 266],		\
+			[260, enemy.Walker1, 256, 266],		\
 			[380, enemy.Tank1, 256, 144, 0, 0],	\
 			[400, enemy.Tank1, 256, 24, 1, 0],	\
+			[450, enemy.Tank1, 256, 144, 0, 0],	\
+			[520, enemy.Tank1, 256, 24, 1, 0],	\
 			[630, enemy.Tank1, -24, 144, 0, 1],	\
 			[650, enemy.Tank1, -24, 24, 1, 1],	\
 			[800, enemy.Tank1, -24, 144, 0, 2],	\
 			[830, enemy.Tank1, -24, 24, 1, 2],	\
 			[900, enemy.Tank1, -24, 144, 0, 3],	\
 			[930, enemy.Tank1, -24, 24, 1, 3],	\
+			[1100, enemy.Tank1, -24, 144, 0, 3],	\
+			[1130, enemy.Tank1, -24, 24, 1, 3],	\
+			[1500, enemy.Fighter2, 256, 120, 230, -1],	\
+			[1520, enemy.Fighter2, 256, 30, 190, 1],	\
+			[2450, enemy.Fighter2, 256, 30, 190, 1],	\
+			[2480, enemy.Fighter2, 256, 120, 230, -1],	\
 			[3200, enemy.Spider1, 300, 64.5],		\
 		]
 
