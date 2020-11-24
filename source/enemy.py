@@ -2000,6 +2000,9 @@ class Walker1(EnemyBase):
 		self.atanStart = math.atan2((self.RStart[1] - self.SPoint[1]), (self.RStart[0] - self.SPoint[0]))
 		self.atanEnd = math.atan2((self.REnd[1] - self.SPoint[1]), (self.REnd[0] - self.SPoint[0]))
 
+		self.lightRad = math.pi
+		self.lightRound = 1
+
 		for i in range(self.stepCount):
 			rad2 = self.atanStart + (self.atanEnd - self.atanStart) * i /self.stepCount
 			R2 = [self.SPoint[0] + math.cos(rad2) * self.SRadius, self.SPoint[1] + math.sin(rad2) * self.SRadius]
@@ -2019,6 +2022,7 @@ class Walker1(EnemyBase):
 			if (self.stateCycle % 3 == 0 and self.x < 150) or (self.stateCycle % 3 != 0 and self.x < 100):
 				mx = gcommon.screenPosToMapPosX(self.x)
 				if mx > 44:
+					# 停止
 					self.setMode(4)
 				else:
 					self.nextMode()
@@ -2040,6 +2044,18 @@ class Walker1(EnemyBase):
 		if self.cnt > 120 and self.cnt & 31 ==0:
 			gcommon.ObjMgr.addObj(HomingMissile1(self.x + 20, self.y +10, 32))
 			enemy_shot(self.x +35, self.y +31, 2, 0)
+		if self.mode in (0, 1,2,3):
+			self.RountLight()
+
+	def RountLight(self):
+		if self.lightRound == 1:
+			self.lightRad += math.pi /120
+			if self.lightRad > math.pi + math.pi/4:
+				 self.lightRound = -1
+		elif self.lightRound == -1:
+			self.lightRad -= math.pi /120
+			if self.lightRad < math.pi - math.pi/4:
+				 self.lightRound = 1
 
 	def nextMode(self):
 		self.mode = self.mode + 1
@@ -2055,10 +2071,22 @@ class Walker1(EnemyBase):
 		return ret
 
 	def draw(self):
+		# ライト
+		# x = self.x +11
+		# y = self.y +31
+		# pyxel.tri(x, y,
+		# 	x + 128 * math.cos(self.lightRad + math.pi*30/180),
+		# 	y + 128 * math.sin(self.lightRad + math.pi*30/180),
+		# 	x + 128 * math.cos(self.lightRad - math.pi*30/180),
+		# 	y + 128 * math.sin(self.lightRad - math.pi*30/180),
+		# 	10)
+
 		ox = 44 -8
 		oy = 36
+		# 足のループ
 		for i in range(2):
 			if i == 1:
+				# 本体の描画（足の間に描く必要がある）
 				pyxel.blt(self.x, self.y, 2, 0, 0, 58, 48, gcommon.TP_COLOR)
 
 			R2 = self.RArray[(self.counter + self.stepCount * i) % (self.stepCount*2)]

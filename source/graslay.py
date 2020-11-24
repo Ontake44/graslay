@@ -1317,7 +1317,6 @@ class MainGame:
 				pyxel.blt(72 + 48*i, 192, 0, i * 48, 56, 48, 8)
 			else:
 				pyxel.blt(72 + 48*i, 192, 0, i * 48, 48, 48, 8)
-			
 		
 		pyxel.text(120, 184, str(gcommon.game_timer), 7)
 		#pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)

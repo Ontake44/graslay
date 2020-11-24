@@ -809,8 +809,41 @@ def removeEnemyShot():
 	ObjMgr.objs = newObjs
 
 
+# イージング関数
 def easeOutBack(x):
 	c1 = 1.70158
 	c3 = c1 + 1
 	return 1 + c3 * math.pow(x - 1, 3) + c1 * math.pow(x - 1, 2)
 
+color_table = [
+0,1,2,8,4,5,3,9,12,13,14,11,6,10,15,7
+]
+
+# 明るさを設定する（-15～+15）
+def setBrightness(level):
+	global color_table
+	for c in range(16):
+		if c + level > 15:
+			pyxel.pal(color_table[c], 7)
+		elif c + level < 0:
+			pyxel.pal(color_table[c], 0)
+		else:
+			pyxel.pal(color_table[c], color_table[c +level])
+
+def setBrightness1():
+	pyxel.pal(0, 1)
+	pyxel.pal(1, 5)
+	pyxel.pal(2, 4)
+	pyxel.pal(3, 11)
+	pyxel.pal(4, 8)
+	pyxel.pal(5, 12)
+	pyxel.pal(6, 7)
+	pyxel.pal(7, 7)
+	pyxel.pal(8, 14)
+	pyxel.pal(9, 10)
+	pyxel.pal(10, 7)
+	pyxel.pal(11, 6)
+	pyxel.pal(12, 6)
+	pyxel.pal(13, 15)
+	pyxel.pal(14, 15)
+	pyxel.pal(15, 7)
