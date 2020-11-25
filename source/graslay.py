@@ -1306,7 +1306,7 @@ class MainGame:
 		pyxel.clip()
 		# SCORE表示
 		#pyxel.text(4, 194, "SC " + str(gcommon.score), 7)
-		gcommon.showText2(0,192, "SC " + str(gcommon.score))
+		gcommon.showText2(0,192, "SC " + "{:08d}".format(gcommon.score))
 		# 残機
 		pyxel.blt(232, 192, 0, 8, 32, 8, 8, gcommon.TP_COLOR)
 		gcommon.showText2(242, 192, str(gcommon.remain))
@@ -1314,9 +1314,9 @@ class MainGame:
 		# 武器表示
 		for i in range(0,3):
 			if i == gcommon.ObjMgr.myShip.weapon == i:
-				pyxel.blt(72 + 48*i, 192, 0, i * 48, 56, 48, 8)
+				pyxel.blt(96 + 40*i, 192, 0, i * 40, 56, 40, 8)
 			else:
-				pyxel.blt(72 + 48*i, 192, 0, i * 48, 48, 48, 8)
+				pyxel.blt(96 + 40*i, 192, 0, i * 40, 48, 40, 8)
 		
 		pyxel.text(120, 184, str(gcommon.game_timer), 7)
 		#pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)

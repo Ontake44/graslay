@@ -106,7 +106,7 @@ class EnemyBase:
 		gcommon.score += self.score
 		
 		create_explosion2(self.x+(self.right+self.left+1)/2, self.y+(self.bottom+self.top+1)/2, layer, self.exptype, self.expsound)
-		self.removeFlag = True
+		self.remove()
 
 
 # 爆発生成
@@ -1945,6 +1945,36 @@ class HomingMissile1(EnemyBase):
 		t = HomingMissile1.directionTable[d]
 		pyxel.blt(self.x -7.5, self.y -7.5, 2, t[0] * 16, 176, 16 * t[1], 16 * -t[2], gcommon.TP_COLOR)
 
+class SpotLight(EnemyBase):
+	def __init__(self, parent):
+		super(SpotLight, self).__init__()
+		self.parent = parent
+		self.x = parent.x + 11
+		self.y = parent.y + 31
+		self.layer = gcommon.C_LAYER_SKY
+		self.ground = False
+		self.hitCheck = False
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+		self.lightRad = math.pi
+
+	def update(self):
+		self.x = self.parent.x + 11
+		self.y = self.parent.y + 31
+		self.lightRad = math.atan2(gcommon.ObjMgr.myShip.y - self.y, gcommon.ObjMgr.myShip.x - self.x)
+
+	def draw(self):
+		# ライト
+		x = self.x
+		y = self.y
+		poly = [[x, y], 
+			[x + 300 * math.cos(self.lightRad + math.pi*10/180), y + 300 * math.sin(self.lightRad + math.pi*10/180)],
+			[x + 300 * math.cos(self.lightRad - math.pi*10/180), y + 300 * math.sin(self.lightRad - math.pi*10/180)]
+		]
+		xpoly = gcommon.clipPolygon(poly)
+		gcommon.setBrightness1()
+		gcommon.drawPolygonSystemImage(xpoly)
+		pyxel.pal()
 
 #    P
 #      Q
@@ -2014,6 +2044,10 @@ class Walker1(EnemyBase):
 				self.RStart[1] + (self.REnd[1]-self.RStart[1]) * (self.stepCount -i)/self.stepCount]
 			self.RArray.append(R2)
 
+		# スポットライト
+		self.spotLight = SpotLight(self)
+		gcommon.ObjMgr.addObj(self.spotLight)
+
 	def update(self):
 		if self.x < -60:
 			self.remove()
@@ -2070,15 +2104,22 @@ class Walker1(EnemyBase):
 			Particle1.appendCenter(shot, rad)
 		return ret
 
+	def remove(self):
+		super(Walker1, self).remove()
+		if self.spotLight != None:
+			self.spotLight.remove()
+			self.spotLight = None
+
+	# 破壊されたとき
+	def broken(self):
+		super(Walker1, self).broken()
+
 	def draw(self):
-		# ライト
-		# x = self.x +11
-		# y = self.y +31
-		# pyxel.tri(x, y,
-		# 	x + 128 * math.cos(self.lightRad + math.pi*30/180),
-		# 	y + 128 * math.sin(self.lightRad + math.pi*30/180),
-		# 	x + 128 * math.cos(self.lightRad - math.pi*30/180),
-		# 	y + 128 * math.sin(self.lightRad - math.pi*30/180),
+		#pyxel.tri(x, y,
+		#	x + 128 * math.cos(self.lightRad + math.pi*10/180),
+		# 	y + 128 * math.sin(self.lightRad + math.pi*10/180),
+		# 	x + 128 * math.cos(self.lightRad - math.pi*10/180),
+		# 	y + 128 * math.sin(self.lightRad - math.pi*10/180),
 		# 	10)
 
 		ox = 44 -8

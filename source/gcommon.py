@@ -105,6 +105,8 @@ SHOT_POWER = 5		# 5
 
 TP_COLOR = 2
 
+SCREEN_MIN_X = 0
+SCREEN_MIN_Y = 0
 SCREEN_MAX_X = 255
 SCREEN_MAX_Y = 191
 
@@ -709,6 +711,7 @@ def drawQuadrangle(points, clr):
 		 points[2][0], points[2][1],
 		 points[3][0], points[3][1], clr)
 
+# 頂点配列、色でポリゴンを描く
 def drawPolygon(poly, clr):
 	sx = poly[0][0]
 	sy = poly[0][1]
@@ -717,6 +720,7 @@ def drawPolygon(poly, clr):
 			poly[i+1][0], poly[i+1][1],
 			poly[i+2][0], poly[i+2][1], clr)	
 
+# 頂点配列、色でポリゴンを描く（外枠あり）
 def drawPolygon2(poly, clr1, clr2):
 	drawPolygon(poly, clr1)
 	last = len(poly) -1
@@ -847,3 +851,140 @@ def setBrightness1():
 	pyxel.pal(13, 15)
 	pyxel.pal(14, 15)
 	pyxel.pal(15, 7)
+
+def clipLine(ip1, ip2, points):
+
+	# 描画領域と端点との Y 方向の距離を求める
+	if ip2[1] < SCREEN_MIN_Y:
+		dy = SCREEN_MIN_Y - ip1[1]
+	else:
+		dy = SCREEN_MAX_Y - ip1[1]
+	
+	# X 方向の距離に変換した上で、描画領域の端と線分の交点の X 座標を求める
+	x = ( ip2[0] - ip1[0]) * dy / ( ip2[1] - ip1[1]) + ip1[0];
+	# 描画領域の端と線分の交点の Y 座標
+	if ip2[1] < SCREEN_MIN_Y:
+		y = SCREEN_MIN_Y
+	else:
+		y = SCREEN_MAX_Y
+
+	points.append([x, y])
+	return points
+
+def clipPolygon(vertex):
+	clippedVertex = []
+	vertexCnt = len(vertex)		# 頂点の数	
+	i = 1
+	while i<= vertexCnt:
+		c0 = vertex[i-1]		# 始点
+		c1 = vertex[i % vertexCnt]		# 終点
+		if  c0[0] == c1[0] and c0[1] == c1[1]:
+			continue
+		# 始点がエリア外
+		if ( ( c0[1] <SCREEN_MIN_Y) or ( c0[1] > SCREEN_MAX_Y ) ):
+			# 終点はエリア内
+			if ( ( c1[1] >= SCREEN_MIN_Y) and ( c1[1] <= SCREEN_MAX_Y) ):
+				clippedVertex = clipLine(c1, c0, clippedVertex)
+			# 終点もエリア外(クリッピング・エリアの上下境界をまたぐ)
+			elif ( ( ( c0[1] < SCREEN_MIN_Y) and ( c1[1] > SCREEN_MAX_Y ) ) or
+			          ( ( c1[1] < SCREEN_MIN_Y ) and ( c0[1] > SCREEN_MAX_Y) ) ):
+				clippedVertex = clipLine( c1, c0, clippedVertex)
+				clippedVertex = clipLine( c0, c1, clippedVertex)
+			
+		# 始点がエリア内
+		else:
+			clippedVertex.append( c0 )
+			# 終点がエリア外ならクリッピングして頂点を追加
+			if ( ( c1[1] < SCREEN_MIN_Y ) or ( c1[1] > SCREEN_MAX_Y ) ):
+			    clippedVertex = clipLine( c0, c1, clippedVertex)
+		i += 1
+	return clippedVertex
+
+def setPolyPoints(points, start, end, includeStart):
+	dx = end[0] - start[0]
+	dy = end[1] - start[1]
+	if dy == 0:
+		points[start[1]].append(start[0])
+		points[start[1]].append(end[0])
+	else:
+		reverse = False
+		if end[1] > start[1]:
+			sx = start[0]
+			sy = int(start[1])
+			ex = end[0]
+			ey = int(end[1])
+		else:
+			reverse = True
+			sx = end[0]
+			sy = int(end[1])
+			ex = start[0]
+			ey = int(start[1])
+		# 逆傾きa
+		a = (ex - sx)/(ey - sy)
+		if includeStart:
+			yy = sy
+			while yy <= ey:
+				xx = sx + a * (yy -sy)
+				nx = int(xx)
+				points[yy].append(nx)
+				yy += 1
+		else:
+			if reverse:
+				yy = sy
+				while yy < ey:
+					xx = sx + a * (yy -sy)
+					nx = int(xx)
+					points[yy].append(nx)
+					yy += 1
+			else:
+				yy = sy +1
+				while yy <= ey:
+					xx = sx + a * (yy -sy)
+					nx = int(xx)
+					points[yy].append(nx)
+					yy += 1
+
+# ソリッド・エリア・スキャン・コンバージョン？でポリゴンを描く
+# poly [x,y]配列
+def drawPolygonSystemImage(poly):
+	points = []
+	for i in range(200):
+		points.append([])
+	
+	length = len(poly)
+	prev = poly[length -2]
+	current = poly[length -1]
+	next = poly[0]
+	for i in range(length):
+		
+		if (int(next[1])-int(current[1]))==0:
+			pass
+		else:
+			includeStart = True
+			if (int(current[1]) - int(prev[1]))== 0:
+				pass
+			elif (current[1] - prev[1])*(next[1] - current[1]) > 0:
+				#print(str(current[0]) + " " + str(current[1]))
+				includeStart = False
+			
+			setPolyPoints(points, current, next, includeStart)
+			
+		prev = current
+		current = next
+		if i == length -1:
+			next =  poly[0]
+		else:
+			next = poly[i+1]
+	
+	y = 0
+	for p in points:
+		l = len(p)
+		for i in range(0,l,2):
+			if l & 1 == 0:
+				for i in range(0,l,2):
+					#pyxel.line(p[i], y, p[i+1], y, clr)
+					if p[i] < p[i+1]:
+						pyxel.blt(p[i], y, 4, p[i], y, p[i+1] -p[i]+1, 1)
+					else:
+						pyxel.blt(p[i+1], y, 4, p[i+1], y, p[i] -p[i+1]+1, 1)
+		y += 1
