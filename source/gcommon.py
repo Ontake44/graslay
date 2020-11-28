@@ -128,6 +128,7 @@ sin_table = []
 #  4         0
 #    5     7
 #       6
+# mapと言いつつ配列
 direction_map = [		\
 [1,0],[0.701,-0.701],	\
 [0,-1],[-0.701,-0.701],	\
@@ -788,7 +789,7 @@ def checkCollisionPointAndPolygonSub(pos, poly1, poly2):
 			return 1
 	return 0
 
-# 点がポリゴンの中かどうかを返す
+# 点がポリゴンの中かどうかを返す（ポリゴン座標配列指定）
 #  pos = [x, y]
 #  polyPoints = [[x1, y1],[x2, y2] ..]
 def checkCollisionPointAndPolygon(pos, polyPoints):
@@ -861,7 +862,7 @@ def clipLine(ip1, ip2, points):
 		dy = SCREEN_MAX_Y - ip1[1]
 	
 	# X 方向の距離に変換した上で、描画領域の端と線分の交点の X 座標を求める
-	x = ( ip2[0] - ip1[0]) * dy / ( ip2[1] - ip1[1]) + ip1[0];
+	x = ( ip2[0] - ip1[0]) * dy / ( ip2[1] - ip1[1]) + ip1[0]
 	# 描画領域の端と線分の交点の Y 座標
 	if ip2[1] < SCREEN_MIN_Y:
 		y = SCREEN_MIN_Y

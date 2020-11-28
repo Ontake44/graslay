@@ -2188,16 +2188,26 @@ spider1Leg3c = [
 	[2,0],[3,0],[3,25],[2,25]
 ]
 
+class Spider1Leg():
+	def __init__(self):
+		self.rad = 0.0
+		self.xpolygonList1 = None
+		self.xpolygonList2 = None
+		self.xpolygonList3 = None
+		self.x2 = 0
+		self.y2 = 0
+
+
 class Spider1(EnemyBase):
 	def __init__(self, t):
 		super(Spider1, self).__init__()
 		self.x = t[2]
 		self.y = t[3]
-		self.left = 4
-		self.top = 4
-		self.right = 19
-		self.bottom = 19
-		self.hp = 500
+		self.left = 8
+		self.top = 9
+		self.right = 103
+		self.bottom = 54
+		self.hp = 9999999
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True
 		self.score = 200
@@ -2208,6 +2218,24 @@ class Spider1(EnemyBase):
 		self.legHeight = 48.5
 		self.moveState = 0
 		self.state = 2
+		self.polygonList1 = []
+		self.polygonList1.append(gcommon.Polygon(spider1Leg3a, 5))
+		self.polygonList1.append(gcommon.Polygon(spider1Leg3b, 13))
+		self.polygonList1.append(gcommon.Polygon(spider1Leg3c, 7))
+		self.polygonList2 = []
+		self.polygonList2.append(gcommon.Polygon(spider1Leg2a, 5))
+		self.polygonList2.append(gcommon.Polygon(spider1Leg2b, 13))
+		self.polygonList2.append(gcommon.Polygon(spider1Leg2c, 7))
+		self.polygonList3 = []
+		self.polygonList3.append(gcommon.Polygon(spider1Leg1a, 4))
+		self.polygonList3.append(gcommon.Polygon(spider1Leg1b, 9))
+		self.polygonList3.append(gcommon.Polygon(spider1Leg1c, 10))
+		self.legs = []
+		for i in range(6):
+			self.legs.append(Spider1Leg())
+		# くつ？の当たり判定Rect
+		self.upperShoe = gcommon.Rect.create(4, 0, 19, 6)
+		self.lowerShoe = gcommon.Rect.create(4, 9, 19, 15)
 
 	def update(self):
 		self.rad1 = self.legPos * math.pi * 2  * self.legAngle /360 /self.legMax
@@ -2222,6 +2250,20 @@ class Spider1(EnemyBase):
 			self.walkBackward()
 			if self.x < 30:
 				self.setState(1)
+
+		# 1
+		self.updateLeg(self.legs[0], self.x +7.5, self.y+8, math.pi * 2 * (90 + self.legAngle/2 +20)/360, -1, 0, -1)
+		# 2
+		self.updateLeg(self.legs[1], self.x +54, self.y+8, math.pi * 2 * (90 -self.legAngle/2)/360, 1, 1, -1)
+		# 3
+		self.updateLeg(self.legs[2], self.x +103.5, self.y+8, math.pi * 2 * (90 + self.legAngle/2 -20)/360, -1, 0, -1)
+
+		# 4
+		self.updateLeg(self.legs[3], self.x +7.5, self.y+55, math.pi * 2 * (-90 +self.legAngle/2 -20)/360, -1, 1, 1)
+		# 5
+		self.updateLeg(self.legs[4], self.x +54, self.y+55, math.pi * 2 * (-90 -self.legAngle/2)/360, 1, 0, 1)
+		# 6
+		self.updateLeg(self.legs[5], self.x +103.5, self.y+55, math.pi * 2 * (-90 +self.legAngle/2 +20)/360, -1, 1, 1)
 
 	# 左に歩く
 	def walkForward(self):
@@ -2246,35 +2288,69 @@ class Spider1(EnemyBase):
 			if self.legPos >= self.legMax:
 				self.moveState = 0
 
+	# objにはmyShipかshot
+	def checkLegCollision(self, obj):
+		pos = gcommon.getCenterPos(obj)
+		for i in range(6):
+			leg = self.legs[i]
+			if gcommon.checkCollisionPointAndPolygon(pos, leg.xpolygonList1.polygons[0].points):
+				return True
+			if gcommon.checkCollisionPointAndPolygon(pos, leg.xpolygonList2.polygons[0].points):
+				return True
+			if gcommon.checkCollisionPointAndPolygon(pos, leg.xpolygonList3.polygons[0].points):
+				return True
+			if i >= 0 and i <= 2:
+				if gcommon.check_collision2(leg.x2 - 11.5, leg.y2 -8, self.upperShoe, obj):
+					return True
+			else:
+				if gcommon.check_collision2(leg.x2 - 11.5, leg.y2 -8, self.lowerShoe, obj):
+					return True
+		return False
+
+	# 自機と敵との当たり判定
+	def checkMyShipCollision(self):
+		if super(Spider1, self).checkMyShipCollision():
+			return True
+		return self.checkLegCollision(gcommon.ObjMgr.myShip)
+		
+	def checkShotCollision(self, shot):
+		if super(Spider1, self).checkShotCollision(shot):
+			return True
+		return self.checkLegCollision(shot)
+
 	# 1  2  3
 	# 4  5  6
 	def draw(self):
 		pyxel.blt(self.x, self.y, 2, 72, 0, 112, 64, gcommon.TP_COLOR)
 		# 1
-		self.drawLeg(self.x +7.5, self.y+8, math.pi * 2 * (90 + self.legAngle/2 +20)/360, -1, 0, -1)
+		self.drawLeg2(self.legs[0], self.x +7.5, self.y+8, -1)
 		# 2
-		self.drawLeg(self.x +54, self.y+8, math.pi * 2 * (90 -self.legAngle/2)/360, 1, 1, -1)
+		self.drawLeg2(self.legs[1], self.x +54, self.y+8, -1)
 		# 3
-		self.drawLeg(self.x +103.5, self.y+8, math.pi * 2 * (90 + self.legAngle/2 -20)/360, -1, 0, -1)
+		self.drawLeg2(self.legs[2], self.x +103.5, self.y+8, -1)
 
 		# 4
-		self.drawLeg(self.x +7.5, self.y+55, math.pi * 2 * (-90 +self.legAngle/2 -20)/360, -1, 1, 1)
+		self.drawLeg2(self.legs[3], self.x +7.5, self.y+55, 1)
 		# 5
-		self.drawLeg(self.x +54, self.y+55, math.pi * 2 * (-90 -self.legAngle/2)/360, 1, 0, 1)
+		self.drawLeg2(self.legs[4], self.x +54, self.y+55, 1)
 		# 6
-		self.drawLeg(self.x +103.5, self.y+55, math.pi * 2 * (-90 +self.legAngle/2 +20)/360, -1, 1, 1)
-		# x1 = self.x + 8
-		# y1 = self.y + 8
-		# x2 = x1 + math.cos(math.pi * 2 * (90 + self.legAngle)/360  - self.rad1) * self.legLength
-		# y2 = y1 - math.sin(math.pi * 2 * (90 + self.legAngle)/360  - self.rad1) * self.legLength
-		# pyxel.line(x1, y1, x2, y2, 7)
-		# x1 = self.x + 55
-		# y1 = self.y + 55
-		# x2 = x1 + math.cos(-math.pi * 2 * (90 + self.legAngle)/360 + self.rad1) * self.legLength
-		# y2 = y1 - math.sin(-math.pi * 2 * (90 + self.legAngle)/360 + self.rad1) * self.legLength
-		# pyxel.line(x1, y1, x2, y2, 7)
+		self.drawLeg2(self.legs[5], self.x +103.5, self.y+55, 1)
 
-	def drawLeg(self, x, y, angleOffset, signFlag, shrinkState, isLower):
+		# # 1
+		# self.drawLeg(self.x +7.5, self.y+8, math.pi * 2 * (90 + self.legAngle/2 +20)/360, -1, 0, -1)
+		# # 2
+		# self.drawLeg(self.x +54, self.y+8, math.pi * 2 * (90 -self.legAngle/2)/360, 1, 1, -1)
+		# # 3
+		# self.drawLeg(self.x +103.5, self.y+8, math.pi * 2 * (90 + self.legAngle/2 -20)/360, -1, 0, -1)
+
+		# # 4
+		# self.drawLeg(self.x +7.5, self.y+55, math.pi * 2 * (-90 +self.legAngle/2 -20)/360, -1, 1, 1)
+		# # 5
+		# self.drawLeg(self.x +54, self.y+55, math.pi * 2 * (-90 -self.legAngle/2)/360, 1, 0, 1)
+		# # 6
+		# self.drawLeg(self.x +103.5, self.y+55, math.pi * 2 * (-90 +self.legAngle/2 +20)/360, -1, 1, 1)
+
+	def updateLeg(self, leg, x, y, angleOffset, signFlag, shrinkState, isLower):
 		x1 = x
 		y1 = y
 		rad = angleOffset  + signFlag * self.rad1
@@ -2284,32 +2360,50 @@ class Spider1(EnemyBase):
 			# 脚が上がっているので縮む
 			length = length -  math.sin(self.legPos * math.pi/ self.legMax) * length * 0.3
 		# x2,y2は先端の座標
-		x2 = x1 + math.cos(rad) * length
-		y2 = y1 - math.sin(rad) * length
+		leg.x2 = x1 + math.cos(rad) * length
+		leg.y2 = y1 - math.sin(rad) * length
 		#pyxel.line(x1, y1, x2, y2, 7)
 		px = x1 + math.cos(rad) * (length -25)
 		py = y1 - math.sin(rad) * (length -25)
-		polygonList = []
-		polygonList.append(gcommon.Polygon(spider1Leg3a, 5))
-		polygonList.append(gcommon.Polygon(spider1Leg3b, 13))
-		polygonList.append(gcommon.Polygon(spider1Leg3c, 7))
-		gcommon.drawPolygons(gcommon.getAnglePolygons([px, py], polygonList, [2.5,0], -rad - math.pi/2))
+		leg.xpolygonList1 = gcommon.getAnglePolygons([px, py], self.polygonList1, [2.5,0], -rad - math.pi/2)
 		px = x1 + math.cos(rad) * (length -25)/2
 		py = y1 - math.sin(rad) * (length -25)/2
-		polygonList = []
-		polygonList.append(gcommon.Polygon(spider1Leg2a, 5))
-		polygonList.append(gcommon.Polygon(spider1Leg2b, 13))
-		polygonList.append(gcommon.Polygon(spider1Leg2c, 7))
-		gcommon.drawPolygons(gcommon.getAnglePolygons([px, py], polygonList, [4.5,0], -rad - math.pi/2))
-		polygonList = []
-		polygonList.append(gcommon.Polygon(spider1Leg1a, 4))
-		polygonList.append(gcommon.Polygon(spider1Leg1b, 9))
-		polygonList.append(gcommon.Polygon(spider1Leg1c, 10))
-		gcommon.drawPolygons(gcommon.getAnglePolygons([x1, y1], polygonList, [5.5,0], -rad - math.pi/2))
+		leg.xpolygonList2 = gcommon.getAnglePolygons([px, py], self.polygonList2, [4.5,0], -rad - math.pi/2)
+		leg.xpolygonList3 = gcommon.getAnglePolygons([x1, y1], self.polygonList3, [5.5,0], -rad - math.pi/2)
+
+	# def drawLeg(self, x, y, angleOffset, signFlag, shrinkState, isLower):
+	# 	x1 = x
+	# 	y1 = y
+	# 	rad = angleOffset  + signFlag * self.rad1
+	# 	# Y方向の長さから、斜辺の長さを得る
+	# 	length = abs(self.legHeight / math.sin(rad))
+	# 	if shrinkState == self.moveState:
+	# 		# 脚が上がっているので縮む
+	# 		length = length -  math.sin(self.legPos * math.pi/ self.legMax) * length * 0.3
+	# 	# x2,y2は先端の座標
+	# 	x2 = x1 + math.cos(rad) * length
+	# 	y2 = y1 - math.sin(rad) * length
+	# 	#pyxel.line(x1, y1, x2, y2, 7)
+	# 	px = x1 + math.cos(rad) * (length -25)
+	# 	py = y1 - math.sin(rad) * (length -25)
+	# 	gcommon.drawPolygons(gcommon.getAnglePolygons([px, py], self.polygonList1, [2.5,0], -rad - math.pi/2))
+	# 	px = x1 + math.cos(rad) * (length -25)/2
+	# 	py = y1 - math.sin(rad) * (length -25)/2
+	# 	gcommon.drawPolygons(gcommon.getAnglePolygons([px, py], self.polygonList2, [4.5,0], -rad - math.pi/2))
+	# 	gcommon.drawPolygons(gcommon.getAnglePolygons([x1, y1], self.polygonList3, [5.5,0], -rad - math.pi/2))
+	# 	# 付け根の丸いやつ
+	# 	pyxel.blt(x -7.5, y -7.5, 2, 96, 128, 16, 16, gcommon.TP_COLOR)
+	# 	# かかとを描く
+	# 	pyxel.blt(x2 - 11.5, y2 -8, 2, 80, 64, 24, 16 * isLower, gcommon.TP_COLOR)
+
+	def drawLeg2(self, leg, x, y, isLower):
+		gcommon.drawPolygons(leg.xpolygonList1)
+		gcommon.drawPolygons(leg.xpolygonList2)
+		gcommon.drawPolygons(leg.xpolygonList3)
 		# 付け根の丸いやつ
-		pyxel.blt(x -7.5, y -7.5, 2, 96, 128, 16, 16, gcommon.TP_COLOR)
+		pyxel.blt(x -7.5, y -7.5, 2, 104, 64, 16, 16, gcommon.TP_COLOR)
 		# かかとを描く
-		pyxel.blt(x2 - 11.5, y2 -8, 2, 72, 128, 24, 16 * isLower, gcommon.TP_COLOR)
+		pyxel.blt(leg.x2 - 11.5, leg.y2 -8, 2, 80, 64, 24, 16 * isLower, gcommon.TP_COLOR)
 
 # 回転するシャッター
 class Shutter2(EnemyBase):
@@ -2582,7 +2676,7 @@ class Fan2(EnemyBase):
 		super(Fan2, self).__init__()
 		self.x = x
 		self.y = y
-		self.direction = direction	# 1:下方向  -1:上方向
+		self.direction = direction	# 0 - 7
 		self.left = 2
 		self.top = 2
 		self.right = 13
@@ -2593,11 +2687,10 @@ class Fan2(EnemyBase):
 
 	def update(self):
 		if self.state == 0:
-			if self.cnt > 20:
-				self.nextState()
-		elif self.state == 1:
-			self.y += self.direction
-			if self.direction == 1:
+			dy = gcommon.direction_map[self.direction][1]
+			self.x += gcommon.direction_map[self.direction][0]
+			self.y += dy
+			if dy > 0:
 				if self.y > gcommon.ObjMgr.myShip.y:
 					self.nextState()
 			else:
@@ -2634,13 +2727,77 @@ class Fan2Group(EnemyBase):
 				self.nextState()
 		elif self.state == 1:
 			if self.cnt % self.interval == 0:
-				if self.direction == 1:
-					gcommon.ObjMgr.addObj(Fan2(self.x, self.y -16, self.direction))
-				else:
-					gcommon.ObjMgr.addObj(Fan2(self.x, self.y +8, self.direction))
+				offsetX = 0
+				offsetY = 0
+				if self.direction == 2:
+					offsetY = 8
+				elif self.direction == 6:
+					offsetY = -16
+				elif self.direction == 3:
+					offsetX = 16
+					offsetY = 16
+				elif self.direction == 5:
+					offsetX = 16
+					offsetY = -24
+				gcommon.ObjMgr.addObj(Fan2(self.x + offsetX, self.y +offsetY, self.direction))
 				self.cnt2 += 1
 				if self.cnt2 >= self.max:
 					self.remove()
 
 	def draw(self):
 		pass
+
+# 上下シャッター
+class Shutter3(EnemyBase):
+	def __init__(self, mx, my, direction, waitTime):
+		super(Shutter3, self).__init__()
+		pos = gcommon.mapPosToScreenPos(mx, my)
+		self.x = pos[0]
+		self.direction = direction		# -1:上 1:下
+		if self.direction == -1:
+			# 下から上に閉まる
+			self.stopY = pos[1]
+			self.y = gcommon.SCREEN_MAX_Y +1
+			self.height = self.y -self.stopY
+			self.top = 0
+			self.bottom = self.height -1
+		else:
+			# 上から下に閉まる
+			# Y座標より上に突き出るようになっている
+			self.stopY = pos[1] +7
+			self.y = gcommon.SCREEN_MIN_Y -1
+			self.height = self.stopY -self.y
+			self.top = -self.height +1
+			self.bottom = -1
+		self.left = 0
+		self.right = 15
+		self.rad1 = 0
+		self.waitTime = waitTime
+		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.hp = 9999999
+		self.ground = True
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+
+	def update(self):
+		if self.x <= -16:
+			self.remove()
+		else:
+			if self.cnt > self.waitTime:
+				if self.direction == -1:
+					# 上
+					self.y -= 1
+					if self.y < self.stopY:
+						self.y = self.stopY
+				else:
+					# 下
+					self.y += 1
+					if self.y > self.stopY:
+						self.y = self.stopY
+	def draw(self):
+		yy = 0
+		while(yy < self.height):
+			pyxel.blt(self.x, self.y +self.top +yy, 1, 0, 200, 16, 16, gcommon.TP_COLOR)
+			yy += 16
+

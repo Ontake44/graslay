@@ -1511,7 +1511,8 @@ class BossFactory(enemy.EnemyBase):
 		self.dx = 1
 		self.dy = 2
 		self.subStateCycle = 0
-		self.moveState = 0
+		# 移動状態
+		self.moveState = 0		# 0:上に移動  1:下に移動
 		# どちらを開くか
 		self.finMode = 0
 		self.polygonList = []
@@ -1808,3 +1809,142 @@ class BossFactory(enemy.EnemyBase):
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
 		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,5], 240))
+
+
+
+
+class MiddleBoss1(enemy.EnemyBase):
+	def __init__(self, t):
+		super(MiddleBoss1, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.left = 40
+		self.top = 24
+		self.right = 105
+		self.bottom = 71
+		self.hp = 700
+		self.layer = gcommon.C_LAYER_SKY
+		self.ground = False
+		self.score = 1000
+		self.exptype = gcommon.C_EXPTYPE_GRD_M
+		self.dx = 0
+		self.dy = 0
+		self.moveState = 0
+		self.moveCnt = 0
+		self.moveCycle = 0
+
+	def update(self):
+		if self.state == 0:
+			self.x -= 2
+			if self.x <= 160:
+				self.nextState()
+		elif self.state == 1:
+			if self.moveCycle & 2 == 0:
+				if self.cnt % 40 == 0:
+					if self.cnt % 80 == 0:
+						for i in range(5):
+							enemy.enemy_shot_offset(self.x +43, self.y +47, 3, 0, -4 + i * 2)
+					else:
+						for i in range(6):
+							enemy.enemy_shot_offset(self.x +43, self.y +47, 3, 0, -6 + i * 2)
+			else:
+				if self.cnt % 30 == 0:
+					if self.cnt % 70 == 0:
+						for i in range(5):
+							enemy.enemy_shot_offset(self.x +43, self.y +47, 3, 0, -4 + i * 2)
+					else:
+						for i in range(6):
+							enemy.enemy_shot_offset(self.x +43, self.y +47, 3, 0, -6 + i * 2)
+			if self.moveState == 0:
+				# 上に移動
+				self.y += self.dy
+				if self.y < 40:
+					self.dy += 0.05
+					if self.dy >= 0.0:
+						self.shotAll()
+						self.dy = 0.05
+						self.moveState = 1
+						self.moveCnt = 0
+				elif self.dy > -2.0:
+					self.dy -= 0.05
+			elif self.moveState == 1:
+				# 待ち
+				self.moveCnt += 1
+				if self.moveCnt >= 20:
+					self.moveState = 2
+			elif self.moveState == 2:
+				# 下に移動
+				self.y += self.dy
+				if self.y > 60:
+					self.dy -= 0.05
+					if self.dy <= 0.0:
+						self.shotAll()
+						self.dy = -0.05
+						self.moveState = 3
+						self.moveCnt = 0
+				elif self.dy < 2.0:
+					self.dy += 0.05			
+			elif self.moveState == 3:
+				# 待ち
+				self.moveCnt += 1
+				if self.moveCnt >= 20:
+					self.moveState = 0
+					self.moveCycle += 1
+					if self.moveCycle >= 5:
+						self.moveState = 4
+			elif self.moveState == 4:
+				# 上に移動
+				self.y += self.dy
+				if self.y < 70:
+					self.dy += 0.05
+					if self.dy >= 0.0:
+						self.shotAll()
+						self.dy = 0.05
+						self.state = 2
+				elif self.dy > -2.0:
+					self.dy -= 0.05
+		elif self.state == 2:
+			self.x += self.dx
+			if self.x <= -88:
+				self.remove()
+			elif self.dx >= -3:
+				self.dx -= 0.05
+
+	def shotAll(self):
+		gcommon.ObjMgr.addObj(MiddleBoss1Laser(self.x +39, self.y +7))
+		gcommon.ObjMgr.addObj(MiddleBoss1Laser(self.x +24, self.y +20))
+		gcommon.ObjMgr.addObj(MiddleBoss1Laser(self.x, self.y +33))
+		gcommon.ObjMgr.addObj(MiddleBoss1Laser(self.x, self.y +62))
+		gcommon.ObjMgr.addObj(MiddleBoss1Laser(self.x +24, self.y +75))
+		gcommon.ObjMgr.addObj(MiddleBoss1Laser(self.x +39, self.y +88))
+
+	def draw(self):
+		pyxel.blt(self.x,self.y, 2, 0, 80, 88, 96, 3)
+
+	def broken(self):
+		super(MiddleBoss1, self).broken()
+		if gcommon.game_timer < 1940:
+			gcommon.game_timer = 1940
+
+class MiddleBoss1Laser(enemy.EnemyBase):
+	def __init__(self, x, y):
+		super(MiddleBoss1Laser, self).__init__()
+		self.x = x
+		self.y = y
+		self.speed = 4
+		self.left = 2
+		self.top = 0
+		self.right = 13
+		self.bottom = 3
+		self.layer = gcommon.C_LAYER_SKY
+		self.hitCheck = True
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+
+	def update(self):
+		self.x -= self.speed
+		if self.x <= -16:
+			self.remove()
+	
+	def draw(self):
+		pyxel.blt(self.x, self.y, 2, 0, 192, 16, 4, gcommon.TP_COLOR)

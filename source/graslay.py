@@ -940,14 +940,28 @@ class MapDrawLast:
 					gcommon.setMapDataByMapPos(mx, my, 0)
 					obj = enemy.MissileBattery1(mx, my, (n == 423))
 					gcommon.ObjMgr.addObj(obj)
-				elif n in (393, 394):
+				elif n in (393, 394, 395, 396):
+					# Fan2発生
 					waitCount = gcommon.getMapDataByMapPos(mx+1, my) -224
 					gcommon.setMapDataByMapPos(mx, my, 0)
 					gcommon.setMapDataByMapPos(mx+1, my, 0)
 					if n == 393:
-						obj = enemy.Fan2Group(mx, my, -1, waitCount * 30)
+						obj = enemy.Fan2Group(mx, my, 2, waitCount * 30)
+					elif n == 394:
+						obj = enemy.Fan2Group(mx, my, 6, waitCount * 30)
+					elif n == 395:
+						obj = enemy.Fan2Group(mx, my, 5, waitCount * 30)
+					elif n == 396:
+						obj = enemy.Fan2Group(mx, my, 3, waitCount * 30)
+					gcommon.ObjMgr.addObj(obj)
+				elif n in (424, 425):
+					waitCount = gcommon.getMapDataByMapPos(mx+1, my) -224
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					gcommon.setMapDataByMapPos(mx+1, my, 0)
+					if n == 424:
+						obj = enemy.Shutter3(mx, my, -1, waitCount* 30)
 					else:
-						obj = enemy.Fan2Group(mx, my, 1, waitCount * 30)
+						obj = enemy.Shutter3(mx, my, 1, waitCount* 30)
 					gcommon.ObjMgr.addObj(obj)
 
 		gcommon.map_x += gcommon.cur_scroll_x
@@ -1516,7 +1530,7 @@ class MainGame:
 
 	def initEventLast(self):
 		self.eventTable =[ \
-			[100,StartMapDrawLast],		\
+			[2100,StartMapDrawLast],		\
 		]
 
 	def initStory(self):
@@ -1717,26 +1731,43 @@ class MainGame:
 
 	def initStoryLast(self):
 		self.story=[ \
-			[100, enemy.Fighter2, 256, 30, 190, 1],	\
-			[120, enemy.Fighter2, 256, 120, 230, -1],	\
-			[260, enemy.Walker1, 256, 266],		\
-			[380, enemy.Tank1, 256, 144, 0, 0],	\
-			[400, enemy.Tank1, 256, 24, 1, 0],	\
-			[450, enemy.Tank1, 256, 144, 0, 0],	\
-			[520, enemy.Tank1, 256, 24, 1, 0],	\
-			[630, enemy.Tank1, -24, 144, 0, 1],	\
-			[650, enemy.Tank1, -24, 24, 1, 1],	\
-			[800, enemy.Tank1, -24, 144, 0, 2],	\
-			[830, enemy.Tank1, -24, 24, 1, 2],	\
-			[900, enemy.Tank1, -24, 144, 0, 3],	\
-			[930, enemy.Tank1, -24, 24, 1, 3],	\
-			[1100, enemy.Tank1, -24, 144, 0, 3],	\
-			[1130, enemy.Tank1, -24, 24, 1, 3],	\
-			[1500, enemy.Fighter2, 256, 120, 230, -1],	\
-			[1520, enemy.Fighter2, 256, 30, 190, 1],	\
-			[2450, enemy.Fighter2, 256, 30, 190, 1],	\
-			[2480, enemy.Fighter2, 256, 120, 230, -1],	\
-			[3200, enemy.Spider1, 300, 64.5],		\
+			[150, enemy.Fan1Group, 8, 10, 6],		\
+			[270, enemy.Fan1Group, 170, 10, 6],		\
+			[330, enemy.Fan1Group, 8, 10, 6],		\
+			[370, enemy.Fighter2, 256, 120, 230, -1],	\
+			[400, enemy.Fighter2, 256, 30, 190, 1],	\
+			[400, enemy.Fan1Group, 170, 10, 6],		\
+			[520, enemy.Fighter2, 256, 20, 190, 1],	\
+			[580, enemy.Fighter2, 256, 150, 190, -1],	\
+			[700, boss.MiddleBoss1, 256, 50],		\
+			[2100, enemy.Fighter2, 256, 30, 190, 1],	\
+			[2120, enemy.Fighter2, 256, 120, 230, -1],	\
+			[2260, enemy.Walker1, 256, 266],		\
+			[2380, enemy.Tank1, 256, 144, 0, 0],	\
+			[2400, enemy.Tank1, 256, 24, 1, 0],	\
+			[2450, enemy.Tank1, 256, 144, 0, 0],	\
+			[2520, enemy.Tank1, 256, 24, 1, 0],	\
+			[2630, enemy.Tank1, -24, 144, 0, 1],	\
+			[2650, enemy.Tank1, -24, 24, 1, 1],	\
+			[2800, enemy.Tank1, -24, 144, 0, 2],	\
+			[2830, enemy.Tank1, -24, 24, 1, 2],	\
+			[2900, enemy.Tank1, -24, 144, 0, 3],	\
+			[2930, enemy.Tank1, -24, 24, 1, 3],	\
+			[3100, enemy.Tank1, -24, 144, 0, 3],	\
+			[3130, enemy.Tank1, -24, 24, 1, 3],	\
+			[3500, enemy.Fighter2, 256, 120, 230, -1],	\
+			[3520, enemy.Fighter2, 256, 30, 190, 1],	\
+			[3700, enemy.Fighter2, 256, 130, 220, -1],	\
+			[3720, enemy.Fighter2, 256, 40, 180, 1],	\
+
+			[4450, enemy.Fighter2, 256, 30, 190, 1],	\
+			[4480, enemy.Fighter2, 256, 120, 230, -1],	\
+			[4520, enemy.Fighter2, 256, 120, 160, -1],	\
+			[4550, enemy.Fighter2, 256, 30, 130, 1],	\
+		#	[4700, enemy.Fighter2, 256, 30, 160, 1],	\
+		#	[4730, enemy.Fighter2, 256, 120, 230, -1],	\
+
+			[6000, enemy.Spider1, 300, 64.5],		\
 		]
 
 def parseCommandLine():
