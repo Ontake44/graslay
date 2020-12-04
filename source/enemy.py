@@ -2199,6 +2199,30 @@ class Spider1Leg():
 
 
 class Spider1(EnemyBase):
+	# 動作, 時間
+	#   動作  0:停止  1:左に移動  2:右に移動
+	moveTable = [
+		[1, 180],
+		[0, 40],
+		[2, 300],
+		[0, 40],	# 下の穴に逃げ込む
+		[1, 90],
+		[0, 40],
+		[2, 360],
+		[0, 20],	# 上の穴に逃げ込む
+		[1, 90],	# 左に行っている間に前に逃げる
+		[0, 60],
+		[2, 270],	# 前でぎりぎり
+		[0, 20],
+		[1, 60],
+		[0, 20],
+		[2, 160],
+		[0, 20],
+		[2, 200],
+		[0, 10],
+		[1, 360],
+	]
+
 	def __init__(self, t):
 		super(Spider1, self).__init__()
 		self.x = t[2]
@@ -2213,7 +2237,7 @@ class Spider1(EnemyBase):
 		self.score = 200
 		self.legPos = 0
 		self.legMax = 36
-		self.legAngle = 35		# 18
+		self.legAngle = 40		#35
 		self.rad1 = 0
 		self.legHeight = 48.5
 		self.moveState = 0
@@ -2236,20 +2260,40 @@ class Spider1(EnemyBase):
 		# くつ？の当たり判定Rect
 		self.upperShoe = gcommon.Rect.create(4, 0, 19, 6)
 		self.lowerShoe = gcommon.Rect.create(4, 9, 19, 15)
+		self.moveIndex = 0
+		self.moveCnt = 0
 
 	def update(self):
 		self.rad1 = self.legPos * math.pi * 2  * self.legAngle /360 /self.legMax
-		if self.state == 0:
-			if self.x < 90:
-				self.nextState()
-		elif self.state == 1:
-			self.walkForward()
-			if self.x >= 180:
-				self.nextState()
-		elif self.state == 2:
-			self.walkBackward()
-			if self.x < 30:
-				self.setState(1)
+		if self.moveIndex >= len(Spider1.moveTable):
+			pass
+		else:
+			t = Spider1.moveTable[self.moveIndex]
+			if t[0] == 0:
+				# 停止
+				pass
+			elif t[0] == 1:
+				# 左に移動
+				self.walkLeft()
+			elif t[0] == 2:
+				# 右に移動
+				self.walkRight()
+			self.moveCnt += 1
+			if self.moveCnt >= t[1]:
+				self.moveIndex +=1
+				self.moveCnt = 0
+
+		# if self.state == 0:
+		# 	if self.x < 90:
+		# 		self.nextState()
+		# elif self.state == 1:
+		# 	self.walkForward()
+		# 	if self.x >= 180:
+		# 		self.nextState()
+		# elif self.state == 2:
+		# 	self.walkBackward()
+		# 	if self.x < 30:
+		# 		self.setState(1)
 
 		# 1
 		self.updateLeg(self.legs[0], self.x +7.5, self.y+8, math.pi * 2 * (90 + self.legAngle/2 +20)/360, -1, 0, -1)
@@ -2265,8 +2309,8 @@ class Spider1(EnemyBase):
 		# 6
 		self.updateLeg(self.legs[5], self.x +103.5, self.y+55, math.pi * 2 * (-90 +self.legAngle/2 +20)/360, -1, 1, 1)
 
-	# 左に歩く
-	def walkForward(self):
+	# 右に歩く
+	def walkRight(self):
 		self.x += 1
 		if self.moveState == 0:
 			self.legPos += 1
@@ -2276,8 +2320,8 @@ class Spider1(EnemyBase):
 			self.legPos -= 1
 			if self.legPos <= 0:
 				self.moveState = 0
-	# 右に歩く
-	def walkBackward(self):
+	# 左に歩く
+	def walkLeft(self):
 		self.x -= 1
 		if self.moveState == 0:
 			self.legPos -= 1
@@ -2358,7 +2402,7 @@ class Spider1(EnemyBase):
 		length = abs(self.legHeight / math.sin(rad))
 		if shrinkState == self.moveState:
 			# 脚が上がっているので縮む
-			length = length -  math.sin(self.legPos * math.pi/ self.legMax) * length * 0.3
+			length = length -  math.sin(self.legPos * math.pi/ self.legMax) * length * 0.4
 		# x2,y2は先端の座標
 		leg.x2 = x1 + math.cos(rad) * length
 		leg.y2 = y1 - math.sin(rad) * length

@@ -1768,6 +1768,18 @@ class MainGame:
 		#	[4730, enemy.Fighter2, 256, 120, 230, -1],	\
 
 			[6000, enemy.Spider1, 300, 64.5],		\
+			[6200, enemy.Tank1, 256, 152, 0, 0],	\
+			[6260, enemy.Tank1, 256, 16, 1, 0],	\
+			[6520, enemy.Tank1, -24, 152, 0, 2],	\
+			[6600, enemy.Tank1, -24, 16, 1, 2],	\
+			[6700, enemy.Tank1, 256, 152, 0, 0],	\
+			[6750, enemy.Tank1, -24, 16, 1, 3],	\
+			[6800, enemy.Tank1, -24, 16, 1, 2],	\
+			[7000, enemy.Tank1, 256, 16, 1, 0],	\
+			[7200, enemy.Tank1, -24, 152, 0, 2],	\
+			[7300, enemy.Tank1, -24, 16, 1, 3],	\
+			[7400, enemy.Tank1, 256, 16, 1, 0],	\
+			[7500, enemy.Tank1, -24, 16, 1, 3],	\
 		]
 
 def parseCommandLine():
