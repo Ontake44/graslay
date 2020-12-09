@@ -1082,6 +1082,7 @@ class MainGame:
 		gcommon.game_timer = 0
 		gcommon.map_x = 0
 		gcommon.map_y = 0
+		gcommon.scroll_flag = True
 		self.initStory()
 		self.initEvent()
 		self.pause = False
@@ -1204,7 +1205,7 @@ class MainGame:
 				return
 
 		# 星
-		if gcommon.draw_star:
+		if gcommon.scroll_flag and gcommon.draw_star:
 			self.star_pos -= 0.2
 			if self.star_pos<0:
 				self.star_pos += 255
@@ -1212,13 +1213,15 @@ class MainGame:
 		self.ExecuteEvent()
 
 		# マップ処理０
-		gcommon.ObjMgr.updateDrawMap0(False)
+		if gcommon.scroll_flag:
+			gcommon.ObjMgr.updateDrawMap0(False)
 
 		# 自機移動
 		gcommon.ObjMgr.myShip.update()
 
 		# マップ処理
-		gcommon.ObjMgr.updateDrawMap(False)
+		if gcommon.scroll_flag:
+			gcommon.ObjMgr.updateDrawMap(False)
 
 		self.ExecuteStory()
 
@@ -1232,18 +1235,19 @@ class MainGame:
 		newObjs = []
 		for obj in gcommon.ObjMgr.objs:
 			if obj.removeFlag == False:
-				if gcommon.eshot_sync_scroll:
-					#if obj.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD, gcommon.C_LAYER_E_SHOT):
-					if obj.ground:
-						obj.x -= gcommon.cur_scroll_x
-						obj.y -= gcommon.cur_scroll_y
-				else:
-					#if obj.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD):
-					if obj.ground:
-						obj.x -= gcommon.cur_scroll_x
-						obj.y -= gcommon.cur_scroll_y
-				obj.x -= gcommon.cur_map_dx
-				obj.y -= gcommon.cur_map_dy
+				if gcommon.scroll_flag:
+					if gcommon.eshot_sync_scroll:
+						#if obj.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD, gcommon.C_LAYER_E_SHOT):
+						if obj.ground:
+							obj.x -= gcommon.cur_scroll_x
+							obj.y -= gcommon.cur_scroll_y
+					else:
+						#if obj.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD):
+						if obj.ground:
+							obj.x -= gcommon.cur_scroll_x
+							obj.y -= gcommon.cur_scroll_y
+					obj.x -= gcommon.cur_map_dx
+					obj.y -= gcommon.cur_map_dy
 				obj.update()
 				obj.cnt = obj.cnt + 1
 				if obj.removeFlag == False:
@@ -1332,7 +1336,7 @@ class MainGame:
 			else:
 				pyxel.blt(96 + 40*i, 192, 0, i * 40, 48, 40, 8)
 		
-		pyxel.text(120, 184, str(gcommon.game_timer), 7)
+		#pyxel.text(120, 184, str(gcommon.game_timer), 7)
 		#pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)
 		#pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
@@ -1780,6 +1784,7 @@ class MainGame:
 			[7300, enemy.Tank1, -24, 16, 1, 3],	\
 			[7400, enemy.Tank1, 256, 16, 1, 0],	\
 			[7500, enemy.Tank1, -24, 16, 1, 3],	\
+			[8400, boss.BossLast1],	\
 		]
 
 def parseCommandLine():

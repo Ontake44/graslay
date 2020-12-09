@@ -144,6 +144,7 @@ direction_map = [		\
 game_timer = 0
 score = 0
 
+scroll_flag = True
 cur_scroll_x = 0.0
 cur_scroll_y = 0.0
 
@@ -739,6 +740,7 @@ def drawPolygon3(polygon):
 			poly[i+1][0], poly[i+1][1],
 			poly[i+2][0], poly[i+2][1], polygon.clr)	
 
+# Ploygonsクラス指定で描く
 def drawPolygons(polys):
 	for p in polys.polygons:
 		drawPolygon3(p)
@@ -753,6 +755,7 @@ def getAnglePoints(destPos, points, offsetPos, rad):
 		xpoints.append([x,y])
 	return xpoints
 
+# Polygonsクラス指定で傾いたポリゴンを描く
 def getAnglePolygons(destPos, polygons, offsetPos, rad):
 	xpolygons = []
 	c = math.cos(rad)
@@ -760,7 +763,7 @@ def getAnglePolygons(destPos, polygons, offsetPos, rad):
 	for poly in polygons:
 		xpoints = []
 		for p in poly.points:
-			x = destPos[0] + (p[0]- offsetPos[0]) * c - (p[1] -offsetPos[1]) * s
+			x = destPos[0] + (p[0] - offsetPos[0]) * c - (p[1] -offsetPos[1]) * s
 			y = destPos[1] + ((p[0] -offsetPos[0]) * s + (p[1] -offsetPos[1]) * c)
 			xpoints.append([x,y])
 		xpoly = Polygon(xpoints, poly.clr)
@@ -828,6 +831,16 @@ color_table = [
 def setBrightness(level):
 	global color_table
 	for c in range(16):
+		if c + level > 15:
+			pyxel.pal(color_table[c], 7)
+		elif c + level < 0:
+			pyxel.pal(color_table[c], 0)
+		else:
+			pyxel.pal(color_table[c], color_table[c +level])
+
+def setBrightnessWithoutBlack(level):
+	global color_table
+	for c in range(1, 15):
 		if c + level > 15:
 			pyxel.pal(color_table[c], 7)
 		elif c + level < 0:

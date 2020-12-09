@@ -151,22 +151,35 @@ class EnemyShot(EnemyBase):
 		if self.shotType==0:
 			self.x = x -4
 			self.y = y -4
-		else:
-			self.x = x -6
-			self.y = y -6
-		self.speed = speed
-		self.type = gcommon.T_E_SHOT1
-		self.layer = gcommon.C_LAYER_E_SHOT
-		if shotType==0:
 			self.left = 2
 			self.top = 2
 			self.right = 5
 			self.bottom = 5
-		else:
+		elif self.shotType == 1:
+			self.x = x -6
+			self.y = y -6
 			self.left = 2
 			self.top = 2
 			self.right = 9
 			self.bottom = 9
+		elif self.shotType == 2:
+			self.x = x -8
+			self.y = y -8
+			self.left = 2
+			self.top = 2
+			self.right = 13
+			self.bottom = 13
+		else:
+			self.shotHitCheck = True
+			self.x = x -8
+			self.y = y -8
+			self.left = 2
+			self.top = 2
+			self.right = 13
+			self.bottom = 13
+		self.speed = speed
+		self.type = gcommon.T_E_SHOT1
+		self.layer = gcommon.C_LAYER_E_SHOT
 
 	@classmethod
 	def createToMyShip(cls, x, y, speed, shotType, offsetDr):
@@ -197,8 +210,13 @@ class EnemyShot(EnemyBase):
 		# pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
 		if self.shotType==0:
 			pyxel.blt(self.x, self.y, 0, 4, 20, 8, 8, gcommon.TP_COLOR)
-		else:
+		elif self.shotType == 1:
 			pyxel.blt(self.x, self.y, 0, 18, 18, 12, 12, gcommon.TP_COLOR)
+		elif self.shotType == 2:
+			pyxel.blt(self.x, self.y, 0, 32, 16, 16, 16, gcommon.TP_COLOR)
+		else:
+			pyxel.blt(self.x, self.y, 0, 48, 16, 16, 16, gcommon.TP_COLOR)
+
 
 
 
@@ -2844,4 +2862,34 @@ class Shutter3(EnemyBase):
 		while(yy < self.height):
 			pyxel.blt(self.x, self.y +self.top +yy, 1, 0, 200, 16, 16, gcommon.TP_COLOR)
 			yy += 16
+
+class ContinuousShot(EnemyBase):
+	def __init__(self, x, y, shotType, shotCount, shotInterval, speed):
+		super(ContinuousShot, self).__init__()
+		self.x = x
+		self.y = y
+		self.dr64 = gcommon.get_atan_no_to_ship(self.x, self.y)
+		self.shotType = shotType
+		self.shotCount = shotCount
+		self.shotInterval = shotInterval
+		self.speed = speed
+		self.ground = False
+		self.hitCheck = False
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+
+	@classmethod
+	def create(cls, x, y, shotType, shotCount, shotInterval, speed):
+		gcommon.ObjMgr.addObj(ContinuousShot(x, y, shotType, shotCount, shotInterval, speed))
+
+	def update(self):
+		if self.cnt % self.shotInterval == 0:
+			enemy_shot_dr(self.x, self.y, self.speed, self.shotType, self.dr64)
+			self.shotCount -= 1
+			if self.shotCount == 0:
+				self.remove()
+
+	def draw(self):
+		pass
+
 

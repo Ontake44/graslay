@@ -1948,3 +1948,138 @@ class MiddleBoss1Laser(enemy.EnemyBase):
 	
 	def draw(self):
 		pyxel.blt(self.x, self.y, 2, 0, 192, 16, 4, gcommon.TP_COLOR)
+
+
+class BossLast1(enemy.EnemyBase):
+	coreTable = [[0,224],[64,224],[128,224],[192,224],[128,192],[64,192]]
+	beamTable = [
+		[[0,156],[0,43],[100,199],[83,0]],
+		[[85,199],[0,38],[0,77],[0,117]],
+		[[0,130],[9,0],[9,199],[0,68]],
+	]
+	launcherTable = [[38,24],[66,128+15],[66,49],[38,128+40]]
+
+	def __init__(self, t):
+		super(BossLast1, self).__init__()
+		self.x = 256
+		self.y = 0
+		self.left = 40
+		self.top = 24
+		self.right = 105
+		self.bottom = 71
+		self.hp = 2000
+		self.layer = gcommon.C_LAYER_GRD
+		self.ground = True
+		self.score = 1000
+		self.exptype = gcommon.C_EXPTYPE_GRD_BOSS
+		self.brokenState = 0
+		self.coreBrightState = 0
+		self.coreBrightness = 0
+		self.shotType = 1
+		self.beamIndex = 0
+		pyxel.image(2).load(0,0,"assets/graslay_last-3.png")
+
+	def update(self):
+		if self.state == 0:
+			if self.x <= 256-112:
+				# スクロール停止
+				gcommon.scroll_flag = False
+				self.nextState()
+		elif self.state == 1:
+			if self.cnt > 60:
+				self.nextState()
+		elif self.state == 2:
+			if self.cnt & 31 == 0:
+				n = (self.cnt>>5) & 3
+				if n == 0:
+					enemy.ContinuousShot.create(self.x + 38, self.y +24, self.shotType, 5, 5, 4)
+				elif n == 1:
+					enemy.ContinuousShot.create(self.x + 66, self.y +128+15, self.shotType, 5, 5, 4)
+				elif n == 2:
+					enemy.ContinuousShot.create(self.x + 66, self.y +49, self.shotType, 5, 5, 4)
+				elif n == 3:
+					enemy.ContinuousShot.create(self.x + 38, self.y +128+40, self.shotType, 5, 5, 4)
+				self.shotType = 1 + (self.shotType + 1) % 3
+			if self.cnt> 120:
+				self.nextState()
+		
+		elif self.state == 3:
+			for i in range(4):
+				start = BossLast1.launcherTable[i]
+				pos = BossLast1.beamTable[self.beamIndex][i]
+				gcommon.ObjMgr.addObj(BossLastBeam1(self.x + start[0], self.y +start[1], pos[0], pos[1]))
+			self.beamIndex += 1
+			if self.beamIndex >=len(BossLast1.beamTable):
+				self.beamIndex = 0
+			self.setState(2)
+
+	def draw(self):
+		# 上
+		pyxel.blt(self.x, self.y, 2, 96, 0,  160, -64, 3)
+		# 中
+
+		# コア部分
+		gcommon.setBrightnessWithoutBlack(self.coreBrightness)
+		pos = BossLast1.coreTable[(self.cnt>>2) % 6]
+		pyxel.blt(self.x +32+16, self.y +64+16, 2, pos[0], pos[1], 64, 32, 3)
+		pyxel.pal()
+		if self.cnt & 3 == 0:
+			if self.coreBrightState == 0:
+				self.coreBrightness += 1
+				if self.coreBrightness >= 10:
+					self.coreBrightState = 1
+			else:
+				self.coreBrightness -= 1
+				if self.coreBrightness <= -5:
+					self.coreBrightState = 0
+		pyxel.blt(self.x +32, self.y +64, 2, 0, self.brokenState* 64, 96, 64, 3)
+		# 下
+		pyxel.blt(self.x, self.y +128, 2, 96, 0, 160, 64, 3)
+
+class BossLastBeam1(enemy.EnemyBase):
+	beamPoints = [[0,0],[6,-6],[300,-6],[300,6],[6,6]]
+	def __init__(self, sx, sy, ex, ey):
+		super(BossLastBeam1, self).__init__()
+		self.sx = sx
+		self.sy = sy
+		self.ex = ex
+		self.ey = ey
+		self.ground = False
+		self.hitCheck = False
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+		self.polygonList1 = []
+		self.polygonList1.append(gcommon.Polygon(BossLastBeam1.beamPoints, 10))
+		self.rad = math.atan2(ey -sy, ex -sx)
+		self.xpolygonList1 = gcommon.getAnglePolygons2([self.sx, self.sy], self.polygonList1, [0,0], self.rad, 1, 1)
+		self.size = 0
+
+	def update(self):
+		if self.state == 0:
+			if self.cnt > 30:
+				self.nextState()
+		elif self.state == 1:
+			self.size += 0.05
+			if self.size >= 1.0:
+				self.size = 1.0
+			if self.cnt > 45:
+				self.nextState()
+		else:
+			self.size -= 0.05
+			if self.size <= 0:
+				self.remove()
+
+	def draw(self):
+		if self.state == 0:
+			pyxel.line(self.sx, self.sy, self.ex, self.ey, pyxel.frame_count & 15)
+		else:
+			self.xpolygonList1 = gcommon.getAnglePolygons2([self.sx, self.sy], self.polygonList1, [0,0], self.rad, 1, self.size)
+			self.xpolygonList2 = gcommon.getAnglePolygons2([self.sx, self.sy], self.polygonList1, [0,0], self.rad, 1, self.size/2)
+			if self.cnt & 2 == 0:
+				self.xpolygonList1.polygons[0].clr = 10
+				self.xpolygonList2.polygons[0].clr = 7
+			else:
+				self.xpolygonList1.polygons[0].clr = 8
+				self.xpolygonList2.polygons[0].clr = 10
+			gcommon.drawPolygons(self.xpolygonList1)
+			gcommon.drawPolygons(self.xpolygonList2)
