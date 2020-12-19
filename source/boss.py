@@ -184,7 +184,7 @@ class Boss1(enemy.EnemyBase):
 		self.setState(100)
 		self.shotHitCheck = False
 		self.beamObj.remove()
-		gcommon.removeEnemyShot()
+		enemy.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
 		gcommon.score+=self.score
 		self.remove()
@@ -762,7 +762,7 @@ class Boss2(enemy.EnemyBase):
 		for feeler in self.feelers:
 			feeler.remove()
 		self.remove()
-		gcommon.removeEnemyShot()
+		enemy.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
 		gcommon.score+=self.score
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
@@ -1112,7 +1112,7 @@ class Boss3(enemy.EnemyBase):
 
 	def broken(self):
 		self.remove()
-		gcommon.removeEnemyShot()
+		enemy.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
 		gcommon.score+=self.score
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
@@ -1348,7 +1348,7 @@ class Boss4(enemy.EnemyBase):
 
 	def broken(self):
 		self.remove()
-		gcommon.removeEnemyShot()
+		enemy.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
 		gcommon.score += self.score
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
@@ -1372,6 +1372,9 @@ class BossFactoryShot1(enemy.EnemyBase):
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
 		self.speed = 1
+		self.image = 2
+		self.imageX = 0
+		self.imageY = 96
 
 	def update(self):
 		if self.cnt & 2 == 0 and self.cnt <= 63:
@@ -1398,9 +1401,9 @@ class BossFactoryShot1(enemy.EnemyBase):
 
 	def draw(self):
 		if self.cnt & 2 == 2:
-			pyxel.blt(self.x, self.y, 2, 0, 96, 24, 24, gcommon.TP_COLOR)
+			pyxel.blt(self.x, self.y, self.image, self.imageX, self.imageY, 24, 24, gcommon.TP_COLOR)
 		else:
-			pyxel.blt(self.x, self.y, 2, 24, 96, 24, 24, gcommon.TP_COLOR)
+			pyxel.blt(self.x, self.y, self.image, self.imageX +24, self.imageY, 24, 24, gcommon.TP_COLOR)
 
 
 class BossFactoryBeam1(enemy.EnemyBase):
@@ -1803,7 +1806,7 @@ class BossFactory(enemy.EnemyBase):
 
 	def broken(self):
 		self.remove()
-		gcommon.removeEnemyShot()
+		enemy.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
 		gcommon.score += self.score
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
@@ -1949,6 +1952,25 @@ class MiddleBoss1Laser(enemy.EnemyBase):
 	def draw(self):
 		pyxel.blt(self.x, self.y, 2, 0, 192, 16, 4, gcommon.TP_COLOR)
 
+# レーザー移動砲台発射口
+class BossLast1Launcher(enemy.EnemyBase):
+	def __init__(self, x, y, flag):
+		super(BossLast1Launcher, self).__init__()
+		self.x = x
+		self.y = y
+		self.flag = flag
+		self.layer = gcommon.C_LAYER_SKY
+		self.ground = True
+		self.hitCheck = False
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+
+	def update(self):
+		pass
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, 2, 128, 64,  40, 16 * self.flag, 3)
+
 
 class BossLast1(enemy.EnemyBase):
 	coreTable = [[0,224],[64,224],[128,224],[192,224],[128,192],[64,192]]
@@ -1958,39 +1980,60 @@ class BossLast1(enemy.EnemyBase):
 		[[0,130],[9,0],[9,199],[0,68]],
 	]
 	launcherTable = [[38,24],[66,128+15],[66,49],[38,128+40]]
-
+	table8 = [5,3,6,2,1,7,4,0]
+	initHp = 2000
+	hp2 = 1900
+	hp3 = 1700
 	def __init__(self, t):
 		super(BossLast1, self).__init__()
 		self.x = 256
 		self.y = 0
-		self.left = 40
-		self.top = 24
-		self.right = 105
-		self.bottom = 71
-		self.hp = 2000
-		self.layer = gcommon.C_LAYER_GRD
+		self.left = 52
+		self.top = 80
+		self.right = 111
+		self.bottom = 111
+		self.hp = BossLast1.initHp
+		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.ground = True
 		self.score = 1000
 		self.exptype = gcommon.C_EXPTYPE_GRD_BOSS
+		# 破壊状態
 		self.brokenState = 0
 		self.coreBrightState = 0
 		self.coreBrightness = 0
 		self.shotType = 1
 		self.beamIndex = 0
+		self.cycleCount = 0
+		# 本体ビームカウント
+		self.cycleCount2 = 0
+		self.beam1List = [None] * 4
+		self.beam2 = None
+		# ボスの攻撃形態
+		self.mode = 0
+		# コアの回転角度
+		self.rad = 0.0
 		pyxel.image(2).load(0,0,"assets/graslay_last-3.png")
+		gcommon.ObjMgr.addObj(BossLast1Launcher(self.x, self.y, -1))
+		gcommon.ObjMgr.addObj(BossLast1Launcher(self.x, self.y +176, 1))
 
 	def update(self):
+		if self.mode == 0:
+			self.updateMode0()
+		else:
+			self.updateMode1()
+
+	def updateMode0(self):
 		if self.state == 0:
 			if self.x <= 256-112:
 				# スクロール停止
 				gcommon.scroll_flag = False
 				self.nextState()
 		elif self.state == 1:
-			if self.cnt > 60:
+			if self.cnt > 40:
 				self.nextState()
 		elif self.state == 2:
-			if self.cnt & 31 == 0:
-				n = (self.cnt>>5) & 3
+			if self.cnt % 25 == 1:
+				n = self.cnt & 3
 				if n == 0:
 					enemy.ContinuousShot.create(self.x + 38, self.y +24, self.shotType, 5, 5, 4)
 				elif n == 1:
@@ -2000,18 +2043,78 @@ class BossLast1(enemy.EnemyBase):
 				elif n == 3:
 					enemy.ContinuousShot.create(self.x + 38, self.y +128+40, self.shotType, 5, 5, 4)
 				self.shotType = 1 + (self.shotType + 1) % 3
-			if self.cnt> 120:
+			if self.cnt> 100:
 				self.nextState()
 		
 		elif self.state == 3:
-			for i in range(4):
-				start = BossLast1.launcherTable[i]
-				pos = BossLast1.beamTable[self.beamIndex][i]
-				gcommon.ObjMgr.addObj(BossLastBeam1(self.x + start[0], self.y +start[1], pos[0], pos[1]))
-			self.beamIndex += 1
-			if self.beamIndex >=len(BossLast1.beamTable):
-				self.beamIndex = 0
-			self.setState(2)
+			if self.cnt == 1:
+				for i in range(4):
+					start = BossLast1.launcherTable[i]
+					pos = BossLast1.beamTable[self.beamIndex][i]
+					self.beam1List[i] = BossLastBeam1(self.x + start[0], self.y +start[1], pos[0], pos[1])
+					gcommon.ObjMgr.addObj(self.beam1List[i])
+				self.beamIndex += 1
+				if self.beamIndex >=len(BossLast1.beamTable):
+					self.beamIndex = 0
+			else:
+				if self.beam1List[0].removeFlag:
+					self.nextState()
+		
+		elif self.state == 4:
+			if self.cycleCount % 3 == 2:
+				self.nextState()
+			else:
+				self.setState(2)	
+			self.cycleCount += 1
+
+		elif self.state == 5:
+			# 本体ビーム
+			if self.cnt == 1:
+				self.beam2 = BossLastBeam2(180, 96, (self.cycleCount2 & 1 != 0))
+				gcommon.ObjMgr.addObj(self.beam2)
+				self.cycleCount2 += 1
+			else:
+				if self.beam2.removeFlag:
+					if self.cycleCount2 & 2 != 0:
+						self.nextState()
+					else:
+						self.setState(2)	
+
+		elif self.state == 6:
+			# レーザー砲台射出
+			# if self.cnt % 12 == 0 and self.cnt <= 70:
+			# 	for i in range(4):
+			# 		pos = BossLast1.launcherTable[i]
+			# 		obj = BossFactoryShot1(self.x +pos[0] -12, self.y +pos[1]-12)
+			# 		obj.imageX = 0
+			# 		obj.imageY = 192
+			# 		gcommon.ObjMgr.objs.append(obj)
+			if self.cnt % 40 == 1:
+				gcommon.ObjMgr.objs.append(BossLastBattery1(156, 192, -1))
+			elif self.cnt % 40 == 21:
+				gcommon.ObjMgr.objs.append(BossLastBattery1(156, -16, 1))
+			#elif self.cnt % 30 == 14:
+			if self.cnt > 200:				
+				self.setState(2)	
+		self.rad = (self.rad + math.pi/60) % (math.pi * 2)
+		
+	def updateMode1(self):
+		if self.state == 0:
+			if self.x <= 256-112:
+				# スクロール停止
+				gcommon.scroll_flag = False
+				self.nextState()
+		elif self.state == 1:
+			if self.cnt > 60:
+				self.nextState()
+		elif self.state == 2:
+			# ダイアモンドショットホーミング射出
+			if self.cnt % 8 == 0:
+				n = BossLast1.table8[int(self.cnt /8) & 7]
+				gcommon.ObjMgr.addObj(BossLastDiamondShot(self.x +32+16+32, self.y +64+16+16+8, 24 -n*2))
+				gcommon.ObjMgr.addObj(BossLastDiamondShot(self.x +32+16+32, self.y +64+16+16-8, 40 +n*2))
+
+		self.rad = (self.rad + math.pi/60) % (math.pi * 2)
 
 	def draw(self):
 		# 上
@@ -2019,22 +2122,56 @@ class BossLast1(enemy.EnemyBase):
 		# 中
 
 		# コア部分
-		gcommon.setBrightnessWithoutBlack(self.coreBrightness)
-		pos = BossLast1.coreTable[(self.cnt>>2) % 6]
-		pyxel.blt(self.x +32+16, self.y +64+16, 2, pos[0], pos[1], 64, 32, 3)
-		pyxel.pal()
-		if self.cnt & 3 == 0:
-			if self.coreBrightState == 0:
-				self.coreBrightness += 1
-				if self.coreBrightness >= 10:
-					self.coreBrightState = 1
-			else:
-				self.coreBrightness -= 1
-				if self.coreBrightness <= -5:
-					self.coreBrightState = 0
-		pyxel.blt(self.x +32, self.y +64, 2, 0, self.brokenState* 64, 96, 64, 3)
+		if self.brokenState in (1, 2):
+			gcommon.setBrightnessWithoutBlack(self.coreBrightness)
+			BossLast1Core.drawCore(self.x +32+16+32, self.y +64+16+16, self.rad)
+			pyxel.pal()
+			if self.cnt & 3 == 0:
+				if self.coreBrightState == 0:
+					self.coreBrightness += 1
+					if self.coreBrightness >= 4:
+						self.coreBrightState = 1
+				else:
+					self.coreBrightness -= 1
+					if self.coreBrightness <= -3:
+						self.coreBrightState = 0
+		pyxel.blt(self.x +32, self.y +64, 2, 0, 128, 96, 64, 3)
+		if self.brokenState in (0,1):
+			if self.hit:
+				gcommon.setBrightnessWithoutBlack(1)
+			pyxel.blt(self.x +32, self.y +64, 2, 0, self.brokenState* 64, 96, 64, 3)
+			pyxel.pal()
 		# 下
 		pyxel.blt(self.x, self.y +128, 2, 96, 0, 160, 64, 3)
+
+	def checkShotCollision(self, shot):
+		ret = super(BossLast1, self).checkShotCollision(shot)
+		if ret:
+			rad = math.atan2(shot.dy, shot.dx)
+			enemy.Particle1.appendCenter(shot, rad)
+		if self.mode == 0:
+			if self.brokenState == 0 and self.hp < BossLast1.hp2:
+				self.brokenState = 1
+				enemy.create_explosion(self.x +32+32, self.y +64+16+16, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M)
+			elif self.brokenState == 1 and self.hp < BossLast1.hp3:
+				self.brokenState = 2
+				self.mode = 1
+				self.state = 0
+				self.removeAllShot()
+				enemy.create_explosion(self.x +32+32, self.y +64+16+16, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M)
+				enemy.Splash.append(self.x +32+32+24, self.y +64+16+16, gcommon.C_LAYER_EXP_SKY)
+		return ret
+
+	def removeAllShot(self):
+		enemy.removeEnemyShot()
+		for i in range(len(self.beam1List)):
+			obj = self.beam1List[i]
+			if obj != None and obj.removeFlag == False:
+				self.beam1List[i].remove()
+				self.beam1List[i] = None
+		if self.beam2 != None and self.beam2.removeFlag == False:
+			self.beam2.remove()
+			self.beam2 = None
 
 class BossLastBeam1(enemy.EnemyBase):
 	beamPoints = [[0,0],[6,-6],[300,-6],[300,6],[6,6]]
@@ -2044,42 +2181,433 @@ class BossLastBeam1(enemy.EnemyBase):
 		self.sy = sy
 		self.ex = ex
 		self.ey = ey
+		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.ground = False
-		self.hitCheck = False
+		self.hitCheck = True
 		self.shotHitCheck = False
 		self.enemyShotCollision = False
 		self.polygonList1 = []
 		self.polygonList1.append(gcommon.Polygon(BossLastBeam1.beamPoints, 10))
 		self.rad = math.atan2(ey -sy, ex -sx)
-		self.xpolygonList1 = gcommon.getAnglePolygons2([self.sx, self.sy], self.polygonList1, [0,0], self.rad, 1, 1)
+		self.xpolygonList1 = None
+		self.xpolygonList2 = None
+		self.xpolygonList3 = None
 		self.size = 0
 
 	def update(self):
 		if self.state == 0:
 			if self.cnt > 30:
 				self.nextState()
-		elif self.state == 1:
-			self.size += 0.05
-			if self.size >= 1.0:
-				self.size = 1.0
-			if self.cnt > 45:
-				self.nextState()
 		else:
-			self.size -= 0.05
-			if self.size <= 0:
-				self.remove()
+			# 1からはポリゴンで描く
+			if self.state == 1:
+				self.size += 0.05
+				if self.size >= 1.0:
+					self.size = 1.0
+				if self.cnt > 45:
+					self.nextState()
+			else:
+				self.size -= 0.05
+				if self.size <= 0:
+					self.remove()
+					return
+			self.xpolygonList1 = gcommon.getAnglePolygons2([self.sx, self.sy], self.polygonList1, [0,0], self.rad, 1, self.size)
+			self.xpolygonList2 = gcommon.getAnglePolygons2([self.sx, self.sy], self.polygonList1, [0,0], self.rad, 1, self.size*0.8)
+			self.xpolygonList3 = gcommon.getAnglePolygons2([self.sx, self.sy], self.polygonList1, [0,0], self.rad, 1, self.size/2)
+
+	# 自機と敵との当たり判定
+	def checkMyShipCollision(self):
+		if self.xpolygonList1 == None:
+			return False
+		pos = gcommon.getCenterPos(gcommon.ObjMgr.myShip)
+		if gcommon.checkCollisionPointAndPolygon(pos, self.xpolygonList1.polygons[0].points):
+			return True
+		return False
 
 	def draw(self):
 		if self.state == 0:
 			pyxel.line(self.sx, self.sy, self.ex, self.ey, pyxel.frame_count & 15)
 		else:
-			self.xpolygonList1 = gcommon.getAnglePolygons2([self.sx, self.sy], self.polygonList1, [0,0], self.rad, 1, self.size)
-			self.xpolygonList2 = gcommon.getAnglePolygons2([self.sx, self.sy], self.polygonList1, [0,0], self.rad, 1, self.size/2)
+			if self.xpolygonList1 == None:
+				return
 			if self.cnt & 2 == 0:
-				self.xpolygonList1.polygons[0].clr = 10
-				self.xpolygonList2.polygons[0].clr = 7
+				self.xpolygonList1.polygons[0].clr = 9
+				self.xpolygonList2.polygons[0].clr = 10
+				self.xpolygonList3.polygons[0].clr = 7
 			else:
 				self.xpolygonList1.polygons[0].clr = 8
-				self.xpolygonList2.polygons[0].clr = 10
+				self.xpolygonList2.polygons[0].clr = 9
+				self.xpolygonList3.polygons[0].clr = 10
 			gcommon.drawPolygons(self.xpolygonList1)
 			gcommon.drawPolygons(self.xpolygonList2)
+			gcommon.drawPolygons(self.xpolygonList3)
+
+#
+# 本体からの極太ビーム
+class BossLastBeam2(enemy.EnemyBase):
+	beamPoints = [[0,0],[6,-6],[300,-6],[300,6],[6,6]]
+	def __init__(self, x, y, flag):
+		super(BossLastBeam2, self).__init__()
+		self.x = x
+		self.y = y
+		self.flag = flag		# 最初にどっちに向くか
+		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.ground = False
+		self.hitCheck = True
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+		self.polygonList1 = []
+		self.polygonList1.append(gcommon.Polygon(BossLastBeam2.beamPoints, 10))
+		self.rad = math.pi
+		self.xpolygonList1 = None
+		self.xpolygonList2 = None
+		self.xpolygonList3 = None
+		self.size = 0
+		self.omega = math.pi/120
+		self.angle = math.pi * 0.25
+	
+	def update(self):
+		if self.flag:
+			if self.state == 0:
+				self.size += 0.05
+				if self.size >= 2.0:
+					self.size = 2.0
+				if self.cnt > 45:
+					self.nextState()
+			elif self.state == 1:
+				if self.cnt > 30:
+					self.nextState()
+			elif self.state == 2:
+				self.rad -= self.omega
+				if self.rad < (math.pi -self.angle):
+					self.nextState()
+			elif self.state == 3:
+				self.rad += self.omega
+				if self.rad > (math.pi +self.angle):
+					self.nextState()
+			elif self.state == 4:
+				self.rad -= self.omega
+				if self.rad <= math.pi:
+					self.rad = math.pi
+					self.nextState()
+			else:
+				self.size -= 0.05
+				if self.size <= 0:
+					self.remove()
+		else:
+			if self.state == 0:
+				self.size += 0.05
+				if self.size >= 2.0:
+					self.size = 2.0
+				if self.cnt > 45:
+					self.nextState()
+			elif self.state == 1:
+				if self.cnt > 30:
+					self.nextState()
+			elif self.state == 2:
+				self.rad += self.omega
+				if self.rad > (math.pi +self.angle):
+					self.nextState()
+			elif self.state == 3:
+				self.rad -= self.omega
+				if self.rad < (math.pi -self.angle):
+					self.nextState()
+			elif self.state == 4:
+				self.rad += self.omega
+				if self.rad >= math.pi:
+					self.rad = math.pi
+					self.nextState()
+			else:
+				self.size -= 0.05
+				if self.size <= 0:
+					self.remove()
+		if self.removeFlag == False:
+			self.xpolygonList1 = gcommon.getAnglePolygons2([self.x, self.y], self.polygonList1, [0,0], self.rad, 1, self.size)
+			self.xpolygonList2 = gcommon.getAnglePolygons2([self.x, self.y], self.polygonList1, [0,0], self.rad, 1, self.size*0.8)
+			self.xpolygonList3 = gcommon.getAnglePolygons2([self.x, self.y], self.polygonList1, [0,0], self.rad, 1, self.size/2)
+			if self.cnt & 1 == 0:
+				if self.rad > math.pi * 1.05:
+					x = self.x - ((self.y -8)/ math.tan(self.rad))
+					if x > 0:
+						enemy.create_explosion(x, 4 + random.randrange(8), gcommon.C_LAYER_EXP_SKY, gcommon.C_EXPTYPE_GRD_M)
+				elif self.rad < math.pi * 0.95:
+					x = self.x + ((184 -self.y)/ math.tan(self.rad))
+					if x > 0:
+						enemy.create_explosion(x, 184 + random.randrange(8), gcommon.C_LAYER_EXP_SKY, gcommon.C_EXPTYPE_GRD_M)
+
+	# 自機と敵との当たり判定
+	def checkMyShipCollision(self):
+		if self.xpolygonList1 == None:
+			return False
+		pos = gcommon.getCenterPos(gcommon.ObjMgr.myShip)
+		if gcommon.checkCollisionPointAndPolygon(pos, self.xpolygonList1.polygons[0].points):
+			return True
+		return False
+
+	def draw(self):
+		if self.cnt & 2 == 0:
+			self.xpolygonList1.polygons[0].clr = 9
+			self.xpolygonList2.polygons[0].clr = 10
+			self.xpolygonList3.polygons[0].clr = 7
+		else:
+			self.xpolygonList1.polygons[0].clr = 8
+			self.xpolygonList2.polygons[0].clr = 9
+			self.xpolygonList3.polygons[0].clr = 10
+		gcommon.drawPolygons(self.xpolygonList1)
+		gcommon.drawPolygons(self.xpolygonList2)
+		gcommon.drawPolygons(self.xpolygonList3)
+
+# ラスボス 移動レーザー砲台
+class BossLastBattery1(enemy.EnemyBase):
+	def __init__(self, x, y, flag):
+		super(BossLastBattery1, self).__init__()
+		self.x = x
+		self.y = y
+		self.flag = flag		# -1:上向き  1:下向き
+		self.left = 2
+		self.top = 2
+		self.right = 13
+		self.bottom = 13
+		self.hp = 2000
+		self.layer = gcommon.C_LAYER_GRD
+		self.ground = False
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+
+	def update(self):
+		if self.state == 0:
+			self.y += self.flag
+			if self.cnt > 20:
+				self.nextState()
+		else:
+			self.x -= 2
+			if self.x <= -16:
+				self.remove()
+				return
+			if self.cnt % 30 == (15 + self.flag * 5):
+				gcommon.ObjMgr.addObj(BossLastBattery1Beam(self.x, self.y, 4 * self.flag))
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, 2, 96, 64, 16, -16 *self.flag, 3)
+
+class BossLastBattery1Beam(enemy.EnemyBase):
+	def __init__(self, x, y, dy):
+		super(BossLastBattery1Beam, self).__init__()
+		self.x = x
+		self.y = y
+		self.dy = dy		# 
+		self.left = 7
+		self.top = 1
+		self.right = 8
+		self.bottom = 14
+		self.layer = gcommon.C_LAYER_SKY
+		self.ground = False
+		self.hitCheck = True
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+
+	def update(self):
+		self.y += self.dy
+		if self.y <= -16:
+			self.remove()
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, 2, 112, 64, 16, 16, 3)
+
+# ひし形ボス弾（ビームは間違っている）
+class BossLastDiamondBeam(enemy.EnemyBase):
+	points1 = [[0, 3],[11,0],[11,6]]
+	points2 = [[11,0],[11,6],[22,3]]
+	def __init__(self, x, y, dr):
+		super(BossLastDiamondBeam, self).__init__()
+		self.x = x
+		self.y = y
+		self.dr = dr
+		self.left = -2
+		self.top = -2
+		self.right = 2
+		self.bottom = 2
+		self.layer = gcommon.C_LAYER_SKY
+		self.ground = False
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+		self.speed = 3.0
+		self.polygons = [gcommon.Polygon(BossLastDiamondBeam.points1, 12), gcommon.Polygon(BossLastDiamondBeam.points2, 6)]
+
+	def update(self):
+		if self.cnt & 2 == 0 and self.cnt <= 63:
+			tempDr = gcommon.get_atan_no_to_ship(self.x +11, self.y +11)
+			if self.dr == -1:
+				self.dr = tempDr
+			else:
+				rr = tempDr - self.dr
+				if rr == 0:
+					pass
+				elif  (tempDr - self.dr) > 0:
+					self.dr = (self.dr + 1) & 63
+				else:
+					self.dr = (self.dr - 1) & 63
+		if self.cnt < 30:
+			self.speed *= 0.97
+		elif self.cnt < 60 and self.speed < 5:
+			self.speed *= 1.1
+
+		if self.cnt & 15 == 15:
+			enemy.Particle1.append(self.x, self.y, gcommon.atan_table[self.dr] + math.pi)
+
+		self.x += gcommon.cos_table[self.dr] * self.speed
+		self.y += gcommon.sin_table[self.dr] * self.speed
+		#if self.speed < 6:
+		#	self.speed += 0.05
+		if self.x <= -24 or self.x > gcommon.SCREEN_MAX_X:
+			self.remove()
+		elif self.y <= -24 or self.y > gcommon.SCREEN_MAX_Y:
+			self.remove()
+
+	def draw(self):
+		gcommon.drawPolygons(gcommon.getAnglePolygons([self.x, self.y], self.polygons, [11, 3], gcommon.atan_table[self.dr]))
+
+class BossLastDiamondShot(enemy.EnemyBase):
+	patternList = [[0,1,1],[1,1,1],[2,1,1],[3,1,1],[4,1,1],[3,-1,1],[2,-1,1],[1,-1,1]]
+	def __init__(self, x, y, dr):
+		super(BossLastDiamondShot, self).__init__()
+		self.x = x
+		self.y = y
+		self.dr = dr
+		self.left = -2
+		self.top = -2
+		self.right = 2
+		self.bottom = 2
+		self.layer = gcommon.C_LAYER_SKY
+		self.ground = False
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+		self.speed = 3.0
+		self.particleTable = []
+
+
+	def update(self):
+		if self.cnt & 2 == 0 and self.cnt <= 63:
+			tempDr = gcommon.get_atan_no_to_ship(self.x +11, self.y +11)
+			if self.dr == -1:
+				self.dr = tempDr
+			else:
+				rr = tempDr - self.dr
+				if rr == 0:
+					pass
+				elif  (tempDr - self.dr) > 0:
+					self.dr = (self.dr + 1) & 63
+				else:
+					self.dr = (self.dr - 1) & 63
+		if self.cnt < 30:
+			self.speed *= 0.97
+		elif self.cnt < 60 and self.speed < 5:
+			self.speed *= 1.1
+
+		#if self.cnt & 15 == 15:
+		#	enemy.Particle1.append(self.x, self.y, gcommon.atan_table[self.dr] + math.pi)
+
+		self.x += gcommon.cos_table[self.dr] * self.speed
+		self.y += gcommon.sin_table[self.dr] * self.speed
+		#if self.speed < 6:
+		#	self.speed += 0.05
+		if self.x <= -24 or self.x > gcommon.SCREEN_MAX_X:
+			self.remove()
+			return
+		elif self.y <= -24 or self.y > gcommon.SCREEN_MAX_Y:
+			self.remove()
+			return
+		self.updateParticle()
+
+	def updateParticle(self):
+		if self.cnt & 3 == 0:
+			r = gcommon.atan_table[self.dr] + random.random() * math.pi/4 - math.pi/8 + math.pi
+			speed = random.random() * 6
+			s = enemy.SplashItem(self.x, self.y, speed * math.cos(r), speed * math.sin(r), random.randrange(10, 50))
+			self.particleTable.append(s)
+		newTbl = []
+		for s in self.particleTable:
+			s.cnt -= 1
+			if s.cnt > 0:
+				newTbl.append(s)
+				s.x += s.dx
+				s.y += s.dy
+				s.dx *= 0.97
+				s.dy *= 0.97
+		self.particleTable = newTbl
+
+	def drawParticle(self):
+		for s in self.particleTable:
+			n = (s.life - s.cnt)/ s.life
+			if n > 0.5:
+				if s.cnt & 1 == 0:
+					continue
+			elif n > 0.6:
+				if s.cnt & 3 != 0:
+					continue
+			elif n > 0.8:
+				if s.cnt & 7 != 0:
+					continue
+			pyxel.pset(s.x, s.y, 7)
+
+	def draw(self):
+		#gcommon.drawPolygons(gcommon.getAnglePolygons([self.x, self.y], self.polygons, [11, 3], gcommon.atan_table[self.dr]))
+		p  = BossLastDiamondShot.patternList[((self.dr+2)>>2) & 7]
+		#p  = BossLastDiamondShot.patternList[(self.cnt>>2) & 7]
+		pyxel.blt(self.x -11, self.y -11, 2, p[0] * 24, 216, 24 * p[1], -24 * p[2], 3)
+		self.drawParticle()
+
+class BossLast1Core(enemy.EnemyBase):
+	def __init__(self, x, y):
+		super(BossLast1Core, self).__init__()
+
+	@classmethod
+	def drawLine(cls, cx, cy, r):
+		radius = 14
+		y = cy - radius * math.sin(r)
+		y2 = cy - radius * math.sin(r - math.pi/2.0)
+		if r <= math.pi*0.25:
+			clr = 5
+		elif r <= math.pi*0.5:
+			clr = 12
+		elif r <= math.pi*0.75:
+			clr = 6
+		else:
+			clr = 5
+		pyxel.line(cx -32, cy, cx -8, y, clr)
+		pyxel.line(cx -8, y, cx +8, y, clr)
+		pyxel.line(cx +8, y, cx +32, cy, clr)
+		if r >math.pi*0.75 and r <= math.pi * 1.75:
+			pass
+		else:
+			#if r <= math.pi*0.25:
+			#	clr = 5
+			#elif r <= math.pi*0.5:
+			#	clr = 12
+			#elif r <= math.pi*0.75:
+			#	clr = 6
+			#else:
+			#	clr = 5
+			pyxel.line(cx -8, y, cx -8, y2, clr)
+			pyxel.line(cx +8, y, cx +8, y2, clr)
+
+	@classmethod
+	def drawCore(cls, x, y, rad):
+		# 玉の後ろ
+		for i in range(4):
+			r = rad + i * math.pi/2.0
+			if r >= math.pi * 2:
+				r -= math.pi * 2
+			if r >= math.pi*0.5 and r < math.pi*1.5:
+				BossLast1Core.drawLine(x, y, r)
+		pyxel.blt(x -9, y -9, 2, 0, 192, 18, 18, 3)
+		# 玉の前
+		for i in range(4):
+			r = rad + i * math.pi/2.0
+			if r >= math.pi * 2:
+				r -= math.pi * 2
+			if r < math.pi*0.5 or r >= math.pi*1.5:
+				BossLast1Core.drawLine(x, y, r)

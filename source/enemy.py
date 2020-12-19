@@ -224,6 +224,18 @@ class EnemyShot(EnemyBase):
 # 爆発
 # 
 class Explosion(EnemyBase):
+	# sx, sy, width, height
+	patternTable = [
+		[0, 144, 16,16],		# 0
+		[16, 144, 16,16],		# 1
+		[32, 144, 16,16],		# 2
+		[48, 144, 16,16],		# 3
+		[64, 144, 16,16],		# 4 : 爆発終了パターン
+		[136, 64, 32, 32],		# 5
+		[0, 64, 48, 48],		# 6
+		[48 ,64, 48, 48],		# 7 : 爆発終了パターン１
+		[96, 64, 40, 40]		# 8 : 爆発終了パターン２
+	]
 	def __init__(self, cx,cy,exlayer,exptype):
 		super(Explosion, self).__init__()
 		self.t = gcommon.T_SKY_EXP
@@ -251,8 +263,14 @@ class Explosion(EnemyBase):
 		else:
 			if self.cnt>40:
 				self.remove()
-		
-	
+
+	def drawPattern(self, no):
+		ptn = Explosion.patternTable[no]
+		pyxel.blt( self.x-ptn[2]/2, self.y-ptn[3]/2, 0, ptn[0], ptn[1],
+			ptn[2] -(self.cnt &2) * ptn[2],
+			ptn[3] -(self.cnt &4) * ptn[3]/2,
+		0)
+
 	def draw(self):
 		if self.size==1:
 			#pyxel.circb(self.x, self.y, self.cnt*2+1, 10)
@@ -262,22 +280,30 @@ class Explosion(EnemyBase):
 					16, 16,
 					0)
 		elif self.size==2:
-			if self.cnt<8:
-				pyxel.circ(self.x, self.y, self.cnt*2+1, 10)
-			elif self.cnt < 25:
-				if self.cnt%2 ==0:
-					pyxel.blt( self.x-24, self.y-24, 0, 0, 64,
-						24*2 -(self.cnt &2) * 48,
-						24*2 -(self.cnt &4) * 24,
-						gcommon.TP_COLOR)
-			else:
-				if self.cnt%2 ==0:
-					pyxel.pal(7, gcommon.TP_COLOR)
-					pyxel.blt( self.x-24, self.y-24, 0, 0, 64,
-						24*2 -(self.cnt &2) * 48,
-						24*2 -(self.cnt &4) * 24,
-						gcommon.TP_COLOR)
-					pyxel.pal()
+			if self.cnt%2 ==0:
+				if self.cnt<8:
+					pyxel.circ(self.x, self.y, self.cnt*2+1, 10)
+				elif self.cnt < 16:
+					self.drawPattern(5)
+				elif self.cnt < 24:
+					self.drawPattern(6)
+				elif self.cnt < 32:
+					self.drawPattern(7)
+				elif self.cnt < 40:
+					self.drawPattern(8)
+
+			# elif self.cnt < 25:
+			# 	if self.cnt%2 ==0:
+			# 		pyxel.blt( self.x-24, self.y-24, 0, 0, 64,
+			# 			24*2 -(self.cnt &2) * 48,
+			# 			24*2 -(self.cnt &4) * 24,
+			# 			0)
+			# else:
+			# 	if self.cnt%2 ==0:
+			# 		pyxel.blt( self.x-24, self.y-24, 0, 0, 64,
+			# 			24*2 -(self.cnt &2) * 48,
+			# 			24*2 -(self.cnt &4) * 24,
+			# 			0)
 		else:
 			if self.cnt<8:
 				pyxel.circ(self.x, self.y, self.cnt*2+1, 10)
@@ -2873,6 +2899,8 @@ class ContinuousShot(EnemyBase):
 		self.shotCount = shotCount
 		self.shotInterval = shotInterval
 		self.speed = speed
+		# layerをC_LAYER_E_SHOTにすることで、removeEnemyShotで削除される
+		self.layer = gcommon.C_LAYER_E_SHOT
 		self.ground = False
 		self.hitCheck = False
 		self.shotHitCheck = False
@@ -2892,4 +2920,14 @@ class ContinuousShot(EnemyBase):
 	def draw(self):
 		pass
 
+
+# 画面の敵弾を消去する
+def removeEnemyShot():
+	newObjs = []
+	for obj in gcommon.ObjMgr.objs:
+		if obj.removeFlag == False and obj.layer == gcommon.C_LAYER_E_SHOT:
+			obj.remove()
+		else:
+			newObjs.append(obj)
+	gcommon.ObjMgr.objs = newObjs
 

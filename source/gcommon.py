@@ -318,6 +318,9 @@ def get_atan_to_ship(x, y):
 def get_atan_to_ship2(x, y, offsetdr):
 		return get_atan(x, y, ObjMgr.myShip.x +8, ObjMgr.myShip.y+8, offsetdr)
 
+def get_atan_rad_to_ship(x, y):
+	return math.atan2(ObjMgr.myShip.y -y, ObjMgr.myShip.x -x)
+
 # r1からみて、r2が右側(-1)か左側(1)のどちらかを返す
 def get_leftOrRight(r1, r2):
 	rr1 = (r2 - r1) & 63
@@ -805,16 +808,6 @@ def checkCollisionPointAndPolygon(pos, polyPoints):
 		return True
 	else:
 		return False
-
-# 画面の敵弾を消去する
-def removeEnemyShot():
-	newObjs = []
-	for obj in ObjMgr.objs:
-		if obj.removeFlag == False and obj.layer == C_LAYER_E_SHOT:
-			obj.remove()
-		else:
-			newObjs.append(obj)
-	ObjMgr.objs = newObjs
 
 
 # イージング関数
