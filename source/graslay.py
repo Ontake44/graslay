@@ -777,7 +777,9 @@ class MapDrawFactory:
 		gcommon.map_y = 24*8
 		gcommon.cur_scroll_x = 0.5
 		gcommon.cur_scroll_y = 0.0
-	
+		gcommon.back_map_x = -32 * 8
+		gcommon.back_map_y = 0
+
 	def update0(self, skip):
 		if gcommon.game_timer == 3550:
 			gcommon.sync_map_y = 0
@@ -860,13 +862,18 @@ class MapDrawFactory:
 			gcommon.map_x += gcommon.cur_scroll_x
 			gcommon.map_y += gcommon.cur_scroll_y
 			gcommon.map_y += gcommon.cur_map_dy
+			gcommon.back_map_x += gcommon.cur_scroll_x/2
 			if gcommon.map_y < 0:
 				gcommon.map_y = 128 * 8 + gcommon.map_y
 			elif gcommon.map_y >= 128 * 8:
 				gcommon.map_y = gcommon.map_y - 128 * 8
 
 	def drawBackground(self):
-		pass
+		if gcommon.back_map_x < 0:
+			pyxel.bltm(-1 * int(gcommon.back_map_x), 0, 1, 0, 24,33,33,3)
+		else:
+			mx = (int)(gcommon.back_map_x/8)
+			pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, 3)
 
 	def draw(self):
 		# 上下ループマップなのでややこしい
@@ -1148,6 +1155,7 @@ class MainGame:
 			gcommon.draw_star = True
 			gcommon.eshot_sync_scroll = False
 			loadMapData(0, "assets/graslay_factory.pyxmap")
+			loadMapData(1, "assets/graslay_factoryb.pyxmap")
 			loadMapAttribute("assets/graslay_factory.mapatr")
 			pyxel.tilemap(1).refimg = 1
 		elif self.stage == 6:
