@@ -182,6 +182,14 @@ mapAttribute = []
 
 SETTINGS_FILE = ".graslay"
 
+class ClassicRand:
+	def __init__(self):
+		self.x = 1
+
+	def rand(self):
+		self.x = (self.x * 1103515245+12345)&2147483647
+		return self.x
+
 
 class Rect:
 	def __init__(self):
@@ -716,6 +724,14 @@ def drawQuadrangle(points, clr):
 		 points[2][0], points[2][1],
 		 points[3][0], points[3][1], clr)
 
+# ただの４角形（長方形とは限らない）ワイヤーフレーム
+#  points = [[0,0],[1,0], [1,1],[0,1]]
+def drawQuadrangleB(points, clr):
+		pyxel.line(points[0][0], points[0][1], points[1][0], points[1][1], clr)
+		pyxel.line(points[1][0], points[1][1], points[2][0], points[2][1], clr)
+		pyxel.line(points[2][0], points[2][1], points[3][0], points[3][1], clr)
+		pyxel.line(points[3][0], points[3][1], points[0][0], points[0][1], clr)
+
 # 頂点配列、色でポリゴンを描く
 def drawPolygon(poly, clr):
 	sx = poly[0][0]
@@ -758,7 +774,7 @@ def getAnglePoints(destPos, points, offsetPos, rad):
 		xpoints.append([x,y])
 	return xpoints
 
-# Polygonsクラス指定で傾いたポリゴンを描く
+# Polygonsクラス指定で傾いたポリゴンを返す
 def getAnglePolygons(destPos, polygons, offsetPos, rad):
 	xpolygons = []
 	c = math.cos(rad)
