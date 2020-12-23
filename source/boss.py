@@ -2139,7 +2139,7 @@ class BossLast1(enemy.EnemyBase):
 				n = BossLast1.table8[int(self.cnt /8) & 7]
 				gcommon.ObjMgr.addObj(BossLastDiamondShot(self.x +32+16+32, self.y +64+16+16+8, 24 -n*2))
 				gcommon.ObjMgr.addObj(BossLastDiamondShot(self.x +32+16+32, self.y +64+16+16-8, 40 +n*2))
-			if self.cnt > 300:
+			if self.cnt > 30:
 				self.nextState()
 		elif self.state == 3:
 			if self.cnt > 30:
@@ -2149,10 +2149,12 @@ class BossLast1(enemy.EnemyBase):
 			#if self.cnt & 3 == 0:
 			#	self.arrowRad = math.pi + math.pi * (self.random.rand() % 100 -50)/120
 			#	gcommon.ObjMgr.addObj(BossLastArrowShot(self.x +32+16+32, self.y +64+16+16, self.arrowRad))
-			if self.cnt & 3 == 0:
-				self.omega = (self.random.rand() % 120 -60)/800
-				rad  = math.pi + math.pi * (self.random.rand() % 100 -50)/120
-				gcommon.ObjMgr.addObj(BossLastFallShotGroup(self.x +32+16+32, self.y +64+16+16, rad, self.omega, 5))
+			# if self.cnt & 3 == 0:
+			# 	self.omega = (self.random.rand() % 120 -60)/800
+			# 	rad  = math.pi + math.pi * (self.random.rand() % 100 -50)/120
+			# 	gcommon.ObjMgr.addObj(BossLastFallShotGroup(self.x +32+16+32, self.y +64+16+16, rad, self.omega, 5))
+			if self.cnt == 1:
+				gcommon.ObjMgr.addObj(BossLastRoundBeam(self.x +32+16+32, self.y +64+16+16))
 
 		self.rad = (self.rad + math.pi/60) % (math.pi * 2)
 
@@ -2753,3 +2755,130 @@ class BossLast1Core(enemy.EnemyBase):
 				r -= math.pi * 2
 			if r < math.pi*0.5 or r >= math.pi*1.5:
 				BossLast1Core.drawLine(x, y, r)
+
+class BossLastRoundBeam(enemy.EnemyBase):
+	def __init__(self, x, y):
+		super(BossLastRoundBeam, self).__init__()
+		self.x = x
+		self.y = y
+		self.left = -2
+		self.top = -2
+		self.right = 2
+		self.bottom = 2
+		self.layer = gcommon.C_LAYER_SKY
+		self.ground = False
+		self.hitCheck = True
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+		self.radOffset = 0.0
+		self.limit = 240
+		self.beamRadStart = 0.0
+		self.beamRadDelta = 0.0
+		# self.list1 = []
+		# self.list2 = []		# 当たり判定ある
+		# self.list3 = []
+		self.listArray = [None] * 12
+	def update(self):
+		self.radOffset -= math.pi * 0.05
+		if self.radOffset < 0:
+			self.radOffset += 2 * math.pi
+		if self.state == 0:
+			if self.limit >= -10:
+				self.limit -= 2
+			else:
+				self.nextState()
+		elif self.state == 1:
+			if self.cnt > 40:
+				self.nextState()
+				self.beamRadStart = 0.0
+		elif self.state == 2:
+			if self.beamRadDelta < math.pi/120:
+				self.beamRadDelta += (math.pi/120/30)
+			if self.beamRadStart < math.pi/8:
+				 self.beamRadStart += math.pi/1000
+			if self.cnt > 120:
+				self.nextState()
+		elif self.state == 3:
+			if self.beamRadDelta > -math.pi/120:
+				self.beamRadDelta -= (math.pi/120/30)
+			if self.beamRadStart > -math.pi/8:
+				 self.beamRadStart -= math.pi/1000
+			if self.cnt > 120:
+				self.setState(2)
+		# 描画準備
+		rad = self.radOffset
+		x2 = self.x
+		self.list1 = []
+		self.list2 = []
+		self.list3 = []
+		r = 0
+		beamRad = self.beamRadStart
+		px = self.x
+		py = self.y
+		count = 0
+		for i in range(len(self.listArray)):
+			self.listArray[i] = []
+		while(x2 > self.limit and count < 50):
+			#y2 = py - math.sin(rad) * r
+			
+			pos = gcommon.getAngle(0, - math.sin(rad) * r, beamRad)
+			x2 = px + pos[0]
+			y2 = py + pos[1]
+			
+			n = int(rad / (math.pi/6))
+			#print(str(n))
+			self.listArray[n % 12].append([x2, y2])
+			# if rad <= math.pi*2/6 or rad >= math.pi*10/6:
+			# 	self.list1.append([x2, y2])
+			# elif rad > math.pi*2/6 and rad <= math.pi*4/6:
+			# 	self.list2.append([x2, y2])
+			# elif rad > math.pi*4/6 and rad <= math.pi*8/6:
+			# 	self.list3.append([x2, y2])
+			# elif rad > math.pi*8/6 and rad <= math.pi*10/6:
+			# 	self.list2.append([x2, y2])
+			# else:
+			# 	self.list1.append([x2, y2])
+			
+			rad += math.pi/4
+			if rad > math.pi*2:
+				rad -= math.pi*2
+			if r < 40:
+				r += 2
+			px += (math.cos(beamRad)* -8)
+			py += (math.sin(beamRad)* -8)
+			beamRad += self.beamRadDelta
+			count += 1
+		
+	def draw(self):
+		# for pos in self.list1:
+		# 	pyxel.circb(pos[0], pos[1], 8, 5)
+		# for pos in self.list2:
+		# 	pyxel.circb(pos[0], pos[1], 8, 12)
+		# for pos in self.list3:
+		# 	pyxel.circb(pos[0], pos[1], 8, 7)
+		for i in range(0,2):
+			self.drawBeam(self.listArray[i], 0)
+		for i in range(10,12):
+			self.drawBeam(self.listArray[i], 0)
+		for i in range(2,4):
+			self.drawBeam(self.listArray[i], 1)
+		for i in range(8,10):
+			self.drawBeam(self.listArray[i], 1)
+		for i in range(4,8):
+			self.drawBeam(self.listArray[i], 2)
+
+	def drawBeam(self, list, clr):
+		for pos in list:
+			#pyxel.circ(pos[0], pos[1], 8, clr)
+			pyxel.blt(pos[0] -7, pos[1] -7, 2, 24 +clr * 16, 192, 16, 16, 3)
+
+
+
+	# 自機と敵との当たり判定
+	def checkMyShipCollision(self):
+		myPos = gcommon.getCenterPos(gcommon.ObjMgr.myShip)
+		for pos in self.list2:
+			d = gcommon.get_distance_pos2(myPos, pos)
+			if d < 6:
+				return True
+		return False

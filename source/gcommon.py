@@ -346,6 +346,9 @@ def get_direction_my(x, y):
 def get_distance_my(x, y):
 	return math.sqrt((ObjMgr.myShip.x+8 -x)*(ObjMgr.myShip.x+8 -x)+(ObjMgr.myShip.y+8 -y)*(ObjMgr.myShip.y+8 -y))
 
+def get_distance_pos2(pos1, pos2):
+	return math.sqrt((pos1[0]-pos2[0])*(pos1[0]-pos2[0])+(pos1[1]-pos2[1])*(pos1[1]-pos2[1]))
+
 def check_collision(o, s):
 	if (o.x+o.left<=s.x+s.left and s.x+s.left<=o.x+o.right)	\
 		or (o.x+o.left<=s.x+s.right and s.x+s.left<=o.x+o.right):
@@ -773,6 +776,9 @@ def getAnglePoints(destPos, points, offsetPos, rad):
 		y = destPos[1] + ((p[0] -offsetPos[0]) * s + (p[1] -offsetPos[1]) * c)
 		xpoints.append([x,y])
 	return xpoints
+
+def getAngle(x, y, rad):
+	return [(x * math.cos(rad) - y * math.sin(rad)), (x * math.sin(rad) + y * math.cos(rad))]
 
 # Polygonsクラス指定で傾いたポリゴンを返す
 def getAnglePolygons(destPos, polygons, offsetPos, rad):
