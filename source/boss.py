@@ -2765,7 +2765,7 @@ class BossLastRoundBeam(enemy.EnemyBase):
 		self.top = -2
 		self.right = 2
 		self.bottom = 2
-		self.layer = gcommon.C_LAYER_SKY
+		self.layer = gcommon.C_LAYER_GRD | gcommon.C_LAYER_UPPER_SKY
 		self.ground = False
 		self.hitCheck = True
 		self.shotHitCheck = False
@@ -2774,9 +2774,6 @@ class BossLastRoundBeam(enemy.EnemyBase):
 		self.limit = 240
 		self.beamRadStart = 0.0
 		self.beamRadDelta = 0.0
-		# self.list1 = []
-		# self.list2 = []		# 当たり判定ある
-		# self.list3 = []
 		self.listArray = [None] * 12
 	def update(self):
 		self.radOffset -= math.pi * 0.05
@@ -2792,25 +2789,22 @@ class BossLastRoundBeam(enemy.EnemyBase):
 				self.nextState()
 				self.beamRadStart = 0.0
 		elif self.state == 2:
-			if self.beamRadDelta < math.pi/120:
-				self.beamRadDelta += (math.pi/120/30)
-			if self.beamRadStart < math.pi/8:
-				 self.beamRadStart += math.pi/1000
-			if self.cnt > 120:
-				self.nextState()
-		elif self.state == 3:
 			if self.beamRadDelta > -math.pi/120:
 				self.beamRadDelta -= (math.pi/120/30)
-			if self.beamRadStart > -math.pi/8:
-				 self.beamRadStart -= math.pi/1000
-			if self.cnt > 120:
+			if self.beamRadStart < math.pi*0.35:
+				 self.beamRadStart += math.pi/200
+			if self.cnt > 150:
+				self.nextState()
+		elif self.state == 3:
+			if self.beamRadDelta < math.pi/120:
+				self.beamRadDelta += (math.pi/120/30)
+			if self.beamRadStart > -math.pi*0.35:
+				 self.beamRadStart -= math.pi/200
+			if self.cnt > 150:
 				self.setState(2)
 		# 描画準備
 		rad = self.radOffset
 		x2 = self.x
-		self.list1 = []
-		self.list2 = []
-		self.list3 = []
 		r = 0
 		beamRad = self.beamRadStart
 		px = self.x
@@ -2825,19 +2819,14 @@ class BossLastRoundBeam(enemy.EnemyBase):
 			x2 = px + pos[0]
 			y2 = py + pos[1]
 			
-			n = int(rad / (math.pi/6))
+			n = int(rad / (math.pi/6)) % 12
 			#print(str(n))
-			self.listArray[n % 12].append([x2, y2])
-			# if rad <= math.pi*2/6 or rad >= math.pi*10/6:
-			# 	self.list1.append([x2, y2])
-			# elif rad > math.pi*2/6 and rad <= math.pi*4/6:
-			# 	self.list2.append([x2, y2])
-			# elif rad > math.pi*4/6 and rad <= math.pi*8/6:
-			# 	self.list3.append([x2, y2])
-			# elif rad > math.pi*8/6 and rad <= math.pi*10/6:
-			# 	self.list2.append([x2, y2])
-			# else:
-			# 	self.list1.append([x2, y2])
+			if gcommon.isMapFreePos(x2, y2) == False and self.cnt & 3 == 0:
+				enemy.create_explosion(x2, y2, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_S)
+			self.listArray[n].append([x2, y2])
+			# 奥から描画するために反転する
+			if n in (8,9):
+				self.listArray[n].reverse()
 			
 			rad += math.pi/4
 			if rad > math.pi*2:
@@ -2849,23 +2838,19 @@ class BossLastRoundBeam(enemy.EnemyBase):
 			beamRad += self.beamRadDelta
 			count += 1
 		
-	def draw(self):
-		# for pos in self.list1:
-		# 	pyxel.circb(pos[0], pos[1], 8, 5)
-		# for pos in self.list2:
-		# 	pyxel.circb(pos[0], pos[1], 8, 12)
-		# for pos in self.list3:
-		# 	pyxel.circb(pos[0], pos[1], 8, 7)
-		for i in range(0,2):
-			self.drawBeam(self.listArray[i], 0)
-		for i in range(10,12):
-			self.drawBeam(self.listArray[i], 0)
-		for i in range(2,4):
-			self.drawBeam(self.listArray[i], 1)
-		for i in range(8,10):
-			self.drawBeam(self.listArray[i], 1)
-		for i in range(4,8):
-			self.drawBeam(self.listArray[i], 2)
+	def drawLayer(self, layer):
+		if (layer & gcommon.C_LAYER_GRD) != 0:
+			for i in range(0,2):
+				self.drawBeam(self.listArray[i], 0)
+			for i in range(10,12):
+				self.drawBeam(self.listArray[i], 0)
+			for i in range(2,4):
+				self.drawBeam(self.listArray[i], 1)
+			for i in range(9,8,-1):
+				self.drawBeam(self.listArray[i], 1)
+		elif (layer & gcommon.C_LAYER_UPPER_SKY) != 0:
+			for i in range(4,8):
+				self.drawBeam(self.listArray[i], 2)
 
 	def drawBeam(self, list, clr):
 		for pos in list:
@@ -2876,9 +2861,10 @@ class BossLastRoundBeam(enemy.EnemyBase):
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
-		myPos = gcommon.getCenterPos(gcommon.ObjMgr.myShip)
-		for pos in self.list2:
-			d = gcommon.get_distance_pos2(myPos, pos)
-			if d < 6:
-				return True
+		myPos : [float] = gcommon.getCenterPos(gcommon.ObjMgr.myShip)
+		for i in [2,3, 8, 9]:
+			for pos in self.listArray[i]:
+				d = gcommon.get_distance_pos2(myPos, pos)
+				if d < 6:
+					return True
 		return False

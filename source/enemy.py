@@ -90,6 +90,12 @@ class EnemyBase:
 		else:
 			return False
 
+	def drawLayer(self, layer):
+		self.draw()
+
+	def draw(self):
+		pass
+
 	def remove(self):
 		self.removeFlag = True
 
@@ -2737,8 +2743,8 @@ class MissileBattery1(EnemyBase):
 		self.mirror = mirror
 		self.left = 2
 		self.top = 2
-		self.right = 29
-		self.bottom = 29
+		self.right = 13
+		self.bottom = 13
 		self.hp = 30
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True

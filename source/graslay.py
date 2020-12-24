@@ -1282,40 +1282,40 @@ class MainGame:
 		gcommon.ObjMgr.drawDrawMapBackground()
 
 		for obj in gcommon.ObjMgr.objs:
-			if obj.layer==gcommon.C_LAYER_UNDER_GRD:
-				obj.draw()
+			if (obj.layer & gcommon.C_LAYER_UNDER_GRD) != 0:
+				obj.drawLayer(gcommon.C_LAYER_UNDER_GRD)
 		
 		gcommon.ObjMgr.drawDrawMap()
 		
 		# enemy(ground)
 		for obj in gcommon.ObjMgr.objs:
-			if obj.layer==gcommon.C_LAYER_GRD:
+			if (obj.layer & gcommon.C_LAYER_GRD) != 0:
 				if obj.hitcolor1 !=0 and obj.hit:
 					pyxel.pal(obj.hitcolor1, obj.hitcolor2)
 				
-				obj.draw()
+				obj.drawLayer(gcommon.C_LAYER_GRD)
 				if obj.hitcolor1 !=0 and obj.hit:
 					pyxel.pal(obj.hitcolor1, obj.hitcolor1)
 
-		# item
-		for obj in gcommon.ObjMgr.objs:
-			if obj.layer==gcommon.C_LAYER_ITEM:
-				obj.draw()
+		# # item
+		# for obj in gcommon.ObjMgr.objs:
+		# 	if (obj.layer != gcommon.C_LAYER_ITEM) != 0:
+		# 		obj.draw()
 		
 		# enemy(sky)
 		for obj in gcommon.ObjMgr.objs:
-			if obj.layer==gcommon.C_LAYER_SKY:
+			if (obj.layer & gcommon.C_LAYER_SKY) != 0:
 				if obj.hitcolor1 !=0 and obj.hit:
 					pyxel.pal(obj.hitcolor1, obj.hitcolor2)
 				
-				obj.draw()
+				obj.drawLayer(gcommon.C_LAYER_SKY)
 				if obj.hitcolor1 !=0 and obj.hit:
 					pyxel.pal(obj.hitcolor1, obj.hitcolor1)
 
 		# enemy shot and explosion(sky)
 		for obj in gcommon.ObjMgr.objs:
-			if obj.layer==gcommon.C_LAYER_EXP_SKY or obj.layer==gcommon.C_LAYER_E_SHOT:
-				obj.draw()
+			if (obj.layer & (gcommon.C_LAYER_EXP_SKY | gcommon.C_LAYER_E_SHOT))!= 0:
+				obj.drawLayer(gcommon.C_LAYER_EXP_SKY | gcommon.C_LAYER_E_SHOT)
 
 		# my shot
 		for shot in gcommon.ObjMgr.shots:
@@ -1325,8 +1325,12 @@ class MainGame:
 		gcommon.ObjMgr.myShip.draw()
 
 		for obj in gcommon.ObjMgr.objs:
-			if obj.layer==gcommon.C_LAYER_TEXT:
-				obj.draw()
+			if (obj.layer & gcommon.C_LAYER_UPPER_SKY) != 0:
+				obj.drawLayer(gcommon.C_LAYER_UPPER_SKY)
+
+		for obj in gcommon.ObjMgr.objs:
+			if (obj.layer & gcommon.C_LAYER_TEXT) != 0:
+				obj.drawLayer(gcommon.C_LAYER_TEXT)
 		
 		
 		pyxel.clip()
