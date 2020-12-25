@@ -2193,16 +2193,27 @@ class BossLast1(enemy.EnemyBase):
 			enemy.Particle1.appendCenter(shot, rad)
 		if self.mode == 0:
 			if self.brokenState == 0 and self.hp < BossLast1.hp2:
+				# 初期状態
 				self.brokenState = 1
 				enemy.create_explosion(self.x +32+32, self.y +64+16+16, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M)
 			elif self.brokenState == 1 and self.hp < BossLast1.hp3:
+				# 先端が欠けた状態
 				self.brokenState = 2
 				self.mode = 1
-				self.state = 0
+				self.setState(0)
 				self.removeAllShot()
 				enemy.create_explosion(self.x +32+32, self.y +64+16+16, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M)
 				enemy.Splash.append(self.x +32+32+24, self.y +64+16+16, gcommon.C_LAYER_EXP_SKY)
 		return ret
+
+	def broken(self):
+		self.mode = 2
+		self.setState(0)
+		self.shotHitCheck = False
+		self.removeAllShot()
+		enemy.removeEnemyShot()
+		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
 
 	def removeAllShot(self):
 		enemy.removeEnemyShot()
@@ -2457,7 +2468,7 @@ class BossLastBattery1Beam(enemy.EnemyBase):
 	def draw(self):
 		pyxel.blt(self.x, self.y, 2, 112, 64, 16, 16, 3)
 
-# ひし形ボス弾（ビームは間違っている）
+# ひし形ボス弾（ビームという呼称は間違っている）
 class BossLastDiamondBeam(enemy.EnemyBase):
 	points1 = [[0, 3],[11,0],[11,6]]
 	points2 = [[11,0],[11,6],[22,3]]

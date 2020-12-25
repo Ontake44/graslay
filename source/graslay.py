@@ -916,6 +916,8 @@ class MapDrawLast:
 	def init(self):
 		gcommon.map_x = -32 * 8
 		gcommon.map_y = 24*8
+		gcommon.back_map_x = -32 * 8
+		gcommon.back_map_y = 0
 
 	def update0(self, skip):
 		pass
@@ -974,9 +976,16 @@ class MapDrawLast:
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 		gcommon.map_y += gcommon.cur_map_dy
+		gcommon.back_map_x += gcommon.cur_scroll_x/2
 
 	def drawBackground(self):
-		pass
+		if gcommon.back_map_x >= 0:
+			if gcommon.back_map_x < 2:
+				gcommon.setBrightnessMinus1()
+			mx = (int)(gcommon.back_map_x/8)
+			pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, 3)
+			if gcommon.back_map_x < 2:
+				pyxel.pal()
 
 	def draw(self):
 		# if gcommon.map_x < 0:
@@ -1168,6 +1177,7 @@ class MainGame:
 			gcommon.draw_star = True
 			gcommon.eshot_sync_scroll = False
 			loadMapData(0, "assets/graslay_last.pyxmap")
+			loadMapData(1, "assets/graslay_lastb.pyxmap")
 			loadMapAttribute("assets/graslay_last.mapatr")
 			pyxel.tilemap(1).refimg = 1
 		#elif self.stage == 3:

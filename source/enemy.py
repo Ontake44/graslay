@@ -1799,6 +1799,7 @@ class Battery3(EnemyBase):
 		self.x = x
 		self.y = y
 		self.direction = direction
+		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True
 		self.left = 2
 		self.right = 13
