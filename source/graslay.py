@@ -977,6 +977,11 @@ class MapDrawLast:
 		gcommon.map_y += gcommon.cur_scroll_y
 		gcommon.map_y += gcommon.cur_map_dy
 		gcommon.back_map_x += gcommon.cur_scroll_x/2
+		# マップループ
+		if gcommon.map_x >= (256*8+164*8):
+			gcommon.map_x -= 8*10
+		if gcommon.back_map_x >= 120 * 8:
+			gcommon.back_map_x -= 120 * 8
 
 	def drawBackground(self):
 		if gcommon.back_map_x >= 0:

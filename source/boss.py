@@ -2009,8 +2009,11 @@ class BossLast1(enemy.EnemyBase):
 		self.cycleCount2 = 0
 		self.beam1List = [None] * 4
 		self.beam2 = None
+		self.roundBeam = None
 		# ボスの攻撃形態
 		self.mode = 0
+		self.coreX = self.x +32+16+32
+		self.coreY = self.y +64+16+16
 		# コアの回転角度
 		self.rad = 0.0
 		self.subState = 0
@@ -2019,6 +2022,7 @@ class BossLast1(enemy.EnemyBase):
 		self.omega = 0.0
 		self.random = gcommon.ClassicRand()
 		pyxel.image(2).load(0,0,"assets/graslay_last-3.png")
+		# 移動ビーム砲台発射口
 		gcommon.ObjMgr.addObj(BossLast1Launcher(self.x, self.y, -1))
 		gcommon.ObjMgr.addObj(BossLast1Launcher(self.x, self.y +176, 1))
 
@@ -2045,10 +2049,14 @@ class BossLast1(enemy.EnemyBase):
 	def update(self):
 		if self.mode == 0:
 			self.updateMode0()
-		else:
+		elif self.mode == 1:
 			self.updateMode1()
+		else:
+			self.updateMode2()
 
 	def updateMode0(self):
+		self.coreX = self.x +32+16+32
+		self.coreY = self.y +64+16+16
 		if self.state == 0:
 			if self.x <= 256-112:
 				# スクロール停止
@@ -2125,6 +2133,8 @@ class BossLast1(enemy.EnemyBase):
 		self.rad = (self.rad + math.pi/60) % (math.pi * 2)
 		
 	def updateMode1(self):
+		self.coreX = self.x +32+16+32
+		self.coreY = self.y +64+16+16
 		if self.state == 0:
 			if self.x <= 256-112:
 				# スクロール停止
@@ -2146,17 +2156,45 @@ class BossLast1(enemy.EnemyBase):
 				self.nextState()
 		elif self.state == 4:
 			# # 矢型の弾
-			#if self.cnt & 3 == 0:
-			#	self.arrowRad = math.pi + math.pi * (self.random.rand() % 100 -50)/120
-			#	gcommon.ObjMgr.addObj(BossLastArrowShot(self.x +32+16+32, self.y +64+16+16, self.arrowRad))
 			# if self.cnt & 3 == 0:
-			# 	self.omega = (self.random.rand() % 120 -60)/800
-			# 	rad  = math.pi + math.pi * (self.random.rand() % 100 -50)/120
-			# 	gcommon.ObjMgr.addObj(BossLastFallShotGroup(self.x +32+16+32, self.y +64+16+16, rad, self.omega, 5))
+			# 	self.arrowRad = math.pi + math.pi * (self.random.rand() % 100 -50)/120
+			# 	gcommon.ObjMgr.addObj(BossLastArrowShot(self.x +32+16+32, self.y +64+16+16, self.arrowRad))
+			# ひし形弾
+			if self.cnt & 3 == 0:
+				gcommon.ObjMgr.addObj(BossLastFallShotGroup(self.x +32+16+32, self.y +64+16+16,
+					math.pi + math.pi * (self.random.rand() % 100 -50)/120, 
+					(self.random.rand() % 120 -60)/800, 5))
+			if self.cnt > 120:
+				self.nextState()
+		elif self.state == 5:
 			if self.cnt == 1:
-				gcommon.ObjMgr.addObj(BossLastRoundBeam(self.x +32+16+32, self.y +64+16+16))
+				self.roundBeam = BossLastRoundBeam(self.x +32+16+32, self.y +64+16+16)
+				gcommon.ObjMgr.addObj(self.roundBeam)
+			if self.roundBeam != None and self.roundBeam.removeFlag:
+				self.setState(2)
 
 		self.rad = (self.rad + math.pi/60) % (math.pi * 2)
+
+	def updateMode2(self):
+		if self.state == 0:
+			if self.cnt > 120:
+				self.nextState()
+		elif self.state == 1:
+			# 右の画面外に移動
+			if self.cnt == 1:
+				enemy.Splash.appendDr(self.coreX, self.coreY -8, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
+				enemy.Splash.appendDr(self.coreX -16, self.coreY, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
+				enemy.Splash.appendDr(self.coreX, self.coreY +8, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
+			if self.coreX < 300:
+				self.coreX += 4
+			if self.cnt == 120:
+				gcommon.scroll_flag = True
+				gcommon.ObjMgr.addObj(BossLast1Core(self.coreX, self.coreY))
+		if self.x <= -160:
+			self.remove()
+
+		self.rad = (self.rad + math.pi/30) % (math.pi * 2)
+
 
 	def draw(self):
 		# 上
@@ -2166,7 +2204,7 @@ class BossLast1(enemy.EnemyBase):
 		# コア部分
 		if self.brokenState in (1, 2):
 			gcommon.setBrightnessWithoutBlack(self.coreBrightness)
-			BossLast1Core.drawCore(self.x +32+16+32, self.y +64+16+16, self.rad)
+			BossLast1Core.drawCore(self.coreX, self.coreY, self.rad)
 			pyxel.pal()
 			if self.cnt & 3 == 0:
 				if self.coreBrightState == 0:
@@ -2209,6 +2247,7 @@ class BossLast1(enemy.EnemyBase):
 	def broken(self):
 		self.mode = 2
 		self.setState(0)
+		self.hitCheck = False
 		self.shotHitCheck = False
 		self.removeAllShot()
 		enemy.removeEnemyShot()
@@ -2225,6 +2264,9 @@ class BossLast1(enemy.EnemyBase):
 		if self.beam2 != None and self.beam2.removeFlag == False:
 			self.beam2.remove()
 			self.beam2 = None
+		if self.roundBeam != None and self.roundBeam.removeFlag == False:
+			self.roundBeam.remove()
+			self.roundBeam = None
 
 class BossLastBeam1(enemy.EnemyBase):
 	beamPoints = [[0,0],[6,-6],[300,-6],[300,6],[6,6]]
@@ -2718,6 +2760,18 @@ class BossLastFallShotGroup(enemy.EnemyBase):
 class BossLast1Core(enemy.EnemyBase):
 	def __init__(self, x, y):
 		super(BossLast1Core, self).__init__()
+		self.x = x
+		self.y = y
+		self.left = -8
+		self.top = -8
+		self.right = 8
+		self.bottom = 8
+		self.layer = gcommon.C_LAYER_SKY
+		self.ground = False
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+		self.rad = 0.0
 
 	@classmethod
 	def drawLine(cls, cx, cy, r):
@@ -2767,6 +2821,20 @@ class BossLast1Core(enemy.EnemyBase):
 			if r < math.pi*0.5 or r >= math.pi*1.5:
 				BossLast1Core.drawLine(x, y, r)
 
+	def update(self):
+		if self.state == 0:
+			if self.cnt & 7 == 0:
+				gcommon.cur_scroll_x += 0.25
+				if gcommon.cur_scroll_x > 4:
+					gcommon.cur_scroll_x = 4.0
+		# マップループ
+		if gcommon.map_x >= (256*8+164*8):
+			gcommon.map_x -= 8*10
+
+	def draw(self):
+		BossLast1Core.drawCore(self.x, self.y, self.rad)
+
+# ぐるぐるビーム
 class BossLastRoundBeam(enemy.EnemyBase):
 	def __init__(self, x, y):
 		super(BossLastRoundBeam, self).__init__()
@@ -2786,6 +2854,7 @@ class BossLastRoundBeam(enemy.EnemyBase):
 		self.beamRadStart = 0.0
 		self.beamRadDelta = 0.0
 		self.listArray = [None] * 12
+		self.stateCycle = 0
 	def update(self):
 		self.radOffset -= math.pi * 0.05
 		if self.radOffset < 0:
@@ -2812,7 +2881,23 @@ class BossLastRoundBeam(enemy.EnemyBase):
 			if self.beamRadStart > -math.pi*0.35:
 				 self.beamRadStart -= math.pi/200
 			if self.cnt > 150:
-				self.setState(2)
+				self.stateCycle += 1
+				if self.stateCycle == 3:
+					self.setState(10)
+				else:
+					self.setState(2)
+		elif self.state == 10:
+			if self.beamRadDelta > 0:
+				self.beamRadDelta -= (math.pi/120/30)
+			self.beamRadStart += math.pi/200
+			if self.beamRadStart >= 0:
+				self.nextState()
+		elif self.state == 11:
+			if self.limit < 240:
+				self.limit += 2
+			else:
+				self.remove()
+
 		# 描画準備
 		rad = self.radOffset
 		x2 = self.x

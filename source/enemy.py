@@ -596,19 +596,38 @@ class Splash(EnemyBase):
 		self.y = cy
 		self.layer = layer
 		self.tbl = []
+		self.count = 200
+		self.direction = 0		# ラジアン
+		self.angle = 2 * math.pi
 		self.hitCheck = False
 		self.shotHitCheck = False
-		for i in range(0,200):
-			r = random.random() * 2 * math.pi
-			speed = random.random() * 6
-			s = SplashItem(cx, cy, speed * math.cos(r), speed * math.sin(r), random.randrange(100, 240))
-			self.tbl.append(s)
 
 	@classmethod
 	def append(cls, x, y, layer):
-		gcommon.ObjMgr.objs.append(Splash(x, y, layer))
-	
+		gcommon.ObjMgr.addObj(Splash(x, y, layer))
+
+	@classmethod
+	def append2(cls, x, y, layer, count):
+		obj = Splash(x, y, layer)
+		obj.count = count
+		gcommon.ObjMgr.addObj(obj)
+
+	@classmethod
+	def appendDr(cls, x, y, layer, dr, angle, count):
+		obj = Splash(x, y, layer)
+		obj.direction = dr
+		obj.angle = angle
+		obj.count = count
+		gcommon.ObjMgr.addObj(obj)
+
 	def update(self):
+		if self.cnt == 0:
+			for i in range(0,self.count):
+				r = self.direction + random.random() * self.angle - self.angle/2
+				speed = random.random() * 6
+				s = SplashItem(self.x, self.y, speed * math.cos(r), speed * math.sin(r), random.randrange(100, 240))
+				self.tbl.append(s)
+
 		newTbl = []
 		for s in self.tbl:
 			s.cnt -= 1
