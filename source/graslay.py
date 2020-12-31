@@ -6,6 +6,7 @@ import os
 import gcommon
 import enemy
 import boss
+#import pygame
 
 
 # 自機
@@ -980,8 +981,8 @@ class MapDrawLast:
 		# マップループ
 		if gcommon.map_x >= (256*8+164*8):
 			gcommon.map_x -= 8*10
-		if gcommon.back_map_x >= 120 * 8:
-			gcommon.back_map_x -= 120 * 8
+		if gcommon.back_map_x >= 48 * 8:
+			gcommon.back_map_x -= 24 * 8
 
 	def drawBackground(self):
 		if gcommon.back_map_x >= 0:
@@ -991,6 +992,7 @@ class MapDrawLast:
 			pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, 3)
 			if gcommon.back_map_x < 2:
 				pyxel.pal()
+			
 
 	def draw(self):
 		# if gcommon.map_x < 0:
@@ -1197,6 +1199,7 @@ class MainGame:
 		gcommon.mapFreeTable = [0, 32, 33, 34, 65, 66]
 		gcommon.playBGM()
 
+
 	# デバッグ用のゲームタイマースキップ
 	def skipGameTimer(self):
 		while(gcommon.game_timer < gcommon.START_GAME_TIMER):
@@ -1271,6 +1274,10 @@ class MainGame:
 							obj.y -= gcommon.cur_scroll_y
 					obj.x -= gcommon.cur_map_dx
 					obj.y -= gcommon.cur_map_dy
+				if obj.nextStateNo != -1:
+					obj.state = obj.nextStateNo
+					obj.nextStateNo = -1
+					obj.cnt = 0
 				obj.update()
 				obj.cnt = obj.cnt + 1
 				if obj.removeFlag == False:
@@ -1363,6 +1370,7 @@ class MainGame:
 			else:
 				pyxel.blt(96 + 40*i, 192, 0, i * 40, 48, 40, 8)
 		
+		#pyxel.text(120, 184, str(gcommon.back_map_x), 7)
 		#pyxel.text(120, 184, str(gcommon.game_timer), 7)
 		#pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)
 		#pyxel.text(160, 188, str(self.event_pos),7)
@@ -1849,8 +1857,10 @@ class App:
 		# コマンドライン解析
 		parseCommandLine()
 		
+		#pygame.mixer.init()
 		pyxel.init(256, 200, caption="GRASLAY", fps=60, quit_key=pyxel.KEY_Q)
- 		
+
+
 		pyxel.load("assets/graslay.pyxres")
 		pyxel.image(0).load(0,0,"assets/graslay0.png")
 		
@@ -1882,7 +1892,7 @@ class App:
 		self.setScene(MainGame(stage))
 
 	def startNextStage(self):
-		if self.stage == 5:
+		if self.stage == 6:
 			self.startGameClear()
 		else:
 			self.startStage(self.stage+1)

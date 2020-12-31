@@ -357,6 +357,7 @@ class Feeler(enemy.EnemyBase):
 		self.parentObj = parentObj
 		self.offsetX = offsetX
 		self.offsetY = offsetY
+		self.layer = gcommon.C_LAYER_GRD
 		self.left = 2
 		self.top = 2
 		self.dr = dr
@@ -376,13 +377,13 @@ class Feeler(enemy.EnemyBase):
 		self.mode = mode
 		self.state = 1
 		self.cnt = 0
+		print("Feeler mode:" +str(mode))
 
 	def update(self):
 		self.x = self.parentObj.x + self.offsetX
 		self.y = self.parentObj.y + self.offsetY
 		if self.mode == 1:
 			if self.state ==1:
-				#print("cnt = " + str(self.cnt))
 				i = 1
 				x = 0
 				y = 0
@@ -502,6 +503,7 @@ class Boss2Cell(enemy.EnemyBase):
 		self.x = x
 		self.y = y
 		self.parentObj = parentObj
+		self.layer = gcommon.C_LAYER_GRD
 		self.left = 2
 		self.top = 2
 		self.right = 13
@@ -953,8 +955,8 @@ class Boss3(enemy.EnemyBase):
 				self.body.y = self.body_min_y
 				self.nextState()
 			elif self.cnt % 15 == 0:
-				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 2))
-				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 2))
+				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
+				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
 				gcommon.sound(gcommon.SOUND_SHOT3)
 			self.setBodyAnchorPos()
 		elif self.state == 4:
@@ -970,8 +972,8 @@ class Boss3(enemy.EnemyBase):
 
 			self.setBodyAnchorPos()
 			if self.cnt % 20 == 0:
-				enemy.enemy_shot(self.x+20, self.y+27, 2, 0)
-				enemy.enemy_shot(self.x+20, self.y+160-27, 2, 0)
+				enemy.enemy_shot(self.x+20, self.y+27, 4, 0)
+				enemy.enemy_shot(self.x+20, self.y+160-27, 4, 0)
 				gcommon.sound(gcommon.SOUND_SHOT2)
 			if self.cnt > 180:
 				self.nextState()
@@ -1015,8 +1017,8 @@ class Boss3(enemy.EnemyBase):
 				self.body.y = self.body_max_y
 				self.nextState()
 			elif self.cnt % 15 == 0:
-				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 2))
-				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 2))
+				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
+				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
 			self.setBodyAnchorPos()
 		elif self.state == 8:
 			# 中心に移動
@@ -1436,7 +1438,7 @@ class BossFactoryBeam1(enemy.EnemyBase):
 		if self.cnt & 2 == 0:
 			pyxel.line(self.x -self.dx * 2, self.y -self.dy * 2, self.x + self.dx * 2, self.y + self.dy * 2, 7)
 		else:
-			pyxel.line(self.x -self.dx * 2, self.y -self.dy * 2, self.x + self.dx * 2, self.y + self.dy * 2, 6)
+			pyxel.line(self.x -self.dx * 2, self.y -self.dy * 2, self.x + self.dx * 2, self.y + self.dy * 2, 10)
 
 bossFactoryFin1 = [
 	[10, 0],
@@ -1982,9 +1984,9 @@ class BossLast1(enemy.EnemyBase):
 	launcherTable = [[38,24],[66,128+15],[66,49],[38,128+40]]
 	table8 = [5,3,6,2,1,7,4,0]
 	arrowDrTable = [1.0, 0.8, 1.2, 0.95, 1.1, 0.7, 1.05, 0.9, 1.3, 0.85, 1.15]
-	initHp = 2000
-	hp2 = 1900
-	hp3 = 1700
+	initHp = 300		# 2000
+	hp2 = 200			# 1900
+	hp3 = 100			# 1700
 	def __init__(self, t):
 		super(BossLast1, self).__init__()
 		self.x = 256
@@ -2189,7 +2191,9 @@ class BossLast1(enemy.EnemyBase):
 				self.coreX += 4
 			if self.cnt == 120:
 				gcommon.scroll_flag = True
+				# ボスコアを生成
 				gcommon.ObjMgr.addObj(BossLast1Core(self.coreX, self.coreY))
+				gcommon.ObjMgr.addObj(enemy.Delay(BossLastBaseExplosion, [], 240))
 		if self.x <= -160:
 			self.remove()
 
@@ -2771,7 +2775,19 @@ class BossLast1Core(enemy.EnemyBase):
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
+		self.hp = 200
+		self.score = 10000
 		self.rad = 0.0
+		#self.dx = 0.0
+		#self.dy = 0.0
+		self.radY = 0.0
+		self.angle = 0.0
+		self.random = None
+		self.roundRad = 0.0
+		self.roundCount = 0
+		self.cycleCount = 0
+		self.coreBrightState = 0
+		self.coreBrightness = 0
 
 	@classmethod
 	def drawLine(cls, cx, cy, r):
@@ -2804,14 +2820,51 @@ class BossLast1Core(enemy.EnemyBase):
 			pyxel.line(cx +8, y, cx +8, y2, clr)
 
 	@classmethod
+	def drawLineAngle(cls, cx, cy, r, angle):
+		points = []
+		radius = 14
+		y = -radius * math.sin(r)
+		y2 = -radius * math.sin(r - math.pi/2.0)
+		if r <= math.pi*0.25:
+			clr = 5
+		elif r <= math.pi*0.5:
+			clr = 12
+		elif r <= math.pi*0.75:
+			clr = 6
+		else:
+			clr = 5
+		#pyxel.line(cx -32, cy, cx -8, y, clr)
+		#pyxel.line(cx -8, y, cx +8, y, clr)
+		#pyxel.line(cx +8, y, cx +32, cy, clr)
+		points.append([-32, +0])
+		points.append([-8, +y])
+		points.append([+8, +y])
+		points.append([+32, +0])
+		xpoints = gcommon.getAnglePoints([cx, cy], points, [0,0], angle)
+		gcommon.drawConnectedLines(xpoints, clr)
+		if r >math.pi*0.75 and r <= math.pi * 1.75:
+			pass
+		else:
+			#pyxel.line(cx -8, y, cx -8, y2, clr)
+			#pyxel.line(cx +8, y, cx +8, y2, clr)
+			points = [[-8, y], [-8, y2], [+8, y], [+8, y2]]
+			xpoints = gcommon.getAnglePoints([cx, cy], points, [0,0], angle)
+			gcommon.drawLines(xpoints, clr)
+
+	@classmethod
 	def drawCore(cls, x, y, rad):
+		BossLast1Core.drawCoreAngle(x, y, rad, 0.0)
+
+	@classmethod
+	def drawCoreAngle(cls, x, y, rad, angle):
 		# 玉の後ろ
 		for i in range(4):
 			r = rad + i * math.pi/2.0
 			if r >= math.pi * 2:
 				r -= math.pi * 2
 			if r >= math.pi*0.5 and r < math.pi*1.5:
-				BossLast1Core.drawLine(x, y, r)
+				#BossLast1Core.drawLine(x, y, r)
+				BossLast1Core.drawLineAngle(x, y, r, angle)
 		pyxel.blt(x -9, y -9, 2, 0, 192, 18, 18, 3)
 		# 玉の前
 		for i in range(4):
@@ -2819,22 +2872,102 @@ class BossLast1Core(enemy.EnemyBase):
 			if r >= math.pi * 2:
 				r -= math.pi * 2
 			if r < math.pi*0.5 or r >= math.pi*1.5:
-				BossLast1Core.drawLine(x, y, r)
+				#BossLast1Core.drawLine(x, y, r)
+				BossLast1Core.drawLineAngle(x, y, r, angle)
 
 	def update(self):
 		if self.state == 0:
 			if self.cnt & 7 == 0:
 				gcommon.cur_scroll_x += 0.25
-				if gcommon.cur_scroll_x > 4:
-					gcommon.cur_scroll_x = 4.0
-		# マップループ
-		if gcommon.map_x >= (256*8+164*8):
-			gcommon.map_x -= 8*10
+				if gcommon.cur_scroll_x > 6.0:
+					gcommon.cur_scroll_x = 6.0
+					self.nextState()
+		elif self.state == 1:
+			self.x -= 1
+			if self.x < 220:
+				self.x = 220
+				self.nextState()
+		elif self.state == 2:
+			if self.cnt == 0:
+				self.radY = math.pi/2.0
+				self.random = gcommon.ClassicRand()
+			self.y += 4.2 * math.sin(self.radY)
+			self.radY += math.pi/60
+			if self.cnt % (self.random.rand() % 7 +3) == 0:
+				gcommon.ObjMgr.addObj(BossFactoryBeam1(self.x -16, self.y, math.pi))
+			if self.cnt > 240:
+				self.nextState()
+		elif self.state == 3:
+			# 位置補正
+			if self.cnt == 0:
+				self.angle = 0.0
+			if (96 -self.y) > 2:
+				self.y += 2
+			elif (96 -self.y) < -2:
+				self.y -= 2
+			else:
+				self.nextState()
+		elif self.state == 4:
+			# ぐるぐる自機の周りを回りながら攻撃
+			if self.cnt == 0:
+				self.roundRad = 0.0
+				self.roundCount = 0
+			self.x = 128 + 92 * math.cos(self.roundRad)
+			self.angle = (self.angle + math.pi/20) % (math.pi*2)
+			if self.cycleCount & 1 == 0:
+				self.y = 96 + 80 * math.sin(self.roundRad)
+				workAngle = self.angle
+			else:
+				self.y = 96 - 80 * math.sin(self.roundRad)
+				workAngle = -self.angle
+			self.roundRad +=  math.pi/180
+			if self.roundRad >= math.pi*2:
+				self.roundRad -= math.pi*2
+				self.roundCount += 1
+				if self.roundCount >= 2:
+					self.setState(2)
+					self.angle = 0.0
+					self.cycleCount += 1
+			if self.cnt % 5 == 0:
+				gcommon.ObjMgr.addObj(BossFactoryBeam1(self.x +math.cos(workAngle)* 24, self.y +math.sin(workAngle) * 24, workAngle))
+				gcommon.ObjMgr.addObj(BossFactoryBeam1(self.x -math.cos(workAngle)* 24, self.y -math.sin(workAngle) * 24, workAngle + math.pi))
+		self.rad = (self.rad + math.pi/30) % (math.pi * 2)
 
 	def draw(self):
-		BossLast1Core.drawCore(self.x, self.y, self.rad)
+		gcommon.setBrightnessWithoutBlack(self.coreBrightness)
+		if self.cycleCount & 1 == 0:
+			BossLast1Core.drawCoreAngle(self.x, self.y, self.rad, self.angle)
+		else:
+			BossLast1Core.drawCoreAngle(self.x, self.y, self.rad, -self.angle)
+		pyxel.pal()
+		if self.cnt & 3 == 0:
+			if self.coreBrightState == 0:
+				self.coreBrightness += 1
+				if self.coreBrightness >= 4:
+					self.coreBrightState = 1
+			else:
+				self.coreBrightness -= 1
+				if self.coreBrightness <= -3:
+					self.coreBrightState = 0		
 
-# ぐるぐるビーム
+	def checkShotCollision(self, shot):
+		ret = super(BossLast1Core, self).checkShotCollision(shot)
+		if ret:
+			rad = math.atan2(shot.dy, shot.dx)
+			enemy.Particle1.appendCenter(shot, rad)
+
+	def broken(self):
+		self.setState(100)
+		self.shotHitCheck = False
+		enemy.removeEnemyShot()
+		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
+		gcommon.score += self.score
+		self.remove()
+		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
+		gcommon.ObjMgr.addObj(enemy.Delay(enemy.StageClear, [0,0,6], 240))
+
+# ぐるぐる螺旋ビーム
 class BossLastRoundBeam(enemy.EnemyBase):
 	def __init__(self, x, y):
 		super(BossLastRoundBeam, self).__init__()
@@ -2856,9 +2989,12 @@ class BossLastRoundBeam(enemy.EnemyBase):
 		self.listArray = [None] * 12
 		self.stateCycle = 0
 	def update(self):
-		self.radOffset -= math.pi * 0.05
-		if self.radOffset < 0:
-			self.radOffset += 2 * math.pi
+		#self.radOffset -= math.pi * 0.05
+		#if self.radOffset < 0:
+		#	self.radOffset += 2 * math.pi
+		self.radOffset += math.pi * 0.05
+		if self.radOffset > 2 * math.pi:
+			self.radOffset -= 2 * math.pi
 		if self.state == 0:
 			if self.limit >= -10:
 				self.limit -= 2
@@ -2964,3 +3100,18 @@ class BossLastRoundBeam(enemy.EnemyBase):
 				if d < 6:
 					return True
 		return False
+
+# 最終ステージ脱出時の基地爆発
+class BossLastBaseExplosion(enemy.EnemyBase):
+	def __init__(self, t):
+		super(BossLastBaseExplosion, self).__init__()
+		self.layer = gcommon.C_LAYER_SKY
+		self.ground = False
+		self.hitCheck = False
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+
+	def update(self):
+		if self.cnt % 3 == 0:
+			enemy.create_explosion(32 +random.randrange(64), random.randrange(gcommon.SCREEN_MAX_Y), gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_SKY_M)
+

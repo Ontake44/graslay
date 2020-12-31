@@ -187,6 +187,7 @@ class ClassicRand:
 	def __init__(self):
 		self.x = 1
 
+	# 32bit乱数を返す
 	def rand(self):
 		self.x = (self.x * 1103515245+12345)&2147483647
 		return self.x
@@ -462,7 +463,7 @@ def sound(snd):
 				print("Illegal sound number! " + str(sn))
 
 def playBGM():
-	pass
+	#pass
 	if (SOUND_ON):
 		pyxel.playm(0, loop=True)
 
@@ -752,6 +753,16 @@ def drawPolygon2(poly, clr1, clr2):
 	for i in range(last):
 		pyxel.line(poly[i][0], poly[i][1], poly[i+1][0], poly[i+1][1], clr2)
 	pyxel.line(poly[last][0], poly[last][1], poly[0][0], poly[0][1], clr2)
+
+# 頂点配列、色でLINEを描く
+# poly[n] - poly[n+1]でLINEを描く
+def drawLines(points, clr):
+	for i in range(0, len(points), 2):
+		pyxel.line(points[i][0], points[i][1], points[i+1][0], points[i+1][1], clr)
+
+def drawConnectedLines(points, clr):
+	for i in range(len(points)-1):
+		pyxel.line(points[i][0], points[i][1], points[i+1][0], points[i+1][1], clr)
 
 # Polygonクラス指定で描く
 def drawPolygon3(polygon):

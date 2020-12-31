@@ -62,13 +62,14 @@ class EnemyBase:
 		self.hitCheck = True	# 自機と敵との当たり判定
 		self.enemyShotCollision = False	# 敵弾との当たり判定を行う
 		self.removeFlag = False
+		self.nextStateNo = -1
 
 	def nextState(self):
-		self.state += 1
+		self.nextStateNo = self.state + 1
 		self.cnt = 0
 
 	def setState(self, state):
-		self.state = state
+		self.nextStateNo = state
 		self.cnt = 0
 
 	# 自機弾と敵との当たり判定と破壊処理
@@ -252,6 +253,8 @@ class Explosion(EnemyBase):
 		self.size = 0
 		self.hitCheck = False
 		self.shotHitCheck = False
+		if exlayer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD):
+			self.ground = True
 		if exptype == gcommon.C_EXPTYPE_SKY_S or exptype==gcommon.C_EXPTYPE_GRD_S:
 			self.size = 1
 		elif exptype == gcommon.C_EXPTYPE_SKY_M or exptype==gcommon.C_EXPTYPE_GRD_M:
@@ -1336,7 +1339,8 @@ class StageClear(EnemyBase):
 		self.y = 90
 		self.hitCheck = False
 		self.shotHitCheck = False
-		self.text = "STAGE " + str(t[2]) + " CLEAR"
+		self.stageNo = t[2]
+		self.text = "STAGE " + str(self.stageNo) + " CLEAR"
 		gcommon.ObjMgr.myShip.setSubScene(5)
 		gcommon.playBossBGM()
 
@@ -1351,7 +1355,8 @@ class StageClear(EnemyBase):
 				gcommon.app.startNextStage()
 
 	def draw(self):
-		gcommon.showText(self.x, self.y, self.text)
+		if self.stageNo != 6:
+			gcommon.showText(self.x, self.y, self.text)
 
 class Shutter1(EnemyBase):
 	def __init__(self, x, y, direction, size, mode, speed, param1, param2):
