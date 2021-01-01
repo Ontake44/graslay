@@ -6,7 +6,7 @@ import os
 import gcommon
 import enemy
 import boss
-#import pygame
+import pygame
 
 
 # 自機
@@ -216,8 +216,6 @@ class MyShip:
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x-2, self.y +4, -4.2, 4.2, 4)))
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x-2, self.y +4, -4.2, -4.2, -4)))
 			
-			#if pyxel.play_pos(0) == -1:
-			#	pyxel.play(0, 0)
 			gcommon.sound(gcommon.SOUND_SHOT)
 			gcommon.ObjMgr.shotGroups.append(shotGroup)
 	
@@ -378,8 +376,9 @@ class Title:
 
 OPTIONMENU_PLAYER_STOCK = 0
 OPTIONMENU_START_STAGE = 1
-OPTIONMENU_SOUND = 2
-OPTIONMENU_EXIT = 3
+OPTIONMENU_BGM_VOL = 2
+OPTIONMENU_SOUND_VOL = 3
+OPTIONMENU_EXIT = 4
 
 class OptionMenu:
 	def __init__(self):
@@ -392,10 +391,10 @@ class OptionMenu:
 		if gcommon.checkUpP():
 			self.menuPos -= 1
 			if self.menuPos < 0:
-				self.menuPos = 3
+				self.menuPos = 4
 		if gcommon.checkDownP():
 			self.menuPos += 1
-			if self.menuPos > 3:
+			if self.menuPos > 4:
 				self.menuPos = 0
 		
 		if gcommon.checkRightP():
@@ -407,8 +406,14 @@ class OptionMenu:
 				gcommon.START_STAGE += 1
 				if gcommon.START_STAGE > 6:
 					gcommon.START_STAGE = 6
-			elif self.menuPos == OPTIONMENU_SOUND:
-				gcommon.SOUND_ON = not gcommon.SOUND_ON
+			elif self.menuPos == OPTIONMENU_BGM_VOL:
+				gcommon.BGM_VOL += 1
+				if gcommon.BGM_VOL > 10:
+					gcommon.BGM_VOL = 10
+			elif self.menuPos == OPTIONMENU_SOUND_VOL:
+				gcommon.SOUND_VOL += 1
+				if gcommon.SOUND_VOL > 10:
+					gcommon.SOUND_VOL = 10
 		elif gcommon.checkLeftP():
 			if self.menuPos == OPTIONMENU_PLAYER_STOCK:
 				gcommon.START_REMAIN -= 1
@@ -418,8 +423,14 @@ class OptionMenu:
 				gcommon.START_STAGE -= 1
 				if gcommon.START_STAGE < 1:
 					gcommon.START_STAGE = 1
-			elif self.menuPos == OPTIONMENU_SOUND:
-				gcommon.SOUND_ON = not gcommon.SOUND_ON
+			elif self.menuPos == OPTIONMENU_BGM_VOL:
+				gcommon.BGM_VOL -= 1
+				if gcommon.BGM_VOL < 0:
+					gcommon.BGM_VOL = 0
+			elif self.menuPos == OPTIONMENU_SOUND_VOL:
+				gcommon.SOUND_VOL -= 1
+				if gcommon.SOUND_VOL < 0:
+					gcommon.SOUND_VOL = 0
 		
 		if gcommon.checkShotKeyP() and self.menuPos == OPTIONMENU_EXIT:
 			gcommon.saveSettings()
@@ -440,13 +451,15 @@ class OptionMenu:
 		gcommon.Text2(30, y, "START STAGE", self.getOptionColor(OPTIONMENU_START_STAGE), 5)
 		gcommon.Text2(120, y, str(gcommon.START_STAGE), self.getOptionColor(OPTIONMENU_START_STAGE), 5)
 		y += 20
-		gcommon.Text2(30, y, "SOUND", self.getOptionColor(OPTIONMENU_SOUND), 5)
-		if gcommon.SOUND_ON:
-			gcommon.Text2(120, y, "ON", self.getOptionColor(OPTIONMENU_SOUND), 5)
-		else:
-			gcommon.Text2(120, y, "OFF", self.getOptionColor(OPTIONMENU_SOUND), 5)
-	
+
+		gcommon.Text2(30, y, "BGM VOLUME", self.getOptionColor(OPTIONMENU_BGM_VOL), 5)
+		gcommon.Text2(120, y, str(gcommon.BGM_VOL), self.getOptionColor(OPTIONMENU_BGM_VOL), 5)
 		y += 20
+
+		gcommon.Text2(30, y, "SE VOLUME", self.getOptionColor(OPTIONMENU_SOUND_VOL), 5)
+		gcommon.Text2(120, y, str(gcommon.SOUND_VOL), self.getOptionColor(OPTIONMENU_SOUND_VOL), 5)
+		y += 20
+		
 		gcommon.Text2(30, y, "EXIT", self.getOptionColor(OPTIONMENU_EXIT), 5)
 
 
@@ -465,6 +478,7 @@ class GameOver:
 	
 	def init(self):
 		self.cnt = 0
+		gcommon.BGM.playOnce(gcommon.BGM.GAME_OVER)
 
 	def update(self):
 		self.cnt+=1
@@ -473,7 +487,7 @@ class GameOver:
 	
 	def draw(self):
 		pyxel.cls(0)
-		gcommon.TextHCenter(60*2, "GAME OVER", 8, -1)
+		gcommon.TextHCenter(90, "GAME OVER", 8, -1)
 
 #
 #  ステージクリアー
@@ -1022,15 +1036,13 @@ class StartMapDraw1:
 	def do(self):
 		pass
 
-class StartBossBGM:
+
+class StartBGM:
 	def __init__(self, t):
-		pyxel.stop(0)
-		pyxel.load("assets/graslay_battle27.pyxres", False, False, True, True)
-		gcommon.playBGM()
+		gcommon.BGM.play(t[2])
 
 	def do(self):
 		pass
-
 
 class StartMapDraw2:
 	def __init__(self, t):
@@ -1197,7 +1209,6 @@ class MainGame:
 
 		pyxel.tilemap(0).refimg = 1
 		gcommon.mapFreeTable = [0, 32, 33, 34, 65, 66]
-		gcommon.playBGM()
 
 
 	# デバッグ用のゲームタイマースキップ
@@ -1484,7 +1495,6 @@ class MainGame:
 
 	def catch_item(self, obj):
 		if obj.itype == gcommon.C_ITEM_PWUP:
-			#pyxel.play(0, 7)
 			gcommon.sound(gcommon.SOUND_PWUP)
 			if gcommon.power < 3:
 				gcommon.power += 1
@@ -1493,8 +1503,6 @@ class MainGame:
 		gcommon.ObjMgr.myShip.sub_scene = 2
 		gcommon.ObjMgr.myShip.cnt = 0
 		gcommon.power = gcommon.START_MY_POWER
-		#sfx(4)
-		#pyxel.play(0, 4)
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 
 	def initEvent(self):
@@ -1513,6 +1521,7 @@ class MainGame:
 	
 	def initEvent1(self):
 		self.eventTable =[ \
+			[0, StartBGM, gcommon.BGM.STAGE1],
 			[660,StartMapDraw1],		\
 			[1560,SetMapScroll, 0.25, -0.25],	\
 			[2180,SetMapScroll, 0.5, 0.0],
@@ -1520,13 +1529,14 @@ class MainGame:
 			[3460,SetMapScroll, 0, 0.5],
 			[3860,SetMapScroll, 0.25, 0.25],
 			[4600,SetMapScroll, 0.5, 0.0],
-			[4800, StartBossBGM],
+			[4800, StartBGM, gcommon.BGM.BOSS],
 			[6000,EndMapDraw],		\
 		]
 
 	def initEvent2(self):
 		self.eventTable =[ \
 			[0,StartMapDraw2],		\
+			[0, StartBGM, gcommon.BGM.STAGE2],
 			[736,SetMapScroll, 0.25, 0.25],	\
 			[1104,SetMapScroll, -0.25, 0.25],	\
 			[1856,SetMapScroll, 0.5, 0.0],	\
@@ -1538,19 +1548,21 @@ class MainGame:
 			[4128,SetMapScroll, 0.5, 0.0],	\
 			[4608,SetMapScroll, 0.25, -0.25],	\
 			[5216,SetMapScroll, 0.50, 0.0],	\
-			[6300, StartBossBGM],
+			[6300, StartBGM, gcommon.BGM.BOSS],
 		]
 
 	def initEvent3(self):
 		self.eventTable =[ \
+			[0, StartBGM, gcommon.BGM.STAGE3],
 			[100,StartMapDraw3],		\
-			[3500+128,StartBossBGM],
+			[3500+128,StartBGM, gcommon.BGM.BOSS],
 		]
 
 	def initEvent4(self):
 		self.eventTable =[ \
+			[0, StartBGM, gcommon.BGM.STAGE4],
 			[100,StartMapDraw4],		\
-			[3900, StartBossBGM],
+			[3900, StartBGM, gcommon.BGM.BOSS],
 			[4030, enemy.Stage4BossAppear1],	\
 			[4120, enemy.Stage4BossAppear2],	\
 			[5100,EndMapDraw],		\
@@ -1558,18 +1570,23 @@ class MainGame:
 
 	def initEventFactory(self):
 		self.eventTable =[ \
+			[0, StartBGM, gcommon.BGM.STAGE5],
 			[100,StartMapDrawFactory],		\
 			[2040,SetMapScroll, 0.25, 0.25],	\
 			[3192,SetMapScroll, 0.5, 0.0],	\
 			[4400,SetMapScroll, 0.25, -0.25],	\
 			[5616,SetMapScroll, 0.5, 0.0],	\
-			[6500,StartBossBGM],	\
+			[6500,StartBGM, gcommon.BGM.BOSS],	\
 			[7800,EndMapDraw],		\
 		]
 
 	def initEventLast(self):
 		self.eventTable =[ \
+			[0, StartBGM, gcommon.BGM.STAGE6_1],
 			[2100,StartMapDrawLast],		\
+			[2100, StartBGM, gcommon.BGM.STAGE6_2],
+			[5800, StartBGM, gcommon.BGM.STAGE6_3],
+			[8200, StartBGM, gcommon.BGM.BOSS],
 		]
 
 	def initStory(self):
@@ -1833,22 +1850,15 @@ def parseCommandLine():
 		idx+=1
 
 def loadMapData(tm, fileName):
-	mapFile = open(resource_path(fileName), mode = "r")
+	mapFile = open(gcommon.resource_path(fileName), mode = "r")
 	lines = mapFile.readlines()
 	mapFile.close()
 	pyxel.tilemap(tm).set(0, 0, lines)
 
 def loadMapAttribute(fileName):
-	attrFile = open(resource_path(fileName), mode = "r")
+	attrFile = open(gcommon.resource_path(fileName), mode = "r")
 	gcommon.mapAttribute = attrFile.readlines()
 	attrFile.close()
-
-def resource_path(relative_path):
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.dirname(__file__)
-    return os.path.join(base_path, relative_path)
 
 class App:
 	def __init__(self):
@@ -1857,7 +1867,7 @@ class App:
 		# コマンドライン解析
 		parseCommandLine()
 		
-		#pygame.mixer.init()
+		pygame.mixer.init()
 		pyxel.init(256, 200, caption="GRASLAY", fps=60, quit_key=pyxel.KEY_Q)
 
 

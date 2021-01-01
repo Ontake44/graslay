@@ -3,13 +3,16 @@ import pyxel
 import math
 import json
 import os.path
+import sys
+import os
 import random
+import pygame
 
 START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 
 START_STAGE = 1
-
-SOUND_ON = True
+BGM_VOL = 10
+SOUND_VOL = 10
 
 WEAPON_STRAIGHT = 0
 WEAPON_ROUND = 1
@@ -95,6 +98,8 @@ SOUND_SHOT3 = 17
 
 #                 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17
 sound_priority = [0,2,1,4,5,3,6,0,8,1, 0, 6, 6, 1, 6, 6, 6, 1]
+
+
 
 START_MY_POWER = 1
 
@@ -183,6 +188,37 @@ mapAttribute = []
 
 SETTINGS_FILE = ".graslay"
 
+
+class BGM:
+	#STAGE1 = "Run_the_Present.mp3"
+	#STAGE1 = "Blaze.mp3"
+	STAGE1 = "game_maoudamashii_4_vehicle01.mp3"
+	STAGE2 = "game_maoudamashii_6_dangeon22.mp3"
+	STAGE3 = "Spear.mp3"
+	STAGE4 = "game_maoudamashii_6_dangeon15.mp3"
+	STAGE5 = "Cyber_Bull_Bound.mp3"
+	STAGE6_1 = "Break_the_Wedge.mp3"
+	STAGE6_2 = "Fantasma.mp3"
+	STAGE6_3 = "In_Dark_Down.mp3"
+	BOSS  = "Grenade.mp3"
+	#BOSS_LAST = "RAIN_&_Co_II_2.mp3"
+	BOSS_LAST = "Blaze.mp3"
+	STAGE_CLEAR = "game_maoudamashii_9_jingle02.mp3"
+	GAME_OVER = "game_maoudamashii_9_jingle07.mp3"
+
+	@classmethod
+	def play(cls, bgm):
+		global BGM_VOL
+		pygame.mixer.music.load(resource_path("assets/music/" + bgm))
+		pygame.mixer.music.set_volume(0.5 * BGM_VOL/10.0)
+		pygame.mixer.music.play(-1)
+		
+	@classmethod
+	def playOnce(cls, bgm):
+		pygame.mixer.music.load(resource_path("assets/music/" + bgm))
+		pygame.mixer.music.set_volume(0.5 * BGM_VOL/10.0)
+		pygame.mixer.music.play(1)
+
 class ClassicRand:
 	def __init__(self):
 		self.x = 1
@@ -231,33 +267,46 @@ def initStar():
 		o = [int(random.randrange(0,256)), int(random.randrange(0,2)+5)]
 		star_ary.append(o)
 
-	
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.dirname(__file__)
+    return os.path.join(base_path, relative_path)
+
 
 def loadSettings():
 	try:
 		settingsPath = os.path.join(os.path.expanduser("~"), SETTINGS_FILE)
 
+		playerStock = 3
+		startStage = 1
+		bgmVol = 6
+		soundVol = 10
 		json_file = open(settingsPath, "r")
 		json_data = json.load(json_file)
 		if "playerStock" in json_data:
 			playerStock = int(json_data["playerStock"])
 		if "startStage" in json_data:
 			startStage = int(json_data["startStage"])
-		if "sound" in json_data:
-			soundFlag = int(json_data["sound"])		# 0 or 1
+		if "bgmVol" in json_data:
+			bgmVol = int(json_data["bgmVol"])
+		if "soundVol" in json_data:
+			soundVol = int(json_data["soundVol"])
 
 		global START_REMAIN
 		global START_STAGE
-		global SOUND_ON
+		global BGM_VOL
+		global SOUND_VOL
 		if playerStock >= 1 and playerStock <= 99:
 			START_REMAIN = playerStock
 		if startStage >= 1 and startStage <= 6:
 			START_STAGE = startStage
-		if soundFlag == 0:
-			SOUND_ON = False
-		elif soundFlag == 1:
-			SOUND_ON = True
-
+		if bgmVol >= 0 and bgmVol <= 10:
+			BGM_VOL = bgmVol
+		if soundVol >= 0 and soundVol <= 10:
+			SOUND_VOL = soundVol
+	
 		json_file.close()
 
 	except IOError:
@@ -268,12 +317,9 @@ def saveSettings():
 	
 	global START_REMAIN
 	global START_STAGE
-	global SOUND_ON
-	json_data = { "playerStock": START_REMAIN, "startStage": START_STAGE}
-	if SOUND_ON:
-		json_data["sound"] = 1
-	else:
-		json_data["sound"] = 0
+	global BGM_VOL
+	global SOUND_VOL
+	json_data = { "playerStock": START_REMAIN, "startStage": START_STAGE, "bgmVol": BGM_VOL, "soundVol" : SOUND_VOL }
 	try:
 		settingsPath = os.path.join(os.path.expanduser("~"), SETTINGS_FILE)
 
@@ -446,7 +492,7 @@ def draw_splash2(o, offset):
 		r += 0.11 + i*0.04
 
 def sound(snd):
-	if (SOUND_ON):
+	if SOUND_VOL > 0:
 		n = pyxel.play_pos(0)
 		if n >=0:
 			pass
@@ -462,15 +508,6 @@ def sound(snd):
 			else:
 				print("Illegal sound number! " + str(sn))
 
-def playBGM():
-	#pass
-	if (SOUND_ON):
-		pyxel.playm(0, loop=True)
-
-def playBossBGM():
-	pass
-	if (SOUND_ON):
-		pyxel.playm(1, loop=False)
 
 def getCenterX(obj):
 	return obj.x + obj.left + (obj.right -obj.left+1)/2
