@@ -121,12 +121,9 @@ class EnemyBase:
 # exlayer explosion layer
 def create_explosion(cx, cy, exlayer, exptype):
 	if exptype==gcommon.C_EXPTYPE_SKY_S or exptype==gcommon.C_EXPTYPE_GRD_S:
-		#pyxel.play(1, 2)
 		gcommon.sound(gcommon.SOUND_SMALL_EXP)
 	else:
-		#pyxel.play(1, 1)
 		gcommon.sound(gcommon.SOUND_MID_EXP)
-	#add(objs,explosion:new(cx,cy,exlayer,exptype))
 	gcommon.ObjMgr.objs.append(Explosion(cx,cy,exlayer,exptype))
 
 def create_explosion2(cx, cy, exlayer, exptype, expsound):
@@ -137,7 +134,6 @@ def create_explosion2(cx, cy, exlayer, exptype, expsound):
 			gcommon.sound(gcommon.SOUND_SMALL_EXP)
 		else:
 			gcommon.sound(gcommon.SOUND_MID_EXP)
-	#add(objs,explosion:new(cx,cy,exlayer,exptype))
 	gcommon.ObjMgr.objs.append(Explosion(cx,cy,exlayer,exptype))
 
 #
@@ -1341,8 +1337,9 @@ class StageClear(EnemyBase):
 		self.shotHitCheck = False
 		self.stageNo = t[2]
 		self.text = "STAGE " + str(self.stageNo) + " CLEAR"
+		if self.stageNo != 6:
+			gcommon.BGM.playOnce(gcommon.BGM.STAGE_CLEAR)
 		gcommon.ObjMgr.myShip.setSubScene(5)
-		gcommon.playBossBGM()
 
 	def update(self):
 		if self.state == 0:
