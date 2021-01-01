@@ -822,7 +822,6 @@ class Boss3Explosion(enemy.EnemyBase):
 			elif self.cnt>120:
 				#self.nextState()
 				self.remove()
-				#pyxel.play(1, 5)
 		elif self.state == 1:
 			if self.cnt>40:
 				self.remove()
@@ -2194,6 +2193,7 @@ class BossLast1(enemy.EnemyBase):
 				# ボスコアを生成
 				gcommon.ObjMgr.addObj(BossLast1Core(self.coreX, self.coreY))
 				gcommon.ObjMgr.addObj(enemy.Delay(BossLastBaseExplosion, [], 240))
+				gcommon.BGM.play(gcommon.BGM.BOSS_LAST)
 		if self.x <= -160:
 			self.remove()
 
@@ -2775,7 +2775,7 @@ class BossLast1Core(enemy.EnemyBase):
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
-		self.hp = 200
+		self.hp = 1000
 		self.score = 10000
 		self.rad = 0.0
 		#self.dx = 0.0
@@ -3113,5 +3113,8 @@ class BossLastBaseExplosion(enemy.EnemyBase):
 
 	def update(self):
 		if self.cnt % 3 == 0:
-			enemy.create_explosion(32 +random.randrange(64), random.randrange(gcommon.SCREEN_MAX_Y), gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_SKY_M)
+			if self.cnt < 120:
+				enemy.create_explosion(32 +random.randrange(64), random.randrange(gcommon.SCREEN_MAX_Y), gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_SKY_M)
+			else:
+				gcommon.ObjMgr.addObj(enemy.Explosion(32 +random.randrange(64), random.randrange(gcommon.SCREEN_MAX_Y), gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_SKY_M))
 
