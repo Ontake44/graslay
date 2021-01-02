@@ -107,7 +107,7 @@ class EnemyBase:
 	# 破壊されたとき
 	def broken(self):
 		layer = gcommon.C_LAYER_EXP_SKY
-		if self.layer == gcommon.C_LAYER_GRD:
+		if self.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD):
 			layer = gcommon.C_LAYER_GRD
 		
 		gcommon.score += self.score
@@ -386,10 +386,15 @@ class Jumper1(EnemyBase):
 		self.hitcolor2 = 6
 		self.exptype = gcommon.C_EXPTYPE_SKY_S
 		self.dx = -1
+		if self.x == -16:
+			self.dx = 1
 		self.dy = 0.0
 
 	def update(self):
 		self.x = self.x + self.dx
+		if self.x < -16 or self.x > 256:
+			self.remove()
+			return
 		self.y = self.y + self.dy
 		self.dy = self.dy + self.ay
 		if self.dy > 0:
@@ -445,6 +450,7 @@ class RollingFighter1Group(EnemyBase):
 		self.max = t[4]
 		self.cnt2 = 0
 		self.hitCheck = False
+		self.shotHitCheck = False
 
 	def update(self):
 		if self.cnt % self.interval == 0:
@@ -674,9 +680,9 @@ class Fan1Group(EnemyBase):
 	def draw(self):
 		pass
 
-class Fan1(EnemyBase):
+class Fan1a(EnemyBase):
 	def __init__(self, t):
-		super(Fan1, self).__init__()
+		super(Fan1a, self).__init__()
 		self.x = t[2]
 		self.y = t[3]
 		self.left = 2
@@ -701,6 +707,45 @@ class Fan1(EnemyBase):
 	def draw(self):
 		pyxel.blt(self.x, self.y, 1, 0 + (self.cnt & 4) * 4, 64, 16, 16, gcommon.TP_COLOR)
 
+class Fan1(EnemyBase):
+	def __init__(self, t):
+		super(Fan1, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.left = 2
+		self.top = 2
+		self.right = 14
+		self.bottom = 14
+		self.hp = 1
+		self.dx = 0
+		self.dy = 0
+		#self.time1 = 60
+		#self.time2 = 90
+		self.layer = gcommon.C_LAYER_SKY
+		self.score = 10
+	
+	def update(self):
+		if self.state == 0:
+			self.x -= 3
+			if self.x < 100:
+				self.nextState()
+		elif self.state == 1:
+			self.x += 3
+			if self.x > 190:
+				self.nextState()
+		else:
+			self.x -= 3
+
+		if self.state in (1, 2):
+			if gcommon.ObjMgr.myShip.y < self.y +2:
+				self.y -= 1.5
+			elif gcommon.ObjMgr.myShip.y > self.y -2:
+				self.y += 1.5
+		if self.x <= -16:
+			self.remove()
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, 1, 0 + (self.cnt & 4) * 4, 64, 16, 16, gcommon.TP_COLOR)
 
 class MissileShip(EnemyBase):
 	def __init__(self, t):
@@ -1354,6 +1399,32 @@ class StageClear(EnemyBase):
 	def draw(self):
 		if self.stageNo != 6:
 			gcommon.showText(self.x, self.y, self.text)
+
+class FixedShutter1(EnemyBase):
+	def __init__(self, mx, my, size):
+		super(FixedShutter1, self).__init__()
+		pos = gcommon.mapPosToScreenPos(mx, my)
+		self.x = pos[0]		# screen x
+		self.y = pos[1]		# screen y
+		self.size = size	# 大きさ（16ドット単位）
+		self.left = 0
+		self.right = 15
+		self.top = 0
+		self.bottom = 16 * self.size -1
+		self.hp = 200
+		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.exptype = gcommon.C_EXPTYPE_GRD_M
+		self.ground = True
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = True
+
+	def update(self):
+		pass
+
+	def draw(self):
+		for i in range(self.size):
+			pyxel.blt(self.x, self.y + i * 16, 1, 64, 96, 16, 16)
 
 class Shutter1(EnemyBase):
 	def __init__(self, x, y, direction, size, mode, speed, param1, param2):
