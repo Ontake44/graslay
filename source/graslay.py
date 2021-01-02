@@ -544,6 +544,16 @@ class MapDraw1:
 		pass
 
 	def update(self, skip):
+		if skip == False:
+			# スキップ時はマップデータやオブジェクト追加しない
+			for my in range(0, 128):
+				mx = gcommon.screenPosToMapPosX(256)
+				n = gcommon.getMapDataByMapPos(mx, my)
+				if n == 394:
+					# 固定シャッター
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					obj = enemy.FixedShutter1(mx, my, 2)
+					gcommon.ObjMgr.addObj(obj)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 
@@ -1382,7 +1392,7 @@ class MainGame:
 				pyxel.blt(96 + 40*i, 192, 0, i * 40, 48, 40, 8)
 		
 		#pyxel.text(120, 184, str(gcommon.back_map_x), 7)
-		#pyxel.text(120, 184, str(gcommon.game_timer), 7)
+		pyxel.text(120, 184, str(gcommon.game_timer), 7)
 		#pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)
 		#pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
@@ -1640,21 +1650,25 @@ class MainGame:
 			[1860, enemy.Jumper1, 256, 70, 0.1],		\
 			[1860, enemy.Battery1, 69, 6, 1],		\
 			[1860, enemy.Battery1, 70, 25, 0],		\
+			[2100, enemy.RollingFighter1Group, 24, 15, 4],		\
+			[2130, enemy.RollingFighter1Group, 90, 15, 4],		\
 			[2230, enemy.Jumper1, 256, 70, 0.1],		\
 			[2260, enemy.Jumper1, 256, 70, 0.1],		\
 			[2430, enemy.MissileShip, 82, 200],		\
 			[2430, enemy.Battery1, 100, 7, 1],		\
 			[2430, enemy.Battery1, 100, 24, 0],		\
-			[2460, enemy.MissileShip, 82, 200],		\
-			[2490, enemy.MissileShip, 82, 200],		\
+		#	[2460, enemy.MissileShip, 82, 200],		\
+		#	[2490, enemy.MissileShip, 82, 200],		\
 			[2500, enemy.Battery1, 105, 7, 1],		\
 			[2500, enemy.Battery1, 105, 24, 0],		\
 			[2700, enemy.RollingFighter1Group, 24, 15, 4],		\
 			[2760, enemy.RollingFighter1Group, 80, 15, 4],		\
 			[2800, enemy.RollingFighter1Group, 40, 15, 4],		\
+			[2830, enemy.MissileShip, 40, 160],		\
 			[2860, enemy.RollingFighter1Group, 120, 15, 4],		\
-			[3100, enemy.MissileShip, 40, 160],		\
-			[3100, enemy.MissileShip, 80, 200],		\
+			[2900, enemy.MissileShip, 80, 200],		\
+			[3000, enemy.RollingFighter1Group, 30, 15, 4],		\
+			[3060, enemy.RollingFighter1Group, 120, 15, 4],		\
 			[3240, enemy.Jumper1, 256, 30, -0.1],		\
 			[3280, enemy.Jumper1, 256, 50, 0.1],		\
 			[3350, enemy.Battery1, 144, 33, 1],		\
@@ -1667,9 +1681,15 @@ class MainGame:
 			[3420, enemy.Battery1, 144, 45, 0],		\
 			[3460, enemy.Battery1, 118, 50, 1],		\
 			[3460, enemy.Battery1, 118, 52, 0],		\
+			[4000, enemy.Jumper1, 256, 150, -0.1],		\
+			[4030, enemy.Jumper1, 256, 150, -0.1],		\
+			[4060, enemy.Jumper1, 256, 150, -0.1],		\
+			[4160, enemy.Jumper1, -16, 50, 0.1],		\
+			[4190, enemy.Jumper1, -16, 50, 0.1],		\
 			[4200, enemy.Battery1, 162, 60, 1],		\
 			[4200, enemy.Battery1, 164, 60, 1],		\
 			[4200, enemy.Jumper1, 256, 130, -0.1],		\
+			[4230, enemy.Jumper1, 256, 150, -0.1],		\
 			[4400, enemy.Jumper1, 256, 100, 0.1],		\
 			[4400, enemy.MissileShip, 80, 200],		\
 			[4400, enemy.Battery1, 154, 81, 0],		\
@@ -1679,15 +1699,16 @@ class MainGame:
 			[4500, enemy.Battery1, 170, 81, 0],		\
 			[4520, enemy.Battery1, 172, 81, 0],		\
 			[4530, enemy.Jumper1, 256, 120, 0.1],		\
-			[4700, enemy.RollingFighter1Group, 60, 15, 4],		\
-			[4730, enemy.RollingFighter1Group, 120, 15, 4],		\
+			[4700, enemy.RollingFighter1Group, 50, 15, 4],		\
+			[4730, enemy.RollingFighter1Group, 110, 15, 4],		\
 			[4830, enemy.MissileShip, 120, 200],		\
-			[4860, enemy.MissileShip, 80, 200],		\
+			[4860, enemy.MissileShip, 70, 200],		\
 			[5100, boss.Boss1, 256, 60],		\
-			[5100, enemy.DockArm, 204, 59, 180],		\
-			[5100, enemy.DockArm, 212, 59, 180],		\
-			[5130, enemy.DockArm, 206, 59, 180],		\
-			[5130, enemy.DockArm, 210, 59, 180],		\
+			[5100, boss.Boss1Base, 256, 60],		\
+			# [5100, enemy.DockArm, 204, 59, 180],		\
+			# [5100, enemy.DockArm, 212, 59, 180],		\
+			# [5130, enemy.DockArm, 206, 59, 180],		\
+			# [5130, enemy.DockArm, 210, 59, 180],		\
 		]
 
 	def initStory2(self):
