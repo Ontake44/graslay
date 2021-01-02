@@ -7,6 +7,38 @@ import enemy
 
 # ボス処理
 
+class Boss1Base(enemy.EnemyBase):
+	def __init__(self, t):
+		super(Boss1Base, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.left = 16
+		self.top = 16
+		self.right = 79
+		self.bottom = 45
+		self.hp = 999999
+		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.ground = True
+		self.shotHitCheck = False	# 自機弾との当たり判定
+		self.hitCheck = False	# 自機と敵との当たり判定
+		self.enemyShotCollision = False	# 敵弾との当たり判定を行う
+		self.posY = 0
+
+	def update(self):
+		if self.x <= -96:
+			self.remove()
+			return
+		if self.cnt > 210:
+			if self.posY < 64:
+				 self.posY += 1
+
+	def draw(self):
+		# 上
+		pyxel.blt(self.x, self.y -self.posY -40, 1, 160, 128, 96, -64, gcommon.TP_COLOR)
+		# 下
+		pyxel.blt(self.x, self.y +31 +self.posY, 1, 160, 128, 96, 64, gcommon.TP_COLOR)
+ 
+
 class Boss1(enemy.EnemyBase):
 	def __init__(self, t):
 		super(Boss1, self).__init__()
@@ -17,7 +49,7 @@ class Boss1(enemy.EnemyBase):
 		self.right = 79
 		self.bottom = 45
 		self.hp = 999999
-		self.layer = gcommon.C_LAYER_SKY
+		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.score = 5000
 		self.subcnt = 0
 		self.hitcolor1 = 9
