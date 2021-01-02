@@ -730,8 +730,8 @@ class Fan1(EnemyBase):
 			if self.x < 100:
 				self.nextState()
 		elif self.state == 1:
-			self.x += 3
-			if self.x > 190:
+			self.x += 2
+			if self.x > 170:
 				self.nextState()
 		else:
 			self.x -= 3
@@ -2082,11 +2082,11 @@ class HomingMissile1(EnemyBase):
 		fy = math.sin(gcommon.atan_table[d<<2]) * 8
 		if self.cnt & 2 == 0:
 			if self.cnt & 1 == 0:
-				pyxel.blt(self.x -7.5 -fx, self.y -7.5 -fy, 2, 80, 176, 16, 16, gcommon.TP_COLOR)
+				pyxel.blt(self.x -7.5 -fx, self.y -7.5 -fy, 2, 200, 64, 16, 16, gcommon.TP_COLOR)
 			else:
-				pyxel.blt(self.x -7.5 -fx, self.y -7.5 -fy, 2, 96, 176, 16, 16, gcommon.TP_COLOR)
+				pyxel.blt(self.x -7.5 -fx, self.y -7.5 -fy, 2, 216, 64, 16, 16, gcommon.TP_COLOR)
 		t = HomingMissile1.directionTable[d]
-		pyxel.blt(self.x -7.5, self.y -7.5, 2, t[0] * 16, 176, 16 * t[1], 16 * -t[2], gcommon.TP_COLOR)
+		pyxel.blt(self.x -7.5, self.y -7.5, 2, 120 + t[0] * 16, 64, 16 * t[1], 16 * -t[2], gcommon.TP_COLOR)
 
 class SpotLight(EnemyBase):
 	def __init__(self, parent):

@@ -1136,7 +1136,7 @@ class MainGame:
 		#self.skipGameTimer()
 		
 		if self.stage == 1:
-			pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
+			#pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay1.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = 0
@@ -1148,7 +1148,7 @@ class MainGame:
 			loadMapAttribute("assets/graslay1.mapatr")
 			pyxel.tilemap(1).refimg = 1
 		elif self.stage == 2:
-			pyxel.load("assets/graslay_dangeon22.pyxres", False, False, True, True)
+			#pyxel.load("assets/graslay_dangeon22.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay2.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = 0
@@ -1158,7 +1158,7 @@ class MainGame:
 			loadMapData(0, "assets/graslay2.pyxmap")
 			loadMapAttribute("assets/graslay2.mapatr")
 		elif self.stage == 3:
-			pyxel.load("assets/graslay_rock03.pyxres", False, False, True, True)
+			#pyxel.load("assets/graslay_rock03.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay3.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = 1
@@ -1172,7 +1172,7 @@ class MainGame:
 			pyxel.tilemap(1).refimg = 1
 			pyxel.tilemap(2).refimg = 1
 		elif self.stage == 4:
-			pyxel.load("assets/graslay_dangeon15.pyxres", False, False, True, True)
+			#pyxel.load("assets/graslay_dangeon15.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay4.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = 0
@@ -1184,7 +1184,7 @@ class MainGame:
 			loadMapAttribute("assets/graslay4.mapatr")
 			pyxel.tilemap(1).refimg = 1
 		elif self.stage == 5:
-			pyxel.load("assets/graslay_dangeon10.pyxres", False, False, True, True)
+			#pyxel.load("assets/graslay_dangeon10.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay_factory.png")
 			pyxel.image(2).load(0,0,"assets/graslay_factory-2.png")
 			self.mapOffsetX = 0
@@ -1197,7 +1197,7 @@ class MainGame:
 			loadMapAttribute("assets/graslay_factory.mapatr")
 			pyxel.tilemap(1).refimg = 1
 		elif self.stage == 6:
-			pyxel.load("assets/graslay_dangeon10.pyxres", False, False, True, True)
+			#pyxel.load("assets/graslay_dangeon10.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay_last.png")
 			pyxel.image(2).load(0,0,"assets/graslay_last-2.png")
 			self.mapOffsetX = 0
