@@ -1983,7 +1983,7 @@ class MiddleBoss1Laser(enemy.EnemyBase):
 			self.remove()
 	
 	def draw(self):
-		pyxel.blt(self.x, self.y, 2, 0, 192, 16, 4, gcommon.TP_COLOR)
+		pyxel.blt(self.x, self.y, 2, 184, 0, 16, 4, gcommon.TP_COLOR)
 
 # レーザー移動砲台発射口
 class BossLast1Launcher(enemy.EnemyBase):
