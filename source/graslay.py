@@ -6,7 +6,7 @@ import os
 import gcommon
 import enemy
 import boss
-import pygame
+import pygame.mixer
 
 
 # 自機
@@ -1234,6 +1234,7 @@ class MainGame:
 		if self.pause:
 			if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.GAMEPAD_1_START):
 				self.pause = False
+				pygame.mixer.music.unpause()
 			elif gcommon.checkUpP() or gcommon.checkDownP():
 				self.pauseMenuPos = (self.pauseMenuPos + 1) & 1
 				return
@@ -1241,6 +1242,7 @@ class MainGame:
 				if self.pauseMenuPos == 0:
 					# CONTINUE
 					self.pause = False
+					pygame.mixer.music.unpause()
 				else:
 					# EXIT
 					pyxel.quit()
@@ -1249,6 +1251,7 @@ class MainGame:
 		else:
 			if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.GAMEPAD_1_START):
 				self.pause = True
+				pygame.mixer.music.pause()
 				return
 
 		# 星
