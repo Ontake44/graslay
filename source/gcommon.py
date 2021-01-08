@@ -6,7 +6,7 @@ import os.path
 import sys
 import os
 import random
-import pygame
+import pygame.mixer
 
 START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 
