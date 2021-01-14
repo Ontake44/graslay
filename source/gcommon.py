@@ -245,7 +245,14 @@ class Rect:
 		rect.right = right
 		rect.bottom = bottom
 		return rect
-	
+
+	@classmethod
+	def createFromList(cls, list):
+		rects = []
+		for item in list:
+			rects.append(Rect.create(item[0], item[1], item[2], item[3]))
+		return rects
+
 	def width(self):
 		return self.right - self.left +1
 
@@ -366,6 +373,7 @@ def get_atan_no(x1,y1,x2,y2):
 				return i
 		return 63
 
+# return 0-63
 def get_atan_no_to_ship(x,y):
 	return get_atan_no(x, y, ObjMgr.myShip.x+8, ObjMgr.myShip.y+8)
 
@@ -415,6 +423,12 @@ def check_collision2(ox, oy, o, s):
 			return True
 	return False
 
+# rectList list of Rect
+def check_collision_list(x, y, rectList, obj2):
+	for rect in rectList:
+		if check_collision2(x, y, rect, obj2):
+			return True
+	return False
 
 
 def is_draw_shadow():
