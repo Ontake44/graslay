@@ -46,6 +46,7 @@ class EnemyBase:
 		self.top = 0
 		self.right = 0
 		self.bottom = 0
+		self.collisionRects = None		# ex List of Rect
 		self.hp = 0
 		self.state = 0
 		self.cnt = 0
@@ -74,7 +75,10 @@ class EnemyBase:
 
 	# 自機弾と敵との当たり判定と破壊処理
 	def checkShotCollision(self, shot):
-		if shot.removeFlag == False and gcommon.check_collision(self, shot):
+		if shot.removeFlag == False and	\
+			((self.collisionRects != None and gcommon.check_collision_list(self.x, self.y, self.collisionRects, shot))	\
+			or	\
+			(self.collisionRects == None and gcommon.check_collision(self, shot))):
 			self.hp -= gcommon.SHOT_POWER
 			if self.hp <= 0:
 				self.broken()
@@ -86,10 +90,10 @@ class EnemyBase:
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
-		if gcommon.check_collision(self, gcommon.ObjMgr.myShip):
-			return True
+		if self.collisionRects != None:
+			return gcommon.check_collision_list(self.x, self.y, self.collisionRects, gcommon.ObjMgr.myShip)
 		else:
-			return False
+			return gcommon.check_collision(self, gcommon.ObjMgr.myShip)
 
 	def drawLayer(self, layer):
 		self.draw()
@@ -115,6 +119,47 @@ class EnemyBase:
 		create_explosion2(self.x+(self.right+self.left+1)/2, self.y+(self.bottom+self.top+1)/2, layer, self.exptype, self.expsound)
 		self.remove()
 
+# [0] to cnt
+# [1] mode
+#  mode = 0
+#    [2] dx
+#    [3] dy
+#  mode = 1
+#    [2] Layer
+class CountMover:
+	def __init__(self, obj, table, loopFlag):
+		self.obj = obj
+		self.table = table
+		self.tableIndex = 0
+		self.loopFlag = loopFlag
+		self.isEnd = False
+		self.cycleCount = 0
+		self.cnt = 0
+
+	def update(self):
+		if self.isEnd:
+			return
+		item = self.table[self.tableIndex]
+		if self.cnt < item[0]:
+			if item[1] == 0:
+				self.obj.x += item[2]
+				self.obj.y += item[3]
+				self.cnt += 1
+			elif item[1] == 1:
+				self.obj.layer = item[2]
+				self.cnt += 1
+				#print("set layer :" + str(self.obj.layer))
+			else:
+				print("CountMover mode is invalid :" +str(item[1]))
+		else:
+			self.tableIndex += 1
+			self.cnt = 0
+			if self.tableIndex == len(self.table):
+				if self.loopFlag:
+					self.cycleCount += 1
+					self.tableIndex = 0
+				else:
+					self.isEnd = True
 
 # 爆発生成
 # cx,cy center
@@ -669,10 +714,32 @@ class Fan1Group(EnemyBase):
 		self.max = t[4]
 		self.cnt2 = 0
 		self.hitCheck = False
+		self.shotHitCheck = False
 
 	def update(self):
 		if self.cnt % self.interval == 0:
 			gcommon.ObjMgr.addObj(Fan1([0, 0, 256, self.y]))
+			self.cnt2 += 1
+			if self.cnt2 >= self.max:
+				self.remove()
+
+	def draw(self):
+		pass
+
+class EnemyGroup(EnemyBase):
+	def __init__(self, t):
+		super(EnemyGroup, self).__init__()
+		self.cls = t[2]
+		self.params = t[3]
+		self.interval = t[4]
+		self.max = t[5]
+		self.cnt2 = 0
+		self.hitCheck = False
+		self.shotHitCheck = False
+
+	def update(self):
+		if self.cnt % self.interval == 0:
+			gcommon.ObjMgr.addObj(self.cls(self.params))
 			self.cnt2 += 1
 			if self.cnt2 >= self.max:
 				self.remove()
@@ -2796,7 +2863,7 @@ class Fighter2(EnemyBase):
 		self.left = 5
 		self.top = 4
 		self.right = 21
-		self.bottom = 19
+		self.bottom = 27
 		self.hp = 30
 		self.layer = gcommon.C_LAYER_SKY
 		self.ground = False
@@ -3029,4 +3096,229 @@ def removeEnemyShot():
 		else:
 			newObjs.append(obj)
 	gcommon.ObjMgr.objs = newObjs
+
+class BattleShip1(EnemyBase):
+	def __init__(self, t):
+		super(BattleShip1, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.isRed = t[4]
+		self.moveTable = t[5]
+		self.laserTime = t[6]
+		self.fighterTime = t[7]
+		self.hp = 999999
+		self.collisionRects = gcommon.Rect.createFromList(
+			[[21,23,188,72],[190,14,258,87],[260,2,339,100],[340,9,511,77]])
+		self.layer = gcommon.C_LAYER_SKY
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+		self.cnt2 = 0
+		self.mover = CountMover(self, self.moveTable, False)
+		self.laser = None
+		self.guns = []
+		self.appendGun(BattleShip1Gun(self, 149, 11, True, self.isRed, 60))
+		self.appendGun(BattleShip1Gun(self, 186, 7, True, self.isRed, 90))
+		self.appendGun(BattleShip1Gun(self, 223, 3, True, self.isRed, 120))
+		self.appendGun(BattleShip1Gun(self, 366, 1, True, self.isRed, 60))
+		self.appendGun(BattleShip1Gun(self, 150, 79, False, self.isRed, 60))
+		self.appendGun(BattleShip1Gun(self, 388, 82, False, self.isRed, 60))
+
+	def appendGun(self, obj):
+		self.guns.append(obj)
+		gcommon.ObjMgr.addObj(obj)
+
+	def update(self):
+		# 移動はCountMoverクラス
+		self.mover.update()
+		if self.state == 0:
+			if self.cnt2 == self.fighterTime:
+				self.nextState()
+		elif self.state == 1:
+			# 戦闘機射出
+			if self.cnt % 15 == 0:
+				gcommon.ObjMgr.addObj(Fighter3([0, None, self.x +288, self.y +80,
+					[
+						[1, 1, gcommon.C_LAYER_GRD],
+						[30, 0, -1.0, 2.0],[30, 0, -3.0, 0.5],[600, 0, -3.0,0.0]
+					], 30]))
+			if self.cnt > 60:
+				self.nextState()
+		if self.cnt2 == self.laserTime:
+			self.laser = BattleShip1Laser(self.x, self.y +41)
+			gcommon.ObjMgr.addObj(self.laser)
+		if self.laser != None:
+			self.laser.x = self.x
+			self.laser.y = self.y +41
+		if self.x <= -512:
+			if self.laser != None and self.laser.removeFlag == False:
+				self.laser.remove()
+				self.laser = None
+			self.remove()
+		self.cnt2 += 1
+	
+	def draw(self):
+		if self.isRed:
+			pyxel.pal(4,2)
+			pyxel.pal(9,8)
+			pyxel.pal(10,14)
+		pyxel.blt(self.x, self.y, 2, 0, 0, 256, 104, 3)
+		pyxel.blt(self.x +256, self.y, 2, 0, 104, 256, 104, 3)
+		if self.isRed:
+			pyxel.blt(self.x +272, self.y -48, 2, 64, 208, 60, 48, 3)
+		else:
+			pyxel.blt(self.x +272, self.y -48, 2, 0, 208, 60, 48, 3)
+		if self.isRed:
+			pyxel.pal()
+
+class BattleShip1Laser(EnemyBase):
+	def __init__(self, x, y):
+		super(BattleShip1Laser, self).__init__()
+		self.x = x
+		self.y = y
+		self.layer = gcommon.C_LAYER_E_SHOT
+		self.hitCheck = False
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+		self.laserSize = 0
+	def update(self):
+		if self.x < 0:
+			self.remove()
+			return
+		if self.state == 0:
+			self.left = -self.x
+			self.top = 0
+			self.right = 0
+			self.bottom = 0
+			self.laserSize = 0
+			self.hitCheck = False
+			if self.cnt > 60:
+				self.nextState()
+		elif self.state == 1:
+			self.laserSize += 0.25
+			self.left = -self.x
+			self.top = -int(self.laserSize)
+			self.right = 0
+			self.bottom = int(self.laserSize)
+			self.hitCheck = False
+			if self.cnt > 40:
+				self.nextState()
+		elif self.state == 2:
+			self.hitCheck = True
+			if self.cnt > 30:
+				self.nextState()
+		else:
+			self.remove()		
+
+	def draw(self):
+		if self.cnt & 2 != 0:
+			return
+		if self.state == 0:
+			clr = 1
+			if self.cnt < 20:
+				clr = 1
+			if self.cnt < 40:
+				clr = 5
+			else:
+				clr = 6
+			pyxel.rect(self.x +self.left, self.y, self.right -self.left+1, 1, clr)
+		else:
+			pyxel.rect(self.x +self.left, self.y +self.top, self.right -self.left+1, self.bottom -self.top+1, 5)
+
+# 艦砲台
+class BattleShip1Gun(EnemyBase):
+	def __init__(self, parentObj, offsetX, offsetY, isUpper, isRed, shotFirst):
+		super(BattleShip1Gun, self).__init__()
+		self.parentObj = parentObj
+		self.offsetX = offsetX
+		self.offsetY = offsetY
+		self.isUpper = isUpper
+		self.isRed = isRed
+		self.shotFirst = shotFirst
+		self.left = 2
+		self.top = 0
+		self.right = 23
+		self.bottom = 7
+		self.layer = gcommon.C_LAYER_SKY
+		self.hp = 25
+		self.hitcolor1 = 9
+		self.hitcolor2 = 10
+		self.ground = True
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+		self.shotInterval = 90
+		self.shotCount = 0
+		self.shotTime = 0
+		self.shotDr64 = 0
+	
+	def update(self):
+		self.x = self.parentObj.x + self.offsetX
+		self.y = self.parentObj.y + self.offsetY
+		if self.x < -28:
+			self.remove()
+			return
+		if self.shotFirst == self.cnt or ((self.cnt -self.shotFirst) % self.shotInterval) ==0:
+			if (self.isUpper and self.y > gcommon.ObjMgr.myShip.y) or (self.isUpper == False and self.y < gcommon.ObjMgr.myShip.y):
+				self.shotCount = 3
+				self.shotTime = 0
+				self.shotDr64 = gcommon.get_atan_no_to_ship(self.x+13, self.y+3)
+		
+		if self.shotCount > 0:
+			if self.shotTime == 0:
+				enemy_shot_dr(self.x+13,self.y+3, 3, 0, self.shotDr64)
+				self.shotTime = 10
+				self.shotCount -= 1
+			else:
+				self.shotTime -= 1
+
+	def draw(self):
+		if self.isUpper:
+			sy = 208
+		else:
+			sy = 216
+		if self.shotCount> 0 and self.cnt & 4 != 0:
+			sx = 160
+		else:
+			sx = 128
+		if self.isRed:
+			pyxel.pal(4,2)
+			pyxel.pal(9,8)
+			pyxel.pal(10,14)
+		pyxel.blt(self.x, self.y, 2, sx, sy, 26, 7, 3)
+		if self.isRed:
+			pyxel.pal()
+
+
+class Fighter3(EnemyBase):
+	def __init__(self, t):
+		super(Fighter3, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.moveTable = t[4]
+		self.shotFirst = t[5]
+		self.left = 4
+		self.top = 7
+		self.right = 19
+		self.bottom = 15
+		self.layer = gcommon.C_LAYER_SKY
+		self.hp = 1
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+		self.mover = CountMover(self, self.moveTable, False)
+
+	def update(self):
+		self.mover.update()
+		if self.cnt == self.shotFirst:
+			enemy_shot(self.x +10, self.y+10, 3, 0)
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, 1, 32, 200, 24, 22, 3)
+		if self.cnt & 2 == 0:
+			if self.cnt & 4 == 0:
+				pyxel.blt(self.x +22, self.y +10-3, 1, 112, 64, 16, 6, 3)
+			else:
+				pyxel.blt(self.x +22, self.y +10-3, 1, 112, 72, 16, 6, 3)
+
 

@@ -943,6 +943,7 @@ class MapDrawLast:
 		gcommon.map_y = 24*8
 		gcommon.back_map_x = -32 * 8
 		gcommon.back_map_y = 0
+		pyxel.image(2).load(0,0,"assets/graslay_last-2.png")
 
 	def update0(self, skip):
 		pass
@@ -1199,7 +1200,8 @@ class MainGame:
 		elif self.stage == 6:
 			#pyxel.load("assets/graslay_dangeon10.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay_last.png")
-			pyxel.image(2).load(0,0,"assets/graslay_last-2.png")
+			pyxel.image(2).load(0,0,"assets/graslay_last-1.png")
+			#pyxel.image(2).load(0,0,"assets/graslay_last-2.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = 0
 			gcommon.long_map = True
@@ -1594,12 +1596,13 @@ class MainGame:
 		]
 
 	def initEventLast(self):
+		baseOffset = 1200
 		self.eventTable =[ \
 			[0, StartBGM, gcommon.BGM.STAGE6_1],
-			[2100,StartMapDrawLast],		\
-			[2100, StartBGM, gcommon.BGM.STAGE6_2],
-			[5800, StartBGM, gcommon.BGM.STAGE6_3],
-			[8200, StartBGM, gcommon.BGM.BOSS],
+			[2100 +baseOffset,StartMapDrawLast],		\
+			[2100 +baseOffset, StartBGM, gcommon.BGM.STAGE6_2],
+			[5800 +baseOffset, StartBGM, gcommon.BGM.STAGE6_3],
+			[8200 +baseOffset, StartBGM, gcommon.BGM.BOSS],
 		]
 
 	def initStory(self):
@@ -1724,10 +1727,13 @@ class MainGame:
 			[1100, enemy.Cell1Group1, 20, 192, 1],		\
 			[1500, enemy.Cell1Group1, 0, 192, 1],		\
 			[2000, enemy.Cell1Group1, 256, 100, 0],		\
+			[2300, enemy.Cell1Group1, 256, 100, 0],		\
 			[2400, enemy.Worm1, 90, 91, 2, 4, 60],		\
+			[2600, enemy.Cell1Group1, 256, 100, 0],		\
 			[2610, enemy.Worm1, 103, 75, 6, 5, 80],		\
 			[2760, enemy.Worm1, 111, 69, 0, 5, 90],		\
 			[2800, enemy.Worm1, 122, 74, 4, 5, 130],		\
+			[3200, enemy.Cell1Group1, 150, -16, 1],		\
 			[3360, enemy.Cell1Group1, -16, 10, 0],		\
 
 			[3360, enemy.Worm1, 93, 56, 1, 5, 130],		\
@@ -1748,6 +1754,7 @@ class MainGame:
 
 			# 斜面に上からへばり付いてるやつ
 			[4800, enemy.Worm1, 144, 15, 7, 5, 160],		\
+			[5000, enemy.Cell1Group1, -256, 20, 0],		\
 
 			[5300, enemy.Worm1, 175, 28, 2, 5, 160],		\
 
@@ -1810,8 +1817,10 @@ class MainGame:
 		]
 
 	def initStoryLast(self):
+		baseOffset = 1200
 		self.story=[ \
 			[150, enemy.Fan1Group, 8, 10, 6],		\
+			#[200, enemy.EnemyGroup, enemy.Fan1, [0, None, 256, 100], 10, 5],	\
 			[270, enemy.Fan1Group, 170, 10, 6],		\
 			[330, enemy.Fan1Group, 8, 10, 6],		\
 			[370, enemy.Fighter2, 256, 120, 230, -1],	\
@@ -1819,48 +1828,121 @@ class MainGame:
 			[400, enemy.Fan1Group, 170, 10, 6],		\
 			[520, enemy.Fighter2, 256, 20, 190, 1],	\
 			[580, enemy.Fighter2, 256, 150, 190, -1],	\
-			[700, boss.MiddleBoss1, 256, 50],		\
-			[2100, enemy.Fighter2, 256, 30, 190, 1],	\
-			[2120, enemy.Fighter2, 256, 120, 230, -1],	\
-			[2260, enemy.Walker1, 256, 266],		\
-			[2380, enemy.Tank1, 256, 144, 0, 0],	\
-			[2400, enemy.Tank1, 256, 24, 1, 0],	\
-			[2450, enemy.Tank1, 256, 144, 0, 0],	\
-			[2520, enemy.Tank1, 256, 24, 1, 0],	\
-			[2630, enemy.Tank1, -24, 144, 0, 1],	\
-			[2650, enemy.Tank1, -24, 24, 1, 1],	\
-			[2800, enemy.Tank1, -24, 144, 0, 2],	\
-			[2830, enemy.Tank1, -24, 24, 1, 2],	\
-			[2900, enemy.Tank1, -24, 144, 0, 3],	\
-			[2930, enemy.Tank1, -24, 24, 1, 3],	\
-			[3100, enemy.Tank1, -24, 144, 0, 3],	\
-			[3130, enemy.Tank1, -24, 24, 1, 3],	\
-			[3500, enemy.Fighter2, 256, 120, 230, -1],	\
-			[3520, enemy.Fighter2, 256, 30, 190, 1],	\
-			[3700, enemy.Fighter2, 256, 130, 220, -1],	\
-			[3720, enemy.Fighter2, 256, 40, 180, 1],	\
+			#[700, boss.MiddleBoss1, 256, 50],		\
+			[800, enemy.BattleShip1, 256+64, 60, False, [
+				[90, 0, -1.0, 0.0],[330, 0, -1.0, 0.25],[600, 0, -1.0,0.0]
+				], 0, -1],		\
+			[1000, enemy.EnemyGroup, enemy.Fighter3, 
+			[
+				0, None, 256, 20,
+				[
+					[40, 0, -3.0, 0.0],[30, 0, -3.0, 0.5],[600, 0, -3.0,0.0]
+				], 30
+			], 15, 5],	\
+			[1300, enemy.EnemyGroup, enemy.Fighter3, 
+			[
+				0, None, 256, 90,
+				[
+					[40, 0, -3.0, 0.0],[30, 0, -3.0, -0.5],[600, 0, -3.0,0.0]
+				], 30
+			], 15, 5],	\
+			[1300, enemy.BattleShip1, 256+32, 0, False, [
+				[150, 0, -1.0, 0.0],[210, 0, -1.0, -0.25],[180, 0, -1.0,0.0],[180, 0, -1.0,0.25],[600, 0, 0-1.0,0.0]
+				], 0, 330],		\
+			[1500, enemy.EnemyGroup, enemy.Fighter3, 
+			[
+				0, None, 256, 90,
+				[
+					[40, 0, -3.0, 0.0],[30, 0, -3.0, -0.5],[600, 0, -3.0,0.0]
+				], 30
+			], 15, 5],	\
+			[1650, enemy.EnemyGroup, enemy.Fighter3, 
+			[
+				0, None, 256, 130,
+				[
+					[30, 0, -3.0, 0.0],[30, 0, -3.0, 0.75],[600, 0, -3.0,0.0]
+				], 30
+			], 15, 5],	\
+			#[1500, enemy.Fighter3, 256, 60, [
+			#	[90, 0, -3.0, 0.0],[330, 0, -3.0, 0.25],[600, 0, -3.0,0.0]
+			#	]],		\
+			# ３隻目
+			[1700, enemy.BattleShip1, 256, 160, False, [
+				[150, 0, -1.0, 0.0],[210, 0, -1.0, -0.25],[150, 0, -1.0,0.0],[210, 0, -1.0,0.25],[600, 0, -1.0,0.0]
+				], 180, -1],		\
+			[2000, enemy.EnemyGroup, enemy.Fighter3, 
+			[
+				0, None, 256, 10,
+				[
+					[30, 0, -3.0, 0.0],[30, 0, -3.0, 0.75],[600, 0, -3.0,0.0]
+				], 20
+			], 15, 5],	\
+			[2100, enemy.EnemyGroup, enemy.Fighter3, 
+			[
+				0, None, 256, 100,
+				[
+					[30, 0, -3.0, 0.0],[30, 0, -3.0, -1.0],[600, 0, -3.0,0.0]
+				], 20
+			], 15, 5],	\
+			[2300, enemy.EnemyGroup, enemy.Fighter3, 
+			[
+				0, None, 256, 120,
+				[
+					[30, 0, -3.0, 0.0],[30, 0, -3.0, -0.75],[600, 0, -3.0,0.0]
+				], 20
+			], 15, 5],	\
+			# 赤い艦
+			[2400, enemy.BattleShip1, 256 +32, 80, True, [
+				[90, 0, -2.0, 0.0],[120, 0, -0.5, 0.0],[210, 0, -1.0, 0.25],[150, 0, -1.0,0.0],[210, 0, -1.0,0.25],[600, 0, -1.0,0.0]
+				], 0, -1],		\
+			[2600, enemy.EnemyGroup, enemy.Fighter3, 
+			[
+				0, None, 256, 10,
+				[
+					[30, 0, -3.0, 0.0],[30, 0, -3.0, 0.75],[600, 0, -3.0,0.0]
+				], 15
+			], 15, 5],	\
+			[2100 +baseOffset, enemy.Fighter2, 256, 30, 190, 1],	\
+			[2120 +baseOffset, enemy.Fighter2, 256, 120, 230, -1],	\
+			[2260 +baseOffset, enemy.Walker1, 256, 266],		\
+			[2380 +baseOffset, enemy.Tank1, 256, 144, 0, 0],	\
+			[2400 +baseOffset, enemy.Tank1, 256, 24, 1, 0],	\
+			[2450 +baseOffset, enemy.Tank1, 256, 144, 0, 0],	\
+			[2520 +baseOffset, enemy.Tank1, 256, 24, 1, 0],	\
+			[2630 +baseOffset, enemy.Tank1, -24, 144, 0, 1],	\
+			[2650 +baseOffset, enemy.Tank1, -24, 24, 1, 1],	\
+			[2800 +baseOffset, enemy.Tank1, -24, 144, 0, 2],	\
+			[2830 +baseOffset, enemy.Tank1, -24, 24, 1, 2],	\
+			[2900 +baseOffset, enemy.Tank1, -24, 144, 0, 3],	\
+			[2930 +baseOffset, enemy.Tank1, -24, 24, 1, 3],	\
+			[3100 +baseOffset, enemy.Tank1, -24, 144, 0, 3],	\
+			[3130 +baseOffset, enemy.Tank1, -24, 24, 1, 3],	\
+			[3500 +baseOffset, enemy.Fighter2, 256, 120, 230, -1],	\
+			[3520 +baseOffset, enemy.Fighter2, 256, 30, 190, 1],	\
+			[3700 +baseOffset, enemy.Fighter2, 256, 130, 220, -1],	\
+			[3720 +baseOffset, enemy.Fighter2, 256, 40, 180, 1],	\
 
-			[4450, enemy.Fighter2, 256, 30, 190, 1],	\
-			[4480, enemy.Fighter2, 256, 120, 230, -1],	\
-			[4520, enemy.Fighter2, 256, 120, 160, -1],	\
-			[4550, enemy.Fighter2, 256, 30, 130, 1],	\
+			[4450 +baseOffset, enemy.Fighter2, 256, 30, 190, 1],	\
+			[4480 +baseOffset, enemy.Fighter2, 256, 120, 230, -1],	\
+			[4520 +baseOffset, enemy.Fighter2, 256, 120, 160, -1],	\
+			[4550 +baseOffset, enemy.Fighter2, 256, 30, 130, 1],	\
 		#	[4700, enemy.Fighter2, 256, 30, 160, 1],	\
 		#	[4730, enemy.Fighter2, 256, 120, 230, -1],	\
 
-			[6000, enemy.Spider1, 300, 64.5],		\
-			[6200, enemy.Tank1, 256, 152, 0, 0],	\
-			[6260, enemy.Tank1, 256, 16, 1, 0],	\
-			[6520, enemy.Tank1, -24, 152, 0, 2],	\
-			[6600, enemy.Tank1, -24, 16, 1, 2],	\
-			[6700, enemy.Tank1, 256, 152, 0, 0],	\
-			[6750, enemy.Tank1, -24, 16, 1, 3],	\
-			[6800, enemy.Tank1, -24, 16, 1, 2],	\
-			[7000, enemy.Tank1, 256, 16, 1, 0],	\
-			[7200, enemy.Tank1, -24, 152, 0, 2],	\
-			[7300, enemy.Tank1, -24, 16, 1, 3],	\
-			[7400, enemy.Tank1, 256, 16, 1, 0],	\
-			[7500, enemy.Tank1, -24, 16, 1, 3],	\
-			[8400, boss.BossLast1],	\
+			[6000 +baseOffset, enemy.Spider1, 300, 64.5],		\
+			[6200 +baseOffset, enemy.Tank1, 256, 152, 0, 0],	\
+			[6260 +baseOffset, enemy.Tank1, 256, 16, 1, 0],	\
+			[6520 +baseOffset, enemy.Tank1, -24, 152, 0, 2],	\
+			[6600 +baseOffset, enemy.Tank1, -24, 16, 1, 2],	\
+			[6700 +baseOffset, enemy.Tank1, 256, 152, 0, 0],	\
+			[6750 +baseOffset, enemy.Tank1, -24, 16, 1, 3],	\
+			[6800 +baseOffset, enemy.Tank1, -24, 16, 1, 2],	\
+			[7000 +baseOffset, enemy.Tank1, 256, 16, 1, 0],	\
+			[7200 +baseOffset, enemy.Tank1, -24, 152, 0, 2],	\
+			[7300 +baseOffset, enemy.Tank1, -24, 16, 1, 3],	\
+			[7400 +baseOffset, enemy.Tank1, 256, 16, 1, 0],	\
+			[7500 +baseOffset, enemy.Tank1, -24, 16, 1, 3],	\
+			[8400 +baseOffset, boss.BossLast1],	\
 		]
 
 def parseCommandLine():
