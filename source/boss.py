@@ -3148,5 +3148,6 @@ class BossLastBaseExplosion(enemy.EnemyBase):
 			if self.cnt < 120:
 				enemy.create_explosion(32 +random.randrange(64), random.randrange(gcommon.SCREEN_MAX_Y), gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_SKY_M)
 			else:
+				# サウンドなし
 				gcommon.ObjMgr.addObj(enemy.Explosion(32 +random.randrange(64), random.randrange(gcommon.SCREEN_MAX_Y), gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_SKY_M))
 
