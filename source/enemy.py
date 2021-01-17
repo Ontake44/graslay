@@ -79,7 +79,7 @@ class EnemyBase:
 			((self.collisionRects != None and gcommon.check_collision_list(self.x, self.y, self.collisionRects, shot))	\
 			or	\
 			(self.collisionRects == None and gcommon.check_collision(self, shot))):
-			self.hp -= gcommon.SHOT_POWER
+			self.hp -= shot.shotPower
 			if self.hp <= 0:
 				self.broken()
 			else:
@@ -530,8 +530,8 @@ class Battery1(EnemyBase):
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True
 		self.score = 300
-		self.hitcolor1 = 5
-		self.hitcolor2 = 6
+		self.hitcolor1 = 8
+		self.hitcolor2 = 14
 		self.exptype = gcommon.C_EXPTYPE_GRD_S
 		self.interval = 120
 		self.first = 120
@@ -825,6 +825,8 @@ class MissileShip(EnemyBase):
 		self.right = 14
 		self.bottom = 14
 		self.hp = 30
+		self.hitcolor1 = 12
+		self.hitcolor2 = 7
 		self.dx = -2
 		self.dy = 0
 		self.layer = gcommon.C_LAYER_SKY
@@ -1299,7 +1301,7 @@ class Worm1(EnemyBase):
 					hit = True
 		
 		if hit:
-			self.hp -= gcommon.SHOT_POWER
+			self.hp -= shot.shotPower
 			if self.hp <= 0:
 				self.broken()
 			else:
@@ -1481,6 +1483,8 @@ class FixedShutter1(EnemyBase):
 		self.hp = 200
 		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.exptype = gcommon.C_EXPTYPE_GRD_M
+		self.hitcolor1 = 13
+		self.hitcolor2 = 7
 		self.ground = True
 		self.hitCheck = True
 		self.shotHitCheck = True

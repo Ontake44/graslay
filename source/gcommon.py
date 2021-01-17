@@ -459,13 +459,13 @@ def is_outof_bound(obj):
 
 
 def checkShotKey():
-	if pyxel.btn(pyxel.KEY_SHIFT) or pyxel.btn(pyxel.KEY_X) or pyxel.btn(pyxel.GAMEPAD_1_A) or pyxel.btn(pyxel.GAMEPAD_1_Y):
+	if pyxel.btn(pyxel.KEY_Z) or pyxel.btn(pyxel.GAMEPAD_1_A) or pyxel.btn(pyxel.GAMEPAD_1_Y):
 		return True
 	else:
 		return False
 
 def checkOpionKey():
-	if pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD_1_B) or pyxel.btnp(pyxel.GAMEPAD_1_X):
+	if pyxel.btnp(pyxel.KEY_X) or pyxel.btnp(pyxel.GAMEPAD_1_B) or pyxel.btnp(pyxel.GAMEPAD_1_X):
 		return True
 	else:
 		return False
@@ -541,6 +541,7 @@ class ObjMgr:
 	# 自機弾
 	shots = []
 	shotGroups = []
+	missleGroups = []
 
 	# 敵
 	objs = []
@@ -610,12 +611,6 @@ def checkUpP():
 
 def checkDownP():
 	return pyxel.btnp(pyxel.KEY_DOWN) or pyxel.btnp(pyxel.GAMEPAD_1_DOWN)
-
-def checkShotKeyP():
-	if pyxel.btnp(pyxel.KEY_SHIFT) or pyxel.btnp(pyxel.KEY_ENTER) or pyxel.btnp(pyxel.KEY_X) or pyxel.btnp(pyxel.GAMEPAD_1_A) or pyxel.btnp(pyxel.GAMEPAD_1_Y):
-		return True
-	else:
-		return False
 
 def getMapData(x, y):
 	global map_x
@@ -1099,3 +1094,4 @@ def drawPolygonSystemImage(poly):
 					else:
 						pyxel.blt(p[i+1], y, 4, p[i+1], y, p[i] -p[i+1]+1, 1)
 		y += 1
+
