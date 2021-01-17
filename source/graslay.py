@@ -15,16 +15,19 @@ class MyShip:
 		super().__init__()
 		self.sprite = 1
 		self.shotMax = 4
+		self.missleMax = 2
 		self.left = 3
 		self.top = 7
 		self.right = 10
 		self.bottom = 8
 		self.cnt = 0
+		# 武器種類 0 - 2
 		self.weapon = 0
 		self.roundAngle = 0
 		# 1:ゲーム中 2:爆発中 3:復活中
 		self.sub_scene = 3
 		self.shotCounter = 0
+		self.missleCounter = 0
 		self.prevFlag = False
 		self.dx = 0
 		self.setStartPosition()
@@ -117,50 +120,59 @@ class MyShip:
 				if self.y > 176:
 					self.y = 176
 		if gcommon.game_timer > 30:
-			if self.weapon == gcommon.WEAPON_ROUND:
-				if gcommon.checkShotKey():
-					doShot = False
-					if self.prevFlag:
-						self.shotCounter += 1
-						if self.shotCounter > 2:
-							self.shotCounter = 0
-							doShot = True
-					else:
-						self.prevFlag = True
-						self.shotCounter = 0
-						doShot = True
-					if doShot:
-						self.shot()
-						self.roundAngle += 4
-						if self.roundAngle > 62:
-							self.roundAngle = 62
-				elif self.roundAngle > 0:
-					self.shotCounter += 1
-					if self.shotCounter > 2:
-						self.shotCounter = 0
-						self.shot()
-						self.roundAngle -= 4
-						if self.roundAngle < 0:
-							self.roundAngle = 0
-			else:
-				if gcommon.checkShotKey():
-					if self.prevFlag:
-						self.shotCounter += 1
-						if self.shotCounter > 3:
-							self.shotCounter = 0
-							self.shot()
-					else:
-						self.prevFlag = True
-						self.shotCounter = 0
-						self.shot()
-				else:
-					self.prevFlag = False
-					self.shotCounter = 0
-					self.roundAngle = 0
-			
+			self.executeShot()
 			if gcommon.checkOpionKey():
 				self.weapon = (self.weapon + 1) % 3
 	
+	# 自機ショット実行
+	def executeShot(self):
+		if self.weapon == gcommon.WEAPON_ROUND:
+			# ラウンドバルカンは特殊
+			if gcommon.checkShotKey():
+				doShot = False
+				if self.prevFlag:
+					self.shotCounter += 1
+					if self.shotCounter > 2:
+						self.shotCounter = 0
+						doShot = True
+				else:
+					self.prevFlag = True
+					self.shotCounter = 0
+					doShot = True
+				if doShot:
+					self.shot()
+					self.missile()
+					self.roundAngle += 4
+					if self.roundAngle > 62:
+						self.roundAngle = 62
+			elif self.roundAngle > 0:
+				self.shotCounter += 1
+				if self.shotCounter > 2:
+					self.shotCounter = 0
+					self.shot()
+					self.missile()
+					self.roundAngle -= 4
+					if self.roundAngle < 0:
+						self.roundAngle = 0
+		else:
+			# ラウンドバルカン以外
+			if gcommon.checkShotKey():
+				if self.prevFlag:
+					self.shotCounter += 1
+					if self.shotCounter > 3:
+						self.shotCounter = 0
+						self.shot()
+						self.missile()
+				else:
+					self.prevFlag = True
+					self.shotCounter = 0
+					self.shot()
+					self.missile()
+			else:
+				self.prevFlag = False
+				self.shotCounter = 0
+				self.roundAngle = 0
+
 	def draw(self):
 		if self.sub_scene == 1:
 			self.drawMyShip()
@@ -179,7 +191,7 @@ class MyShip:
 			if self.cnt%2 ==0:
 				self.drawMyShip()
 				if self.sub_scene == 5:
-					pyxel.blt(self.x-32, self.y+4, 0, 48, 8, 32, 8, gcommon.TP_COLOR)
+					pyxel.blt(self.x-32, self.y+4, 0, 72, 8, 32, 8, gcommon.TP_COLOR)
 				
 		# 当たり判定領域描画
 		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
@@ -188,7 +200,7 @@ class MyShip:
 		#if gcommon.set_color_shadow():
 		#	pyxel.blt(self.x +16, self.y +16, 0, self.sprite * 16, 0, 16, 16, gcommon.TP_COLOR)
 		#	pyxel.pal()
-		pyxel.blt(self.x, self.y, 0, self.sprite * 16, 0, 16, 16, gcommon.TP_COLOR)
+		pyxel.blt(self.x, self.y, 0, self.sprite * 24, 0, 24, 16, gcommon.TP_COLOR)
 
 	# 自機弾発射
 	def shot(self):
@@ -219,35 +231,64 @@ class MyShip:
 			gcommon.sound(gcommon.SOUND_SHOT)
 			gcommon.ObjMgr.shotGroups.append(shotGroup)
 	
+	# ミサイル発射
+	def missile(self):
+		if len(gcommon.ObjMgr.missleGroups) < self.missleMax:
+			shotGroup = MyShotGroup()
+			if self.weapon == 0:
+				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile1(self.x+10, self.y, True)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile1(self.x+10, self.y +8, False)))
+			elif self.weapon ==1:
+				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile2(self.x+2, self.y +8)))
+			else:
+				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile3(self.x+2, self.y +8)))
+			gcommon.ObjMgr.missleGroups.append(shotGroup)
+
+
 	def createShot(self, x, y, dx, dy, sprite):
-		s = MyShot(self.weapon, sprite)
-		s.init(x, y, dx, dy)
+		s = MyShot(x, y, dx, dy, sprite)
 		return s
 	
 	def setStartPosition(self):
 		self.x = 8
 		self.y = pyxel.height/2 -8
 
+# return True: 消えた False:消えてない
+def checkShotMapCollision(obj, px, py):
+	no = gcommon.getMapData(px, py)
+	if gcommon.app.stage == 3:
+		if no == 4:
+			obj.remove()
+			gcommon.setMapData(px, py, 0)
+			return True
+		elif no == 5:
+			obj.remove()
+			gcommon.setMapData(px, py, 0)
+			return True
+		elif no == 6:
+			obj.remove()
+			gcommon.setMapData(px, py, 0)
+			return
+	if no >= 0 and gcommon.isMapFree(no) == False:
+		obj.remove()
+		return True
+	return False
+
 
 class MyShot:
-	def __init__(self, weapon, sprite):
-		self.x = 0
-		self.y = 0
+	def __init__(self, x, y, dx, dy, sprite):
+		self.x = x
+		self.y = y
 		self.left = -4
 		self.top = 0  #-2
 		self.right = 11
 		self.bottom = 7 #9
-		self.dx = 0
-		self.dy = 0
+		self.dx = dx
+		self.dy = dy
+		self.shotPower = gcommon.SHOT_POWER
 		self.sprite = sprite
 		self.group = None
 		self.removeFlag = False
-
-	def init(self, x, y, dx, dy):
-		self.x = x
-		self.y = y
-		self.dx = dx
-		self.dy = dy
 
 	def update(self):
 		if self.removeFlag == False:
@@ -261,22 +302,7 @@ class MyShot:
 				# ストレートの場合8ドット移動なので、２箇所マップチェックする
 				for i in range(2):
 					px = self.x + 2 + i * 4
-					no = gcommon.getMapData(px, self.y + 3)
-					if gcommon.app.stage == 3:
-						if no == 4:
-							self.remove()
-							gcommon.setMapData(px, self.y + 3, 0)
-							return
-						elif no == 5:
-							self.remove()
-							gcommon.setMapData(px, self.y + 3, 4)
-							return
-						elif no == 6:
-							self.remove()
-							gcommon.setMapData(px, self.y + 3, 5)
-							return
-					if no >= 0 and gcommon.isMapFree(no) == False:
-						self.remove()
+					if checkShotMapCollision(self, px, self.y + 3):
 						return
 
 	def remove(self):
@@ -288,11 +314,184 @@ class MyShot:
 	def draw(self):
 		# 当たり判定描画
 		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
-		if self.sprite > 0:
-			pyxel.blt(self.x, self.y, 0, 48 + self.sprite * 8, 0, 8, 8, gcommon.TP_COLOR)
+		if self.sprite == 0:
+			pyxel.blt(self.x, self.y, 0, 104, 8, 16, 8, gcommon.TP_COLOR)
 		else:
-			pyxel.blt(self.x, self.y, 0, 48 - self.sprite * 8, 0, 8, -8, gcommon.TP_COLOR)
+			if self.sprite > 0:
+				pyxel.blt(self.x, self.y, 0, 72 + self.sprite * 8, 0, 8, 8, gcommon.TP_COLOR)
+			else:
+				pyxel.blt(self.x, self.y, 0, 72 - self.sprite * 8, 0, 8, -8, gcommon.TP_COLOR)
 
+# 上下に落ちるようなミサイル
+class MyMissile1:
+	def __init__(self, x, y, isUpper):
+		self.x = x
+		self.y = y
+		self.isUpper = isUpper
+		self.left = -4
+		self.top = 0  #-2
+		self.right = 11
+		self.bottom = 7 #9
+		self.dx = 2
+		self.dy = -2.0 if isUpper else 2
+		self.shotPower = gcommon.SHOT_POWER
+		self.group = None
+		self.removeFlag = False
+
+	def update(self):
+		self.x = self.x + self.dx
+		self.y = self.y + self.dy
+		if self.x <= -8 or self.x >= 256:
+			self.remove()
+		elif self.y <= -8 or self.y >= 192:
+			self.remove()
+		else:
+			if abs(self.dy) <= 6:
+				self.dy *= 1.05
+			if gcommon.isMapFreePos(self.x + 2, self.y + 3) == False:
+				self.remove()
+
+	def remove(self):
+		self.removeFlag = True
+		self.group.remove(self)
+		if len(self.group.shots) == 0:
+			gcommon.ObjMgr.missleGroups.remove(self.group)
+
+	def draw(self):
+		# 当たり判定描画
+		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
+		if abs(self.dy) > 5:
+			pyxel.blt(self.x, self.y, 0, 128, 0, 8, 8 if self.isUpper else -8, gcommon.TP_COLOR)
+		else:
+			pyxel.blt(self.x, self.y, 0, 120, 0, 8, 8 if self.isUpper else -8, gcommon.TP_COLOR)
+
+# まっすぐ飛ぶミサイル
+class MyMissile2:
+	def __init__(self, x, y):
+		self.x = x
+		self.y = y
+		self.left = 0
+		self.top = 0  #-2
+		self.right = 15
+		self.bottom = 7 #9
+		self.dx = 2
+		self.shotPower = gcommon.SHOT_POWER
+		self.group = None
+		self.removeFlag = False
+		self.cnt = 0
+
+	def update(self):
+		if self.cnt < 10:
+			self.y += 0.5
+		else:
+			self.x = self.x + self.dx
+		if self.x <= -8 or self.x >= 256:
+			self.remove()
+		elif self.y <= -8 or self.y >= 192:
+			self.remove()
+		else:
+			if abs(self.dx) <= 8:
+				self.dx *= 1.05
+			if gcommon.isMapFreePos(self.x + 2, self.y + 3) == False:
+				self.remove()
+		self.cnt += 1
+
+	def remove(self):
+		self.removeFlag = True
+		self.group.remove(self)
+		if len(self.group.shots) == 0:
+			gcommon.ObjMgr.missleGroups.remove(self.group)
+
+	def draw(self):
+		# 当たり判定描画
+		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
+		if self.cnt & 4 == 0:
+			pyxel.blt(self.x, self.y, 0, 136+16, 0, 16, 8, gcommon.TP_COLOR)
+		else:
+			pyxel.blt(self.x, self.y, 0, 136, 0, 16, 8, gcommon.TP_COLOR)
+
+# 後方に落ちるミサイル（爆弾だな）
+class MyMissile3:
+	def __init__(self, x, y):
+		self.x = x
+		self.y = y
+		self.left = -1
+		self.top = -1  #-2
+		self.right = 8
+		self.bottom = 8 #9
+		self.dx = -1.5
+		self.dy = 2
+		self.shotPower = gcommon.SHOT_POWER
+		self.group = None
+		self.removeFlag = False
+		self.cnt = 0
+
+	def update(self):
+		if self.cnt < 15:
+			self.dx *= 0.9
+		else:
+			self.dx = 0
+		self.x += self.dx
+		self.y += self.dy
+		if abs(self.dy) <= 3.0:
+			self.dy *= 1.05
+		if self.x <= -8 or self.x >= 256:
+			self.delete()
+		elif self.y <= -8 or self.y >= 192:
+			self.delete()
+		else:
+			if gcommon.isMapFreePos(self.x + 2, self.y + 3) == False:
+				self.remove()
+		self.cnt += 1
+
+	def delete(self):
+		self.removeFlag = True
+		self.group.remove(self)
+		if len(self.group.shots) == 0:
+			gcommon.ObjMgr.missleGroups.remove(self.group)
+
+	def remove(self):
+		gcommon.ObjMgr.shots.append(MySpreadBom(self.x +4, self.y+4))
+		self.delete()
+
+	def draw(self):
+		# 当たり判定描画
+		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
+		if self.dx > 0.25:
+			pyxel.blt(self.x, self.y, 0, 176, 0, 8, 8, gcommon.TP_COLOR)
+		else:
+			pyxel.blt(self.x, self.y, 0, 184, 0, 8, 8, gcommon.TP_COLOR)
+
+class MySpreadBom:
+	def __init__(self, cx, cy):
+		self.x = cx
+		self.y = cy
+		self.left = -8
+		self.top = -8
+		self.right = 8
+		self.bottom = 8
+		self.shotPower = gcommon.SHOT_POWER
+		self.group = None
+		self.removeFlag = False
+		self.cnt = 0
+
+	def update(self):
+		self.cnt += 1
+		if self.cnt > 40:
+			self.remove()
+
+	def remove(self):
+		self.removeFlag = True
+
+	def draw(self):
+		# 当たり判定描画
+		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
+		if self.cnt & 2 == 0:
+			clr = 7 if self.cnt & 4 == 0 else 10
+			if self.cnt < 20:
+				pyxel.circ(self.x, self.y, 2 + self.cnt/2, clr)
+			else:
+				pyxel.circ(self.x, self.y, 10, clr)
 
 class MyShotGroup:
 	def __init__(self):
@@ -370,7 +569,7 @@ class Title:
 			else:
 				gcommon.Text2(110, 140, "GAME START", 8, 5)
 		gcommon.Text2(110, 155, "OPTION", 7, 5)
-		gcommon.Text2(68, 170, "PUSH SHIFT KEY OR SHOT BUTTON", 8, 1)
+		gcommon.Text2(68, 170, "PUSH KEY OR SHOT BUTTON", 8, 1)
 		pyxel.blt(98, 139 + self.menuPos * 15, 0, 0, 32, 8, 8, gcommon.TP_COLOR)
 		
 
@@ -432,7 +631,7 @@ class OptionMenu:
 				if gcommon.SOUND_VOL < 0:
 					gcommon.SOUND_VOL = 0
 		
-		if gcommon.checkShotKeyP() and self.menuPos == OPTIONMENU_EXIT:
+		if gcommon.checkShotKey() and self.menuPos == OPTIONMENU_EXIT:
 			gcommon.saveSettings()
 			gcommon.app.startTitle()
 
@@ -1240,7 +1439,7 @@ class MainGame:
 			elif gcommon.checkUpP() or gcommon.checkDownP():
 				self.pauseMenuPos = (self.pauseMenuPos + 1) & 1
 				return
-			elif gcommon.checkShotKeyP():
+			elif gcommon.checkShotKey():
 				if self.pauseMenuPos == 0:
 					# CONTINUE
 					self.pause = False
@@ -1279,7 +1478,8 @@ class MainGame:
 
 		newShots = []
 		for shot in gcommon.ObjMgr.shots:
-			shot.update()
+			if shot.removeFlag == False:
+				shot.update()
 			if shot.removeFlag == False:
 				newShots.append(shot)
 		gcommon.ObjMgr.shots = newShots
@@ -1331,7 +1531,11 @@ class MainGame:
 
 		for obj in gcommon.ObjMgr.objs:
 			if (obj.layer & gcommon.C_LAYER_UNDER_GRD) != 0:
+				if obj.hitcolor1 !=0 and obj.hit:
+					pyxel.pal(obj.hitcolor1, obj.hitcolor2)
 				obj.drawLayer(gcommon.C_LAYER_UNDER_GRD)
+				if obj.hitcolor1 !=0 and obj.hit:
+					pyxel.pal(obj.hitcolor1, obj.hitcolor1)
 		
 		gcommon.ObjMgr.drawDrawMap()
 		
@@ -1473,10 +1677,11 @@ class MainGame:
 			
 			for shot in gcommon.ObjMgr.shots:
 				if obj.checkShotCollision(shot):
-					shot.removeFlag = True
-					shot.group.remove(shot)
-					if len(shot.group.shots) == 0:
-						gcommon.ObjMgr.shotGroups.remove(shot.group)
+					shot.remove()
+					#shot.removeFlag = True
+					#shot.group.remove(shot)
+					#if len(shot.group.shots) == 0:
+					#	gcommon.ObjMgr.shotGroups.remove(shot.group)
 						
 					if obj.removeFlag:
 						break
