@@ -375,6 +375,7 @@ class MyMissile2:
 		self.right = 15
 		self.bottom = 7 #9
 		self.dx = 2
+		self.dy = 0
 		self.shotPower = gcommon.SHOT_POWER
 		self.group = None
 		self.removeFlag = False
