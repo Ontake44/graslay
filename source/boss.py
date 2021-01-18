@@ -2766,6 +2766,29 @@ class BossLastFallShot(enemy.EnemyBase):
 		xpoints = gcommon.getAnglePoints([self.x, self.y], BossLastFallShot.points, [11,7], -self.rad)
 		gcommon.drawQuadrangleB(xpoints, self.clr)
 
+class BossLastStraightBeam(enemy.EnemyBase):
+	def __init__(self, x, y):
+		super(BossLastStraightBeam, self).__init__()
+		self.x = x -7.5
+		self.y = y -1
+		self.left = 2
+		self.top = 1
+		self.right = 13
+		self.bottom = 1
+		self.layer = gcommon.C_LAYER_SKY
+		self.ground = False
+		self.hitCheck = True
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+		self.speed = 4.0
+	def update(self):
+		self.x -= self.speed
+		if self.x <= -16:
+			self.remove()
+			return
+	def draw(self):
+		pyxel.blt(self.x, self.y, 2, 72, 192, 16, 3, 3)
+
 class BossLastFallShotGroup(enemy.EnemyBase):
 	def __init__(self, x, y, rad, omega, count):
 		super(BossLastFallShotGroup, self).__init__()
@@ -2792,7 +2815,7 @@ class BossLastFallShotGroup(enemy.EnemyBase):
 	def draw(self):
 		pass
 
-
+# ラスボスのコア
 class BossLast1Core(enemy.EnemyBase):
 	def __init__(self, x, y):
 		super(BossLast1Core, self).__init__()
@@ -2926,7 +2949,7 @@ class BossLast1Core(enemy.EnemyBase):
 			self.y += 4.2 * math.sin(self.radY)
 			self.radY += math.pi/60
 			if self.cnt % (self.random.rand() % 7 +3) == 0:
-				gcommon.ObjMgr.addObj(BossFactoryBeam1(self.x -16, self.y, math.pi))
+				gcommon.ObjMgr.addObj(BossLastStraightBeam(self.x -16, self.y))
 			if self.cnt > 240:
 				self.nextState()
 		elif self.state == 3:
