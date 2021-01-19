@@ -7,7 +7,9 @@ import gcommon
 import enemy
 import boss
 import pygame.mixer
-
+from optionMenu import OptionMenuScene
+from title import TitleScene
+import customStartMenu
 
 # 自機
 class MyShip:
@@ -268,7 +270,7 @@ def checkShotMapCollision(obj, px, py):
 		elif no == 6:
 			obj.remove()
 			gcommon.setMapData(px, py, 0)
-			return
+			return True
 	if no >= 0 and gcommon.isMapFree(no) == False:
 		obj.remove()
 		return True
@@ -507,169 +509,6 @@ class MyShotGroup:
 		self.shots.remove(s)
 		return len(self.shots)
 
-
-#
-#  タイトル表示
-#
-class Title:
-	def __init__(self):
-		gcommon.map_y = 0
-		self.cnt = 0
-		pyxel.image(1).load(0,0,"assets/title.png")
-		pyxel.tilemap(0).refimg = 1
-		self.menuPos = 0
-		self.timer = 0
-		self.state = 0
-		self.star_pos = 0
-		gcommon.loadSettings()
-	
-	def init(self):
-		pass
-
-	def update(self):
-		if self.cnt >= 6*60:
-			self.cnt = 0
-		
-		if self.state == 0:
-			
-			if gcommon.checkShotKey() and self.cnt > 30:
-				if self.menuPos == 0:
-					gcommon.sound(gcommon.SOUND_GAMESTART)
-					self.state = 1
-					self.cnt = 0
-				else:
-					gcommon.app.startOption()
-				#app.startStageClear()
-			
-			if gcommon.checkUpP() or gcommon.checkDownP():
-				self.menuPos = (self.menuPos + 1) & 1
-		else:
-			# GAME START
-			if self.cnt > 40:
-				gcommon.app.startGame(gcommon.START_STAGE)
-			
-		
-		self.cnt+=1
-
-	def draw(self):
-		pyxel.cls(0)
-
-		for i in range(0,96):
-			pyxel.pset(((int)(gcommon.star_ary[i][0]+self.star_pos))&255, i*2, gcommon.star_ary[i][1])
-		
-		self.star_pos -= 0.2
-		if self.star_pos<0:
-			self.star_pos += 255
-
-		pyxel.blt(0, 48, 1, 0, 48, 256, 72, gcommon.TP_COLOR)
-		if self.state == 0:
-			gcommon.Text2(110, 140, "GAME START", 7, 5)
-		else:
-			if self.cnt & 2 == 0:
-				gcommon.Text2(110, 140, "GAME START", 7, 5)
-			else:
-				gcommon.Text2(110, 140, "GAME START", 8, 5)
-		gcommon.Text2(110, 155, "OPTION", 7, 5)
-		gcommon.Text2(68, 170, "PUSH KEY OR SHOT BUTTON", 8, 1)
-		pyxel.blt(98, 139 + self.menuPos * 15, 0, 0, 32, 8, 8, gcommon.TP_COLOR)
-		
-
-OPTIONMENU_PLAYER_STOCK = 0
-OPTIONMENU_START_STAGE = 1
-OPTIONMENU_BGM_VOL = 2
-OPTIONMENU_SOUND_VOL = 3
-OPTIONMENU_EXIT = 4
-
-class OptionMenu:
-	def __init__(self):
-		self.menuPos = 0
-	
-	def init(self):
-		self.menuPos = 0
-
-	def update(self):
-		if gcommon.checkUpP():
-			self.menuPos -= 1
-			if self.menuPos < 0:
-				self.menuPos = 4
-		if gcommon.checkDownP():
-			self.menuPos += 1
-			if self.menuPos > 4:
-				self.menuPos = 0
-		
-		if gcommon.checkRightP():
-			if self.menuPos == OPTIONMENU_PLAYER_STOCK:
-				gcommon.START_REMAIN += 1
-				if gcommon.START_REMAIN > 99:
-					gcommon.START_REMAIN = 99
-			elif self.menuPos == OPTIONMENU_START_STAGE:
-				gcommon.START_STAGE += 1
-				if gcommon.START_STAGE > 6:
-					gcommon.START_STAGE = 6
-			elif self.menuPos == OPTIONMENU_BGM_VOL:
-				gcommon.BGM_VOL += 1
-				if gcommon.BGM_VOL > 10:
-					gcommon.BGM_VOL = 10
-			elif self.menuPos == OPTIONMENU_SOUND_VOL:
-				gcommon.SOUND_VOL += 1
-				if gcommon.SOUND_VOL > 10:
-					gcommon.SOUND_VOL = 10
-		elif gcommon.checkLeftP():
-			if self.menuPos == OPTIONMENU_PLAYER_STOCK:
-				gcommon.START_REMAIN -= 1
-				if gcommon.START_REMAIN < 1:
-					gcommon.START_REMAIN = 1
-			elif self.menuPos == OPTIONMENU_START_STAGE:
-				gcommon.START_STAGE -= 1
-				if gcommon.START_STAGE < 1:
-					gcommon.START_STAGE = 1
-			elif self.menuPos == OPTIONMENU_BGM_VOL:
-				gcommon.BGM_VOL -= 1
-				if gcommon.BGM_VOL < 0:
-					gcommon.BGM_VOL = 0
-			elif self.menuPos == OPTIONMENU_SOUND_VOL:
-				gcommon.SOUND_VOL -= 1
-				if gcommon.SOUND_VOL < 0:
-					gcommon.SOUND_VOL = 0
-		
-		if gcommon.checkShotKey() and self.menuPos == OPTIONMENU_EXIT:
-			gcommon.saveSettings()
-			gcommon.app.startTitle()
-
-	def draw(self):
-		pyxel.cls(1)
-		gcommon.Text2(8, 8, "OPTION MENU", 7, 5)
-		y = 50
-		gcommon.Text2(30, y, "DIFFICULTY", 6, 5)
-		gcommon.Text2(120, y, "NORMAL", 6, 5)
-		y += 20
-		
-		gcommon.Text2(30, y, "PLAYER STOCK", self.getOptionColor(OPTIONMENU_PLAYER_STOCK), 5)
-		gcommon.Text2(120, y, str(gcommon.START_REMAIN), self.getOptionColor(OPTIONMENU_PLAYER_STOCK), 5)
-		y += 20
-
-		gcommon.Text2(30, y, "START STAGE", self.getOptionColor(OPTIONMENU_START_STAGE), 5)
-		gcommon.Text2(120, y, str(gcommon.START_STAGE), self.getOptionColor(OPTIONMENU_START_STAGE), 5)
-		y += 20
-
-		gcommon.Text2(30, y, "BGM VOLUME", self.getOptionColor(OPTIONMENU_BGM_VOL), 5)
-		gcommon.Text2(120, y, str(gcommon.BGM_VOL), self.getOptionColor(OPTIONMENU_BGM_VOL), 5)
-		y += 20
-
-		gcommon.Text2(30, y, "SE VOLUME", self.getOptionColor(OPTIONMENU_SOUND_VOL), 5)
-		gcommon.Text2(120, y, str(gcommon.SOUND_VOL), self.getOptionColor(OPTIONMENU_SOUND_VOL), 5)
-		y += 20
-		
-		gcommon.Text2(30, y, "EXIT", self.getOptionColor(OPTIONMENU_EXIT), 5)
-
-
-	def getOptionColor(self, index):
-		if index == self.menuPos:
-			return 8
-		else:
-			return 7
-
-#
 #  ゲームオーバー
 #
 class GameOver:
@@ -2182,7 +2021,7 @@ class App:
 		pygame.mixer.init()
 		pyxel.init(256, 200, caption="GRASLAY", fps=60, quit_key=pyxel.KEY_Q)
 
-
+		gcommon.loadSettings()
 		pyxel.load("assets/graslay.pyxres")
 		pyxel.image(0).load(0,0,"assets/graslay0.png")
 		
@@ -2197,14 +2036,14 @@ class App:
 		pyxel.run(self.update, self.draw)
 
 	def startTitle(self):
-		self.setScene(Title())
+		self.setScene(TitleScene())
 
 	def setScene(self, nextScene):
 		self.nextScene = nextScene
 
-	def startGame(self, stage):
+	def startGame(self, stage, playerStock):
 		self.stage = stage
-		gcommon.remain = gcommon.START_REMAIN
+		gcommon.remain = playerStock
 		gcommon.power = gcommon.START_MY_POWER
 		gcommon.score = 0
 		self.setScene(MainGame(stage))
@@ -2229,7 +2068,10 @@ class App:
 		self.setScene(GameClear())
 
 	def startOption(self):
-		self.setScene(OptionMenu())
+		self.setScene(OptionMenuScene())
+
+	def startCustomStartMenu(self):
+		self.setScene(customStartMenu.CustomStartMenuScene())
 
 	def update(self):
 		if pyxel.btnp(pyxel.KEY_Q):
