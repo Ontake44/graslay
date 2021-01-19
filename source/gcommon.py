@@ -10,9 +10,12 @@ import pygame.mixer
 
 START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 
-START_STAGE = 1
-BGM_VOL = 10
-SOUND_VOL = 10
+class Defaults:
+	INIT_START_STAGE = 1
+	# 残機
+	INIT_PLAYER_STOCK = 3
+	INIT_BGM_VOL = 10
+	INIT_SOUND_VOL = 10
 
 WEAPON_STRAIGHT = 0
 WEAPON_ROUND = 1
@@ -103,9 +106,6 @@ sound_priority = [0,2,1,4,5,3,6,0,8,1, 0, 6, 6, 1, 6, 6, 6, 1]
 
 START_MY_POWER = 1
 
-# 残機
-START_REMAIN = 2		# 2
-
 SHOT_POWER = 5		# 5
 #SHOT_POWER = 200
 
@@ -170,7 +170,6 @@ eshot_sync_scroll = False
 long_map = False
 
 power = START_MY_POWER
-remain = START_REMAIN		# 残機
 
 enemy_shot_rate = 1
 
@@ -187,6 +186,13 @@ mapAttribute = []
 # ====================================================================
 
 SETTINGS_FILE = ".graslay"
+
+
+class Settings:
+	playerStock = Defaults.INIT_PLAYER_STOCK
+	startStage = Defaults.INIT_START_STAGE
+	bgmVolume = Defaults.INIT_BGM_VOL
+	soundVolume = Defaults.INIT_SOUND_VOL
 
 
 class BGM:
@@ -209,15 +215,14 @@ class BGM:
 
 	@classmethod
 	def play(cls, bgm):
-		global BGM_VOL
 		pygame.mixer.music.load(resource_path("assets/music/" + bgm))
-		pygame.mixer.music.set_volume(0.5 * BGM_VOL/10.0)
+		pygame.mixer.music.set_volume(0.5 * Settings.bgmVolume/10.0)
 		pygame.mixer.music.play(-1)
 		
 	@classmethod
 	def playOnce(cls, bgm):
 		pygame.mixer.music.load(resource_path("assets/music/" + bgm))
-		pygame.mixer.music.set_volume(0.5 * BGM_VOL/10.0)
+		pygame.mixer.music.set_volume(0.5 * Settings.bgmVolume/10.0)
 		pygame.mixer.music.play(1)
 
 class ClassicRand:
@@ -283,6 +288,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
+
 def loadSettings():
 	try:
 		settingsPath = os.path.join(os.path.expanduser("~"), SETTINGS_FILE)
@@ -302,18 +308,14 @@ def loadSettings():
 		if "soundVol" in json_data:
 			soundVol = int(json_data["soundVol"])
 
-		global START_REMAIN
-		global START_STAGE
-		global BGM_VOL
-		global SOUND_VOL
 		if playerStock >= 1 and playerStock <= 99:
-			START_REMAIN = playerStock
+			Settings.playerStock = playerStock
 		if startStage >= 1 and startStage <= 6:
-			START_STAGE = startStage
+			Settings.startStage = startStage
 		if bgmVol >= 0 and bgmVol <= 10:
-			BGM_VOL = bgmVol
+			Settings.bgmVolume = bgmVol
 		if soundVol >= 0 and soundVol <= 10:
-			SOUND_VOL = soundVol
+			Settings.soundVolume = soundVol
 	
 		json_file.close()
 
@@ -322,12 +324,7 @@ def loadSettings():
 
 
 def saveSettings():
-	
-	global START_REMAIN
-	global START_STAGE
-	global BGM_VOL
-	global SOUND_VOL
-	json_data = { "playerStock": START_REMAIN, "startStage": START_STAGE, "bgmVol": BGM_VOL, "soundVol" : SOUND_VOL }
+	json_data = { "playerStock": Settings.playerStock, "startStage": Settings.startStage, "bgmVol": Settings.bgmVolume, "soundVol" : Settings.soundVolume }
 	try:
 		settingsPath = os.path.join(os.path.expanduser("~"), SETTINGS_FILE)
 
@@ -507,7 +504,7 @@ def draw_splash2(o, offset):
 		r += 0.11 + i*0.04
 
 def sound(snd):
-	if SOUND_VOL > 0:
+	if Settings.soundVolume > 0:
 		n = pyxel.play_pos(0)
 		if n >=0:
 			pass
@@ -742,6 +739,10 @@ def mapPosToScreenPos(mx, my):
 
 def mapYToScreenY(y):
 	return y - map_y
+
+def showTextHCenter(y, s):
+	l = len(s)
+	showText((SCREEN_WIDTH -l*8)/2, y, s)
 
 def showText(x, y, s):
 	for c in s:
@@ -1095,3 +1096,13 @@ def drawPolygonSystemImage(poly):
 						pyxel.blt(p[i+1], y, 4, p[i+1], y, p[i] -p[i+1]+1, 1)
 		y += 1
 
+
+def setMenuColor(index, menuPos):
+	if index == menuPos:
+		pyxel.pal()
+	else:
+		pyxel.pal(7, 12)
+
+def drawUpDownMarker(x, y):
+	pyxel.blt(x, y, 0, 0, 32, -8, 8, TP_COLOR)
+	pyxel.blt(x +26, y, 0, 0, 32, 8, 8, TP_COLOR)
