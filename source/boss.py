@@ -506,7 +506,7 @@ class Feeler(enemy.EnemyBase):
 				hit = True
 		
 		if hit:
-			self.hp -= gcommon.SHOT_POWER
+			self.hp -= shot.shotPower
 			if self.hp <= 0:
 				self.broken()
 			else:
@@ -1116,7 +1116,7 @@ class Boss3(enemy.EnemyBase):
 		if hit:
 			rad = math.atan2(shot.dy, shot.dx)
 			enemy.Particle1.appendCenter(shot, rad)
-			self.hp -= gcommon.SHOT_POWER
+			self.hp -= shot.shotPower
 			if self.hp <= 0:
 				self.broken()
 			else:
@@ -1823,7 +1823,7 @@ class BossFactory(enemy.EnemyBase):
 		if hit:
 			rad = math.atan2(shot.dy, shot.dx)
 			enemy.Particle1.appendCenter(shot, rad)
-			self.hp -= gcommon.SHOT_POWER
+			self.hp -= shot.shotPower
 			if self.hp <= 0:
 				self.broken()
 			else:
