@@ -29,7 +29,7 @@ class MyShip:
 		# 1:ゲーム中 2:爆発中 3:復活中
 		self.sub_scene = 3
 		self.shotCounter = 0
-		self.missleCounter = 0
+		self.missileCounter = 0
 		self.prevFlag = False
 		self.dx = 0
 		self.setStartPosition()
@@ -93,7 +93,7 @@ class MyShip:
 				self.x = 0
 		elif pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.GAMEPAD_1_RIGHT):
 			self.x = self.x +2
-			self.sprite = 2
+			self.sprite = 0
 			if self.x > 240:
 				self.x = 240
 		if pyxel.btn(pyxel.KEY_UP) or pyxel.btn(pyxel.GAMEPAD_1_UP):
@@ -130,6 +130,7 @@ class MyShip:
 	def executeShot(self):
 		if self.weapon == gcommon.WEAPON_ROUND:
 			# ラウンドバルカンは特殊
+			doMissile = False
 			if gcommon.checkShotKey():
 				doShot = False
 				if self.prevFlag:
@@ -137,13 +138,18 @@ class MyShip:
 					if self.shotCounter > 2:
 						self.shotCounter = 0
 						doShot = True
+					self.missileCounter += 1
+					if self.missileCounter > 10:
+						self.missileCounter = 0
+						doMissile = True
 				else:
 					self.prevFlag = True
 					self.shotCounter = 0
+					self.missileCounter = 0
 					doShot = True
+					doMissile = True
 				if doShot:
 					self.shot()
-					self.missile()
 					self.roundAngle += 4
 					if self.roundAngle > 62:
 						self.roundAngle = 62
@@ -152,10 +158,15 @@ class MyShip:
 				if self.shotCounter > 2:
 					self.shotCounter = 0
 					self.shot()
-					self.missile()
 					self.roundAngle -= 4
 					if self.roundAngle < 0:
 						self.roundAngle = 0
+				self.missileCounter += 1
+				if self.missileCounter > 10:
+					self.missileCounter = 0
+					doMissile = True
+			if doMissile:
+				self.missile()
 		else:
 			# ラウンドバルカン以外
 			if gcommon.checkShotKey():
@@ -164,6 +175,9 @@ class MyShip:
 					if self.shotCounter > 3:
 						self.shotCounter = 0
 						self.shot()
+					self.missileCounter += 1
+					if self.missileCounter > 10:
+						self.missileCounter = 0
 						self.missile()
 				else:
 					self.prevFlag = True
@@ -238,17 +252,17 @@ class MyShip:
 		if len(gcommon.ObjMgr.missleGroups) < self.missleMax:
 			shotGroup = MyShotGroup()
 			if self.weapon == 0:
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile1(self.x+10, self.y, True)))
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile1(self.x+10, self.y +8, False)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile0(self.x+10, self.y, True)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile0(self.x+10, self.y +8, False)))
 			elif self.weapon ==1:
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile2(self.x+2, self.y +8)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile1(self.x+2, self.y +8)))
 			else:
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile3(self.x+2, self.y +8)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile2(self.x+2, self.y +8)))
 			gcommon.ObjMgr.missleGroups.append(shotGroup)
 
 
 	def createShot(self, x, y, dx, dy, sprite):
-		s = MyShot(x, y, dx, dy, sprite)
+		s = MyShot(x, y, dx, dy, self.weapon, sprite)
 		return s
 	
 	def setStartPosition(self):
@@ -278,7 +292,7 @@ def checkShotMapCollision(obj, px, py):
 
 
 class MyShot:
-	def __init__(self, x, y, dx, dy, sprite):
+	def __init__(self, x, y, dx, dy, weapon, sprite):
 		self.x = x
 		self.y = y
 		self.left = -4
@@ -287,8 +301,11 @@ class MyShot:
 		self.bottom = 7 #9
 		self.dx = dx
 		self.dy = dy
-		self.shotPower = gcommon.SHOT_POWER
+		self.weapon = weapon
+		self.shotPower = gcommon.SHOT_POWERS[self.weapon]
 		self.sprite = sprite
+		# 敵との接触後残るかどうか（爆弾系だとTrue）
+		self.shotKeep = False
 		self.group = None
 		self.removeFlag = False
 
@@ -306,6 +323,9 @@ class MyShot:
 					px = self.x + 2 + i * 4
 					if checkShotMapCollision(self, px, self.y + 3):
 						return
+
+	def hit(self):
+		self.remove()
 
 	def remove(self):
 		self.removeFlag = True
@@ -325,7 +345,7 @@ class MyShot:
 				pyxel.blt(self.x, self.y, 0, 72 - self.sprite * 8, 0, 8, -8, gcommon.TP_COLOR)
 
 # 上下に落ちるようなミサイル
-class MyMissile1:
+class MyMissile0:
 	def __init__(self, x, y, isUpper):
 		self.x = x
 		self.y = y
@@ -336,7 +356,9 @@ class MyMissile1:
 		self.bottom = 7 #9
 		self.dx = 2
 		self.dy = -2.0 if isUpper else 2
-		self.shotPower = gcommon.SHOT_POWER
+		self.shotPower = gcommon.MISSILE0_POWER
+		# 敵との接触後残るかどうか（爆弾系だとTrue）
+		self.shotKeep = False
 		self.group = None
 		self.removeFlag = False
 
@@ -353,6 +375,9 @@ class MyMissile1:
 			if gcommon.isMapFreePos(self.x + 2, self.y + 3) == False:
 				self.remove()
 
+	def hit(self):
+		self.remove()
+
 	def remove(self):
 		self.removeFlag = True
 		self.group.remove(self)
@@ -368,7 +393,7 @@ class MyMissile1:
 			pyxel.blt(self.x, self.y, 0, 120, 0, 8, 8 if self.isUpper else -8, gcommon.TP_COLOR)
 
 # まっすぐ飛ぶミサイル
-class MyMissile2:
+class MyMissile1:
 	def __init__(self, x, y):
 		self.x = x
 		self.y = y
@@ -378,7 +403,9 @@ class MyMissile2:
 		self.bottom = 7 #9
 		self.dx = 2
 		self.dy = 0
-		self.shotPower = gcommon.SHOT_POWER
+		self.shotPower = gcommon.MISSILE1_POWER
+		# 敵との接触後残るかどうか（爆弾系だとTrue）
+		self.shotKeep = False
 		self.group = None
 		self.removeFlag = False
 		self.cnt = 0
@@ -399,6 +426,9 @@ class MyMissile2:
 				self.remove()
 		self.cnt += 1
 
+	def hit(self):
+		self.remove()
+
 	def remove(self):
 		self.removeFlag = True
 		self.group.remove(self)
@@ -408,93 +438,85 @@ class MyMissile2:
 	def draw(self):
 		# 当たり判定描画
 		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
-		if self.cnt & 4 == 0:
+		if self.cnt & 4 == 0 or self.cnt < 10:
 			pyxel.blt(self.x, self.y, 0, 136+16, 0, 16, 8, gcommon.TP_COLOR)
 		else:
 			pyxel.blt(self.x, self.y, 0, 136, 0, 16, 8, gcommon.TP_COLOR)
 
 # 後方に落ちるミサイル（爆弾だな）
-class MyMissile3:
-	def __init__(self, x, y):
-		self.x = x
-		self.y = y
-		self.left = -1
-		self.top = -1  #-2
-		self.right = 8
-		self.bottom = 8 #9
+class MyMissile2:
+	def __init__(self, cx, cy):
+		self.x = cx
+		self.y = cy
+		self.left = -3.5
+		self.top = -3.5
+		self.right = 3.5
+		self.bottom = 3.5
 		self.dx = -1.5
 		self.dy = 2
-		self.shotPower = gcommon.SHOT_POWER
+		self.shotPower = gcommon.MISSILE2_POWER
+		# 敵との接触後残るかどうか（爆弾系だとTrue）
+		self.shotKeep = True
 		self.group = None
 		self.removeFlag = False
+		self.state = 0
 		self.cnt = 0
 
 	def update(self):
-		if self.cnt < 15:
-			self.dx *= 0.9
-		else:
-			self.dx = 0
-		self.x += self.dx
-		self.y += self.dy
-		if abs(self.dy) <= 3.0:
-			self.dy *= 1.05
-		if self.x <= -8 or self.x >= 256:
-			self.delete()
-		elif self.y <= -8 or self.y >= 192:
-			self.delete()
-		else:
-			if gcommon.isMapFreePos(self.x + 2, self.y + 3) == False:
+		if self.state == 0:
+			if self.cnt < 15:
+				self.dx *= 0.9
+			else:
+				self.dx = 0
+			self.x += self.dx
+			self.y += self.dy
+			if abs(self.dy) <= 3.0:
+				self.dy *= 1.05
+			if self.x <= -8 or self.x >= 256:
 				self.remove()
+			elif self.y <= -8 or self.y >= 192:
+				self.remove()
+			else:
+				if gcommon.isMapFreePos(self.x + 2, self.y + 3) == False:
+					# 爆発形態へ
+					self.hit()
+		else:
+			if self.cnt > 30:
+				self.remove()
+
 		self.cnt += 1
 
-	def delete(self):
+	def remove(self):
 		self.removeFlag = True
 		self.group.remove(self)
 		if len(self.group.shots) == 0:
 			gcommon.ObjMgr.missleGroups.remove(self.group)
 
-	def remove(self):
-		gcommon.ObjMgr.shots.append(MySpreadBom(self.x +4, self.y+4))
-		self.delete()
+	def hit(self):
+		if self.state == 0:
+			self.state = 1
+			self.cnt = 0
+			self.left = -8
+			self.top = -8
+			self.right = 8
+			self.bottom = 8
 
 	def draw(self):
-		# 当たり判定描画
-		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
-		if self.dx > 0.25:
-			pyxel.blt(self.x, self.y, 0, 176, 0, 8, 8, gcommon.TP_COLOR)
-		else:
-			pyxel.blt(self.x, self.y, 0, 184, 0, 8, 8, gcommon.TP_COLOR)
-
-class MySpreadBom:
-	def __init__(self, cx, cy):
-		self.x = cx
-		self.y = cy
-		self.left = -8
-		self.top = -8
-		self.right = 8
-		self.bottom = 8
-		self.shotPower = gcommon.SHOT_POWER
-		self.group = None
-		self.removeFlag = False
-		self.cnt = 0
-
-	def update(self):
-		self.cnt += 1
-		if self.cnt > 40:
-			self.remove()
-
-	def remove(self):
-		self.removeFlag = True
-
-	def draw(self):
-		# 当たり判定描画
-		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
-		if self.cnt & 2 == 0:
-			clr = 7 if self.cnt & 4 == 0 else 10
-			if self.cnt < 20:
-				pyxel.circ(self.x, self.y, 2 + self.cnt/2, clr)
+		if self.state == 0:
+			# 当たり判定描画
+			#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
+			if self.dx > 0.25:
+				pyxel.blt(self.x -3.5, self.y -3.5, 0, 176, 0, 8, 8, gcommon.TP_COLOR)
 			else:
-				pyxel.circ(self.x, self.y, 10, clr)
+				pyxel.blt(self.x -3.5, self.y -3.5, 0, 184, 0, 8, 8, gcommon.TP_COLOR)
+		else:
+			if self.cnt & 2 == 0:
+				clr = 7 if self.cnt & 4 == 0 else 10
+				if self.cnt < 20:
+					pyxel.circ(self.x, self.y, 2 + self.cnt/2, clr)
+				else:
+					pyxel.circ(self.x, self.y, 10, clr)
+
 
 class MyShotGroup:
 	def __init__(self):
@@ -1271,24 +1293,32 @@ class MainGame:
 			
 			gcommon.game_timer = gcommon.game_timer + 1	
 	
-	def update(self):
-		if self.pause:
-			if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.GAMEPAD_1_START):
+	def doPause(self):
+		if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.GAMEPAD_1_START):
+			self.pause = False
+			pygame.mixer.music.unpause()
+		elif gcommon.checkUpP():
+			self.pauseMenuPos = (self.pauseMenuPos - 1) % 3
+			return
+		elif gcommon.checkDownP():
+			self.pauseMenuPos = (self.pauseMenuPos + 1) % 3
+			return
+		elif gcommon.checkShotKey():
+			if self.pauseMenuPos == 0:
+				# CONTINUE
 				self.pause = False
 				pygame.mixer.music.unpause()
-			elif gcommon.checkUpP() or gcommon.checkDownP():
-				self.pauseMenuPos = (self.pauseMenuPos + 1) & 1
-				return
-			elif gcommon.checkShotKey():
-				if self.pauseMenuPos == 0:
-					# CONTINUE
-					self.pause = False
-					pygame.mixer.music.unpause()
-				else:
-					# EXIT
-					pyxel.quit()
+			elif self.pauseMenuPos == 1:
+				# TITLE
+				gcommon.app.startTitle()
 			else:
-				return
+				# EXIT
+				pyxel.quit()
+			
+	def update(self):
+		if self.pause:
+			self.doPause()
+			return
 		else:
 			if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.GAMEPAD_1_START):
 				self.pause = True
@@ -1428,14 +1458,15 @@ class MainGame:
 		pyxel.clip()
 		# SCORE表示
 		#pyxel.text(4, 194, "SC " + str(gcommon.score), 7)
-		gcommon.showText2(0,192, "SC " + "{:08d}".format(gcommon.score))
+		#gcommon.showText2(0,192, "SC " + "{:08d}".format(gcommon.score))
+		gcommon.showText(0,192, "SC " + str(gcommon.score).rjust(8))
 		# 残機
 		pyxel.blt(232, 192, 0, 8, 32, 8, 8, gcommon.TP_COLOR)
-		gcommon.showText2(242, 192, str(gcommon.remain))
+		gcommon.showText(242, 192, str(gcommon.remain).rjust(2))
 		
 		# 武器表示
 		for i in range(0,3):
-			if i == gcommon.ObjMgr.myShip.weapon == i:
+			if i == gcommon.ObjMgr.myShip.weapon:
 				pyxel.blt(96 + 40*i, 192, 0, i * 40, 56, 40, 8)
 			else:
 				pyxel.blt(96 + 40*i, 192, 0, i * 40, 48, 40, 8)
@@ -1452,15 +1483,16 @@ class MainGame:
 			self.drawPauseMenu()
 
 	def drawPauseMenu(self):
-		pyxel.rect(127 -40, 192/2 -32, 80, 38, 0)
-		pyxel.rectb(127 -39, 192/2 -31, 78, 36, 7)
+		pyxel.rect(127 -40, 192/2 -32, 80, 48, 0)
+		pyxel.rectb(127 -39, 192/2 -31, 78, 46, 7)
 		pyxel.rect(127 -37, 192/2 -29, 74, 8, 1)
 		pyxel.text(127 -40 + 28, 192/2 -32 +4, "PAUSE", 7)
 
 		pyxel.rect(127 -40+4, 192/2 -32 +15 + self.pauseMenuPos * 10, 80-8, 8, 2)
 
 		pyxel.text(127-32 +10, 192/2 -32 +16, "CONTINUE", 7)
-		pyxel.text(127-32 +10, 192/2 -32 +26, "EXIT", 7)
+		pyxel.text(127-32 +10, 192/2 -32 +26, "TITLE", 7)
+		pyxel.text(127-32 +10, 192/2 -32 +36, "EXIT", 7)
 
 	def ExecuteStory(self):
 		while True:
@@ -1517,7 +1549,7 @@ class MainGame:
 			
 			for shot in gcommon.ObjMgr.shots:
 				if obj.checkShotCollision(shot):
-					shot.remove()
+					shot.hit()
 					#shot.removeFlag = True
 					#shot.group.remove(shot)
 					#if len(shot.group.shots) == 0:
