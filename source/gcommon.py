@@ -468,11 +468,18 @@ def checkShotKey():
 	else:
 		return False
 
+def checkShotKeyP():
+	if pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD_1_A) or pyxel.btnp(pyxel.GAMEPAD_1_Y):
+		return True
+	else:
+		return False
+
 def checkOpionKey():
 	if pyxel.btnp(pyxel.KEY_X) or pyxel.btnp(pyxel.GAMEPAD_1_B) or pyxel.btnp(pyxel.GAMEPAD_1_X):
 		return True
 	else:
 		return False
+
 
 def circfill_obj_center(obj, r, col):
 	pyxel.circ(obj.x+(obj.right -obj.left+1)/2,
@@ -751,6 +758,7 @@ def showTextHCenter(y, s):
 	l = len(s)
 	showText((SCREEN_WIDTH -l*8)/2, y, s)
 
+# BOLD
 def showText(x, y, s):
 	for c in s:
 		code = ord(c)
@@ -758,6 +766,17 @@ def showText(x, y, s):
 			pyxel.blt(x, y, 0, (code-65)*8, 128, 8, 8, TP_COLOR)
 		elif code >= 48 and code <= 57:
 			pyxel.blt(x, y, 0, (code-48)*8, 136, 8, 8, TP_COLOR)
+		x += 8
+
+# rateは 0 - 1
+def showTextRate(x, y, s, rate):
+	p = int(8 * rate)
+	for c in s:
+		code = ord(c)
+		if code >= 65 and code <= 90:
+			pyxel.blt(x, y+8-p, 0, (code-65)*8, 128, 8, p, TP_COLOR)
+		elif code >= 48 and code <= 57:
+			pyxel.blt(x, y+8-p, 0, (code-48)*8, 136, 8, p, TP_COLOR)
 		x += 8
 
 def showText2(x, y, s):
@@ -1113,3 +1132,10 @@ def setMenuColor(index, menuPos):
 def drawUpDownMarker(x, y):
 	pyxel.blt(x, y, 0, 0, 32, -8, 8, TP_COLOR)
 	pyxel.blt(x +26, y, 0, 0, 32, 8, 8, TP_COLOR)
+
+def getMirrorDr64(dr64):
+	dr = dr64 & 63
+	if dr <= 32:
+		return 32 -dr
+	else:
+		return 96 -dr
