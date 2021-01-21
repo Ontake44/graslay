@@ -424,7 +424,7 @@ class Feeler(enemy.EnemyBase):
 		self.mode = mode
 		self.state = 1
 		self.cnt = 0
-		print("Feeler mode:" +str(mode))
+		#print("Feeler mode:" +str(mode))
 
 	def update(self):
 		self.x = self.parentObj.x + self.offsetX
@@ -621,9 +621,9 @@ boss2tbl = [
 	[4, 0, 0.25, 130, 0],		# 下移動
 	[3, 0, -0.25, 64, 0],		# 上移動
 	[6, 0, 0, 60, 0],			# 触手縮める
-	[0, 0, 0, 240, 1],
+	[0, 0, 0, 240, 1],			# 触手伸ばす攻撃
 #	[4, 0, 0.25, 130, 0],		# 下移動
-	[100, 0.0, 0.0, 1, 0],
+	[100, 0.0, 0.0, 1, 0],		# インデックス移動
 	]
 
 class Boss2(enemy.EnemyBase):
@@ -637,7 +637,7 @@ class Boss2(enemy.EnemyBase):
 		self.top = 9
 		self.right = 63
 		self.bottom = 38
-		self.hp = 32000
+		self.hp = 999999		# 破壊できない
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True
 		self.score = 5000
@@ -647,6 +647,7 @@ class Boss2(enemy.EnemyBase):
 		self.hitcolor1 = 3
 		self.hitcolor2 = 7
 		self.tblIndex = 0
+		self.cycleCount = 0
 		self.brake = False
 		self.feelers = []
 		self.feelers.append(Feeler(self, 50, 29, 8, 6))
@@ -689,7 +690,7 @@ class Boss2(enemy.EnemyBase):
 			self.y += self.dy
 			if self.x > 150:
 				self.dx = 0
-				self.hp = 1500
+				self.hp = 2500		# ここでHPを入れなおす
 				self.setState(4)
 		elif self.state == 4:
 			self.x += self.dx
@@ -766,21 +767,36 @@ class Boss2(enemy.EnemyBase):
 				if self.subcnt == boss2tbl[self.tblIndex][3]:
 					self.nextTbl()
 			elif mode == 100:
+				# 指定インデックスに移動
 				self.tblIndex = boss2tbl[self.tblIndex][3]
+				self.cycleCount += 1
 				self.subcnt = 0
 			
 			attack = boss2tbl[self.tblIndex][4]
 			if attack == 1:
 				# 触手伸ばす攻撃
-				if self.subcnt == 1:
-					gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+29, 24))
-					gcommon.sound(gcommon.SOUND_FEELER_GROW)
-				elif self.subcnt == 20:
-					gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+8, 40))
-				elif self.subcnt == 40:
-					gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+8, 24))
-				elif self.subcnt == 60:
-					gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+29, 40))
+				if self.cycleCount & 1 == 0:
+					if self.subcnt == 1:
+						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+29, 24))
+						gcommon.sound(gcommon.SOUND_FEELER_GROW)
+					elif self.subcnt == 20:
+						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+8, 40))
+					elif self.subcnt == 40:
+						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+8, 24))
+					elif self.subcnt == 60:
+						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+29, 40))
+				else:
+					if self.subcnt == 1:
+						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +14, self.y+16, 32))
+						gcommon.sound(gcommon.SOUND_FEELER_GROW)
+					elif self.subcnt == 15:
+						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +33, self.y+5, 20))
+					elif self.subcnt == 30:
+						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +31, self.y+33, 40))
+					elif self.subcnt == 45:
+						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +48, self.y+6, 24))
+					elif self.subcnt == 60:
+						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +48, self.y+33, 38))
 			self.subcnt+=1
 
 	def draw(self):
