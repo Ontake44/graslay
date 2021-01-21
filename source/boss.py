@@ -46,7 +46,7 @@ class Boss1(enemy.EnemyBase):
 		self.y = t[3]
 		self.left = 16
 		self.top = 16
-		self.right = 79
+		self.right = 93
 		self.bottom = 45
 		self.hp = 999999
 		self.layer = gcommon.C_LAYER_UNDER_GRD
@@ -57,11 +57,14 @@ class Boss1(enemy.EnemyBase):
 		self.brake = False
 		self.beam = 0
 		self.subState = 0
+		self.isLeft = True
 		self.tbl = []
 		self.beamObj = Boss1Beam(self)
 		gcommon.ObjMgr.addObj(self.beamObj)
 
 	def update(self):
+		# 向き
+		self.isLeft = (self.x + 52) > gcommon.ObjMgr.myShip.x
 		self.beam = 0
 		if self.state == 0:
 			self.x -= gcommon.cur_scroll_x
@@ -72,16 +75,16 @@ class Boss1(enemy.EnemyBase):
 		elif self.state == 1:
 			self.x -= gcommon.cur_scroll_x
 			self.x += 0.625
-			self.y -= 0.125
+			self.y -= 0.20		#0.125
 			if self.cnt % 60 == 0:
 				self.shotFix4()
-			if self.cnt > 220:
+			if self.cnt > 270:
 				self.nextState()
 		elif self.state == 2:
-			self.y += 0.125
+			self.y += 0.25
 			if self.cnt % 60 == 0:
 				self.shotFix4()
-			if self.cnt > 180:
+			if self.cnt > 120:
 				self.nextState()
 				self.hp = 1000
 		elif self.state == 3:
@@ -161,14 +164,18 @@ class Boss1(enemy.EnemyBase):
 			if self.beam < 0:
 				self.state = 3
 				self.cnt = 0
-
 	def draw(self):
 		if self.state == 4:
 			for s in self.tbl:
 				y = s.x* s.x/s.a
 				pyxel.pset(self.x -s.x, self.y +28 -y + s.y, 7)
-
-		pyxel.blt(self.x, self.y , 1, 160, 200, 96, 56, gcommon.TP_COLOR)
+		# 本体
+		pyxel.blt(self.x, self.y+8, 1, 160, 208, 40, 48, gcommon.TP_COLOR)
+		if self.isLeft:
+			pyxel.blt(self.x +40, self.y+8 , 1, 200, 208, 32, 48, gcommon.TP_COLOR)
+		else:
+			pyxel.blt(self.x +40, self.y+8, 1, 128, 136, 32, 48, gcommon.TP_COLOR)
+		pyxel.blt(self.x +72, self.y , 1, 232, 200, 24, 56, gcommon.TP_COLOR)
 		if self.beam >= 1 and self.beam <=5:
 			bx = self.x -12
 			while(bx > -8):
@@ -191,25 +198,33 @@ class Boss1(enemy.EnemyBase):
 			enemy.Particle1.appendCenter(shot, rad)
 		return ret
 
+	def getDirection(self, dr64):
+		if self.isLeft:
+			return dr64
+		else:
+			return gcommon.getMirrorDr64(dr64)
+
 	def shotFix4(self):
-		enemy.enemy_shot_dr(self.x +48, self.y +22, 4, 1, 33)
-		enemy.enemy_shot_dr(self.x +52, self.y +16, 4, 1, 37)
-		enemy.enemy_shot_dr(self.x +48, self.y +42, 4, 1, 31)
-		enemy.enemy_shot_dr(self.x +52, self.y +48, 4, 1, 27)
+		ox = 0 if self.isLeft else 8
+		enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +22, 4, 1, self.getDirection(33))
+		enemy.enemy_shot_dr(self.x +52 +ox, self.y +16, 4, 1, self.getDirection(37))
+		enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +42, 4, 1, self.getDirection(31))
+		enemy.enemy_shot_dr(self.x +52 +ox, self.y +48, 4, 1, self.getDirection(27))
 		gcommon.sound(gcommon.SOUND_SHOT2)
 
 	def shotFix8(self):
-		enemy.enemy_shot_dr(self.x +48, self.y +22, 2, 0, 31)
-		enemy.enemy_shot_dr(self.x +48, self.y +22, 2, 0, 33)
+		ox = 0 if self.isLeft else 8
+		enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +22, 2, 0, self.getDirection(31))
+		enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +22, 2, 0, self.getDirection(33))
 		
-		enemy.enemy_shot_dr(self.x +52, self.y +16, 2, 0, 35)
-		enemy.enemy_shot_dr(self.x +52, self.y +16, 2, 0, 37)
+		enemy.enemy_shot_dr(self.x +52 +ox, self.y +16, 2, 0, self.getDirection(35))
+		enemy.enemy_shot_dr(self.x +52 +ox, self.y +16, 2, 0, self.getDirection(37))
 		
-		enemy.enemy_shot_dr(self.x +48, self.y +42, 2, 0, 31)
-		enemy.enemy_shot_dr(self.x +48, self.y +42, 2, 0, 33)
+		enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +42, 2, 0, self.getDirection(31))
+		enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +42, 2, 0, self.getDirection(33))
 		
-		enemy.enemy_shot_dr(self.x +52, self.y +48, 2, 0, 27)
-		enemy.enemy_shot_dr(self.x +52, self.y +48, 2, 0, 29)
+		enemy.enemy_shot_dr(self.x +52 +ox, self.y +48, 2, 0, self.getDirection(27))
+		enemy.enemy_shot_dr(self.x +52 +ox, self.y +48, 2, 0, self.getDirection(29))
 		gcommon.sound(gcommon.SOUND_SHOT2)
 
 	def broken(self):
@@ -2015,9 +2030,9 @@ class BossLast1(enemy.EnemyBase):
 	launcherTable = [[38,24],[66,128+15],[66,49],[38,128+40]]
 	table8 = [5,3,6,2,1,7,4,0]
 	arrowDrTable = [1.0, 0.8, 1.2, 0.95, 1.1, 0.7, 1.05, 0.9, 1.3, 0.85, 1.15]
-	initHp = 300		# 2000
-	hp2 = 200			# 1900
-	hp3 = 100			# 1700
+	initHp = 5000		# 2000
+	hp2 = 3500			# 1900
+	hp3 = 1500			# 1700
 	def __init__(self, t):
 		super(BossLast1, self).__init__()
 		self.x = 256
@@ -2029,7 +2044,7 @@ class BossLast1(enemy.EnemyBase):
 		self.hp = BossLast1.initHp
 		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.ground = True
-		self.score = 1000
+		self.score = 20000
 		self.exptype = gcommon.C_EXPTYPE_GRD_BOSS
 		# 破壊状態
 		self.brokenState = 0
@@ -2182,7 +2197,7 @@ class BossLast1(enemy.EnemyBase):
 				n = BossLast1.table8[int(self.cnt /8) & 7]
 				gcommon.ObjMgr.addObj(BossLastDiamondShot(self.x +32+16+32, self.y +64+16+16+8, 24 -n*2))
 				gcommon.ObjMgr.addObj(BossLastDiamondShot(self.x +32+16+32, self.y +64+16+16-8, 40 +n*2))
-			if self.cnt > 30:
+			if self.cnt > 300:
 				self.nextState()
 		elif self.state == 3:
 			if self.cnt > 30:
@@ -2197,7 +2212,7 @@ class BossLast1(enemy.EnemyBase):
 				gcommon.ObjMgr.addObj(BossLastFallShotGroup(self.x +32+16+32, self.y +64+16+16,
 					math.pi + math.pi * (self.random.rand() % 100 -50)/120, 
 					(self.random.rand() % 120 -60)/800, 5))
-			if self.cnt > 120:
+			if self.cnt > 240:
 				self.nextState()
 		elif self.state == 5:
 			if self.cnt == 1:
@@ -2830,8 +2845,8 @@ class BossLast1Core(enemy.EnemyBase):
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
-		self.hp = 1000
-		self.score = 10000
+		self.hp = 2000
+		self.score = 50000
 		self.rad = 0.0
 		#self.dx = 0.0
 		#self.dy = 0.0

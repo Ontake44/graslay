@@ -13,6 +13,7 @@ import customStartMenu
 
 # 自機
 class MyShip:
+	missileCycles = (10, 10, 20)
 	def __init__(self):
 		super().__init__()
 		self.sprite = 1
@@ -139,7 +140,7 @@ class MyShip:
 						self.shotCounter = 0
 						doShot = True
 					self.missileCounter += 1
-					if self.missileCounter > 10:
+					if self.missileCounter > MyShip.missileCycles[gcommon.WEAPON_ROUND]:
 						self.missileCounter = 0
 						doMissile = True
 				else:
@@ -162,7 +163,7 @@ class MyShip:
 					if self.roundAngle < 0:
 						self.roundAngle = 0
 				self.missileCounter += 1
-				if self.missileCounter > 10:
+				if self.missileCounter > MyShip.missileCycles[gcommon.WEAPON_ROUND]:
 					self.missileCounter = 0
 					doMissile = True
 			if doMissile:
@@ -176,7 +177,7 @@ class MyShip:
 						self.shotCounter = 0
 						self.shot()
 					self.missileCounter += 1
-					if self.missileCounter > 10:
+					if self.missileCounter > MyShip.missileCycles[self.weapon]:
 						self.missileCounter = 0
 						self.missile()
 				else:
