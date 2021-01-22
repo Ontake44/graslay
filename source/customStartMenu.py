@@ -51,6 +51,7 @@ class CustomStartMenuScene:
 			if gcommon.checkShotKey():
 				gcommon.saveSettings()
 				if self.menuPos == MENU_GAME_START:
+					gcommon.sound(gcommon.SOUND_GAMESTART)
 					self.state = 1
 					self.cnt = 0
 				elif self.menuPos == MENU_EXIT:

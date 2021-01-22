@@ -793,10 +793,10 @@ class Boss2(enemy.EnemyBase):
 						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +33, self.y+5, 20))
 					elif self.subcnt == 30:
 						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +31, self.y+33, 40))
-					elif self.subcnt == 45:
-						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +48, self.y+6, 24))
-					elif self.subcnt == 60:
-						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +48, self.y+33, 38))
+					#elif self.subcnt == 45:
+					#	gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +48, self.y+6, 24))
+					#elif self.subcnt == 60:
+					#	gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +48, self.y+33, 38))
 			self.subcnt+=1
 
 	def draw(self):
