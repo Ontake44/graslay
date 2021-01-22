@@ -1451,8 +1451,7 @@ class StageClear(EnemyBase):
 		self.shotHitCheck = False
 		self.stageNo = t[2]
 		self.text = "STAGE " + str(self.stageNo) + " CLEAR"
-		if self.stageNo != 6:
-			gcommon.BGM.playOnce(gcommon.BGM.STAGE_CLEAR)
+		gcommon.BGM.playOnce(gcommon.BGM.STAGE_CLEAR)
 		gcommon.ObjMgr.myShip.setSubScene(5)
 
 	def update(self):
