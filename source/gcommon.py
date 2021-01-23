@@ -573,6 +573,7 @@ class ObjMgr:
 	@classmethod
 	def addObj(cls, obj):
 		cls.objs.append(obj)
+		return obj
 
 	@classmethod
 	def setDrawMap(cls, obj):

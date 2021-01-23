@@ -3126,12 +3126,15 @@ class BattleShip1(EnemyBase):
 		self.appendGun(BattleShip1Gun(self, 366, 1, True, self.isRed, 60))
 		self.appendGun(BattleShip1Gun(self, 150, 79, False, self.isRed, 60))
 		self.appendGun(BattleShip1Gun(self, 388, 82, False, self.isRed, 60))
+		self.bridge = gcommon.ObjMgr.addObj(BattleShip1Bridge(self.x +272, self.y -48, self.isRed))
 
 	def appendGun(self, obj):
 		self.guns.append(obj)
 		gcommon.ObjMgr.addObj(obj)
 
 	def update(self):
+		self.bridge.x = self.x +272
+		self.bridge.y = self.y -48
 		# 移動はCountMoverクラス
 		self.mover.update()
 		if self.state == 0:
@@ -3165,14 +3168,56 @@ class BattleShip1(EnemyBase):
 			pyxel.pal(4,2)
 			pyxel.pal(9,8)
 			pyxel.pal(10,14)
+		# 前半分
 		pyxel.blt(self.x, self.y, 2, 0, 0, 256, 104, 3)
+		# 後半分
 		pyxel.blt(self.x +256, self.y, 2, 0, 104, 256, 104, 3)
 		if self.isRed:
-			pyxel.blt(self.x +272, self.y -48, 2, 64, 208, 60, 48, 3)
+			pyxel.pal()
+
+class BattleShip1Bridge(EnemyBase):
+	def __init__(self, x, y, isRed):
+		super(BattleShip1Bridge, self).__init__()
+		self.x = x
+		self.y = y
+		self.isRed = isRed
+		self.collisionRects = gcommon.Rect.createFromList(
+			[[24,17,50,34],[16,35,53,47]])
+		self.hp = 300
+		self.score = 2000
+		self.layer = gcommon.C_LAYER_SKY
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+	def update(self):
+		if self.x <= -64:
+			self.remove()
+			return
+
+	def draw(self):
+		# 艦橋
+		if self.isRed:
+			pyxel.pal(4,2)
+			pyxel.pal(9,8)
+			pyxel.pal(10,14)
+		if self.state == 100:
+			pyxel.blt(self.x, self.y +24, 2, 192, 232, 64, 24, 3)
 		else:
-			pyxel.blt(self.x +272, self.y -48, 2, 0, 208, 60, 48, 3)
+			if self.isRed:
+				pyxel.blt(self.x, self.y, 2, 64, 208, 64, 48, 3)
+			else:
+				pyxel.blt(self.x, self.y, 2, 0, 208, 64, 48, 3)
 		if self.isRed:
 			pyxel.pal()
+
+	# 破壊されたとき
+	def broken(self):
+		self.state = 100
+		gcommon.score += self.score
+		self.hitCheck = False
+		self.shotHitCheck = False
+		create_explosion2(self.x+36, self.y+34, gcommon.C_LAYER_EXP_SKY, gcommon.C_EXPTYPE_SKY_M, gcommon.SOUND_MID_EXP)
+		# removeはしない
 
 class BattleShip1Laser(EnemyBase):
 	def __init__(self, x, y):
