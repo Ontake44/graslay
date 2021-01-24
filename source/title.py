@@ -92,7 +92,7 @@ class TitleScene:
 					self.state = 4
 					self.cnt = 0
 		elif self.state == 4:
-			self.objs.append(enemy.Particle1(220 - self.cnt * 10, 64, 0))
+			self.objs.append(enemy.Particle1(220 - self.cnt * 10, 64, 0, 8, 50))
 			# 文字がせり出す
 			if self.cnt > 20:
 				self.state = 100

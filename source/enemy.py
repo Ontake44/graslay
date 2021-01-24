@@ -46,7 +46,7 @@ class EnemyBase:
 		self.top = 0
 		self.right = 0
 		self.bottom = 0
-		self.collisionRects = None		# ex List of Rect
+		self.collisionRects = None		# List of Rect
 		self.hp = 0
 		self.state = 0
 		self.cnt = 0
@@ -58,10 +58,11 @@ class EnemyBase:
 		self.exptype = gcommon.C_EXPTYPE_SKY_S
 		self.expsound = -1
 		self.score = 0
-		self.ground = False
+		self.ground = False			# スクロール同期
 		self.shotHitCheck = True	# 自機弾との当たり判定
 		self.hitCheck = True	# 自機と敵との当たり判定
 		self.enemyShotCollision = False	# 敵弾との当たり判定を行う
+		self.shotEffect = False		# 自機弾が当たった時のエフェクト
 		self.removeFlag = False
 		self.nextStateNo = -1
 
@@ -83,6 +84,9 @@ class EnemyBase:
 			if self.hp <= 0:
 				self.broken()
 			else:
+				if shot.effect and self.shotEffect:
+					# 跳弾表示
+					Particle1.appendShotCenter(shot)
 				self.hit = True
 			return True
 		else:
@@ -289,6 +293,8 @@ class Explosion(EnemyBase):
 		self.t = gcommon.T_SKY_EXP
 		self.x = cx
 		self.y = cy
+		self.particle = True
+		self.particleCount = 8
 		self.layer = exlayer
 		self.exptype = exptype
 		self.size = 0
@@ -300,10 +306,14 @@ class Explosion(EnemyBase):
 			self.size = 1
 		elif exptype == gcommon.C_EXPTYPE_SKY_M or exptype==gcommon.C_EXPTYPE_GRD_M:
 			self.size = 2
+			self.particleCount = 100
 		else:
 			self.size = 3
+			self.particleCount = 16
 
 	def update(self):
+		if self.cnt == 0 and self.particle:
+			Particle2.append(self.x, self.y, self.particleCount)
 		if self.size==1:
 			if self.cnt >= 25:
 				self.removeFlag = True
@@ -1496,6 +1506,7 @@ class FixedShutter1(EnemyBase):
 		for i in range(self.size):
 			pyxel.blt(self.x, self.y + i * 16, 1, 64, 96, 16, 16)
 
+# 上下シャッター
 class Shutter1(EnemyBase):
 	def __init__(self, x, y, direction, size, mode, speed, param1, param2):
 		super(Shutter1, self).__init__()
@@ -1515,12 +1526,13 @@ class Shutter1(EnemyBase):
 		self.right = 15
 		self.top = 0
 		self.bottom = 16 * self.size
-		self.hp = 999999
+		self.hp = gcommon.HP_UNBREAKABLE
 		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.ground = True
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = True
+		self.shotEffect = False
 
 	def update(self):
 		if self.x <= -16:
@@ -1685,40 +1697,106 @@ class Battery2(FallingObject):
 		else:
 			drawBattery1(self.x, self.y, 1)
 
-
+# 指定した方向にパーティクル
 class Particle1(EnemyBase):
-	def __init__(self, cx, cy, rad):
+	def __init__(self, cx, cy, rad, count, life):
 		super(Particle1, self).__init__()
 		self.x = cx
 		self.y = cy
 		self.rad = rad
 		self.tbl = []
+		self.count = count
 		self.layer = gcommon.C_LAYER_EXP_SKY
 		self.hitCheck = False
 		self.shotHitCheck = False
-		for i in range(0, 8):
+		for i in range(0, count):
 			r = rad + random.random() * math.pi/4 - math.pi/8
+			speed = random.random() * 6
+			s = SplashItem(cx, cy, speed * math.cos(r), speed * math.sin(r), random.randrange(int(life/5), life))
+			self.tbl.append(s)
+
+	@classmethod
+	def append(cls, x, y, rad):
+		return gcommon.ObjMgr.addObj(Particle1(x, y, rad, 8, 50))
+
+	@classmethod
+	def appendPos(cls, pos, rad):
+		return gcommon.ObjMgr.addObj(Particle1(pos[0], pos[1], rad, 8, 50))
+
+	@classmethod
+	def appendCenter(cls, obj, rad):
+		pos = gcommon.getCenterPos(obj)
+		return gcommon.ObjMgr.addObj(Particle1(pos[0], pos[1], rad, 8, 50))
+
+	@classmethod
+	def appendShotCenter(cls, obj):
+		rad = math.atan2(obj.dy, obj.dx)
+		pos = gcommon.getCenterPos(obj)
+		return gcommon.ObjMgr.addObj(Particle1(pos[0], pos[1], rad, 8, 50))
+
+	@classmethod
+	def appendShotCenterReverse(cls, obj):
+		rad = math.atan2(-obj.dy, -obj.dx)
+		pos = gcommon.getCenterPos(obj)
+		return gcommon.ObjMgr.addObj(Particle1(pos[0], pos[1], rad, 2, 10))
+
+	def update(self):
+		newTbl = []
+		for s in self.tbl:
+			s.cnt -= 1
+			if s.cnt > 0:
+				newTbl.append(s)
+				s.x += s.dx
+				s.y += s.dy
+				s.dx *= 0.97
+				s.dy *= 0.97
+		self.tbl = newTbl
+		if len(self.tbl) == 0:
+			self.remove()
+
+	def draw(self):
+		for s in self.tbl:
+			n = (s.life - s.cnt)/ s.life
+			if n > 0.5:
+				if s.cnt & 1 == 0:
+					continue
+			elif n > 0.6:
+				if s.cnt & 3 != 0:
+					continue
+			elif n > 0.8:
+				if s.cnt & 7 != 0:
+					continue
+			pyxel.pset(s.x, s.y, 7)
+
+# 爆発パーティクル
+class Particle2(EnemyBase):
+	def __init__(self, cx, cy, count):
+		super(Particle2, self).__init__()
+		self.x = cx
+		self.y = cy
+		self.count = count
+		self.tbl = []
+		self.layer = gcommon.C_LAYER_EXP_SKY
+		self.hitCheck = False
+		self.shotHitCheck = False
+		for i in range(0, self.count):
+			r = random.random() * math.pi * 2
 			speed = random.random() * 6
 			s = SplashItem(cx, cy, speed * math.cos(r), speed * math.sin(r), random.randrange(10, 50))
 			self.tbl.append(s)
 
 	@classmethod
-	def append(cls, x, y, rad):
-		gcommon.ObjMgr.objs.append(Particle1(x, y, rad))
+	def append(cls, x, y, count):
+		gcommon.ObjMgr.objs.append(Particle2(x, y, count))
 
 	@classmethod
-	def appendPos(cls, pos, rad):
-		gcommon.ObjMgr.objs.append(Particle1(pos[0], pos[1], rad))
+	def appendPos(cls, pos, count):
+		gcommon.ObjMgr.objs.append(Particle2(pos[0], pos[1], count))
 
 	@classmethod
-	def appendCenter(cls, obj, rad):
+	def appendCenter(cls, obj, count):
 		pos = gcommon.getCenterPos(obj)
-		gcommon.ObjMgr.objs.append(Particle1(pos[0], pos[1], rad))
-
-	@classmethod
-	def appendShotCenter(cls, obj):
-		rad = math.atan2(obj.dy, obj.dx)
-		Particle1.appendCenter(obj, rad)
+		gcommon.ObjMgr.objs.append(Particle2(pos[0], pos[1], count))
 
 	def update(self):
 		newTbl = []
@@ -2310,12 +2388,12 @@ class Walker1(EnemyBase):
 	def setMode(self, mode):
 		self.mode = mode
 
-	def checkShotCollision(self, shot):
-		ret = super(Walker1, self).checkShotCollision(shot)
-		if ret:
-			rad = math.atan2(shot.dy, shot.dx)
-			Particle1.appendCenter(shot, rad)
-		return ret
+	# def checkShotCollision(self, shot):
+	# 	ret = super(Walker1, self).checkShotCollision(shot)
+	# 	if ret:
+	# 		rad = math.atan2(shot.dy, shot.dx)
+	# 		Particle1.appendCenter(shot, rad)
+	# 	return ret
 
 	def remove(self):
 		super(Walker1, self).remove()
@@ -3031,7 +3109,7 @@ class Shutter3(EnemyBase):
 		self.rad1 = 0
 		self.waitTime = waitTime
 		self.layer = gcommon.C_LAYER_UNDER_GRD
-		self.hp = 9999999
+		self.hp = gcommon.HP_UNBREAKABLE
 		self.ground = True
 		self.hitCheck = True
 		self.shotHitCheck = True
@@ -3186,6 +3264,12 @@ class BattleShip1Bridge(EnemyBase):
 		self.hp = 300
 		self.score = 2000
 		self.layer = gcommon.C_LAYER_SKY
+		if self.isRed:
+			self.hitcolor1 = 8
+			self.hitcolor2 = 14
+		else:
+			self.hitcolor1 = 9
+			self.hitcolor2 = 10
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
@@ -3196,19 +3280,25 @@ class BattleShip1Bridge(EnemyBase):
 
 	def draw(self):
 		# 艦橋
-		if self.isRed:
-			pyxel.pal(4,2)
-			pyxel.pal(9,8)
-			pyxel.pal(10,14)
+		# if self.isRed:
+		# 	pyxel.pal(4,2)
+		# 	pyxel.pal(9,8)
+		# 	pyxel.pal(10,14)
 		if self.state == 100:
+			if self.isRed:
+				pyxel.pal(4,2)
+				pyxel.pal(9,8)
+				pyxel.pal(10,14)
 			pyxel.blt(self.x, self.y +24, 2, 192, 232, 64, 24, 3)
+			if self.isRed:
+				pyxel.pal()
 		else:
 			if self.isRed:
 				pyxel.blt(self.x, self.y, 2, 64, 208, 64, 48, 3)
 			else:
 				pyxel.blt(self.x, self.y, 2, 0, 208, 64, 48, 3)
-		if self.isRed:
-			pyxel.pal()
+		# if self.isRed:
+		# 	pyxel.pal()
 
 	# 破壊されたとき
 	def broken(self):
