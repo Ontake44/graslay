@@ -102,7 +102,8 @@ SOUND_SHOT3 = 17
 #                 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17
 sound_priority = [0,2,1,4,5,3,6,0,8,1, 0, 6, 6, 1, 6, 6, 6, 1]
 
-
+KEY_HOLD = 20
+KEY_PERIOD = 5
 
 START_MY_POWER = 1
 
@@ -127,6 +128,9 @@ SCREEN_WIDTH = 256
 SCREEN_HEIGHT = 192
 
 DUMMY_BLOCK_NO = 64
+
+# 壊れないもの
+HP_UNBREAKABLE = 999999
 
 # 64 direction table
 atan_table = []
@@ -613,16 +617,16 @@ def bltStripe(x, y, img, u, v, w, h, col, p):
 
 
 def checkLeftP():
-	return pyxel.btnp(pyxel.KEY_LEFT) or pyxel.btnp(pyxel.GAMEPAD_1_LEFT)
+	return pyxel.btnp(pyxel.KEY_LEFT, KEY_HOLD, KEY_PERIOD) or pyxel.btnp(pyxel.GAMEPAD_1_LEFT, KEY_HOLD, KEY_PERIOD)
 
 def checkRightP():
-	return pyxel.btnp(pyxel.KEY_RIGHT) or pyxel.btnp(pyxel.GAMEPAD_1_RIGHT)
+	return pyxel.btnp(pyxel.KEY_RIGHT, KEY_HOLD, KEY_PERIOD) or pyxel.btnp(pyxel.GAMEPAD_1_RIGHT, KEY_HOLD, KEY_PERIOD)
 
 def checkUpP():
-	return pyxel.btnp(pyxel.KEY_UP) or pyxel.btnp(pyxel.GAMEPAD_1_UP)
+	return pyxel.btnp(pyxel.KEY_UP, KEY_HOLD, KEY_PERIOD) or pyxel.btnp(pyxel.GAMEPAD_1_UP, KEY_HOLD, KEY_PERIOD)
 
 def checkDownP():
-	return pyxel.btnp(pyxel.KEY_DOWN) or pyxel.btnp(pyxel.GAMEPAD_1_DOWN)
+	return pyxel.btnp(pyxel.KEY_DOWN, KEY_HOLD, KEY_PERIOD) or pyxel.btnp(pyxel.GAMEPAD_1_DOWN, KEY_HOLD, KEY_PERIOD)
 
 def getMapData(x, y):
 	global map_x

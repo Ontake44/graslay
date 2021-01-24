@@ -253,10 +253,10 @@ class MyShip:
 		if len(gcommon.ObjMgr.missleGroups) < self.missleMax:
 			shotGroup = MyShotGroup()
 			if self.weapon == 0:
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile0(self.x+10, self.y, True)))
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile0(self.x+10, self.y +8, False)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile0(self.x+14, self.y +4, True)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile0(self.x+14, self.y +12, False)))
 			elif self.weapon ==1:
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile1(self.x+2, self.y +8)))
+				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile1(self.x+6, self.y +12)))
 			else:
 				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile2(self.x+2, self.y +8)))
 			gcommon.ObjMgr.missleGroups.append(shotGroup)
@@ -305,10 +305,9 @@ class MyShot:
 		self.weapon = weapon
 		self.shotPower = gcommon.SHOT_POWERS[self.weapon]
 		self.sprite = sprite
-		# 敵との接触後残るかどうか（爆弾系だとTrue）
-		self.shotKeep = False
 		self.group = None
 		self.removeFlag = False
+		self.effect = True
 
 	def update(self):
 		if self.removeFlag == False:
@@ -323,6 +322,7 @@ class MyShot:
 				for i in range(2):
 					px = self.x + 2 + i * 4
 					if checkShotMapCollision(self, px, self.y + 3):
+						enemy.Particle1.appendShotCenterReverse(self)
 						return
 
 	def hit(self):
@@ -347,88 +347,53 @@ class MyShot:
 
 # 上下に落ちるようなミサイル
 class MyMissile0:
-	def __init__(self, x, y, isUpper):
-		self.x = x
-		self.y = y
+	def __init__(self, cx, cy, isUpper):
+		# x,y 座標は中心
+		self.x = cx
+		self.y = cy
 		self.isUpper = isUpper
-		self.left = -4
-		self.top = 0  #-2
-		self.right = 11
-		self.bottom = 7 #9
+		self.left = -3.5
+		self.top = -3.5
+		self.right = 3.5
+		self.bottom = 3.5
 		self.dx = 2
 		self.dy = -2.0 if isUpper else 2
 		self.shotPower = gcommon.MISSILE0_POWER
-		# 敵との接触後残るかどうか（爆弾系だとTrue）
-		self.shotKeep = False
 		self.group = None
 		self.removeFlag = False
-
-	def update(self):
-		self.x = self.x + self.dx
-		self.y = self.y + self.dy
-		if self.x <= -8 or self.x >= 256:
-			self.remove()
-		elif self.y <= -8 or self.y >= 192:
-			self.remove()
-		else:
-			if abs(self.dy) <= 6:
-				self.dy *= 1.05
-			if gcommon.isMapFreePos(self.x + 2, self.y + 3) == False:
-				self.remove()
-
-	def hit(self):
-		self.remove()
-
-	def remove(self):
-		self.removeFlag = True
-		self.group.remove(self)
-		if len(self.group.shots) == 0:
-			gcommon.ObjMgr.missleGroups.remove(self.group)
-
-	def draw(self):
-		# 当たり判定描画
-		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
-		if abs(self.dy) > 5:
-			pyxel.blt(self.x, self.y, 0, 128, 0, 8, 8 if self.isUpper else -8, gcommon.TP_COLOR)
-		else:
-			pyxel.blt(self.x, self.y, 0, 120, 0, 8, 8 if self.isUpper else -8, gcommon.TP_COLOR)
-
-# まっすぐ飛ぶミサイル
-class MyMissile1:
-	def __init__(self, x, y):
-		self.x = x
-		self.y = y
-		self.left = 0
-		self.top = 0  #-2
-		self.right = 15
-		self.bottom = 7 #9
-		self.dx = 2
-		self.dy = 0
-		self.shotPower = gcommon.MISSILE1_POWER
-		# 敵との接触後残るかどうか（爆弾系だとTrue）
-		self.shotKeep = False
-		self.group = None
-		self.removeFlag = False
+		self.state = 0
 		self.cnt = 0
+		self.effect = False
 
 	def update(self):
-		if self.cnt < 10:
-			self.y += 0.5
-		else:
+		if self.state == 0:
 			self.x = self.x + self.dx
-		if self.x <= -8 or self.x >= 256:
-			self.remove()
-		elif self.y <= -8 or self.y >= 192:
-			self.remove()
+			self.y = self.y + self.dy
+			if self.x <= -8 or self.x >= 256:
+				self.remove()
+			elif self.y <= -8 or self.y >= 192:
+				self.remove()
+			else:
+				if abs(self.dy) <= 6:
+					self.dy *= 1.05
+				if gcommon.isMapFreePos(self.x, self.y) == False:
+					# 爆発形態へ
+					self.hit()
 		else:
-			if abs(self.dx) <= 8:
-				self.dx *= 1.05
-			if gcommon.isMapFreePos(self.x + 2, self.y + 3) == False:
+			# 爆発中
+			if self.cnt > 3:
 				self.remove()
 		self.cnt += 1
 
 	def hit(self):
-		self.remove()
+		if self.state == 0:
+			# 当たると爆発になるので大きさが変わる
+			self.state = 1
+			self.cnt = 0
+			self.left = -3.5
+			self.top = -3.5
+			self.right = 3.5
+			self.bottom = 3.5
 
 	def remove(self):
 		self.removeFlag = True
@@ -437,16 +402,98 @@ class MyMissile1:
 			gcommon.ObjMgr.missleGroups.remove(self.group)
 
 	def draw(self):
-		# 当たり判定描画
-		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
-		if self.cnt & 4 == 0 or self.cnt < 10:
-			pyxel.blt(self.x, self.y, 0, 136+16, 0, 16, 8, gcommon.TP_COLOR)
+		if self.state == 0:
+			# 当たり判定描画
+			#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
+			if abs(self.dy) > 5:
+				pyxel.blt(self.x -3.5, self.y -3.5, 0, 128, 0, 8, 8 if self.isUpper else -8, gcommon.TP_COLOR)
+			else:
+				pyxel.blt(self.x -3.5, self.y -3.5, 0, 120, 0, 8, 8 if self.isUpper else -8, gcommon.TP_COLOR)
 		else:
-			pyxel.blt(self.x, self.y, 0, 136, 0, 16, 8, gcommon.TP_COLOR)
+			if self.cnt & 2 == 0:
+				clr = 7 if self.cnt & 4 == 0 else 10
+				if self.cnt < 4:
+					pyxel.circ(self.x, self.y, 2 + self.cnt/2, clr)
+				else:
+					pyxel.circ(self.x, self.y, 4, clr)
+
+# まっすぐ飛ぶミサイル
+class MyMissile1:
+	def __init__(self, cx, cy):
+		# x,y 座標は中心
+		self.x = cx
+		self.y = cy
+		self.left = -7.5
+		self.top = -3.5
+		self.right = 7.5
+		self.bottom = 3.5
+		self.dx = 2
+		self.dy = 0
+		self.shotPower = gcommon.MISSILE1_POWER
+		self.group = None
+		self.removeFlag = False
+		self.state = 0
+		self.cnt = 0
+		self.effect = False
+
+	def update(self):
+		if self.state == 0:
+			if self.cnt < 10:
+				self.y += 0.5
+			else:
+				self.x = self.x + self.dx
+			if self.x <= -8 or self.x >= 256:
+				self.remove()
+			elif self.y <= -8 or self.y >= 192:
+				self.remove()
+			else:
+				if abs(self.dx) <= 8:
+					self.dx *= 1.05
+				if gcommon.isMapFreePos(self.x, self.y) == False:
+					# 爆発形態へ
+					self.hit()
+		else:
+			# 爆発中
+			if self.cnt > 6:
+				self.remove()
+		self.cnt += 1
+
+	def hit(self):
+		if self.state == 0:
+			# 当たると爆発になるので大きさが変わる
+			self.state = 1
+			self.cnt = 0
+			self.left = -3.5
+			self.top = -3.5
+			self.right = 3.5
+			self.bottom = 3.5
+		
+	def remove(self):
+		self.removeFlag = True
+		self.group.remove(self)
+		if len(self.group.shots) == 0:
+			gcommon.ObjMgr.missleGroups.remove(self.group)
+
+	def draw(self):
+		if self.state == 0:
+			# 当たり判定描画
+			#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
+			if self.cnt & 4 == 0 or self.cnt < 10:
+				pyxel.blt(self.x -7.5, self.y -3.5, 0, 136+16, 0, 16, 8, gcommon.TP_COLOR)
+			else:
+				pyxel.blt(self.x -7.5, self.y -3.5, 0, 136, 0, 16, 8, gcommon.TP_COLOR)
+		else:
+			if self.cnt & 2 == 0:
+				clr = 7 if self.cnt & 4 == 0 else 10
+				if self.cnt < 4:
+					pyxel.circ(self.x, self.y, 2 + self.cnt/2, clr)
+				else:
+					pyxel.circ(self.x, self.y, 4, clr)
 
 # 後方に落ちるミサイル（爆弾だな）
 class MyMissile2:
 	def __init__(self, cx, cy):
+		# x,y 座標は中心
 		self.x = cx
 		self.y = cy
 		self.left = -3.5
@@ -456,15 +503,15 @@ class MyMissile2:
 		self.dx = -1.5
 		self.dy = 2
 		self.shotPower = gcommon.MISSILE2_POWER
-		# 敵との接触後残るかどうか（爆弾系だとTrue）
-		self.shotKeep = True
 		self.group = None
 		self.removeFlag = False
 		self.state = 0
 		self.cnt = 0
+		self.effect = False
 
 	def update(self):
 		if self.state == 0:
+			# 落下中
 			if self.cnt < 15:
 				self.dx *= 0.9
 			else:
@@ -478,10 +525,11 @@ class MyMissile2:
 			elif self.y <= -8 or self.y >= 192:
 				self.remove()
 			else:
-				if gcommon.isMapFreePos(self.x + 2, self.y + 3) == False:
+				if gcommon.isMapFreePos(self.x, self.y) == False:
 					# 爆発形態へ
 					self.hit()
 		else:
+			# 爆発中
 			if self.cnt > 30:
 				self.remove()
 
@@ -495,6 +543,7 @@ class MyMissile2:
 
 	def hit(self):
 		if self.state == 0:
+			# 当たると爆発になるので大きさが変わる
 			self.state = 1
 			self.cnt = 0
 			self.left = -8
