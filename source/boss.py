@@ -191,12 +191,12 @@ class Boss1(enemy.EnemyBase):
 				pyxel.blt(bx, self.y +10, 1, sx, 208, 16, 40, gcommon.TP_COLOR)
 				bx -=16
 
-	def checkShotCollision(self, shot):
-		ret = super(Boss1, self).checkShotCollision(shot)
-		if ret:
-			rad = math.atan2(shot.dy, shot.dx)
-			enemy.Particle1.appendCenter(shot, rad)
-		return ret
+	# def checkShotCollision(self, shot):
+	# 	ret = super(Boss1, self).checkShotCollision(shot)
+	# 	if ret:
+	# 		rad = math.atan2(shot.dy, shot.dx)
+	# 		enemy.Particle1.appendCenter(shot, rad)
+	# 	return ret
 
 	def getDirection(self, dr64):
 		if self.isLeft:
@@ -802,12 +802,12 @@ class Boss2(enemy.EnemyBase):
 	def draw(self):
 		pyxel.blt(self.x, self.y, 1, 176, 208, 80, 48, gcommon.TP_COLOR)
 		
-	def checkShotCollision(self, shot):
-		ret = super(Boss2, self).checkShotCollision(shot)
-		if ret:
-			rad = math.atan2(shot.dy, shot.dx)
-			enemy.Particle1.appendCenter(shot, rad)
-		return ret
+	# def checkShotCollision(self, shot):
+	# 	ret = super(Boss2, self).checkShotCollision(shot)
+	# 	if ret:
+	# 		rad = math.atan2(shot.dy, shot.dx)
+	# 		enemy.Particle1.appendCenter(shot, rad)
+	# 	return ret
 
 	def nextTbl(self):
 		self.tblIndex +=1
@@ -1177,7 +1177,7 @@ class Boss3(enemy.EnemyBase):
 	def broken(self):
 		self.remove()
 		enemy.removeEnemyShot()
-		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
+		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self.body), gcommon.getCenterY(self.body), gcommon.C_LAYER_EXP_SKY))
 		gcommon.score+=self.score
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,3], 240))
@@ -1404,11 +1404,11 @@ class Boss4(enemy.EnemyBase):
 
 		pyxel.blt(self.x, self.y, 1, 160, 200, 96, 56, gcommon.TP_COLOR)
 
-	def checkShotCollision(self, shot):
-		ret = super(Boss4, self).checkShotCollision(shot)
-		if ret:
-			enemy.Particle1.appendShotCenter(shot)
-		return ret
+	# def checkShotCollision(self, shot):
+	# 	ret = super(Boss4, self).checkShotCollision(shot)
+	# 	if ret:
+	# 		enemy.Particle1.appendShotCenter(shot)
+	# 	return ret
 
 	def broken(self):
 		self.remove()
@@ -1632,8 +1632,9 @@ class BossFactory(enemy.EnemyBase):
 					# 跳ねる
 					self.dy = -self.dy * 0.8
 					for i in range(3):
-						gcommon.ObjMgr.objs.append(
-							enemy.Particle1(self.x +39.5, self.y +88, -math.pi/4 -math.pi/4*i))
+						enemy.Particle1.append(self.x +39.5, self.y +88, -math.pi/4 -math.pi/4*i)
+						#gcommon.ObjMgr.objs.append(
+						#	enemy.Particle1(self.x +39.5, self.y +88, -math.pi/4 -math.pi/4*i))
 				if self.x > 280:
 					self.dx = -self.dx
 					# 回転を逆にする
@@ -1649,7 +1650,7 @@ class BossFactory(enemy.EnemyBase):
 					self.dy = -self.dy
 					for i in range(4):
 						gcommon.ObjMgr.objs.append(
-							enemy.Particle1(self.x +39.5, self.y +88, -math.pi/4 -math.pi/4*i))
+							enemy.Particle1(self.x +39.5, self.y +88, -math.pi/4 -math.pi/4*i, 8, 50))
 				if self.x <= 152:
 					self.omega = -math.pi/64
 					self.setSubState(2)
@@ -2293,9 +2294,9 @@ class BossLast1(enemy.EnemyBase):
 
 	def checkShotCollision(self, shot):
 		ret = super(BossLast1, self).checkShotCollision(shot)
-		if ret:
-			rad = math.atan2(shot.dy, shot.dx)
-			enemy.Particle1.appendCenter(shot, rad)
+		#if ret:
+		#	rad = math.atan2(shot.dy, shot.dx)
+		#	enemy.Particle1.appendCenter(shot, rad)
 		if self.mode == 0:
 			if self.brokenState == 0 and self.hp < BossLast1.hp2:
 				# 初期状態
@@ -2861,7 +2862,7 @@ class BossLast1Core(enemy.EnemyBase):
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
-		self.hp = 2000
+		self.hp = 1500
 		self.score = 50000
 		self.rad = 0.0
 		#self.dx = 0.0
@@ -3036,11 +3037,11 @@ class BossLast1Core(enemy.EnemyBase):
 				if self.coreBrightness <= -3:
 					self.coreBrightState = 0		
 
-	def checkShotCollision(self, shot):
-		ret = super(BossLast1Core, self).checkShotCollision(shot)
-		if ret:
-			rad = math.atan2(shot.dy, shot.dx)
-			enemy.Particle1.appendCenter(shot, rad)
+	# def checkShotCollision(self, shot):
+	# 	ret = super(BossLast1Core, self).checkShotCollision(shot)
+	# 	if ret:
+	# 		rad = math.atan2(shot.dy, shot.dx)
+	# 		enemy.Particle1.appendCenter(shot, rad)
 
 	def broken(self):
 		self.setState(100)
@@ -3199,9 +3200,9 @@ class BossLastBaseExplosion(enemy.EnemyBase):
 
 	def update(self):
 		if self.cnt % 3 == 0:
+			obj = gcommon.ObjMgr.addObj(enemy.Explosion(32 +random.randrange(64), random.randrange(gcommon.SCREEN_MAX_Y), gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_SKY_M))
+			obj.particle = False
 			if self.cnt < 120:
-				enemy.create_explosion(32 +random.randrange(64), random.randrange(gcommon.SCREEN_MAX_Y), gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_SKY_M)
-			else:
-				# サウンドなし
-				gcommon.ObjMgr.addObj(enemy.Explosion(32 +random.randrange(64), random.randrange(gcommon.SCREEN_MAX_Y), gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_SKY_M))
+				# 120超えるとサウンドなし
+				gcommon.sound(gcommon.SOUND_MID_EXP)
 
