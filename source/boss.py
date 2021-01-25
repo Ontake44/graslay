@@ -58,6 +58,9 @@ class Boss1(enemy.EnemyBase):
 		self.beam = 0
 		self.subState = 0
 		self.isLeft = True
+		self.beamTime = 90
+		if gcommon.GameSession.isEasy():
+			self.beamTime = 60
 		self.tbl = []
 		self.beamObj = Boss1Beam(self)
 		gcommon.ObjMgr.addObj(self.beamObj)
@@ -98,7 +101,10 @@ class Boss1(enemy.EnemyBase):
 				if self.y > 150:
 					self.y = 150
 			if self.cnt & 15 == 15:
-				self.shotFix8()
+				if gcommon.GameSession.isEasy():
+					self.shotFix4()
+				else:
+					self.shotFix8()
 				#if self.cnt & 31 == 31:
 				#	self.shotFix4()
 				#else:
@@ -126,7 +132,7 @@ class Boss1(enemy.EnemyBase):
 					newTbl.append(s)
 			self.tbl = newTbl
 
-			if self.cnt > 90:
+			if self.cnt > self.beamTime:
 				self.nextState()
 				gcommon.sound(gcommon.SOUND_BOSS1BEAM)
 		elif self.state == 5:
@@ -155,7 +161,7 @@ class Boss1(enemy.EnemyBase):
 			if self.y +30 > gcommon.ObjMgr.myShip.y:
 				dy = -dy
 			self.y += dy
-			if self.cnt > 90:
+			if self.cnt > self.beamTime:
 				self.nextState()
 		elif self.state == 8:
 			# ビーム発射終了（移動なし）
@@ -233,7 +239,7 @@ class Boss1(enemy.EnemyBase):
 		self.beamObj.remove()
 		enemy.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
-		gcommon.score+=self.score
+		gcommon.GameSession.addScore(self.score)
 		self.remove()
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
@@ -829,7 +835,7 @@ class Boss2(enemy.EnemyBase):
 		self.remove()
 		enemy.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
-		gcommon.score+=self.score
+		gcommon.GameSession.addScore(self.score)
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
 		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,2], 240))
@@ -1178,7 +1184,7 @@ class Boss3(enemy.EnemyBase):
 		self.remove()
 		enemy.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self.body), gcommon.getCenterY(self.body), gcommon.C_LAYER_EXP_SKY))
-		gcommon.score+=self.score
+		gcommon.GameSession.addScore(self.score)
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,3], 240))
 
@@ -1414,7 +1420,7 @@ class Boss4(enemy.EnemyBase):
 		self.remove()
 		enemy.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
-		gcommon.score += self.score
+		gcommon.GameSession.addScore(self.score)
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
 		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,4], 240))
@@ -1873,7 +1879,7 @@ class BossFactory(enemy.EnemyBase):
 		self.remove()
 		enemy.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
-		gcommon.score += self.score
+		gcommon.GameSession.addScore(self.score)
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
 		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,5], 240))
@@ -3048,7 +3054,7 @@ class BossLast1Core(enemy.EnemyBase):
 		self.shotHitCheck = False
 		enemy.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(Boss3Explosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
-		gcommon.score += self.score
+		gcommon.GameSession.addScore(self.score)
 		self.remove()
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)

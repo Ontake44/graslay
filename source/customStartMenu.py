@@ -59,7 +59,7 @@ class CustomStartMenuScene:
 		else:
 			# GAME START
 			if self.cnt > 40:
-				gcommon.app.startGame(gcommon.Settings.startStage, gcommon.Settings.playerStock)
+				gcommon.app.startGame(gcommon.DIFFICULTY_EASY, gcommon.Settings.startStage, gcommon.Settings.playerStock)
 		self.cnt += 1
 
 	def draw(self):
