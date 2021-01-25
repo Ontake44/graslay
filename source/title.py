@@ -8,6 +8,7 @@ import enemy
 #  タイトル表示
 #
 class TitleScene:
+	difficultyText = ("EASY START", "NORMAL START")
 	colorTable1 = (3, 4, 8, 9, 10, 11, 13, 14, 15)
 	colorTable2 = (2, 1, 5, 6, 7, 12)
 	colorTable1a = (1, 5, 5, 12, 12, 6, 6, 7, 7)
@@ -37,6 +38,7 @@ class TitleScene:
 		self.ey = 24
 		self.cntLimit = 70
 		self.objs = []
+		self.difficulty = gcommon.DIFFICULTY_NORMAL
 
 	def init(self):
 		pass
@@ -103,12 +105,14 @@ class TitleScene:
 			self.cnt = 0
 			self.update100()
 	
+	# メニュー処理があるupdate
 	def update100(self):
 		if self.state == 100:
 			# タイトル表示されていきなりゲーム開始したらダメなので30待つ
 			if gcommon.checkShotKey() and self.cnt > 30:
 				if self.menuPos == 0:
 					gcommon.sound(gcommon.SOUND_GAMESTART)
+					# ここですぐにはゲームスタートしない
 					self.state = 101
 					self.cnt = 0
 				elif self.menuPos == 1:
@@ -119,6 +123,11 @@ class TitleScene:
 					pyxel.quit()
 				#app.startStageClear()
 			
+			if self.menuPos == 0:
+				if gcommon.checkLeftP():
+					self.difficulty = gcommon.DIFFICULTY_EASY
+				elif gcommon.checkRightP():
+					self.difficulty = gcommon.DIFFICULTY_NORMAL
 			if gcommon.checkUpP():
 				self.menuPos = (self.menuPos -1) % 4
 			elif gcommon.checkDownP():
@@ -126,7 +135,7 @@ class TitleScene:
 		elif self.state == 101:
 			# GAME START
 			if self.cnt > 40:
-				gcommon.app.startGame(gcommon.Defaults.INIT_START_STAGE, gcommon.Defaults.INIT_PLAYER_STOCK)
+				gcommon.app.startGame(self.difficulty, gcommon.Defaults.INIT_START_STAGE, gcommon.Defaults.INIT_PLAYER_STOCK)
 			
 		
 		self.cnt += 1
@@ -167,7 +176,7 @@ class TitleScene:
 					pyxel.pal(TitleScene.colorTable1[(cc+i) % len(TitleScene.colorTable1)], color)
 			pyxel.blt(0, 24 +36 -self.py, 1, 0, 40, 256, 80, 0)
 		elif self.state == 1:
-			self.drawNormal()
+			self.drawTitleNormal()
 		elif self.state == 2 or self.state == 3:
 			pyxel.pal()
 			# 文字枠
@@ -178,12 +187,13 @@ class TitleScene:
 				pyxel.pal(t[0], t[1])
 			pyxel.blt(0, 24, 1, 0, 40, 256, 80, 0)
 		elif self.state == 4:
-			self.drawNormal()
-			self.drawText(False, self.cnt/20)
+			self.drawTitleNormal()
+			self.drawMenu(False, self.cnt/20)
 		else:
-			self.drawNormal()
+			self.drawTitleNormal()
 
-	def drawNormal(self):
+	# タイトル通常描画
+	def drawTitleNormal(self):
 		pyxel.pal()
 		# 文字枠
 		for c in TitleScene.colorTable1:
@@ -195,7 +205,7 @@ class TitleScene:
 		for i in range(0,96):
 			pyxel.pset(((int)(gcommon.star_ary[i][0]+self.star_pos))&255, i*2, gcommon.star_ary[i][1])
 		
-		self.drawNormal()
+		self.drawTitleNormal()
 		# pyxel.pal()
 		# y = 120
 		# if self.state == 100:
@@ -219,34 +229,41 @@ class TitleScene:
 		# y += 15
 		# gcommon.setMenuColor(3, self.menuPos)
 		# gcommon.showText(90, y, "EXIT")
-		self.drawText(self.state == 101 and self.cnt & 2 == 0, 1.0)
+		self.drawMenu(self.state == 101 and self.cnt & 2 == 0, 1.0)
 
 
 		pyxel.pal()
-		pyxel.blt(78, 120 + self.menuPos * 15, 0, 8, 32, 8, 8, gcommon.TP_COLOR)
+		#pyxel.blt(78, 120 + self.menuPos * 15, 0, 8, 32, 8, 8, gcommon.TP_COLOR)
 		
-	def drawText(self, startFlag, rate):
+	def drawMenu(self, startFlag, rate):
 		pyxel.pal()
 		y = 120
 		if startFlag:
 			pyxel.pal(7, 8)
 		else:
 			gcommon.setMenuColor(0, self.menuPos)
-		gcommon.showTextRate(90, y, "NORMAL START", rate)
+		str = TitleScene.difficultyText[self.difficulty]
+		gcommon.showTextRateHCenter(y, str, rate)
+		if self.difficulty == gcommon.DIFFICULTY_EASY:
+			gcommon.drawRightMarker(128 +len(str)*4 + 4, y, True)
+			gcommon.drawLeftMarker(120 -len(str)*4 -4, y, False)
+		else:
+			gcommon.drawRightMarker(128 +len(str)*4 + 4, y, False)
+			gcommon.drawLeftMarker(120 -len(str)*4 -4, y, True)
 		if startFlag:
 			pyxel.pal()
 
 		y += 15
 		gcommon.setMenuColor(1, self.menuPos)
-		gcommon.showTextRate(90, y, "CUSTOM START", rate)
+		gcommon.showTextRateHCenter(y, "CUSTOM START", rate)
 
 		y += 15
 		gcommon.setMenuColor(2, self.menuPos)
-		gcommon.showTextRate(90, y, "OPTION", rate)
+		gcommon.showTextRateHCenter(y, "OPTION", rate)
 
 		y += 15
 		gcommon.setMenuColor(3, self.menuPos)
-		gcommon.showTextRate(90, y, "EXIT", rate)
+		gcommon.showTextRateHCenter(y, "EXIT", rate)
 
 		pyxel.pal()
 
