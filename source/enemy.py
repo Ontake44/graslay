@@ -62,7 +62,7 @@ class EnemyBase:
 		self.shotHitCheck = True	# 自機弾との当たり判定
 		self.hitCheck = True	# 自機と敵との当たり判定
 		self.enemyShotCollision = False	# 敵弾との当たり判定を行う
-		self.shotEffect = False		# 自機弾が当たった時のエフェクト
+		self.shotEffect = True		# 自機弾が当たった時のエフェクト
 		self.removeFlag = False
 		self.nextStateNo = -1
 
@@ -118,7 +118,7 @@ class EnemyBase:
 		if self.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD):
 			layer = gcommon.C_LAYER_GRD
 		
-		gcommon.score += self.score
+		gcommon.GameSession.addScore(self.score)
 		
 		create_explosion2(self.x+(self.right+self.left+1)/2, self.y+(self.bottom+self.top+1)/2, layer, self.exptype, self.expsound)
 		self.remove()
@@ -1334,7 +1334,7 @@ class Worm1(EnemyBase):
 			return False
 
 	def broken(self):
-		gcommon.score += self.score
+		gcommon.GameSession.addScore(self.score)
 		self.state = 100
 		self.cnt = 0
 		self.shotHitCheck = False
@@ -3303,7 +3303,7 @@ class BattleShip1Bridge(EnemyBase):
 	# 破壊されたとき
 	def broken(self):
 		self.state = 100
-		gcommon.score += self.score
+		gcommon.GameSession.addScore(self.score)
 		self.hitCheck = False
 		self.shotHitCheck = False
 		create_explosion2(self.x+36, self.y+34, gcommon.C_LAYER_EXP_SKY, gcommon.C_EXPTYPE_SKY_M, gcommon.SOUND_MID_EXP)

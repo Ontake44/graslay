@@ -22,6 +22,8 @@ WEAPON_ROUND = 1
 WEAPON_WIDE = 2
 
 
+
+
 # defines
 T_COPTER1 = 1
 T_I_CARRIOR = 2
@@ -138,6 +140,9 @@ atan_table = []
 cos_table = []
 sin_table = []
 
+DIFFICULTY_EASY = 0
+DIFFICULTY_NORMAL = 1
+
 
 # 座標系は下の上下逆になることに注意
 #       2
@@ -180,7 +185,10 @@ eshot_sync_scroll = False
 
 long_map = False
 
+# 現在未使用（パワーアップ無いので）
 power = START_MY_POWER
+
+powerRate = 1.0
 
 enemy_shot_rate = 1
 
@@ -193,6 +201,30 @@ mapFreeTable = []
 star_ary = []
 
 mapAttribute = []
+
+class GameSession:
+	difficulty = DIFFICULTY_NORMAL
+	playerStock = 0
+	score = 0
+	power = START_MY_POWER
+
+	@classmethod
+	def init(cls, difficulty, playerStock):
+		GameSession.difficulty = difficulty
+		GameSession.playerStock = playerStock
+		GameSession.score = 0
+
+	@classmethod
+	def isEasy(cls):
+		return GameSession.difficulty == DIFFICULTY_EASY
+
+	@classmethod
+	def isNormalOrMore(cls):
+		return GameSession.difficulty == DIFFICULTY_NORMAL
+	
+	@classmethod
+	def addScore(cls, score):
+		GameSession.score += score
 
 # ====================================================================
 
@@ -763,6 +795,10 @@ def showTextHCenter(y, s):
 	l = len(s)
 	showText((SCREEN_WIDTH -l*8)/2, y, s)
 
+def showTextRateHCenter(y, s, rate):
+	l = len(s)
+	showTextRate((SCREEN_WIDTH -l*8)/2, y, s, rate)
+
 # BOLD
 def showText(x, y, s):
 	for c in s:
@@ -776,6 +812,8 @@ def showText(x, y, s):
 # rateは 0 - 1
 def showTextRate(x, y, s, rate):
 	p = int(8 * rate)
+	if p == 0:
+		return
 	for c in s:
 		code = ord(c)
 		if code >= 65 and code <= 90:
@@ -1137,6 +1175,14 @@ def setMenuColor(index, menuPos):
 def drawUpDownMarker(x, y):
 	pyxel.blt(x, y, 0, 0, 32, -8, 8, TP_COLOR)
 	pyxel.blt(x +26, y, 0, 0, 32, 8, 8, TP_COLOR)
+
+def drawLeftMarker(x, y, enabled):
+	pyxel.blt(x, y, 0, 0 if enabled else 16, 32, -8, 8, TP_COLOR)
+
+def drawRightMarker(x, y, enabled):
+	pyxel.blt(x, y, 0, 0 if enabled else 16, 32, 8, 8, TP_COLOR)
+
+
 
 def getMirrorDr64(dr64):
 	dr = dr64 & 63

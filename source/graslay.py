@@ -44,12 +44,12 @@ class MyShip:
 		elif self.sub_scene == 2:
 			# 爆発中
 			if self.cnt > 90:
-				if gcommon.remain == 0:
+				if gcommon.GameSession.playerStock == 0:
 					gcommon.app.startGameOver()
 					#start_gameover()
 					#print("GAME OVER")
 				else:
-					gcommon.remain -= 1
+					gcommon.GameSession.playerStock -= 1
 					#--restart_game()
 					self.sub_scene=3
 					self.cnt = 0
@@ -303,7 +303,7 @@ class MyShot:
 		self.dx = dx
 		self.dy = dy
 		self.weapon = weapon
-		self.shotPower = gcommon.SHOT_POWERS[self.weapon]
+		self.shotPower = gcommon.SHOT_POWERS[self.weapon] * gcommon.powerRate
 		self.sprite = sprite
 		self.group = None
 		self.removeFlag = False
@@ -358,7 +358,7 @@ class MyMissile0:
 		self.bottom = 3.5
 		self.dx = 2
 		self.dy = -2.0 if isUpper else 2
-		self.shotPower = gcommon.MISSILE0_POWER
+		self.shotPower = gcommon.MISSILE0_POWER * gcommon.powerRate
 		self.group = None
 		self.removeFlag = False
 		self.state = 0
@@ -429,7 +429,7 @@ class MyMissile1:
 		self.bottom = 3.5
 		self.dx = 2
 		self.dy = 0
-		self.shotPower = gcommon.MISSILE1_POWER
+		self.shotPower = gcommon.MISSILE1_POWER * gcommon.powerRate
 		self.group = None
 		self.removeFlag = False
 		self.state = 0
@@ -502,7 +502,7 @@ class MyMissile2:
 		self.bottom = 3.5
 		self.dx = -1.5
 		self.dy = 2
-		self.shotPower = gcommon.MISSILE2_POWER
+		self.shotPower = gcommon.MISSILE2_POWER * gcommon.powerRate
 		self.group = None
 		self.removeFlag = False
 		self.state = 0
@@ -1507,12 +1507,10 @@ class MainGame:
 		
 		pyxel.clip()
 		# SCORE表示
-		#pyxel.text(4, 194, "SC " + str(gcommon.score), 7)
-		#gcommon.showText2(0,192, "SC " + "{:08d}".format(gcommon.score))
-		gcommon.showText(0,192, "SC " + str(gcommon.score).rjust(8))
+		gcommon.showText(0,192, "SC " + str(gcommon.GameSession.score).rjust(8))
 		# 残機
 		pyxel.blt(232, 192, 0, 8, 32, 8, 8, gcommon.TP_COLOR)
-		gcommon.showText(242, 192, str(gcommon.remain).rjust(2))
+		gcommon.showText(242, 192, str(gcommon.GameSession.playerStock).rjust(2))
 		
 		# 武器表示
 		for i in range(0,3):
@@ -2123,11 +2121,17 @@ class App:
 	def setScene(self, nextScene):
 		self.nextScene = nextScene
 
-	def startGame(self, stage, playerStock):
+	def startGame(self, difficulty, stage, playerStock):
 		self.stage = stage
-		gcommon.remain = playerStock
-		gcommon.power = gcommon.START_MY_POWER
-		gcommon.score = 0
+		print("Difficulty : " + str(difficulty))
+		gcommon.GameSession.init(difficulty, playerStock -1)
+		if gcommon.GameSession.difficulty == gcommon.DIFFICULTY_EASY:
+			gcommon.powerRate = 1.5
+			gcommon.enemy_shot_rate = 0.75
+		else:
+			# Normal
+			gcommon.powerRate = 1.0
+			gcommon.enemy_shot_rate = 1.0
 		self.setScene(MainGame(stage))
 
 	def startStage(self, stage):
