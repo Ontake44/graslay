@@ -8,7 +8,6 @@ import enemy
 #  タイトル表示
 #
 class TitleScene:
-	difficultyText = ("EASY START", "NORMAL START")
 	colorTable1 = (3, 4, 8, 9, 10, 11, 13, 14, 15)
 	colorTable2 = (2, 1, 5, 6, 7, 12)
 	colorTable1a = (1, 5, 5, 12, 12, 6, 6, 7, 7)
@@ -38,7 +37,7 @@ class TitleScene:
 		self.ey = 24
 		self.cntLimit = 70
 		self.objs = []
-		self.difficulty = gcommon.DIFFICULTY_NORMAL
+		self.difficulty = gcommon.Settings.difficulty
 
 	def init(self):
 		pass
@@ -242,14 +241,12 @@ class TitleScene:
 			pyxel.pal(7, 8)
 		else:
 			gcommon.setMenuColor(0, self.menuPos)
-		str = TitleScene.difficultyText[self.difficulty]
-		gcommon.showTextRateHCenter(y, str, rate)
-		if self.difficulty == gcommon.DIFFICULTY_EASY:
-			gcommon.drawRightMarker(128 +len(str)*4 + 4, y, True)
-			gcommon.drawLeftMarker(120 -len(str)*4 -4, y, False)
-		else:
-			gcommon.drawRightMarker(128 +len(str)*4 + 4, y, False)
-			gcommon.drawLeftMarker(120 -len(str)*4 -4, y, True)
+		text = gcommon.difficultyText[self.difficulty] + " START"
+		gcommon.showTextRateHCenter(y, text, rate)
+		if self.menuPos == 0:
+			leftMarker = (self.difficulty == gcommon.DIFFICULTY_NORMAL)
+			gcommon.drawLeftMarker(120 -len(text)*4 -4, y, leftMarker)
+			gcommon.drawRightMarker(128 +len(text)*4 + 4, y, not leftMarker)
 		if startFlag:
 			pyxel.pal()
 
@@ -265,5 +262,7 @@ class TitleScene:
 		gcommon.setMenuColor(3, self.menuPos)
 		gcommon.showTextRateHCenter(y, "EXIT", rate)
 
+		gcommon.setBrightness1()
+		pyxel.blt(48, 118 + self.menuPos * 15, 4, 48, 118 + self.menuPos * 15, 160, 12)
 		pyxel.pal()
 

@@ -57,16 +57,21 @@ class OptionMenuScene:
 		gcommon.showText(x1, y, "BGM VOLUME")
 		gcommon.showText(x2, y, str(gcommon.Settings.bgmVolume).rjust(2))
 		if OPTIONMENU_BGM_VOL == self.menuPos:
-			gcommon.drawUpDownMarker(x2 -10, y)
+			#gcommon.drawUpDownMarker(x2 -10, y)
+			gcommon.drawUpDownMarker2(x2 -10, y, 0, 10, gcommon.Settings.bgmVolume)
 		y += 20
 
 		gcommon.setMenuColor(OPTIONMENU_SOUND_VOL, self.menuPos)
 		gcommon.showText(x1, y, "SE VOLUME")
 		gcommon.showText(x2, y, str(gcommon.Settings.soundVolume).rjust(2))
 		if OPTIONMENU_SOUND_VOL == self.menuPos:
-			gcommon.drawUpDownMarker(x2 -10, y)
+			#gcommon.drawUpDownMarker(x2 -10, y)
+			gcommon.drawUpDownMarker2(x2 -10, y, 0, 10, gcommon.Settings.soundVolume)
 		y += 20
 		
 		gcommon.setMenuColor(OPTIONMENU_EXIT, self.menuPos)
 		gcommon.showText(x1, y, "EXIT")
+		
+		gcommon.setBrightness1()
+		pyxel.blt(32, 48 + self.menuPos * 20, 4, 32, 48 + self.menuPos * 20, 192, 12)
 		pyxel.pal()
