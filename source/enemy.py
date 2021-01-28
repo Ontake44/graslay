@@ -460,7 +460,7 @@ class Jumper1(EnemyBase):
 				self.dy = -self.dy
 		#elif gcommon.isMapFreePos(self.x + 8, self.y -4) == False:
 		#	self.dy = -self.dy
-		if self.cnt == 30:
+		if self.cnt == 30 and gcommon.GameSession.isNormalOrMore():
 			enemy_shot(self.x +8, self.y +8, 2, 0)
 
 	def draw(self):
@@ -491,7 +491,7 @@ class RollingFighter1(EnemyBase):
 		self.y = self.y + self.dy
 		self.dy = gcommon.sin_table[self.dr] * 2.0
 		self.dr = (self.dr + 1) & 63
-		if self.cnt == 30:
+		if self.cnt == 30 and gcommon.GameSession.isNormalOrMore():
 			enemy_shot(self.x +8, self.y +8, 2, 0)
 
 	def draw(self):
@@ -1032,6 +1032,7 @@ class Cell1(EnemyBase):
 		self.layer = gcommon.C_LAYER_SKY
 		self.score = 100
 		self.expsound = gcommon.SOUND_CELL_EXP
+		self.shotFlag = True
 
 	def update(self):
 		if self.cnt > 900:
@@ -1041,7 +1042,7 @@ class Cell1(EnemyBase):
 				dr = gcommon.get_direction_my(self.x +8, self.y +8)
 				self.x += gcommon.direction_map[dr][0] * 1.25
 				self.y -= gcommon.direction_map[dr][1] * 1.25
-			if self.cnt & 127 == 127:
+			if self.cnt & 127 == 127 and self.shotFlag:
 				enemy_shot(self.x +8, self.y +8, 2, 0)
 		
 	def draw(self):
@@ -1061,27 +1062,35 @@ class Cell1Group1(EnemyBase):
 	def update(self):
 		if self.hv == 0:
 			if self.cnt == 0:
-				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY]))
+				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY]))
+				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
 			elif self.cnt == 20:
-				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 50]))
+				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 50]))
+				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
 			elif self.cnt == 40:
-				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 20]))
+				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 20]))
 			elif self.cnt == 60:
-				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 70]))
+				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 70]))
+				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
 			elif self.cnt == 80:
-				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 30]))
+				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 30]))
+				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
 				self.remove()
 		else:
 			if self.cnt == 0:
-				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY]))
+				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY]))
+				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
 			elif self.cnt == 20:
-				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +50, self.startY]))
+				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +50, self.startY]))
+				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
 			elif self.cnt == 40:
 				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +20, self.startY]))
 			elif self.cnt == 60:
-				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +70, self.startY]))
+				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +70, self.startY]))
+				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
 			elif self.cnt == 80:
-				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +30, self.startY]))
+				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +30, self.startY]))
+				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
 				self.remove()
 
 	def draw(self):
@@ -1709,6 +1718,7 @@ class Particle1(EnemyBase):
 		self.layer = gcommon.C_LAYER_EXP_SKY
 		self.hitCheck = False
 		self.shotHitCheck = False
+		self.speedDown = True		# Falseにするとスピード落ちない
 		for i in range(0, count):
 			r = rad + random.random() * math.pi/4 - math.pi/8
 			speed = random.random() * 6
@@ -1748,8 +1758,9 @@ class Particle1(EnemyBase):
 				newTbl.append(s)
 				s.x += s.dx
 				s.y += s.dy
-				s.dx *= 0.97
-				s.dy *= 0.97
+				if self.speedDown:
+					s.dx *= 0.97
+					s.dy *= 0.97
 		self.tbl = newTbl
 		if len(self.tbl) == 0:
 			self.remove()

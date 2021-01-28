@@ -10,12 +10,18 @@ import pygame.mixer
 
 START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 
+DIFFICULTY_EASY = 0
+DIFFICULTY_NORMAL = 1
+
+difficultyText = ("EASY", "NORMAL")
+
 class Defaults:
 	INIT_START_STAGE = 1
 	# 残機
 	INIT_PLAYER_STOCK = 3
 	INIT_BGM_VOL = 10
 	INIT_SOUND_VOL = 10
+	INIT_DIFFICULTY = DIFFICULTY_NORMAL
 
 WEAPON_STRAIGHT = 0
 WEAPON_ROUND = 1
@@ -140,8 +146,6 @@ atan_table = []
 cos_table = []
 sin_table = []
 
-DIFFICULTY_EASY = 0
-DIFFICULTY_NORMAL = 1
 
 
 # 座標系は下の上下逆になることに注意
@@ -161,7 +165,6 @@ direction_map = [		\
 
 # ====================================================================
 # グローバル変数
-
 
 game_timer = 0
 score = 0
@@ -236,6 +239,7 @@ class Settings:
 	startStage = Defaults.INIT_START_STAGE
 	bgmVolume = Defaults.INIT_BGM_VOL
 	soundVolume = Defaults.INIT_SOUND_VOL
+	difficulty = Defaults.INIT_DIFFICULTY
 
 
 class BGM:
@@ -340,6 +344,7 @@ def loadSettings():
 		startStage = 1
 		bgmVol = 6
 		soundVol = 10
+		difficulty = Defaults.INIT_DIFFICULTY
 		json_file = open(settingsPath, "r")
 		json_data = json.load(json_file)
 		if "playerStock" in json_data:
@@ -350,6 +355,8 @@ def loadSettings():
 			bgmVol = int(json_data["bgmVol"])
 		if "soundVol" in json_data:
 			soundVol = int(json_data["soundVol"])
+		if "difficulty" in json_data:
+			difficulty = int(json_data["difficulty"])
 
 		if playerStock >= 1 and playerStock <= 99:
 			Settings.playerStock = playerStock
@@ -359,6 +366,8 @@ def loadSettings():
 			Settings.bgmVolume = bgmVol
 		if soundVol >= 0 and soundVol <= 10:
 			Settings.soundVolume = soundVol
+		if difficulty in (DIFFICULTY_EASY, DIFFICULTY_NORMAL):
+			Settings.difficulty = difficulty
 	
 		json_file.close()
 
@@ -367,7 +376,12 @@ def loadSettings():
 
 
 def saveSettings():
-	json_data = { "playerStock": Settings.playerStock, "startStage": Settings.startStage, "bgmVol": Settings.bgmVolume, "soundVol" : Settings.soundVolume }
+	json_data = { "playerStock": Settings.playerStock, \
+		"startStage": Settings.startStage, \
+		"bgmVol": Settings.bgmVolume, \
+		"soundVol" : Settings.soundVolume, \
+		"difficulty" : 	Settings.difficulty	\
+	}
 	try:
 		settingsPath = os.path.join(os.path.expanduser("~"), SETTINGS_FILE)
 
@@ -1176,6 +1190,12 @@ def drawUpDownMarker(x, y):
 	pyxel.blt(x, y, 0, 0, 32, -8, 8, TP_COLOR)
 	pyxel.blt(x +26, y, 0, 0, 32, 8, 8, TP_COLOR)
 
+def drawUpDownMarker2(x, y, min, max, value):
+	drawLeftMarker(x, y, min < value)
+	drawRightMarker(x +26, y, value < max)
+	#pyxel.blt(x, y, 0, 0, 32, -8, 8, TP_COLOR)
+	#pyxel.blt(x +26, y, 0, 0, 32, 8, 8, TP_COLOR)
+
 def drawLeftMarker(x, y, enabled):
 	pyxel.blt(x, y, 0, 0 if enabled else 16, 32, -8, 8, TP_COLOR)
 
@@ -1190,3 +1210,19 @@ def getMirrorDr64(dr64):
 		return 32 -dr
 	else:
 		return 96 -dr
+
+def stretchBlt(dx, dy, dwidth, dheight, img, sx, sy, swidth, sheight):
+	wx = 0
+	wy = 128
+	# 
+	a = sheight/dheight
+	py = sy
+	for y in range(int(dheight)):
+		pyxel.image(img).copy(wx, wy+y, img, sx, py, swidth, 1)
+		py += a
+	a = swidth/dwidth
+	px = wx
+	pyxel.pal()
+	for x in range(int(dwidth)):
+		pyxel.blt(dx +x, dy, img, px, wy, 1, dheight, 0)
+		px += a
