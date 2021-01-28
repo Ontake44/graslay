@@ -10,6 +10,7 @@ import pygame.mixer
 from optionMenu import OptionMenuScene
 from title import TitleScene
 import customStartMenu
+import ending
 
 # 自機
 class MyShip:
@@ -2122,8 +2123,13 @@ class App:
 		self.nextScene = nextScene
 
 	def startGame(self, difficulty, stage, playerStock):
+		# エンディングテスト用
+		#self.setScene(ending.EndingScene())
+		#return
 		self.stage = stage
 		print("Difficulty : " + str(difficulty))
+		gcommon.Settings.difficulty = difficulty
+		gcommon.saveSettings()
 		gcommon.GameSession.init(difficulty, playerStock -1)
 		if gcommon.GameSession.difficulty == gcommon.DIFFICULTY_EASY:
 			gcommon.powerRate = 1.5
