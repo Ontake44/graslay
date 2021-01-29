@@ -51,7 +51,7 @@ class OptionMenuScene:
 		pyxel.pal()
 		x1 = 72
 		x2 = 180
-		gcommon.showTextHCenter(8, "OPTION MENU")
+		gcommon.showTextHCenter(8, "OPTION")
 		y = 50
 		gcommon.setMenuColor(OPTIONMENU_BGM_VOL, self.menuPos)
 		gcommon.showText(x1, y, "BGM VOLUME")
@@ -70,7 +70,7 @@ class OptionMenuScene:
 		y += 20
 		
 		gcommon.setMenuColor(OPTIONMENU_EXIT, self.menuPos)
-		gcommon.showText(x1, y, "EXIT")
+		gcommon.showTextHCenter(y, "EXIT")
 		
 		gcommon.setBrightness1()
 		pyxel.blt(32, 48 + self.menuPos * 20, 4, 32, 48 + self.menuPos * 20, 192, 12)

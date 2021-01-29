@@ -9,7 +9,7 @@ MENU_EXIT = 4
 
 class CustomStartMenuScene:
 	def __init__(self):
-		self.menuYList = (50, 70, 90, 110, 130)
+		self.menuYList = (50, 70, 90, 118, 138)
 		self.menuPos = 0
 		self.state = 0
 		self.cnt = 0
@@ -98,16 +98,16 @@ class CustomStartMenuScene:
 
 		if self.state == 0:
 			self.setOptionColor(MENU_GAME_START)
-			gcommon.showText(x1, self.menuYList[3], "GAME START")
+			gcommon.showTextHCenter(self.menuYList[3], "GAME START")
 		else:
 			if self.cnt & 2 == 0:
 				pyxel.pal(7, 8)
-			gcommon.showText(x1, self.menuYList[3], "GAME START")
+			gcommon.showTextHCenter(self.menuYList[3], "GAME START")
 			if self.cnt & 2 == 0:
 				pyxel.pal()
 		
 		self.setOptionColor(MENU_EXIT)
-		gcommon.showText(x1, self.menuYList[4], "EXIT")
+		gcommon.showTextHCenter(self.menuYList[4], "EXIT")
 		
 		gcommon.setBrightness1()
 		y = self.menuYList[self.menuPos] -2
