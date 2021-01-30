@@ -167,7 +167,9 @@ direction_map = [		\
 # グローバル変数
 
 game_timer = 0
-score = 0
+#score = 0
+DebugMode = False
+ShowCollision = False
 
 scroll_flag = True
 cur_scroll_x = 0.0
@@ -232,7 +234,6 @@ class GameSession:
 # ====================================================================
 
 SETTINGS_FILE = ".graslay"
-
 
 class Settings:
 	playerStock = Defaults.INIT_PLAYER_STOCK
@@ -305,11 +306,26 @@ class Rect:
 			rects.append(Rect.create(item[0], item[1], item[2], item[3]))
 		return rects
 
+	@classmethod
+	def createSingleList(cls, left, top, right, bottom):
+		return [Rect.create(left, top, right, bottom)]
+
 	def width(self):
 		return self.right - self.left +1
 
 	def height(self):
 		return self.height - self.top +1
+
+class RectObj:
+	def __init__(self, x, y, left, top, right, bottom):
+		self.x = x
+		self.y = y
+		self.left = left
+		self.top = top
+		self.right = right
+		self.bottom = bottom
+
+screenRectObj = RectObj(0, 0, SCREEN_MIN_X, SCREEN_MIN_Y, SCREEN_MAX_X, SCREEN_MAX_Y)
 
 class Polygon:
 	def __init__(self, points, clr):
@@ -1226,3 +1242,9 @@ def stretchBlt(dx, dy, dwidth, dheight, img, sx, sy, swidth, sheight):
 	for x in range(int(dwidth)):
 		pyxel.blt(dx +x, dy, img, px, wy, 1, dheight, 0)
 		px += a
+
+def inScreen(x, y):
+	return x >= SCREEN_MIN_X and x <= SCREEN_MAX_X and y >= SCREEN_MIN_Y and y <= SCREEN_MAX_Y
+
+def outScreenRect(obj):
+	return not check_collision(screenRectObj, obj)

@@ -28,18 +28,14 @@ class OptionMenuScene:
 				if gcommon.Settings.bgmVolume > 10:
 					gcommon.Settings.bgmVolume = 10
 			elif self.menuPos == OPTIONMENU_SOUND_VOL:
-				gcommon.Settings.soundVolume += 1
-				if gcommon.Settings.soundVolume > 10:
-					gcommon.Settings.soundVolume = 10
+				gcommon.Settings.soundVolume = 10
 		elif gcommon.checkLeftP():
 			if self.menuPos == OPTIONMENU_BGM_VOL:
 				gcommon.Settings.bgmVolume -= 1
 				if gcommon.Settings.bgmVolume < 0:
 					gcommon.Settings.bgmVolume = 0
 			elif self.menuPos == OPTIONMENU_SOUND_VOL:
-				gcommon.Settings.soundVolume -= 1
-				if gcommon.Settings.soundVolume < 0:
-					gcommon.Settings.soundVolume = 0
+				gcommon.Settings.soundVolume = 0
 		
 		if gcommon.checkShotKey() and self.menuPos == OPTIONMENU_EXIT:
 			gcommon.saveSettings()
@@ -63,10 +59,13 @@ class OptionMenuScene:
 
 		gcommon.setMenuColor(OPTIONMENU_SOUND_VOL, self.menuPos)
 		gcommon.showText(x1, y, "SE VOLUME")
-		gcommon.showText(x2, y, str(gcommon.Settings.soundVolume).rjust(2))
+		se = "ON" if gcommon.Settings.soundVolume > 0 else "OFF"
+		gcommon.showText(x2, y, se)
 		if OPTIONMENU_SOUND_VOL == self.menuPos:
 			#gcommon.drawUpDownMarker(x2 -10, y)
-			gcommon.drawUpDownMarker2(x2 -10, y, 0, 10, gcommon.Settings.soundVolume)
+			leftMarker = (gcommon.Settings.soundVolume > 0)
+			gcommon.drawLeftMarker(x2 -12, y, leftMarker)
+			gcommon.drawRightMarker(x2 +len(se)*8 + 4, y, not leftMarker)
 		y += 20
 		
 		gcommon.setMenuColor(OPTIONMENU_EXIT, self.menuPos)

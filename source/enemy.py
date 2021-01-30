@@ -50,6 +50,7 @@ class EnemyBase:
 		self.hp = 0
 		self.state = 0
 		self.cnt = 0
+		self.frameCount = 0
 		self.hit = False
 		self.layer = 0
 		self.score = 0
@@ -716,25 +717,6 @@ class Splash(EnemyBase):
 			pyxel.pset(s.x, s.y, 7)
 
 
-class Fan1Group(EnemyBase):
-	def __init__(self, t):
-		super(Fan1Group, self).__init__()
-		self.y = t[2]
-		self.interval = t[3]
-		self.max = t[4]
-		self.cnt2 = 0
-		self.hitCheck = False
-		self.shotHitCheck = False
-
-	def update(self):
-		if self.cnt % self.interval == 0:
-			gcommon.ObjMgr.addObj(Fan1([0, 0, 256, self.y]))
-			self.cnt2 += 1
-			if self.cnt2 >= self.max:
-				self.remove()
-
-	def draw(self):
-		pass
 
 class EnemyGroup(EnemyBase):
 	def __init__(self, t):
@@ -757,38 +739,103 @@ class EnemyGroup(EnemyBase):
 	def draw(self):
 		pass
 
+# x,y座標はキャラクタ中心
 class Fan1a(EnemyBase):
 	def __init__(self, t):
 		super(Fan1a, self).__init__()
-		self.x = t[2]
-		self.y = t[3]
-		self.left = 2
-		self.top = 2
-		self.right = 14
-		self.bottom = 14
+		self.dr = t[2]		# rad
+		self.left = -8
+		self.top = -8
+		self.right = 8
+		self.bottom = 8
+		self.collisionRects = gcommon.Rect.createSingleList(-5.5, -5.5, 5.5, 5.5)
 		self.hp = 1
 		self.dx = 0
 		self.dy = 0
 		self.time1 = 30
 		self.layer = gcommon.C_LAYER_SKY
 		self.score = 10
-	
+		self.targetX = (gcommon.SCREEN_MAX_X - gcommon.SCREEN_MIN_X)/2.0
+		self.targetY = (gcommon.SCREEN_MAX_Y - gcommon.SCREEN_MIN_Y)/2.0
+		self.x = self.targetX + math.cos(self.dr) * 180
+		self.y = self.targetY + math.sin(self.dr) * 150
+		self.dr += math.pi 	#+ math.pi/8
+		self.inFlag = False
+
 	def update(self):
-		self.x -= 3
-		if self.time1 < self.cnt:
-			if gcommon.ObjMgr.myShip.y < self.y +2:
-				self.y -= 1.5
-			elif gcommon.ObjMgr.myShip.y > self.y -2:
-				self.y += 1.5
+		if self.state == 0:
+			self.x += 1.5 * math.cos(self.dr)
+			self.y += 1.5 * math.sin(self.dr)
+			if self.cnt == 40:
+				self.nextState()
+		elif self.state == 1:
+			if self.cnt == 30:
+				self.nextState()
+		else:
+			self.x += 2.0 * math.cos(self.dr)
+			self.y += 2.0 * math.sin(self.dr)
+			#self.dr -= math.pi/180
+
+		if self.inFlag:
+			if gcommon.outScreenRect(self):
+				#print("Fan1a remove")
+				self.remove()
+				return
+		else:
+			if gcommon.inScreen(self.x, self.y):
+				self.inFlag = True
+			
+
 
 	def draw(self):
-		pyxel.blt(self.x, self.y, 1, 0 + (self.cnt & 4) * 4, 64, 16, 16, gcommon.TP_COLOR)
+		pyxel.blt(self.x -7.5, self.y -7.5, 1, 0 + (self.cnt & 4) * 4, 64, 16, 16, gcommon.TP_COLOR)
+
+class Fan1aGroup(EnemyBase):
+	def __init__(self, t):
+		super(Fan1aGroup, self).__init__()
+		self.max = t[2]
+		self.hitCheck = False
+		self.shotHitCheck = False
+		r = 0.0
+		for i in range(self.max):
+			if r != 0.0 or gcommon.GameSession.isNormalOrMore():
+				gcommon.ObjMgr.addObj(Fan1a([0, 0, r +math.pi]))
+			r += math.pi * 2.0 /self.max
+		self.remove()
+
+	def update(self):
+		pass
+
+	def draw(self):
+		pass
+
+class Fan1Group(EnemyBase):
+	def __init__(self, t):
+		super(Fan1Group, self).__init__()
+		self.y = t[2]
+		self.interval = t[3]
+		self.max = t[4]
+		self.shotFlag = t[5] if len(t) > 5 else False
+		self.cnt2 = 0
+		self.hitCheck = False
+		self.shotHitCheck = False
+
+	def update(self):
+		if self.cnt % self.interval == 0:
+			gcommon.ObjMgr.addObj(Fan1([0, 0, 256, self.y, self.shotFlag]))
+			self.cnt2 += 1
+			if self.cnt2 >= self.max:
+				self.remove()
+
+	def draw(self):
+		pass
 
 class Fan1(EnemyBase):
 	def __init__(self, t):
 		super(Fan1, self).__init__()
 		self.x = t[2]
 		self.y = t[3]
+		self.shotFlag = t[4] if len(t) > 4 else False
 		self.left = 2
 		self.top = 2
 		self.right = 14
@@ -820,6 +867,9 @@ class Fan1(EnemyBase):
 				self.y += 1.5
 		if self.x <= -16:
 			self.remove()
+			return
+		if self.shotFlag and self.frameCount == 60 and gcommon.GameSession.isNormalOrMore():
+			enemy_shot(self.x +8, self.y +8, 2, 0)
 
 	def draw(self):
 		pyxel.blt(self.x, self.y, 1, 0 + (self.cnt & 4) * 4, 64, 16, 16, gcommon.TP_COLOR)
@@ -3360,7 +3410,7 @@ class BattleShip1Laser(EnemyBase):
 			self.remove()		
 
 	def draw(self):
-		if self.cnt & 2 != 0:
+		if self.cnt % 3 == 0:
 			return
 		if self.state == 0:
 			clr = 1

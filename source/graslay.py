@@ -24,6 +24,7 @@ class MyShip:
 		self.top = 7
 		self.right = 10
 		self.bottom = 8
+		self.collisionRects = None		# List of Rect
 		self.cnt = 0
 		# 武器種類 0 - 2
 		self.weapon = 0
@@ -301,6 +302,7 @@ class MyShot:
 		self.top = 0  #-2
 		self.right = 11
 		self.bottom = 7 #9
+		self.collisionRects = None		# List of Rect
 		self.dx = dx
 		self.dy = dy
 		self.weapon = weapon
@@ -357,6 +359,7 @@ class MyMissile0:
 		self.top = -3.5
 		self.right = 3.5
 		self.bottom = 3.5
+		self.collisionRects = None		# List of Rect
 		self.dx = 2
 		self.dy = -2.0 if isUpper else 2
 		self.shotPower = gcommon.MISSILE0_POWER * gcommon.powerRate
@@ -428,6 +431,7 @@ class MyMissile1:
 		self.top = -3.5
 		self.right = 7.5
 		self.bottom = 3.5
+		self.collisionRects = None		# List of Rect
 		self.dx = 2
 		self.dy = 0
 		self.shotPower = gcommon.MISSILE1_POWER * gcommon.powerRate
@@ -501,6 +505,7 @@ class MyMissile2:
 		self.top = -3.5
 		self.right = 3.5
 		self.bottom = 3.5
+		self.collisionRects = None		# List of Rect
 		self.dx = -1.5
 		self.dy = 2
 		self.shotPower = gcommon.MISSILE2_POWER * gcommon.powerRate
@@ -1426,7 +1431,8 @@ class MainGame:
 					obj.nextStateNo = -1
 					obj.cnt = 0
 				obj.update()
-				obj.cnt = obj.cnt + 1
+				obj.cnt += 1
+				obj.frameCount += 1
 				if obj.removeFlag == False:
 					newObjs.append(obj)
 		gcommon.ObjMgr.objs = newObjs
@@ -1505,7 +1511,17 @@ class MainGame:
 			if (obj.layer & gcommon.C_LAYER_TEXT) != 0:
 				obj.drawLayer(gcommon.C_LAYER_TEXT)
 		
-		
+		# 当たり判定描画
+		if gcommon.ShowCollision:
+			for shot in gcommon.ObjMgr.shots:
+				if shot.removeFlag == False:
+					self.drawObjRect(shot)
+			self.drawObjRect(gcommon.ObjMgr.myShip)
+			for obj in gcommon.ObjMgr.objs:
+				if obj.removeFlag or (obj.shotHitCheck == False and obj.hitCheck == False):
+					continue
+				self.drawObjRect(obj)
+
 		pyxel.clip()
 		# SCORE表示
 		gcommon.showText(0,192, "SC " + str(gcommon.GameSession.score).rjust(8))
@@ -1521,8 +1537,9 @@ class MainGame:
 				pyxel.blt(96 + 40*i, 192, 0, i * 40, 48, 40, 8)
 		
 		#pyxel.text(120, 184, str(gcommon.back_map_x), 7)
-		pyxel.text(120, 184, str(gcommon.game_timer), 7)
-		#pyxel.text(200, 188, str(len(gcommon.ObjMgr.objs)), 7)
+		if gcommon.DebugMode:
+			pyxel.text(120, 184, str(gcommon.game_timer), 7)
+			pyxel.text(160, 184, str(len(gcommon.ObjMgr.objs)), 7)
 		#pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
 		# マップ位置表示
@@ -1530,6 +1547,13 @@ class MainGame:
 
 		if self.pause:
 			self.drawPauseMenu()
+
+	def drawObjRect(self, obj):
+		if obj.collisionRects != None:
+			for rect in obj.collisionRects:
+				pyxel.rectb(obj.x +rect.left, obj.y + rect.top, rect.right -rect.left+1, rect.bottom -rect.top+1, 8)
+		else:
+			pyxel.rectb(obj.x +obj.left, obj.y + obj.top, obj.right -obj.left+1, obj.bottom -obj.top+1, 8)
 
 	def drawPauseMenu(self):
 		pyxel.rect(127 -40, 192/2 -32, 80, 48, 0)
@@ -1746,27 +1770,29 @@ class MainGame:
 			self.initStoryLast()
 
 	def initStory1(self):
-		self.story=[ \
-			[150, enemy.Fan1Group, 8, 10, 6],		\
-			[270, enemy.Fan1Group, 170, 10, 6],		\
-			[360, enemy.Fan1Group, 8, 10, 6],		\
-			[450, enemy.Fan1Group, 170, 10, 6],		\
-			[500, enemy.MissileShip, 40, 160],		\
-			[530, enemy.MissileShip, 120, 200],		\
-			[630, enemy.RollingFighter1Group, 42, 15, 4],		\
-			[700, enemy.Battery1, 2+5, 28, 1],		\
-			[700, enemy.Battery1, 2+5, 42, 0],		\
-			[720, enemy.RollingFighter1Group, 100, 15, 4],		\
-			[730, enemy.Battery1, 8+6, 41, 0],		\
-			[730, enemy.Battery1, 8+6, 29, 1],		\
-			[800, enemy.RollingFighter1Group, 42, 15, 4],		\
-			[900, enemy.RollingFighter1Group, 100, 15, 4],		\
-			[1100, enemy.Jumper1, 256, 70, 0.1],		\
-			[1160, enemy.Jumper1, 256, 100, -0.1],		\
-			[1200, enemy.MissileShip, 50, 200],		\
-			[1230, enemy.MissileShip, 120, 160],		\
-			[1300, enemy.Battery1, 41, 27, 1],		\
-			[1360, enemy.Battery1, 45, 23, 1],		\
+		self.story=[
+			[150, enemy.Fan1Group, 8, 10, 6],	
+			[270, enemy.Fan1Group, 170, 10, 6],	
+			#[360, enemy.Fan1Group, 8, 10, 6],	
+			[360, enemy.Fan1aGroup, 12],
+			#[450, enemy.Fan1Group, 170, 10, 6],
+			[450, enemy.Fan1aGroup, 12],
+			[500, enemy.MissileShip, 40, 160],
+			[530, enemy.MissileShip, 120, 200],
+			[630, enemy.RollingFighter1Group, 42, 15, 4],
+			[700, enemy.Battery1, 2+5, 28, 1],
+			[700, enemy.Battery1, 2+5, 42, 0],
+			[720, enemy.RollingFighter1Group, 100, 15, 4],
+			[730, enemy.Battery1, 8+6, 41, 0],
+			[730, enemy.Battery1, 8+6, 29, 1],
+			[800, enemy.RollingFighter1Group, 42, 15, 4],
+			[900, enemy.RollingFighter1Group, 100, 15, 4],
+			[1100, enemy.Jumper1, 256, 70, 0.1],
+			[1160, enemy.Jumper1, 256, 100, -0.1],
+			[1200, enemy.MissileShip, 50, 200],
+			[1230, enemy.MissileShip, 120, 160],
+			[1300, enemy.Battery1, 41, 27, 1],
+			[1360, enemy.Battery1, 45, 23, 1],
 			[1460, enemy.Battery1, 49, 19, 1],		\
 			[1500, enemy.Battery1, 51, 37, 0],		\
 			[1500, enemy.Battery1, 53, 15, 1],		\
@@ -1945,9 +1971,9 @@ class MainGame:
 	def initStoryLast(self):
 		baseOffset = 1200
 		self.story=[ \
-			[150, enemy.Fan1Group, 8, 10, 6],		\
+			[150, enemy.Fan1Group, 8, 10, 6, True],		\
 			#[200, enemy.EnemyGroup, enemy.Fan1, [0, None, 256, 100], 10, 5],	\
-			[270, enemy.Fan1Group, 170, 10, 6],		\
+			[270, enemy.Fan1Group, 170, 10, 6, True],		\
 			[330, enemy.Fan1Group, 8, 10, 6],		\
 			[370, enemy.Fighter2, 256, 120, 230, -1],	\
 			[400, enemy.Fighter2, 256, 30, 190, 1],	\
@@ -2075,10 +2101,14 @@ def parseCommandLine():
 	idx = 0
 	while(idx < len(sys.argv)):
 		arg = sys.argv[idx]
-		if arg == "-timer":
+		if arg.upper() == "-TIMER":
 			if idx+1<len(sys.argv):
 				gcommon.START_GAME_TIMER = int(sys.argv[idx+1])
 				print("set START_GAME_TIMER = " + str(gcommon.START_GAME_TIMER))
+		elif arg.upper() == "-DEBUG":
+			gcommon.DebugMode = True
+		elif arg.upper() == "-SHOWCOLLISION":
+			gcommon.ShowCollision = True
 		idx+=1
 
 def loadMapData(tm, fileName):
@@ -2176,6 +2206,7 @@ class App:
 		self.scene.update()
 
 	def draw(self):
+
 		self.scene.draw()
 
 
