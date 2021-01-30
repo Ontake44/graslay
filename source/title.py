@@ -11,6 +11,7 @@ class TitleScene:
 	colorTable1 = (3, 4, 8, 9, 10, 11, 13, 14, 15)
 	colorTable2 = (2, 1, 5, 6, 7, 12)
 	colorTable1a = (1, 5, 5, 12, 12, 6, 6, 7, 7)
+	# 文字内側が光る
 	colorTable3 = (
 		((2,1),(1,5),(5,12),(12,6),(6,7)),
 		((2,5),(1,12),(5,6),(12,7),(6,7)),
@@ -27,7 +28,7 @@ class TitleScene:
 		self.timer = 0
 		# 0 - タイトルデモ
 		# 100 メニュー選択
-		# 101 ゲーム開始
+		# 200 ゲーム開始
 		self.state = 0
 		self.star_pos = 0
 		self.subState = 0
@@ -102,17 +103,15 @@ class TitleScene:
 		if gcommon.checkShotKeyP():
 			self.state = 100
 			self.cnt = 0
-			self.update100()
 	
 	# メニュー処理があるupdate
 	def update100(self):
-		if self.state == 100:
-			# タイトル表示されていきなりゲーム開始したらダメなので30待つ
-			if gcommon.checkShotKey() and self.cnt > 30:
+		if self.state >= 100 and self.state < 200:
+			if gcommon.checkShotKeyP():		# and self.cnt > 30:
 				if self.menuPos == 0:
 					gcommon.sound(gcommon.SOUND_GAMESTART)
 					# ここですぐにはゲームスタートしない
-					self.state = 101
+					self.state = 200
 					self.cnt = 0
 				elif self.menuPos == 1:
 					gcommon.app.startCustomStartMenu()
@@ -124,22 +123,47 @@ class TitleScene:
 			
 			if self.menuPos == 0:
 				if gcommon.checkLeftP():
+					gcommon.sound(gcommon.SOUND_MENUMOVE)
 					self.difficulty = gcommon.DIFFICULTY_EASY
 				elif gcommon.checkRightP():
+					gcommon.sound(gcommon.SOUND_MENUMOVE)
 					self.difficulty = gcommon.DIFFICULTY_NORMAL
 			if gcommon.checkUpP():
+				gcommon.sound(gcommon.SOUND_MENUMOVE)
 				self.menuPos = (self.menuPos -1) % 4
 			elif gcommon.checkDownP():
+				gcommon.sound(gcommon.SOUND_MENUMOVE)
 				self.menuPos = (self.menuPos +1) % 4
-		elif self.state == 101:
+		if self.state == 102:
+			# 明るくなる
+			if self.subCnt > 3:
+				self.subState += 1
+				self.subCnt = 0
+				if self.subState == len(TitleScene.colorTable3):
+					self.subState = len(TitleScene.colorTable3)-1
+					self.state = 103
+			self.subCnt += 1
+		elif self.state == 103:
+			# 戻る
+			if self.subCnt > 3:
+				self.subState -= 1
+				self.subCnt = 0
+				if self.subState == 0:
+					self.state = 100
+					self.cnt = 0
+			self.subCnt += 1
+		elif self.state == 200:
 			# GAME START
 			if self.cnt > 40:
 				gcommon.app.startGame(self.difficulty, gcommon.Defaults.INIT_START_STAGE, gcommon.Defaults.INIT_PLAYER_STOCK)
 			
-		
 		self.cnt += 1
-		if self.cnt >= 6*60:
+		if self.cnt >= 10*60:
 			self.cnt = 0
+			if self.state == 100:
+				self.state = 102
+				self.subState = 0
+				self.subCnt = 0
 
 	def draw(self):
 		pyxel.cls(0)
@@ -204,8 +228,17 @@ class TitleScene:
 		for i in range(0,96):
 			pyxel.pset(((int)(gcommon.star_ary[i][0]+self.star_pos))&255, i*2, gcommon.star_ary[i][1])
 		
-		self.drawTitleNormal()
-		# pyxel.pal()
+		if self.state in (100,200):
+			self.drawTitleNormal()
+		elif self.state == 102 or self.state == 103:
+			pyxel.pal()
+			# 文字枠
+			for c in TitleScene.colorTable1:
+				pyxel.pal(c, 7)
+			table = TitleScene.colorTable3[self.subState]
+			for t in table:
+				pyxel.pal(t[0], t[1])
+			pyxel.blt(0, 24, 1, 0, 40, 256, 80, 0)		# pyxel.pal()
 		# y = 120
 		# if self.state == 100:
 		# 	gcommon.setMenuColor(0, self.menuPos)
@@ -228,7 +261,7 @@ class TitleScene:
 		# y += 15
 		# gcommon.setMenuColor(3, self.menuPos)
 		# gcommon.showText(90, y, "EXIT")
-		self.drawMenu(self.state == 101 and self.cnt & 2 == 0, 1.0)
+		self.drawMenu(self.state == 200 and self.cnt & 2 == 0, 1.0)
 
 
 		pyxel.pal()

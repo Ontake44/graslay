@@ -14,15 +14,18 @@ class OptionMenuScene:
 
 	def update(self):
 		if gcommon.checkUpP():
+			gcommon.sound(gcommon.SOUND_MENUMOVE)
 			self.menuPos -= 1
 			if self.menuPos < 0:
 				self.menuPos = 2
 		if gcommon.checkDownP():
+			gcommon.sound(gcommon.SOUND_MENUMOVE)
 			self.menuPos += 1
 			if self.menuPos > 2:
 				self.menuPos = 0
 		
 		if gcommon.checkRightP():
+			gcommon.sound(gcommon.SOUND_MENUMOVE)
 			if self.menuPos == OPTIONMENU_BGM_VOL:
 				gcommon.Settings.bgmVolume += 1
 				if gcommon.Settings.bgmVolume > 10:
@@ -30,6 +33,7 @@ class OptionMenuScene:
 			elif self.menuPos == OPTIONMENU_SOUND_VOL:
 				gcommon.Settings.soundVolume = 10
 		elif gcommon.checkLeftP():
+			gcommon.sound(gcommon.SOUND_MENUMOVE)
 			if self.menuPos == OPTIONMENU_BGM_VOL:
 				gcommon.Settings.bgmVolume -= 1
 				if gcommon.Settings.bgmVolume < 0:

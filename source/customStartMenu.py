@@ -22,15 +22,18 @@ class CustomStartMenuScene:
 			self.cnt = 0
 		if self.state == 0:
 			if gcommon.checkUpP():
+				gcommon.sound(gcommon.SOUND_MENUMOVE)
 				self.menuPos -= 1
 				if self.menuPos < 0:
 					self.menuPos = 4
 			if gcommon.checkDownP():
+				gcommon.sound(gcommon.SOUND_MENUMOVE)
 				self.menuPos += 1
 				if self.menuPos > 4:
 					self.menuPos = 0
 			
 			if gcommon.checkRightP():
+				gcommon.sound(gcommon.SOUND_MENUMOVE)
 				if self.menuPos == MENU_DIFFCULTY:
 					if gcommon.Settings.difficulty == gcommon.DIFFICULTY_EASY:
 						gcommon.Settings.difficulty = gcommon.DIFFICULTY_NORMAL
@@ -43,6 +46,7 @@ class CustomStartMenuScene:
 					if gcommon.Settings.startStage > 6:
 						gcommon.Settings.startStage = 6
 			elif gcommon.checkLeftP():
+				gcommon.sound(gcommon.SOUND_MENUMOVE)
 				if self.menuPos == MENU_DIFFCULTY:
 					if gcommon.Settings.difficulty == gcommon.DIFFICULTY_NORMAL:
 						gcommon.Settings.difficulty = gcommon.DIFFICULTY_EASY

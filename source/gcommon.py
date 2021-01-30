@@ -106,9 +106,10 @@ SOUND_FEELER_GROW = 14
 SOUND_BOSS3_ANCHOR = 15
 SOUND_AFTER_BURNER = 16
 SOUND_SHOT3 = 17
+SOUND_MENUMOVE=18
 
-#                 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17
-sound_priority = [0,2,1,4,5,3,6,0,8,1, 0, 6, 6, 1, 6, 6, 6, 1]
+#                 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
+sound_priority = [0,2,1,4,5,3,6,0,8,1, 0, 6, 6, 1, 6, 6, 6, 1, 0]
 
 KEY_HOLD = 20
 KEY_PERIOD = 5
