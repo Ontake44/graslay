@@ -15,8 +15,9 @@ import ending
 # 自機
 class MyShip:
 	missileCycles = (10, 10, 20)
-	def __init__(self):
+	def __init__(self, parent):
 		super().__init__()
+		self.parent = parent
 		self.sprite = 1
 		self.shotMax = 4
 		self.missleMax = 2
@@ -46,18 +47,19 @@ class MyShip:
 		elif self.sub_scene == 2:
 			# 爆発中
 			if self.cnt > 90:
+				# 爆発中を終了
 				if gcommon.GameSession.playerStock == 0:
-					gcommon.app.startGameOver()
-					#start_gameover()
-					#print("GAME OVER")
+					self.sub_scene = 10
+					self.cnt = 0
+					self.sprite = 1
+					self.x = -16
+					self.parent.OnPlayerStockOver()
 				else:
 					gcommon.GameSession.playerStock -= 1
 					#--restart_game()
 					self.sub_scene=3
 					self.cnt = 0
-					gcommon.power = gcommon.START_MY_POWER
 					self.sprite = 1
-					#self.setStartPosition()
 					self.x = -16
 		elif self.sub_scene == 3:
 			# 復活中
@@ -72,7 +74,7 @@ class MyShip:
 			if self.cnt == 120:
 				self.cnt = 0
 				self.sub_scene=1
-		else:	# scene == 5
+		elif self.sub_scene == 5:	# scene == 5
 			# クリア時
 			if self.cnt == 0:
 				gcommon.sound(gcommon.SOUND_AFTER_BURNER)
@@ -80,8 +82,9 @@ class MyShip:
 				if self.dx < 8:
 					self.dx += 0.25
 				self.x += self.dx
-
-
+		else:	# sub_scene = 10
+			# continue確認中
+			pass
 		self.cnt += 1
 
 	def setSubScene(self, sub_scene):
@@ -600,11 +603,16 @@ class GameOver:
 	def update(self):
 		self.cnt+=1
 		if self.cnt > 5*60:
+			if gcommon.GameSession.gameMode == gcommon.GAMEMODE_NORMAL:
+				# クレジットが増えるのは、クレジットを使い切ってゲームオーバーしたときだけ
+				if gcommon.GameSession.credits == 0 and gcommon.Settings.credits < 99:
+					gcommon.Settings.credits += 1
+					gcommon.saveSettings()
 			gcommon.app.startTitle()
 	
 	def draw(self):
 		pyxel.cls(0)
-		gcommon.TextHCenter(90, "GAME OVER", 8, -1)
+		gcommon.showTextHCenter(90, "GAME OVER")
 
 #
 #  ステージクリアー
@@ -1050,7 +1058,6 @@ class MapDrawFactory:
 				else:
 					pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 
-
 class MapDrawLast:
 	def __init__(self):
 		pass
@@ -1231,7 +1238,7 @@ class MainGame:
 	
 	def init(self):
 		gcommon.ObjMgr.init()
-		gcommon.ObjMgr.myShip = MyShip()
+		gcommon.ObjMgr.myShip = MyShip(self)
 		gcommon.cur_scroll_x = 0.5
 		gcommon.cur_scroll_y = 0.0
 		gcommon.cur_map_dx = 0.0
@@ -1248,11 +1255,10 @@ class MainGame:
 		gcommon.scroll_flag = True
 		self.initStory()
 		self.initEvent()
-		self.pause = False
+		self.pauseMode = 0		# 0:ゲーム中 1:ポーズ 2:CONTINUE確認
 		self.pauseMenuPos = 0
-		
-		#self.skipGameTimer()
-		
+		gcommon.GameSession.playerStock -= 1
+
 		if self.stage == 1:
 			#pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay1.png")
@@ -1351,7 +1357,7 @@ class MainGame:
 	
 	def doPause(self):
 		if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.GAMEPAD_1_START):
-			self.pause = False
+			self.pauseMode = gcommon.PAUSE_NONE
 			pygame.mixer.music.unpause()
 		elif gcommon.checkUpP():
 			self.pauseMenuPos = (self.pauseMenuPos - 1) % 3
@@ -1362,7 +1368,7 @@ class MainGame:
 		elif gcommon.checkShotKey():
 			if self.pauseMenuPos == 0:
 				# CONTINUE
-				self.pause = False
+				self.pauseMode = gcommon.PAUSE_NONE
 				pygame.mixer.music.unpause()
 			elif self.pauseMenuPos == 1:
 				# TITLE
@@ -1370,14 +1376,48 @@ class MainGame:
 			else:
 				# EXIT
 				pyxel.quit()
-			
+
+	# 自機ストックが無くなったとき
+	def OnPlayerStockOver(self):
+		if gcommon.GameSession.gameMode == gcommon.GAMEMODE_NORMAL:
+			if gcommon.GameSession.credits == 0:
+				gcommon.app.startGameOver()
+			else:
+				# CONTINUE確認
+				self.pauseMode = gcommon.PAUSE_CONTINUE
+		else:
+			# カスタムモード時はゲームオーバー
+			gcommon.app.startGameOver()
+
+	def doConfirmContinue(self):
+		if gcommon.checkUpP():
+			self.pauseMenuPos = (self.pauseMenuPos - 1) % 2
+			return
+		elif gcommon.checkDownP():
+			self.pauseMenuPos = (self.pauseMenuPos + 1) % 2
+			return
+		elif gcommon.checkShotKey():
+			if self.pauseMenuPos == 0:
+				# YES
+				self.pauseMode = gcommon.PAUSE_NONE
+				gcommon.GameSession.credits -= 1
+				pygame.mixer.music.unpause()
+				gcommon.GameSession.playerStock = gcommon.Defaults.INIT_PLAYER_STOCK -1
+				gcommon.ObjMgr.myShip.sub_scene = 3
+			else:		#if self.pauseMenuPos == 1:
+				# NO
+				gcommon.app.startGameOver()
+
 	def update(self):
-		if self.pause:
+		if self.pauseMode == gcommon.PAUSE_PAUSE:
 			self.doPause()
+			return
+		elif self.pauseMode == gcommon.PAUSE_CONTINUE:
+			self.doConfirmContinue()
 			return
 		else:
 			if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.GAMEPAD_1_START):
-				self.pause = True
+				self.pauseMode = gcommon.PAUSE_PAUSE
 				pygame.mixer.music.pause()
 				return
 
@@ -1545,8 +1585,10 @@ class MainGame:
 		# マップ位置表示
 		#pyxel.text(200, 184, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
 
-		if self.pause:
+		if self.pauseMode == gcommon.PAUSE_PAUSE:
 			self.drawPauseMenu()
+		elif self.pauseMode == gcommon.PAUSE_CONTINUE:
+			self.drawContinueMenu()
 
 	def drawObjRect(self, obj):
 		if obj.collisionRects != None:
@@ -1566,6 +1608,19 @@ class MainGame:
 		pyxel.text(127-32 +10, 192/2 -32 +16, "CONTINUE", 7)
 		pyxel.text(127-32 +10, 192/2 -32 +26, "TITLE", 7)
 		pyxel.text(127-32 +10, 192/2 -32 +36, "EXIT", 7)
+
+	def drawContinueMenu(self):
+		pyxel.rect(127 -40, 192/2 -32, 80, 48, 0)
+		pyxel.rectb(127 -39, 192/2 -31, 78, 46, 7)
+		pyxel.rect(127 -37, 192/2 -29, 74, 8, 1)
+		gcommon.showTextHCentor2(192/2 -32 +4, "CONTINUE ?", 7)
+
+		pyxel.rect(127 -40+4, 192/2 -32 +15 + self.pauseMenuPos * 10, 80-8, 8, 2)
+
+		pyxel.text(127-32 +10, 192/2 -32 +16, "YES", 7)
+		pyxel.text(127-32 +10, 192/2 -32 +26, "NO", 7)
+
+		pyxel.text(127-32 +10, 192/2 -32 +38, "CREDITS " + str(gcommon.GameSession.credits), 7)
 
 	def ExecuteStory(self):
 		while True:
@@ -1657,17 +1712,10 @@ class MainGame:
 				#		self.catch_item(obj)
 				#		obj.removeFlag = True
 
-
-	def catch_item(self, obj):
-		if obj.itype == gcommon.C_ITEM_PWUP:
-			gcommon.sound(gcommon.SOUND_PWUP)
-			if gcommon.power < 3:
-				gcommon.power += 1
-
 	def my_broken(self):
 		gcommon.ObjMgr.myShip.sub_scene = 2
 		gcommon.ObjMgr.myShip.cnt = 0
-		gcommon.power = gcommon.START_MY_POWER
+		#gcommon.power = gcommon.START_MY_POWER
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 
 	def initEvent(self):
@@ -1985,29 +2033,29 @@ class MainGame:
 				[90, 0, -1.0, 0.0],[330, 0, -1.0, 0.25],[600, 0, -1.0,0.0]
 				], 0, -1],		\
 			[1000, enemy.EnemyGroup, enemy.Fighter3, 
-			[
-				0, None, 256, 20,
 				[
-					[40, 0, -3.0, 0.0],[30, 0, -3.0, 0.5],[600, 0, -3.0,0.0]
-				], 30
-			], 15, 5],	\
+					0, None, 256, 20,
+					[
+						[40, 0, -3.0, 0.0],[30, 0, -3.0, 0.5],[600, 0, -3.0,0.0]
+					], 30
+				], 15, 5],	\
 			[1300, enemy.EnemyGroup, enemy.Fighter3, 
-			[
-				0, None, 256, 90,
 				[
-					[40, 0, -3.0, 0.0],[30, 0, -3.0, -0.5],[600, 0, -3.0,0.0]
-				], 30
-			], 15, 5],	\
+					0, None, 256, 90,
+					[
+						[40, 0, -3.0, 0.0],[30, 0, -3.0, -0.5],[600, 0, -3.0,0.0]
+					], 30
+				], 15, 5],	\
 			[1300, enemy.BattleShip1, 256+32, 0, False, [
 				[150, 0, -1.0, 0.0],[210, 0, -1.0, -0.25],[180, 0, -1.0,0.0],[180, 0, -1.0,0.25],[600, 0, 0-1.0,0.0]
 				], 0, 330],		\
 			[1500, enemy.EnemyGroup, enemy.Fighter3, 
-			[
-				0, None, 256, 90,
 				[
-					[40, 0, -3.0, 0.0],[30, 0, -3.0, -0.5],[600, 0, -3.0,0.0]
-				], 30
-			], 15, 5],	\
+					0, None, 256, 90,
+					[
+						[40, 0, -3.0, 0.0],[30, 0, -3.0, -0.5],[600, 0, -3.0,0.0]
+					], 30
+				], 15, 5],	\
 			[1650, enemy.EnemyGroup, enemy.Fighter3, 
 			[
 				0, None, 256, 130,
@@ -2147,20 +2195,35 @@ class App:
 		pyxel.run(self.update, self.draw)
 
 	def startTitle(self):
+		# クレジット補充
+		gcommon.GameSession.credits = gcommon.Settings.credits
 		self.setScene(TitleScene())
 
 	def setScene(self, nextScene):
 		self.nextScene = nextScene
 
-	def startGame(self, difficulty, stage, playerStock):
-		# エンディングテスト用
-		#self.setScene(ending.EndingScene())
-		#return
-		self.stage = stage
-		print("Difficulty : " + str(difficulty))
+	def startNormalGame(self, difficulty):
+		self.stage = 1
+		#print("Difficulty : " + str(difficulty))
 		gcommon.Settings.difficulty = difficulty
 		gcommon.saveSettings()
-		gcommon.GameSession.init(difficulty, playerStock -1)
+		gcommon.GameSession.init(difficulty, gcommon.Defaults.INIT_PLAYER_STOCK, gcommon.GAMEMODE_NORMAL, gcommon.Settings.credits)
+		if gcommon.GameSession.difficulty == gcommon.DIFFICULTY_EASY:
+			gcommon.powerRate = 1.5
+			gcommon.enemy_shot_rate = 0.75
+		else:
+			# Normal
+			gcommon.powerRate = 1.0
+			gcommon.enemy_shot_rate = 1.0
+		gcommon.GameSession.credits -= 1
+		self.setScene(MainGame(self.stage))
+
+	def startCustomGame(self, difficulty, stage, playerStock):
+		self.stage = stage
+		#print("Difficulty : " + str(difficulty))
+		gcommon.Settings.difficulty = difficulty
+		gcommon.saveSettings()
+		gcommon.GameSession.init(difficulty, playerStock, gcommon.GAMEMODE_CUSTOM, 1)
 		if gcommon.GameSession.difficulty == gcommon.DIFFICULTY_EASY:
 			gcommon.powerRate = 1.5
 			gcommon.enemy_shot_rate = 0.75

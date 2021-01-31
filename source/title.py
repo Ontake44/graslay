@@ -39,6 +39,7 @@ class TitleScene:
 		self.cntLimit = 70
 		self.objs = []
 		self.difficulty = gcommon.Settings.difficulty
+		self.credits = gcommon.Settings.credits
 
 	def init(self):
 		pass
@@ -155,7 +156,7 @@ class TitleScene:
 		elif self.state == 200:
 			# GAME START
 			if self.cnt > 40:
-				gcommon.app.startGame(self.difficulty, gcommon.Defaults.INIT_START_STAGE, gcommon.Defaults.INIT_PLAYER_STOCK)
+				gcommon.app.startNormalGame(self.difficulty)
 			
 		self.cnt += 1
 		if self.cnt >= 10*60:
@@ -263,6 +264,7 @@ class TitleScene:
 		# gcommon.showText(90, y, "EXIT")
 		self.drawMenu(self.state == 200 and self.cnt & 2 == 0, 1.0)
 
+		pyxel.text(200, 188, "CREDIT(S) "  +str(self.credits), 7)
 
 		pyxel.pal()
 		#pyxel.blt(78, 120 + self.menuPos * 15, 0, 8, 32, 8, 8, gcommon.TP_COLOR)

@@ -22,13 +22,18 @@ class Defaults:
 	INIT_BGM_VOL = 10
 	INIT_SOUND_VOL = 10
 	INIT_DIFFICULTY = DIFFICULTY_NORMAL
+	INIT_CREDITS = 3
 
 WEAPON_STRAIGHT = 0
 WEAPON_ROUND = 1
 WEAPON_WIDE = 2
 
+PAUSE_NONE = 0		# ゲーム中
+PAUSE_PAUSE = 1		# PAUSE
+PAUSE_CONTINUE = 2	# CONTINUE確認中
 
-
+GAMEMODE_NORMAL = 0
+GAMEMODE_CUSTOM = 1
 
 # defines
 T_COPTER1 = 1
@@ -192,7 +197,7 @@ eshot_sync_scroll = False
 long_map = False
 
 # 現在未使用（パワーアップ無いので）
-power = START_MY_POWER
+#power = START_MY_POWER
 
 powerRate = 1.0
 
@@ -212,13 +217,16 @@ class GameSession:
 	difficulty = DIFFICULTY_NORMAL
 	playerStock = 0
 	score = 0
-	power = START_MY_POWER
+	credits = 0
+	gameMode = GAMEMODE_NORMAL
 
 	@classmethod
-	def init(cls, difficulty, playerStock):
+	def init(cls, difficulty, playerStock, gameMode, credits):
 		GameSession.difficulty = difficulty
 		GameSession.playerStock = playerStock
 		GameSession.score = 0
+		GameSession.gameMode = gameMode
+		GameSession.credits = credits
 
 	@classmethod
 	def isEasy(cls):
@@ -242,7 +250,7 @@ class Settings:
 	bgmVolume = Defaults.INIT_BGM_VOL
 	soundVolume = Defaults.INIT_SOUND_VOL
 	difficulty = Defaults.INIT_DIFFICULTY
-
+	credits = Defaults.INIT_CREDITS
 
 class BGM:
 	#STAGE1 = "Run_the_Present.mp3"
@@ -362,6 +370,7 @@ def loadSettings():
 		bgmVol = 6
 		soundVol = 10
 		difficulty = Defaults.INIT_DIFFICULTY
+		credits = Defaults.INIT_CREDITS
 		json_file = open(settingsPath, "r")
 		json_data = json.load(json_file)
 		if "playerStock" in json_data:
@@ -374,6 +383,8 @@ def loadSettings():
 			soundVol = int(json_data["soundVol"])
 		if "difficulty" in json_data:
 			difficulty = int(json_data["difficulty"])
+		if "credits" in json_data:
+			credits = int(json_data["credits"])
 
 		if playerStock >= 1 and playerStock <= 99:
 			Settings.playerStock = playerStock
@@ -385,6 +396,8 @@ def loadSettings():
 			Settings.soundVolume = soundVol
 		if difficulty in (DIFFICULTY_EASY, DIFFICULTY_NORMAL):
 			Settings.difficulty = difficulty
+		if credits > 0 and credits < 100:
+			Settings.credits = credits
 	
 		json_file.close()
 
@@ -397,7 +410,8 @@ def saveSettings():
 		"startStage": Settings.startStage, \
 		"bgmVol": Settings.bgmVolume, \
 		"soundVol" : Settings.soundVolume, \
-		"difficulty" : 	Settings.difficulty	\
+		"difficulty" : 	Settings.difficulty,	\
+		"credits" : Settings.credits	\
 	}
 	try:
 		settingsPath = os.path.join(os.path.expanduser("~"), SETTINGS_FILE)
@@ -865,6 +879,9 @@ def showText2(x, y, s):
 		elif code >= 48 and code <= 57:
 			pyxel.blt(x, y, 0, (code-48)*8, 120, 6, 8, TP_COLOR)
 		x += 6
+
+def showTextHCentor2(y, s, clr):
+	pyxel.text(128 -len(s)*2, y, s, clr)
 
 # ただの４角形（長方形とは限らない）
 #  points = [[0,0],[1,0], [1,1],[0,1]]
