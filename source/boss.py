@@ -1715,23 +1715,25 @@ class BossFactory(enemy.EnemyBase):
 					if self.subCnt == 30:
 						self.setSubState(3)
 				else:
-					if self.subCnt & 3 == 0:
-						if self.subCnt & 4 == 0:
-							n = self.subCnt & 7
-							enemy.enemy_shot_offset(
-								self.x +39.5 +math.cos(self.rad - math.pi/4 * n) * 32,
-								self.y +39.5 +math.sin(self.rad - math.pi/4 * n) * 32,
-								4, 0, -2)
-							enemy.enemy_shot_offset(
-								self.x +39.5 +math.cos(self.rad - math.pi/4 * n) * 32,
-								self.y +39.5 +math.sin(self.rad - math.pi/4 * n) * 32,
-								4, 0, 2)
-						elif gcommon.GameSession.isNormalOrMore():
-							n = self.subCnt & 7
-							enemy.enemy_shot(
-								self.x +39.5 +math.cos(self.rad - math.pi/4 * n) * 32,
-								self.y +39.5 +math.sin(self.rad - math.pi/4 * n) * 32,
-								4, 0)
+					rr = 0 if self.finMode == 0 else math.pi/4
+					if self.subCnt % 20 == 0:
+						dr64 = gcommon.get_atan_no_to_ship(self.x +39.5, self.y +39.5)
+						if self.subCnt % 40 == 0:
+							for i in range(4):
+								enemy.enemy_shot_dr(
+									self.x +39.5 +math.cos(self.rad + rr + math.pi/2 * i) * 32,
+									self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
+									2.5, 0, dr64 -4)
+								enemy.enemy_shot_dr(
+									self.x +39.5 +math.cos(self.rad + rr + math.pi/2 * i) * 32,
+									self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
+									2.5, 0, dr64 +4)
+						else:
+							for i in range(4):
+								enemy.enemy_shot_dr(
+									self.x +39.5 +math.cos(self.rad + rr + math.pi/2 * i) * 32,
+									self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
+									3, 0, dr64)
 					if self.subCnt == 64:
 						self.setSubState(3)
 			elif self.subState == 3:
