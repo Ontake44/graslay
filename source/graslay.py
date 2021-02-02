@@ -2251,7 +2251,7 @@ class App:
 		self.setScene(StageClear(stage))
 
 	def startGameClear(self):
-		self.setScene(GameClear())
+		self.setScene(ending.EndingScene())
 
 	def startOption(self):
 		self.setScene(OptionMenuScene())
