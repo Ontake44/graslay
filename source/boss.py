@@ -416,11 +416,15 @@ class Feeler(enemy.EnemyBase):
 		self.dr = dr
 		self.right = 13
 		self.bottom = 13
-		self.hp = 32000
+		self.hp = gcommon.HP_UNBREAKABLE
 		self.cells = []		# 相対座標
 		self.mode = 0
 		self.subDr = 0
 		self.state = 0		# 0:縮小状態 1,2:モードで動作中
+		if gcommon.GameSession.isEasy():
+			self.shotCycle = 50
+		else:
+			self.shotCycle = 30
 		for i in range(0, count):
 			self.cells.append([0, 0])
 		# 触手セルの当たり判定範囲
@@ -480,7 +484,7 @@ class Feeler(enemy.EnemyBase):
 				self.subDr -= 0.05
 				if self.subDr <= -3.0:
 					self.state = 2
-			if self.cnt % 30 == 0:
+			if self.cnt % self.shotCycle == 0:
 				if len(self.cells) > 0:
 					pos = self.cells[len(self.cells)-1]
 					enemy.enemy_shot(self.x +pos[0] +8, self.y +pos[1] +8, 2, 0)
@@ -947,7 +951,7 @@ class Boss3(enemy.EnemyBase):
 		self.top = 9
 		self.right = 63
 		self.bottom = 38
-		self.hp = 1000
+		self.hp = 2000
 		self.layer = gcommon.C_LAYER_SKY
 		self.score = 5000
 		self.subcnt = 0
@@ -965,6 +969,11 @@ class Boss3(enemy.EnemyBase):
 		self.modeCnt = 0
 		self.body_min_y = 16
 		self.body_max_y = 128
+		self.cycleCount = 0
+		if gcommon.GameSession.isEasy():
+			self.shotCycle = 24
+		else:
+			self.shotCycle = 15
 
 	def nextState(self):
 		self.state += 1
@@ -1022,10 +1031,13 @@ class Boss3(enemy.EnemyBase):
 			if self.body.y < self.body_min_y:
 				self.body.y = self.body_min_y
 				self.nextState()
-			elif self.cnt % 15 == 0:
+			elif self.cnt % self.shotCycle == 0:
 				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
 				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
 				gcommon.sound(gcommon.SOUND_SHOT3)
+				if self.cnt % (self.shotCycle*2) == 0 and self.cycleCount & 1 == 1:
+					enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, -4)
+					enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, 4)
 			self.setBodyAnchorPos()
 		elif self.state == 4:
 			cy = gcommon.getCenterY(gcommon.ObjMgr.myShip)
@@ -1084,9 +1096,13 @@ class Boss3(enemy.EnemyBase):
 			if self.body.y > self.body_max_y:
 				self.body.y = self.body_max_y
 				self.nextState()
-			elif self.cnt % 15 == 0:
+			elif self.cnt % self.shotCycle == 0:
 				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
 				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
+				gcommon.sound(gcommon.SOUND_SHOT2)
+				if self.cnt % (self.shotCycle*2) == 0 and self.cycleCount & 1 == 1:
+					enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, -4)
+					enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, 4)
 			self.setBodyAnchorPos()
 		elif self.state == 8:
 			# 中心に移動
@@ -1115,7 +1131,7 @@ class Boss3(enemy.EnemyBase):
 				if self.x >= 256 -88:
 					self.x = 256 -88
 					self.setState(2)
-
+					self.cycleCount += 1
 			self.setBodyAnchorPos()
 
 		# マップループ
@@ -1235,7 +1251,7 @@ class Boss4(enemy.EnemyBase):
 		self.top = 8
 		self.right = 87
 		self.bottom = 45
-		self.hp = 2000
+		self.hp = 2500
 		self.subState = 0
 		self.subCnt = 0
 		self.hitcolor1 = 9
@@ -1353,23 +1369,22 @@ class Boss4(enemy.EnemyBase):
 
 	def shotDanmaku(self):
 		if self.cnt & 31 == 31:
-			enemy.enemy_shot_dr(self.x +52, self.y +16, 2, 0, 35)
-			enemy.enemy_shot_dr(self.x +52, self.y +16, 2, 0, 37)
-
-			enemy.enemy_shot_dr(self.x +48, self.y +22, 2, 0, 31)
-			#enemy.enemy_shot_dr(self.x +48, self.y +22, 2, 0, 33)
+			speed = 3
+			enemy.enemy_shot_dr(self.x +52, self.y +16, speed, 0, 35)
+			enemy.enemy_shot_dr(self.x +48, self.y +22, speed, 0, 31)
+			enemy.enemy_shot_dr(self.x +48, self.y +42, speed, 0, 33)
+			enemy.enemy_shot_dr(self.x +52, self.y +48, speed, 0, 27)
 			
-			#enemy.enemy_shot_dr(self.x +48, self.y +42, 2, 0, 31)
-			enemy.enemy_shot_dr(self.x +48, self.y +42, 2, 0, 33)
-			
-			enemy.enemy_shot_dr(self.x +52, self.y +48, 2, 0, 27)
-			enemy.enemy_shot_dr(self.x +52, self.y +48, 2, 0, 29)
+			if gcommon.GameSession.isNormalOrMore():
+				enemy.enemy_shot_dr(self.x +52, self.y +16, speed, 0, 37)
+				enemy.enemy_shot_dr(self.x +52, self.y +48, speed, 0, 29)
 		else:
-			enemy.enemy_shot_dr(self.x +52, self.y +16, 2, 1, 36)
-			enemy.enemy_shot_dr(self.x +48, self.y +22, 2, 1, 34)
-						
-			enemy.enemy_shot_dr(self.x +48, self.y +42, 2, 1, 30)
-			enemy.enemy_shot_dr(self.x +52, self.y +48, 2, 1, 28)
+			speed = 1.5
+			enemy.enemy_shot_dr(self.x +52, self.y +16, speed, 1, 36)
+			enemy.enemy_shot_dr(self.x +52, self.y +48, speed, 1, 28)
+			if gcommon.GameSession.isNormalOrMore():
+				enemy.enemy_shot_dr(self.x +48, self.y +22, speed, 1, 34)
+				enemy.enemy_shot_dr(self.x +48, self.y +42, speed, 1, 30)
 		gcommon.sound(gcommon.SOUND_SHOT2)
 
 
@@ -1565,7 +1580,7 @@ class BossFactory(enemy.EnemyBase):
 		self.top = 8
 		self.right = 87
 		self.bottom = 45
-		self.hp = 2000
+		self.hp = 4500
 		self.score = 10000
 		self.subState = 0
 		self.subCnt = 0
@@ -1681,23 +1696,44 @@ class BossFactory(enemy.EnemyBase):
 					self.setSubState(2)
 			elif self.subState == 2:
 				# 開いている（攻撃）
-				if self.finMode == 0:
-					if self.subCnt & 7 == 0:
-						for i in range(4):
-							enemy.enemy_shot(
-								self.x +39.5 +math.cos(self.rad + math.pi/2 * i) * 32,
-								self.y +39.5 +math.sin(self.rad + math.pi/2 * i) * 32,
-								4, 0)
+				if self.stateCycle & 1 == 0:
+					if self.finMode == 0:
+						if self.subCnt & 7 == 0:
+							for i in range(4):
+								enemy.enemy_shot(
+									self.x +39.5 +math.cos(self.rad + math.pi/2 * i) * 32,
+									self.y +39.5 +math.sin(self.rad + math.pi/2 * i) * 32,
+									4, 0)
+					else:
+						if self.subCnt % 15 == 0:
+							for i in range(4):
+								# 自動追尾泡？ショット
+								gcommon.ObjMgr.objs.append(
+										BossFactoryShot1(
+											self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+											self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32))
+					if self.subCnt == 30:
+						self.setSubState(3)
 				else:
-					if self.subCnt % 15 == 0:
-						for i in range(4):
-							# 自動追尾泡？ショット
-							gcommon.ObjMgr.objs.append(
-									BossFactoryShot1(
-										self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
-										self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32))
-				if self.subCnt == 30:
-					self.setSubState(3)
+					if self.subCnt & 3 == 0:
+						if self.subCnt & 4 == 0:
+							n = self.subCnt & 7
+							enemy.enemy_shot_offset(
+								self.x +39.5 +math.cos(self.rad - math.pi/4 * n) * 32,
+								self.y +39.5 +math.sin(self.rad - math.pi/4 * n) * 32,
+								4, 0, -2)
+							enemy.enemy_shot_offset(
+								self.x +39.5 +math.cos(self.rad - math.pi/4 * n) * 32,
+								self.y +39.5 +math.sin(self.rad - math.pi/4 * n) * 32,
+								4, 0, 2)
+						elif gcommon.GameSession.isNormalOrMore():
+							n = self.subCnt & 7
+							enemy.enemy_shot(
+								self.x +39.5 +math.cos(self.rad - math.pi/4 * n) * 32,
+								self.y +39.5 +math.sin(self.rad - math.pi/4 * n) * 32,
+								4, 0)
+					if self.subCnt == 64:
+						self.setSubState(3)
 			elif self.subState == 3:
 				# 閉まる
 				self.distance -= 0.5

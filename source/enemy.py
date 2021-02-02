@@ -544,7 +544,7 @@ class Battery1(EnemyBase):
 		self.hitcolor1 = 8
 		self.hitcolor2 = 14
 		self.exptype = gcommon.C_EXPTYPE_GRD_S
-		self.interval = 120
+		self.interval = 120 / gcommon.enemy_shot_rate
 		self.first = 120
 		self.shot_speed = 2
 		self.remove_min_x = -16
@@ -971,7 +971,7 @@ class Missile2(EnemyBase):
 		self.top = 0
 		self.right = 31
 		self.bottom = 6
-		self.hp = 40
+		self.hp = 30
 		self.dx = dy
 		self.dy = 0
 		self.layer = gcommon.C_LAYER_SKY
@@ -988,6 +988,9 @@ class Missile2(EnemyBase):
 			self.dx -= 0.2
 			if self.dx > 3:
 				self.dx = 3
+		if self.x < 100:
+			enemy_shot_dr(self.x + 8, self.y + 3, 2, 0, 32)
+			self.remove()
 		
 	def drawMissile(self):
 		pyxel.blt(self.x, self.y, 1, 80, 64, 32, 7, gcommon.TP_COLOR)
@@ -1214,6 +1217,11 @@ class Worm1(EnemyBase):
 		self.dr = 48
 		self.offsetX = 4
 		self.offsetY = 0
+		if gcommon.GameSession.difficulty == gcommon.DIFFICULTY_EASY:
+			self.shotCycle  = 63
+		else:
+			self.shotCycle  = 31
+
 		if self.baseDr ==0:
 			self.dr = 0
 			self.offsetX = 0
@@ -1258,8 +1266,6 @@ class Worm1(EnemyBase):
 			return
 		if self.state == 0:
 			# 待機状態
-			#if gcommon.get_distance_my(self.x + 12, self.y) < 100:
-			#	print("get_distance")
 			if self.cnt > self.growCount:
 				self.nextState()
 		elif self.state == 1:
@@ -1274,7 +1280,7 @@ class Worm1(EnemyBase):
 			if self.cnt == 30:
 				self.nextState()
 		elif self.state == 2:
-			if self.cnt & 31 == 31:
+			if self.cnt & self.shotCycle == self.shotCycle:
 				self.shot()
 			i = 0
 			x = 0
@@ -1289,7 +1295,7 @@ class Worm1(EnemyBase):
 			if self.subDr >= 3.0:
 				self.state = 3
 		elif self.state == 3:
-			if self.cnt & 31 == 31:
+			if self.cnt & self.shotCycle == self.shotCycle:
 				self.shot()
 			i = 0
 			x = 0
