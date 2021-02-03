@@ -198,7 +198,8 @@ class TitleScene:
 				cc = self.rnd.rand() % len(TitleScene.colorTable1)
 				for i in range(self.subState+1):
 					pyxel.pal(TitleScene.colorTable1[(cc+i) % len(TitleScene.colorTable1)], color)
-			pyxel.blt(0, 24 +36 -self.py, 1, 0, 40, 256, 80, 0)
+			for i in range(80):
+				pyxel.blt(((self.rnd.rand() % (10 -self.subState)) -(10 -self.subState)/2) * 3, 24 +36 -self.py +i, 1, 0, 40 +i, 256, 1, 0)
 		elif self.state == 1:
 			self.drawTitleNormal()
 		elif self.state == 2 or self.state == 3:
