@@ -1258,7 +1258,6 @@ class MainGame:
 		self.initEvent()
 		self.pauseMode = 0		# 0:ゲーム中 1:ポーズ 2:CONTINUE確認
 		self.pauseMenuPos = 0
-		gcommon.GameSession.playerStock -= 1
 
 		if self.stage == 1:
 			#pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
@@ -2217,6 +2216,7 @@ class App:
 			gcommon.powerRate = 1.0
 			gcommon.enemy_shot_rate = 1.0
 		gcommon.GameSession.credits -= 1
+		gcommon.GameSession.playerStock -= 1
 		self.setScene(MainGame(self.stage))
 
 	def startCustomGame(self, difficulty, stage, playerStock):
@@ -2232,6 +2232,7 @@ class App:
 			# Normal
 			gcommon.powerRate = 1.0
 			gcommon.enemy_shot_rate = 1.0
+		gcommon.GameSession.playerStock -= 1
 		self.setScene(MainGame(stage))
 
 	def startStage(self, stage):

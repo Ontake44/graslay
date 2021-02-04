@@ -45,9 +45,9 @@ class TitleScene:
 		pass
 
 	def update(self):
-		self.star_pos -= 0.2
+		self.star_pos -= 0.25
 		if self.star_pos<0:
-			self.star_pos += 255
+			self.star_pos += 200
 
 		if self.state < 100:
 			self.updateDemo()	
@@ -63,9 +63,10 @@ class TitleScene:
 	def updateDemo(self):
 		if self.state == 0:
 			self.py += 0.125
+			#self.py += 0.5
 			if self.subCnt >= self.cntLimit:
 				self.subState += 1
-				self.cntLimit -= 10
+				self.cntLimit = int(self.cntLimit * 0.8)
 				self.subCnt = 0
 				if self.subState == 9:
 					self.state = 1
@@ -95,7 +96,7 @@ class TitleScene:
 					self.state = 4
 					self.cnt = 0
 		elif self.state == 4:
-			self.objs.append(enemy.Particle1(220 - self.cnt * 10, 64, 0, 8, 50))
+			self.objs.append(enemy.Particle1(220 - self.cnt * 10, 60, 0, 8, 50))
 			# 文字がせり出す
 			if self.cnt > 20:
 				self.state = 100
@@ -176,11 +177,14 @@ class TitleScene:
 			if obj.removeFlag == False:
 				obj.draw()
 
+	def drawStar(self):
+		for i in range(0,96):
+			pyxel.pset(gcommon.star_ary[i][0], int(i*2 +self.star_pos) % 200, gcommon.star_ary[i][1])
+
 	def drawDemo(self):
 		pyxel.cls(0)
 		pyxel.pal()
-		for i in range(0,96):
-			pyxel.pset(((int)(gcommon.star_ary[i][0]+self.star_pos))&255, i*2, gcommon.star_ary[i][1])
+		self.drawStar()
 		if self.state == 0:
 			color = TitleScene.colorTable1a[self.subState]
 			# 文字中
@@ -198,8 +202,9 @@ class TitleScene:
 				cc = self.rnd.rand() % len(TitleScene.colorTable1)
 				for i in range(self.subState+1):
 					pyxel.pal(TitleScene.colorTable1[(cc+i) % len(TitleScene.colorTable1)], color)
+			w = (10 -self.subState)
 			for i in range(80):
-				pyxel.blt(((self.rnd.rand() % (10 -self.subState)) -(10 -self.subState)/2) * 3, 24 +36 -self.py +i, 1, 0, 40 +i, 256, 1, 0)
+				pyxel.blt(((self.rnd.rand() % w) -w/2) * 3, 24 +36 -self.py +i, 1, 0, 40 +i, 256, 1, 0)
 		elif self.state == 1:
 			self.drawTitleNormal()
 		elif self.state == 2 or self.state == 3:
@@ -227,8 +232,7 @@ class TitleScene:
 		pyxel.blt(0, 24, 1, 0, 40, 256, 80, 0)
 
 	def draw100(self):
-		for i in range(0,96):
-			pyxel.pset(((int)(gcommon.star_ary[i][0]+self.star_pos))&255, i*2, gcommon.star_ary[i][1])
+		self.drawStar()
 		
 		if self.state in (100,200):
 			self.drawTitleNormal()
