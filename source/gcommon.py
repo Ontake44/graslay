@@ -201,7 +201,7 @@ long_map = False
 
 powerRate = 1.0
 
-enemy_shot_rate = 1
+enemy_shot_rate = 1		# EASY:0.75  NORMAL:1.0
 
 draw_star = False
 

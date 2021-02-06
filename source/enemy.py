@@ -1701,6 +1701,7 @@ class RuinPillar1(FallingObject):
 		super(RuinPillar1, self).__init__(mx, my, direction, 2, size, True)
 		self.size = size	# 高さ（8ドット単位） 2 - 6
 		self.hp = 30
+		self.score = 50
 		self.bx = (self.size -2) * 2
 		self.enemyShotCollision = True
 
@@ -1720,6 +1721,7 @@ class RuinFloor1(FallingObject):
 		self.bottom = self.mHeight * 8 -5
 		self.by = (self.size -2) * 2
 		self.enemyShotCollision = True
+		self.shotEffect = False
 
 	def update(self):
 		super(RuinFloor1, self).update()
@@ -1743,6 +1745,7 @@ class Battery2(FallingObject):
 		super(Battery2, self).__init__(mx, my, direction, 2, 2, False)
 		self.left = 2
 		self.right = 13
+		self.interval = 63 / gcommon.enemy_shot_rate
 		if self.direction == 1:
 			self.top = 5
 			self.bottom = 15
@@ -1750,10 +1753,11 @@ class Battery2(FallingObject):
 			self.top = 0
 			self.bottom = 10
 		self.hp = 10
+		self.score = 300
 
 	def update(self):
 		super(Battery2, self).update()
-		if self.cnt & 63 == 63:
+		if self.cnt % self.interval == self.interval -1:
 			enemy_shot(self.x+8,self.y+6, 2, 0)
 
 	def draw(self):

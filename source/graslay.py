@@ -1815,11 +1815,11 @@ class MainGame:
 	def initEvent4(self):
 		self.eventTable =[ \
 			[0, StartBGM, gcommon.BGM.STAGE4],
-			[100,StartMapDraw4],		\
-			[3900, StartBGM, gcommon.BGM.BOSS],
-			[4030, enemy.Stage4BossAppear1],	\
-			[4120, enemy.Stage4BossAppear2],	\
-			[5100,EndMapDraw],		\
+			[100+512,StartMapDraw4],		\
+			[3900+512, StartBGM, gcommon.BGM.BOSS],
+			[4030+512, enemy.Stage4BossAppear1],	\
+			[4120+512, enemy.Stage4BossAppear2],	\
+			[5100+512,EndMapDraw],		\
 		]
 
 	def initEventFactory(self):
@@ -2035,7 +2035,15 @@ class MainGame:
 
 	def initStory4(self):
 		self.story=[ \
-			[4230, boss.Boss4, 0, 0],		\
+			[200, enemy.Fan1aGroup, 12],
+			[240, enemy.RollingFighter1Group, 120, 15, 4],		\
+			[400, enemy.Fan1aGroup, 12],
+			[430, enemy.RollingFighter1Group, 30, 15, 4],		\
+			[500, enemy.RollingFighter1Group, 120, 15, 4],		\
+			[600, enemy.RollingFighter1Group, 30, 15, 4],		\
+			[2500, enemy.RollingFighter1Group, 120, 15, 4],		\
+			[3300, enemy.RollingFighter1Group, 30, 15, 4],		\
+			[4230 +512, boss.Boss4, 0, 0],		\
 		]
 
 	def initStoryFactory(self):
