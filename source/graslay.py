@@ -17,6 +17,8 @@ class MyShip:
 	missileCycles = (10, 10, 20)
 	def __init__(self, parent):
 		super().__init__()
+		self.x = 0
+		self.y = 0
 		self.parent = parent
 		self.sprite = 1
 		self.shotMax = 4
@@ -37,8 +39,10 @@ class MyShip:
 		self.prevFlag = False
 		self.dx = 0
 		self.setStartPosition()
+		self.mouseManager = gcommon.MouseManager()
 		
 	def update(self):
+		self.mouseManager.update()
 		if gcommon.sync_map_y != 0:
 			gcommon.cur_map_dy = 0
 		if self.sub_scene == 1:
@@ -92,41 +96,67 @@ class MyShip:
 		self.cnt = 0	
 	
 	def actionButtonInput(self):
+		cx = self.x + (self.right - self.left +1)/2+ 4
+		cy = self.y + (self.bottom - self.top +1)/2+ 6
+		mouseDx = 0
+		mouseDy = 0
 		self.sprite = 0
-		if pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.GAMEPAD_1_LEFT):
+		dy = 0
+		#if pyxel.btn(pyxel.MOUSE_LEFT_BUTTON):
+		if self.mouseManager.visible:
+			if cx < pyxel.mouse_x -4:
+				mouseDx = 1
+			elif cx > pyxel.mouse_x +4:
+				mouseDx = -1
+			if cy < pyxel.mouse_y -4:
+				mouseDy = 1
+			elif cy > pyxel.mouse_y +4:
+				mouseDy = -1
+		if pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.GAMEPAD_1_LEFT) or mouseDx == -1:
 			self.x = self.x -2
 			if self.x < 0:
 				self.x = 0
-		elif pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.GAMEPAD_1_RIGHT):
+		elif pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.GAMEPAD_1_RIGHT) or mouseDx == 1:
 			self.x = self.x +2
 			self.sprite = 0
 			if self.x > 240:
 				self.x = 240
-		if pyxel.btn(pyxel.KEY_UP) or pyxel.btn(pyxel.GAMEPAD_1_UP):
+		if pyxel.btn(pyxel.KEY_UP) or pyxel.btn(pyxel.GAMEPAD_1_UP) or mouseDy == -1:
 			self.sprite = 2
 			if gcommon.sync_map_y == 1:
-				gcommon.cur_map_dy = -2
-			elif gcommon.sync_map_y == 2:
-				if self.y > 2:
-					gcommon.cur_map_dy = -1
-					self.y = self.y -1
+				if self.y <= 56:
+					gcommon.cur_map_dy = -2
+					self.y = 56
+				elif self.y < 88:
+					gcommon.cur_map_dy = -2 * (88 - self.y)/(88-56)
+					self.y -= 2 * (self.y -56)/(88-56)
+				else:
+					self.y -= 2
 			else:
-				self.y = self.y -2
-				if self.y < 2:
-					self.y = 2
-		elif pyxel.btn(pyxel.KEY_DOWN) or pyxel.btn(pyxel.GAMEPAD_1_DOWN):
+				if self.y >= (2+2):
+					dy = -2
+				else:
+					dy = -(self.y -2)
+				self.y += dy
+		elif pyxel.btn(pyxel.KEY_DOWN) or pyxel.btn(pyxel.GAMEPAD_1_DOWN) or mouseDy == 1:
 			# 縦は192/8 = 24キャラ
 			self.sprite = 1
 			if gcommon.sync_map_y == 1:
-				gcommon.cur_map_dy = 2
-			elif gcommon.sync_map_y == 2:
-				if self.y < 176:
-					gcommon.cur_map_dy = 1
-					self.y = self.y +1
+				if self.y >= 136:
+					gcommon.cur_map_dy = 2
+					self.y = 136
+				elif self.y >= 104:
+					gcommon.cur_map_dy = 2 * (self.y - 104)/(136-104)
+					self.y += 2 * (136 -self.y)/(136-104)
+				else:
+					self.y += 2
 			else:
-				self.y = self.y +2
-				if self.y > 176:
-					self.y = 176
+				if self.y <= (176 -2):
+					dy = 2
+				else:
+					dy = (176 -self.y)
+				self.y += dy
+		
 		if gcommon.game_timer > 30:
 			self.executeShot()
 			if gcommon.checkOpionKey():
@@ -273,7 +303,14 @@ class MyShip:
 	
 	def setStartPosition(self):
 		self.x = 8
-		self.y = pyxel.height/2 -8
+		self.y = gcommon.MYSHIP_START_Y
+		self.yBuffer = [0] * 20
+		self.yBufferIndex = 0
+
+	def getLastYBuffer(self):
+		i = (self.yBufferIndex +1) % len(self.yBuffer)
+		return self.yBuffer[i]
+		
 
 # return True: 消えた False:消えてない
 def checkShotMapCollision(obj, px, py):
@@ -1258,6 +1295,7 @@ class MainGame:
 		self.initEvent()
 		self.pauseMode = 0		# 0:ゲーム中 1:ポーズ 2:CONTINUE確認
 		self.pauseMenuPos = 0
+		pyxel.mouse(False)
 
 		if self.stage == 1:
 			#pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
@@ -1590,6 +1628,9 @@ class MainGame:
 		elif self.pauseMode == gcommon.PAUSE_CONTINUE:
 			self.drawContinueMenu()
 
+		# マウスカーソル
+		pyxel.blt(pyxel.mouse_x -7, pyxel.mouse_y -7, 0, 24, 32, 16, 16, 2)
+		
 	def drawObjRect(self, obj):
 		if obj.collisionRects != None:
 			for rect in obj.collisionRects:
@@ -2263,6 +2304,7 @@ class App:
 	def update(self):
 		if pyxel.btnp(pyxel.KEY_Q):
 			pyxel.quit()
+
 
 		if self.nextScene != None:
 			self.nextScene.init()

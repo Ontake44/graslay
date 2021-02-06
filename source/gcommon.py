@@ -152,7 +152,7 @@ atan_table = []
 cos_table = []
 sin_table = []
 
-
+MYSHIP_START_Y = 200/2 -8
 
 # 座標系は下の上下逆になることに注意
 #       2
@@ -281,6 +281,31 @@ class BGM:
 		pygame.mixer.music.load(resource_path("assets/music/" + bgm))
 		pygame.mixer.music.set_volume(0.5 * Settings.bgmVolume/10.0)
 		pygame.mixer.music.play(1)
+
+class MouseManager:
+	def __init__(self):
+		self.prevMouseX = pyxel.mouse_x
+		self.prevMouseY = pyxel.mouse_y
+		self.mouseCounter = 0
+		self.visible = False
+
+	def isOutOfScreen(self):
+		return pyxel.mouse_x < 0 or pyxel.mouse_y < 0 or pyxel.mouse_x >= pyxel.width or pyxel.mouse_y >= pyxel.height
+
+	def update(self):
+
+		# 5秒マウス触らなかったらカーソル消える
+		if (self.prevMouseX != pyxel.mouse_x or self.prevMouseY != pyxel.mouse_y) and self.isOutOfScreen() == False:
+			self.mouseCounter = 0
+			self.visible = True
+			self.prevMouseX = pyxel.mouse_x
+			self.prevMouseY = pyxel.mouse_y
+		else:
+			self.prevMouseX = pyxel.mouse_x
+			self.prevMouseY = pyxel.mouse_y
+			self.mouseCounter += 1
+			if self.mouseCounter > 180:
+				self.visible = False
 
 class ClassicRand:
 	def __init__(self):
@@ -544,7 +569,7 @@ def is_outof_bound(obj):
 
 
 def checkShotKey():
-	if pyxel.btn(pyxel.KEY_Z) or pyxel.btn(pyxel.GAMEPAD_1_A) or pyxel.btn(pyxel.GAMEPAD_1_Y):
+	if pyxel.btn(pyxel.KEY_Z) or pyxel.btn(pyxel.GAMEPAD_1_A) or pyxel.btn(pyxel.GAMEPAD_1_Y) or pyxel.btn(pyxel.MOUSE_LEFT_BUTTON):
 		return True
 	else:
 		return False
@@ -556,7 +581,7 @@ def checkShotKeyP():
 		return False
 
 def checkOpionKey():
-	if pyxel.btnp(pyxel.KEY_X) or pyxel.btnp(pyxel.GAMEPAD_1_B) or pyxel.btnp(pyxel.GAMEPAD_1_X):
+	if pyxel.btnp(pyxel.KEY_X) or pyxel.btnp(pyxel.GAMEPAD_1_B) or pyxel.btnp(pyxel.GAMEPAD_1_X) or pyxel.btnp(pyxel.MOUSE_RIGHT_BUTTON):
 		return True
 	else:
 		return False
