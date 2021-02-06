@@ -39,7 +39,7 @@ class MyShip:
 		self.prevFlag = False
 		self.dx = 0
 		self.setStartPosition()
-		self.mouseManager = gcommon.MouseManager()
+		self.mouseManager = parent.mouseManager
 		
 	def update(self):
 		self.mouseManager.update()
@@ -1275,6 +1275,7 @@ class MainGame:
 		self.stage = stage
 	
 	def init(self):
+		self.mouseManager = gcommon.MouseManager()
 		gcommon.ObjMgr.init()
 		gcommon.ObjMgr.myShip = MyShip(self)
 		gcommon.cur_scroll_x = 0.5
@@ -1629,7 +1630,8 @@ class MainGame:
 			self.drawContinueMenu()
 
 		# マウスカーソル
-		pyxel.blt(pyxel.mouse_x -7, pyxel.mouse_y -7, 0, 24, 32, 16, 16, 2)
+		if self.mouseManager.visible:
+			pyxel.blt(pyxel.mouse_x -7, pyxel.mouse_y -7, 0, 24, 32, 16, 16, 2)
 		
 	def drawObjRect(self, obj):
 		if obj.collisionRects != None:
