@@ -30,7 +30,6 @@ class MyShip:
 		self.collisionRects = None		# List of Rect
 		self.cnt = 0
 		# 武器種類 0 - 2
-		self.weapon = 0
 		self.roundAngle = 0
 		# 1:ゲーム中 2:爆発中 3:復活中
 		self.sub_scene = 3
@@ -40,9 +39,9 @@ class MyShip:
 		self.dx = 0
 		self.setStartPosition()
 		self.mouseManager = parent.mouseManager
+		self.setWeapon(gcommon.GameSession.weaponSave)
 		
 	def update(self):
-		self.mouseManager.update()
 		if gcommon.sync_map_y != 0:
 			gcommon.cur_map_dy = 0
 		if self.sub_scene == 1:
@@ -160,8 +159,12 @@ class MyShip:
 		if gcommon.game_timer > 30:
 			self.executeShot()
 			if gcommon.checkOpionKey():
-				self.weapon = (self.weapon + 1) % 3
+				self.setWeapon((self.weapon + 1) % 3)
 	
+	def setWeapon(self, weapon):
+		self.weapon = weapon
+		gcommon.GameSession.weaponSave = weapon
+
 	# 自機ショット実行
 	def executeShot(self):
 		if self.weapon == gcommon.WEAPON_ROUND:
@@ -1296,6 +1299,12 @@ class MainGame:
 		self.initEvent()
 		self.pauseMode = 0		# 0:ゲーム中 1:ポーズ 2:CONTINUE確認
 		self.pauseMenuPos = 0
+		self.pauseMenuRects = [
+			gcommon.Rect.createWH(127-32 +10, 192/2 -32 +15,  80-8, 8),
+			gcommon.Rect.createWH(127-32 +10, 192/2 -32 +25,  80-8, 8),
+			gcommon.Rect.createWH(127-32 +10, 192/2 -32 +35,  80-8, 8)
+		]
+		self.pauseCnt = 0
 		pyxel.mouse(False)
 
 		if self.stage == 1:
@@ -1404,17 +1413,25 @@ class MainGame:
 		elif gcommon.checkDownP():
 			self.pauseMenuPos = (self.pauseMenuPos + 1) % 3
 			return
-		elif gcommon.checkShotKey():
+		if self.mouseManager.visible:
+			n = gcommon.checkMouseMenuPos(self.pauseMenuRects)
+			if n != -1:
+				self.pauseMenuPos = n
+		if self.pauseCnt > 30:
 			if self.pauseMenuPos == 0:
 				# CONTINUE
-				self.pauseMode = gcommon.PAUSE_NONE
-				pygame.mixer.music.unpause()
+				if gcommon.checkShotKeyRectP(self.pauseMenuRects[self.pauseMenuPos]):
+					self.pauseMode = gcommon.PAUSE_NONE
+					pygame.mixer.music.unpause()
 			elif self.pauseMenuPos == 1:
-				# TITLE
-				gcommon.app.startTitle()
-			else:
-				# EXIT
-				pyxel.quit()
+				if gcommon.checkShotKeyRectP(self.pauseMenuRects[self.pauseMenuPos]):
+					# TITLE
+					gcommon.app.startTitle()
+			elif self.pauseMenuPos == 2:
+				if gcommon.checkShotKeyRectP(self.pauseMenuRects[self.pauseMenuPos]):
+					# EXIT
+					pyxel.quit()
+		self.pauseCnt += 1
 
 	# 自機ストックが無くなったとき
 	def OnPlayerStockOver(self):
@@ -1424,6 +1441,7 @@ class MainGame:
 			else:
 				# CONTINUE確認
 				self.pauseMode = gcommon.PAUSE_CONTINUE
+				self.pauseCnt = 0
 		else:
 			# カスタムモード時はゲームオーバー
 			gcommon.app.startGameOver()
@@ -1435,19 +1453,30 @@ class MainGame:
 		elif gcommon.checkDownP():
 			self.pauseMenuPos = (self.pauseMenuPos + 1) % 2
 			return
-		elif gcommon.checkShotKey():
+
+		if self.mouseManager.visible:
+			n = gcommon.checkMouseMenuPos(self.pauseMenuRects)
+			if n in (0,1):
+				self.pauseMenuPos = n
+		if self.pauseCnt > 30:
 			if self.pauseMenuPos == 0:
-				# YES
-				self.pauseMode = gcommon.PAUSE_NONE
-				gcommon.GameSession.credits -= 1
-				pygame.mixer.music.unpause()
-				gcommon.GameSession.playerStock = gcommon.Defaults.INIT_PLAYER_STOCK -1
-				gcommon.ObjMgr.myShip.sub_scene = 3
-			else:		#if self.pauseMenuPos == 1:
-				# NO
-				gcommon.app.startGameOver()
+				if gcommon.checkShotKeyRectP(self.pauseMenuRects[self.pauseMenuPos]):
+					# YES
+					self.pauseMode = gcommon.PAUSE_NONE
+					gcommon.GameSession.credits -= 1
+					pygame.mixer.music.unpause()
+					gcommon.GameSession.playerStock = gcommon.Defaults.INIT_PLAYER_STOCK -1
+					gcommon.ObjMgr.myShip.sub_scene = 3
+
+			elif self.pauseMenuPos == 1:
+				if gcommon.checkShotKeyRectP(self.pauseMenuRects[self.pauseMenuPos]):
+					# NO
+					gcommon.app.startGameOver()
+
+		self.pauseCnt += 1
 
 	def update(self):
+		self.mouseManager.update()
 		if self.pauseMode == gcommon.PAUSE_PAUSE:
 			self.doPause()
 			return
@@ -1457,6 +1486,7 @@ class MainGame:
 		else:
 			if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.GAMEPAD_1_START):
 				self.pauseMode = gcommon.PAUSE_PAUSE
+				self.pauseCnt = 0
 				pygame.mixer.music.pause()
 				return
 

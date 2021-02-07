@@ -144,6 +144,7 @@ class TitleScene:
 				self.menuPos = (self.menuPos +1) % 4
 			
 			if self.menuPos == TITLEMENU_START:
+				n = -1
 				if self.mouseManager.visible:
 					n = gcommon.checkMouseMenuPos(self.difficultyRects)
 				if gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):

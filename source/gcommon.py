@@ -219,6 +219,7 @@ class GameSession:
 	score = 0
 	credits = 0
 	gameMode = GAMEMODE_NORMAL
+	weaponSave = WEAPON_STRAIGHT
 
 	@classmethod
 	def init(cls, difficulty, playerStock, gameMode, credits):
@@ -227,6 +228,7 @@ class GameSession:
 		GameSession.score = 0
 		GameSession.gameMode = gameMode
 		GameSession.credits = credits
+		GameSession.weaponSave = WEAPON_STRAIGHT
 
 	@classmethod
 	def isEasy(cls):
@@ -594,7 +596,7 @@ def checkShotKeyP():
 
 def checkShotKeyRectP(rect):
 	if pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD_1_A) or pyxel.btnp(pyxel.GAMEPAD_1_Y)  \
-	or (rect.contains(pyxel.mouse_x, pyxel.mouse_y) and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON, KEY_HOLD, KEY_PERIOD)):
+	or (rect.contains(pyxel.mouse_x, pyxel.mouse_y) and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON)):
 		return True
 	else:
 		return False
