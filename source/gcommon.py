@@ -334,6 +334,15 @@ class Rect:
 		return rect
 
 	@classmethod
+	def createWH(cls, left, top, width, height):
+		rect = Rect()
+		rect.left = left
+		rect.top = top
+		rect.right = left + width -1
+		rect.bottom = top + height -1
+		return rect
+
+	@classmethod
 	def createFromList(cls, list):
 		rects = []
 		for item in list:
@@ -344,11 +353,14 @@ class Rect:
 	def createSingleList(cls, left, top, right, bottom):
 		return [Rect.create(left, top, right, bottom)]
 
-	def width(self):
+	def getWidth(self):
 		return self.right - self.left +1
 
-	def height(self):
-		return self.height - self.top +1
+	def getHeight(self):
+		return self.bottom - self.top +1
+
+	def contains(self, x, y):
+		return self.left <= x and self.top <= y and x <= self.right and y <= self.bottom
 
 class RectObj:
 	def __init__(self, x, y, left, top, right, bottom):
@@ -575,13 +587,20 @@ def checkShotKey():
 		return False
 
 def checkShotKeyP():
-	if pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD_1_A) or pyxel.btnp(pyxel.GAMEPAD_1_Y):
+	if pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD_1_A) or pyxel.btnp(pyxel.GAMEPAD_1_Y)  or pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON, KEY_HOLD, KEY_PERIOD):
+		return True
+	else:
+		return False
+
+def checkShotKeyRectP(rect):
+	if pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD_1_A) or pyxel.btnp(pyxel.GAMEPAD_1_Y)  \
+	or (rect.contains(pyxel.mouse_x, pyxel.mouse_y) and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON, KEY_HOLD, KEY_PERIOD)):
 		return True
 	else:
 		return False
 
 def checkOpionKey():
-	if pyxel.btnp(pyxel.KEY_X) or pyxel.btnp(pyxel.GAMEPAD_1_B) or pyxel.btnp(pyxel.GAMEPAD_1_X) or pyxel.btnp(pyxel.MOUSE_RIGHT_BUTTON):
+	if pyxel.btnp(pyxel.KEY_X) or pyxel.btnp(pyxel.GAMEPAD_1_B) or pyxel.btnp(pyxel.GAMEPAD_1_X) or pyxel.btnp(pyxel.MOUSE_RIGHT_BUTTON, KEY_HOLD, KEY_PERIOD):
 		return True
 	else:
 		return False
@@ -1291,3 +1310,20 @@ def inScreen(x, y):
 
 def outScreenRect(obj):
 	return not check_collision(screenRectObj, obj)
+
+# rects Rect型配列
+def checkMouseMenuPos(rects):
+	for i, rect in enumerate(rects):
+		if rect.contains(pyxel.mouse_x, pyxel.mouse_y):
+			return i
+	return -1
+
+def drawMenuCursor():
+	if pyxel.frame_count & 32 == 0:
+		pyxel.pal(6, 7)
+	pyxel.blt(pyxel.mouse_x -7, pyxel.mouse_y -7, 0, 40, 32, 16, 16, TP_COLOR)
+	pyxel.pal()
+
+def drawRectbs(rects, clr):
+	for rect in rects:
+		pyxel.rectb(rect.left, rect.top, rect.getWidth(), rect.getHeight(), clr)

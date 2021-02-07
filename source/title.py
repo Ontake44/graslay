@@ -4,6 +4,11 @@ import random
 import gcommon
 import enemy
 
+TITLEMENU_START = 0
+TITLEMENU_CUSTOMSTART = 1
+TITLEMENU_OPTION = 2
+TITLEMENU_EXIT = 3
+
 #
 #  タイトル表示
 #
@@ -40,6 +45,16 @@ class TitleScene:
 		self.objs = []
 		self.difficulty = gcommon.Settings.difficulty
 		self.credits = gcommon.Settings.credits
+		self.mouseManager = gcommon.MouseManager()
+		self.menuRects = []
+		for i in range(4):
+			self.menuRects.append(gcommon.Rect.create(
+				48, 118 + i * 15,  48 +160-1, 118 + i * 15 + 12 -1))
+		self.difficultyRects = [
+			gcommon.Rect.createWH(128 -8 -48 -4, 120, 8, 8),
+			gcommon.Rect.createWH(128 +48 +4, 120, 8, 8),
+		]
+
 
 	def init(self):
 		pass
@@ -99,43 +114,66 @@ class TitleScene:
 			self.objs.append(enemy.Particle1(220 - self.cnt * 10, 60, 0, 8, 50))
 			# 文字がせり出す
 			if self.cnt > 20:
-				self.state = 100
+				self.setUpdate100()
+				return
 		self.subCnt += 1
 		self.cnt = (self.cnt +1) & 1023
 		if gcommon.checkShotKeyP():
-			self.state = 100
-			self.cnt = 0
+			self.setUpdate100()
 	
+	# メニュー処理へ移行
+	def setUpdate100(self):
+		self.state = 100
+		self.cnt = 0
+
 	# メニュー処理があるupdate
 	def update100(self):
+		self.mouseManager.update()
 		if self.state >= 100 and self.state < 200:
-			if gcommon.checkShotKeyP():		# and self.cnt > 30:
-				if self.menuPos == 0:
-					gcommon.sound(gcommon.SOUND_GAMESTART)
-					# ここですぐにはゲームスタートしない
-					self.state = 200
-					self.cnt = 0
-				elif self.menuPos == 1:
-					gcommon.app.startCustomStartMenu()
-				elif self.menuPos == 2:
-					gcommon.app.startOption()
-				elif self.menuPos == 3:
-					pyxel.quit()
-				#app.startStageClear()
 			
-			if self.menuPos == 0:
-				if gcommon.checkLeftP():
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
-					self.difficulty = gcommon.DIFFICULTY_EASY
-				elif gcommon.checkRightP():
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
-					self.difficulty = gcommon.DIFFICULTY_NORMAL
+			if self.mouseManager.visible:
+				n = gcommon.checkMouseMenuPos(self.menuRects)
+				if n != -1:
+					self.menuPos = n
+
 			if gcommon.checkUpP():
 				gcommon.sound(gcommon.SOUND_MENUMOVE)
 				self.menuPos = (self.menuPos -1) % 4
 			elif gcommon.checkDownP():
 				gcommon.sound(gcommon.SOUND_MENUMOVE)
 				self.menuPos = (self.menuPos +1) % 4
+			
+			if self.menuPos == TITLEMENU_START:
+				if self.mouseManager.visible:
+					n = gcommon.checkMouseMenuPos(self.difficultyRects)
+				if gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
+					gcommon.sound(gcommon.SOUND_MENUMOVE)
+					self.difficulty = gcommon.DIFFICULTY_EASY
+					return
+				elif gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
+					gcommon.sound(gcommon.SOUND_MENUMOVE)
+					self.difficulty = gcommon.DIFFICULTY_NORMAL
+					return
+				elif gcommon.checkShotKeyRectP(self.menuRects[TITLEMENU_START]):
+					gcommon.sound(gcommon.SOUND_GAMESTART)
+					# ここですぐにはゲームスタートしない
+					self.state = 200
+					self.cnt = 0
+					return
+			elif self.menuPos == TITLEMENU_CUSTOMSTART:
+				if gcommon.checkShotKeyRectP(self.menuRects[TITLEMENU_CUSTOMSTART]):
+					gcommon.sound(gcommon.SOUND_MENUMOVE)
+					gcommon.app.startCustomStartMenu()
+					return
+			elif self.menuPos == TITLEMENU_OPTION:
+				if gcommon.checkShotKeyRectP(self.menuRects[TITLEMENU_OPTION]):
+					gcommon.sound(gcommon.SOUND_MENUMOVE)
+					gcommon.app.startOption()
+					return
+			elif self.menuPos == TITLEMENU_EXIT:
+				if gcommon.checkShotKeyRectP(self.menuRects[TITLEMENU_EXIT]):
+					pyxel.quit()
+
 		if self.state == 102:
 			# 明るくなる
 			if self.subCnt > 3:
@@ -272,6 +310,8 @@ class TitleScene:
 		pyxel.text(200, 188, "CREDIT(S) "  +str(self.credits), 7)
 
 		pyxel.pal()
+		if self.mouseManager.visible:
+			gcommon.drawMenuCursor()
 		#pyxel.blt(78, 120 + self.menuPos * 15, 0, 8, 32, 8, 8, gcommon.TP_COLOR)
 		
 	def drawMenu(self, startFlag, rate):
@@ -285,8 +325,8 @@ class TitleScene:
 		gcommon.showTextRateHCenter(y, text, rate)
 		if self.menuPos == 0:
 			leftMarker = (self.difficulty == gcommon.DIFFICULTY_NORMAL)
-			gcommon.drawLeftMarker(120 -len(text)*4 -4, y, leftMarker)
-			gcommon.drawRightMarker(128 +len(text)*4 + 4, y, not leftMarker)
+			gcommon.drawLeftMarker(128 -8 -48 -4, y, leftMarker)
+			gcommon.drawRightMarker(128 +48 + 4, y, not leftMarker)
 		if startFlag:
 			pyxel.pal()
 
@@ -306,3 +346,4 @@ class TitleScene:
 		pyxel.blt(48, 118 + self.menuPos * 15, 4, 48, 118 + self.menuPos * 15, 160, 12)
 		pyxel.pal()
 
+		#gcommon.drawRectbs(self.difficultyRects, 8)

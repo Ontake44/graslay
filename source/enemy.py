@@ -544,8 +544,8 @@ class Battery1(EnemyBase):
 		self.hitcolor1 = 8
 		self.hitcolor2 = 14
 		self.exptype = gcommon.C_EXPTYPE_GRD_S
-		self.interval = 120 / gcommon.enemy_shot_rate
-		self.first = 120
+		self.interval = int(120 / gcommon.enemy_shot_rate)
+		self.first = int(120 / gcommon.enemy_shot_rate)
 		self.shot_speed = 2
 		self.remove_min_x = -16
 
@@ -1745,7 +1745,7 @@ class Battery2(FallingObject):
 		super(Battery2, self).__init__(mx, my, direction, 2, 2, False)
 		self.left = 2
 		self.right = 13
-		self.interval = 63 / gcommon.enemy_shot_rate
+		self.interval = int(63 / gcommon.enemy_shot_rate)
 		if self.direction == 1:
 			self.top = 5
 			self.bottom = 15
