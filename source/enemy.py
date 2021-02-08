@@ -1213,7 +1213,7 @@ class Worm1(EnemyBase):
 		#self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True
-		self.score = 100
+		self.score = 200
 		self.dr = 48
 		self.offsetX = 4
 		self.offsetY = 0
@@ -1563,6 +1563,7 @@ class FixedShutter1(EnemyBase):
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = True
+		self.score = 400
 
 	def update(self):
 		pass
@@ -2121,6 +2122,7 @@ class Battery3(EnemyBase):
 			self.top = 0
 			self.bottom = 10
 		self.hp = 10
+		self.score = 300
 
 	def update(self):
 		self.y += self.direction * 0.5
@@ -2279,7 +2281,7 @@ class HomingMissile1(EnemyBase):
 		self.hp = 10
 		self.dr = dr
 		self.layer = gcommon.C_LAYER_SKY
-		self.score = 100
+		self.score = 10
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
@@ -2356,7 +2358,7 @@ class Walker1(EnemyBase):
 		self.hp = 500
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True
-		self.score = 200
+		self.score = 1000
 		self.exptype = gcommon.C_EXPTYPE_GRD_M
 		self.gy = 50
 
@@ -2940,6 +2942,7 @@ class Tank1(EnemyBase):
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True
 		self.actions = Tank1.actionPatterns[self.actionPattern]
+		self.score = 100
 
 	def update(self):
 		action = self.actions[self.state][0]
@@ -3019,6 +3022,8 @@ class Fighter2(EnemyBase):
 		self.hp = 30
 		self.layer = gcommon.C_LAYER_SKY
 		self.ground = False
+		self.score = 300
+
 
 	def update(self):
 		if self.state == 0:
@@ -3062,6 +3067,7 @@ class MissileBattery1(EnemyBase):
 		self.ground = True
 		self.first = 120
 		self.interval = 120
+		self.score = 200
 
 	def update(self):
 		if self.cnt == self.first or (self.cnt != 0 and (self.cnt % self.interval == 0)):
@@ -3090,6 +3096,7 @@ class Fan2(EnemyBase):
 		self.hp = 1
 		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.ground = True
+		self.score = 10
 
 	def update(self):
 		if self.state == 0:
@@ -3258,7 +3265,7 @@ class BattleShip1(EnemyBase):
 		self.moveTable = t[5]
 		self.laserTime = t[6]
 		self.fighterTime = t[7]
-		self.hp = 999999
+		self.hp = gcommon.HP_UNBREAKABLE
 		self.collisionRects = gcommon.Rect.createFromList(
 			[[21,23,188,72],[190,14,258,87],[260,2,339,100],[340,9,511,77]])
 		self.layer = gcommon.C_LAYER_SKY
@@ -3460,6 +3467,7 @@ class BattleShip1Gun(EnemyBase):
 		self.shotCount = 0
 		self.shotTime = 0
 		self.shotDr64 = 0
+		self.score = 500
 	
 	def update(self):
 		self.x = self.parentObj.x + self.offsetX
@@ -3516,6 +3524,7 @@ class Fighter3(EnemyBase):
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
 		self.mover = CountMover(self, self.moveTable, False)
+		self.score = 30
 
 	def update(self):
 		self.mover.update()

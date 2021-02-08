@@ -1259,6 +1259,7 @@ class Boss4(enemy.EnemyBase):
 		self.missileState = 0
 		self.missileObj = [None, None, None]
 		self.missileIndex = 0
+		self.score = 7000
 
 	def update(self):
 		if self.state == 0:
