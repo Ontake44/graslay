@@ -103,13 +103,13 @@ class MyShip:
 		dy = 0
 		#if pyxel.btn(pyxel.MOUSE_LEFT_BUTTON):
 		if self.mouseManager.visible:
-			if cx < pyxel.mouse_x -4:
+			if cx < pyxel.mouse_x -2:
 				mouseDx = 1
-			elif cx > pyxel.mouse_x +4:
+			elif cx > pyxel.mouse_x +2:
 				mouseDx = -1
-			if cy < pyxel.mouse_y -4:
+			if cy < pyxel.mouse_y -2:
 				mouseDy = 1
-			elif cy > pyxel.mouse_y +4:
+			elif cy > pyxel.mouse_y +2:
 				mouseDy = -1
 		if pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.GAMEPAD_1_LEFT) or mouseDx == -1:
 			self.x = self.x -2
