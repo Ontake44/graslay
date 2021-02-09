@@ -54,6 +54,7 @@ class TitleScene:
 			gcommon.Rect.createWH(128 -8 -48 -4, 120, 8, 8),
 			gcommon.Rect.createWH(128 +48 +4, 120, 8, 8),
 		]
+		gcommon.BGM.play(gcommon.BGM.TITLE)
 
 
 	def init(self):
@@ -77,40 +78,44 @@ class TitleScene:
 
 	def updateDemo(self):
 		if self.state == 0:
-			self.py += 0.125
+			if self.cnt > 180:
+				self.cnt = 0
+				self.state = 1
+		elif self.state == 1:
+			self.py += 0.15
 			#self.py += 0.5
 			if self.subCnt >= self.cntLimit:
 				self.subState += 1
 				self.cntLimit = int(self.cntLimit * 0.8)
 				self.subCnt = 0
 				if self.subState == 9:
-					self.state = 1
+					self.state = 2
 					self.subCnt = 0
 					self.cnt = 0
-		elif self.state == 1:
+		elif self.state == 2:
 			# ちょっと待ち
 			if self.cnt > 1:
-				self.state = 2
+				self.state = 3
 				self.subState = 0
 				self.subCnt = 0
 				self.cnt = 0
-		elif self.state == 2:
+		elif self.state == 3:
 			# 明るくなる
 			if self.subCnt > 3:
 				self.subState += 1
 				self.subCnt = 0
 				if self.subState == len(TitleScene.colorTable3):
 					self.subState = len(TitleScene.colorTable3)-1
-					self.state = 3
-		elif self.state == 3:
+					self.state = 4
+		elif self.state == 4:
 			# 戻る
 			if self.subCnt > 3:
 				self.subState -= 1
 				self.subCnt = 0
 				if self.subState == 0:
-					self.state = 4
+					self.state = 5
 					self.cnt = 0
-		elif self.state == 4:
+		elif self.state == 5:
 			self.objs.append(enemy.Particle1(220 - self.cnt * 10, 60, 0, 8, 50))
 			# 文字がせり出す
 			if self.cnt > 20:
@@ -156,6 +161,7 @@ class TitleScene:
 					self.difficulty = gcommon.DIFFICULTY_NORMAL
 					return
 				elif gcommon.checkShotKeyRectP(self.menuRects[TITLEMENU_START]):
+					gcommon.BGM.stop()
 					gcommon.sound(gcommon.SOUND_GAMESTART)
 					# ここですぐにはゲームスタートしない
 					self.state = 200
@@ -192,6 +198,7 @@ class TitleScene:
 				if self.subState == 0:
 					self.state = 100
 					self.cnt = 0
+					return
 			self.subCnt += 1
 		elif self.state == 200:
 			# GAME START
@@ -199,7 +206,7 @@ class TitleScene:
 				gcommon.app.startNormalGame(self.difficulty)
 			
 		self.cnt += 1
-		if self.cnt >= 10*60:
+		if self.cnt >= 5*60:
 			self.cnt = 0
 			if self.state == 100:
 				self.state = 102
@@ -225,6 +232,8 @@ class TitleScene:
 		pyxel.pal()
 		self.drawStar()
 		if self.state == 0:
+			pass
+		elif self.state == 1:
 			color = TitleScene.colorTable1a[self.subState]
 			# 文字中
 			n = int(self.rnd.rand() % (30 -self.subState*3))
@@ -244,9 +253,9 @@ class TitleScene:
 			w = (10 -self.subState)
 			for i in range(80):
 				pyxel.blt(((self.rnd.rand() % w) -w/2) * 3, 24 +36 -self.py +i, 1, 0, 40 +i, 256, 1, 0)
-		elif self.state == 1:
+		elif self.state == 2:
 			self.drawTitleNormal()
-		elif self.state == 2 or self.state == 3:
+		elif self.state == 3 or self.state == 4:
 			pyxel.pal()
 			# 文字枠
 			for c in TitleScene.colorTable1:
@@ -255,7 +264,7 @@ class TitleScene:
 			for t in table:
 				pyxel.pal(t[0], t[1])
 			pyxel.blt(0, 24, 1, 0, 40, 256, 80, 0)
-		elif self.state == 4:
+		elif self.state == 5:
 			self.drawTitleNormal()
 			self.drawMenu(False, self.cnt/20)
 		else:
@@ -309,6 +318,9 @@ class TitleScene:
 		self.drawMenu(self.state == 200 and self.cnt & 2 == 0, 1.0)
 
 		pyxel.text(200, 188, "CREDIT(S) "  +str(self.credits), 7)
+		pyxel.blt(10, 186, 0, 88, 120, 8, 8, 0)
+		pyxel.text(20, 188, "2021 ONTAKE44", 7)
+
 
 		pyxel.pal()
 		if self.mouseManager.visible:

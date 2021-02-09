@@ -99,6 +99,7 @@ class CustomStartMenuScene:
 			elif self.menuPos == MENU_GAME_START:
 				if gcommon.checkShotKeyRectP(self.menuRects[MENU_GAME_START]):
 					gcommon.saveSettings()
+					gcommon.BGM.stop()
 					gcommon.sound(gcommon.SOUND_GAMESTART)
 					self.state = 1
 					self.cnt = 0

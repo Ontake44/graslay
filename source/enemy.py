@@ -287,7 +287,8 @@ class Explosion(EnemyBase):
 		[136, 64, 32, 32],		# 5
 		[0, 64, 48, 48],		# 6
 		[48 ,64, 48, 48],		# 7 : 爆発終了パターン１
-		[96, 64, 40, 40]		# 8 : 爆発終了パターン２
+		[96, 64, 40, 40],		# 8 : 爆発終了パターン２
+		[96, 144, 40, 40]
 	]
 	def __init__(self, cx,cy,exlayer,exptype):
 		super(Explosion, self).__init__()
@@ -319,7 +320,7 @@ class Explosion(EnemyBase):
 			if self.cnt >= 25:
 				self.removeFlag = True
 		elif self.size == 2:
-			if self.cnt>30:
+			if self.cnt>40:
 				self.remove()
 		else:
 			if self.cnt>40:
@@ -336,22 +337,24 @@ class Explosion(EnemyBase):
 		if self.size==1:
 			#pyxel.circb(self.x, self.y, self.cnt*2+1, 10)
 			n = self.cnt>>2
-			if n <= 4:
+			if n <= 5:
 				pyxel.blt( self.x-8, self.y-8, 0, 0 + n*16, 144,
 					16, 16,
 					0)
 		elif self.size==2:
 			if self.cnt%2 ==0:
-				if self.cnt<8:
+				if self.cnt<6:
 					pyxel.circ(self.x, self.y, self.cnt*2+1, 10)
-				elif self.cnt < 16:
+				elif self.cnt < 12:
 					self.drawPattern(5)
-				elif self.cnt < 24:
+				elif self.cnt < 18:
 					self.drawPattern(6)
-				elif self.cnt < 32:
+				elif self.cnt < 24:
 					self.drawPattern(7)
-				elif self.cnt < 40:
+				elif self.cnt < 32:
 					self.drawPattern(8)
+				elif self.cnt < 40:
+					self.drawPattern(9)
 
 			# elif self.cnt < 25:
 			# 	if self.cnt%2 ==0:

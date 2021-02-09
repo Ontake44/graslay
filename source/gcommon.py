@@ -255,34 +255,60 @@ class Settings:
 	credits = Defaults.INIT_CREDITS
 
 class BGM:
-	#STAGE1 = "Run_the_Present.mp3"
-	#STAGE1 = "Blaze.mp3"
-	STAGE1 = "game_maoudamashii_4_vehicle01.mp3"
-	STAGE2 = "game_maoudamashii_6_dangeon22.mp3"
-	STAGE3 = "Spear.mp3"
-	STAGE4 = "game_maoudamashii_6_dangeon15.mp3"
-	#STAGE5 = "Cyber_Bull_Bound.mp3"
-	STAGE5 = "Abstract.mp3"
-	STAGE6_1 = "Break_the_Wedge.mp3"
-	STAGE6_2 = "Fantasma.mp3"
-	STAGE6_3 = "In_Dark_Down.mp3"
-	BOSS  = "Grenade.mp3"
-	#BOSS_LAST = "RAIN_&_Co_II_2.mp3"
-	BOSS_LAST = "Blaze.mp3"
-	STAGE_CLEAR = "game_maoudamashii_9_jingle02.mp3"
-	GAME_OVER = "game_maoudamashii_9_jingle07.mp3"
+	bgmList = [
+		# volume rate, filename
+		[0.6, "Dream_Fantasy.mp3"],
+		[1.0, "game_maoudamashii_6_dangeon22.mp3"],
+		[1.0, "Spear.mp3"],
+		[1.0, "game_maoudamashii_6_dangeon15.mp3"],
+		[1.0, "Abstract.mp3"],
+		[1.0, "Break_the_Wedge.mp3"],
+		[1.0, "Fantasma.mp3"],
+		[1.0, "In_Dark_Down.mp3"],
+		[1.0, "Grenade.mp3"],
+		[1.0, "Blaze.mp3"],
+		[1.0, "game_maoudamashii_9_jingle02.mp3"],
+		[1.0, "game_maoudamashii_9_jingle07.mp3"],
+		[1.0, "idola_cell.mp3"]
+	] 
+
+	STAGE1 = 0		#"Dream_Fantasy.mp3"
+	STAGE2 = 1		#"game_maoudamashii_6_dangeon22.mp3"
+	STAGE3 = 2		#"Spear.mp3"
+	STAGE4 = 3		#"game_maoudamashii_6_dangeon15.mp3"
+	STAGE5 = 4		#"Abstract.mp3"
+	STAGE6_1 = 5	#"Break_the_Wedge.mp3"
+	STAGE6_2 = 6	#"Fantasma.mp3"
+	STAGE6_3 = 7	#"In_Dark_Down.mp3"
+	BOSS  = 8		#"Grenade.mp3"
+	BOSS_LAST = 9	#"Blaze.mp3"
+	STAGE_CLEAR = 10	#"game_maoudamashii_9_jingle02.mp3"
+	GAME_OVER = 11		#"game_maoudamashii_9_jingle07.mp3"
+	#TITLE = "Underground_Worship.mp3"
+	TITLE = 12		#"idola_cell.mp3"
 
 	@classmethod
-	def play(cls, bgm):
-		pygame.mixer.music.load(resource_path("assets/music/" + bgm))
-		pygame.mixer.music.set_volume(0.5 * Settings.bgmVolume/10.0)
+	def getBgm(cls, no):
+		return BGM.bgmList[no]
+
+	@classmethod
+	def play(cls, no):
+		bgm = BGM.getBgm(no)
+		pygame.mixer.music.load(resource_path("assets/music/" + bgm[1]))
+		pygame.mixer.music.set_volume(0.5 * Settings.bgmVolume * bgm[0]/10.0)
 		pygame.mixer.music.play(-1)
 		
 	@classmethod
-	def playOnce(cls, bgm):
-		pygame.mixer.music.load(resource_path("assets/music/" + bgm))
-		pygame.mixer.music.set_volume(0.5 * Settings.bgmVolume/10.0)
+	def playOnce(cls, no):
+		bgm = BGM.getBgm(no)
+		pygame.mixer.music.load(resource_path("assets/music/" + bgm[1]))
+		pygame.mixer.music.set_volume(0.5 * Settings.bgmVolume * bgm[0]/10.0)
 		pygame.mixer.music.play(1)
+
+	@classmethod
+	def stop(cls):
+		pygame.mixer.music.stop()
+
 
 class MouseManager:
 	def __init__(self):
