@@ -116,7 +116,11 @@ class TitleScene:
 					self.state = 5
 					self.cnt = 0
 		elif self.state == 5:
-			self.objs.append(enemy.Particle1(220 - self.cnt * 10, 60, 0, 8, 50))
+			if self.subCnt > 32:
+				self.state = 6
+				self.cnt = 0
+		elif self.state == 6:
+			#self.objs.append(enemy.Particle1(220 - self.cnt * 10, 60, 0, 8, 50))
 			# 文字がせり出す
 			if self.cnt > 20:
 				self.setUpdate100()
@@ -196,9 +200,15 @@ class TitleScene:
 				self.subState -= 1
 				self.subCnt = 0
 				if self.subState == 0:
-					self.state = 100
+					self.state = 104
 					self.cnt = 0
 					return
+			self.subCnt += 1
+		elif self.state == 104:
+			if self.subCnt > 32:
+				self.state = 100
+				self.cnt = 0
+				return
 			self.subCnt += 1
 		elif self.state == 200:
 			# GAME START
@@ -266,6 +276,13 @@ class TitleScene:
 			pyxel.blt(0, 24, 1, 0, 40, 256, 80, 0)
 		elif self.state == 5:
 			self.drawTitleNormal()
+			pyxel.pal()
+			for c in range(1, 15):
+				pyxel.pal(c, 7)
+			pyxel.blt(self.subCnt*8, 24, 4, self.subCnt*8, 24, 40, 80, 0)		# pyxel.pal()
+			pyxel.pal()
+		elif self.state == 6:
+			self.drawTitleNormal()
 			self.drawMenu(False, self.cnt/20)
 		else:
 			self.drawTitleNormal()
@@ -293,28 +310,14 @@ class TitleScene:
 			for t in table:
 				pyxel.pal(t[0], t[1])
 			pyxel.blt(0, 24, 1, 0, 40, 256, 80, 0)		# pyxel.pal()
-		# y = 120
-		# if self.state == 100:
-		# 	gcommon.setMenuColor(0, self.menuPos)
-		# 	gcommon.showText(90, y, "NORMAL START")
-		# else:
-		# 	if self.cnt & 2 == 0:
-		# 		pyxel.pal(7, 8)
-		# 	gcommon.showText(90, y, "NORMAL START")
-		# 	if self.cnt & 2 == 0:
-		# 		pyxel.pal()
-
-		# y += 15
-		# gcommon.setMenuColor(1, self.menuPos)
-		# gcommon.showText(90, y, "CUSTOM START")
-
-		# y += 15
-		# gcommon.setMenuColor(2, self.menuPos)
-		# gcommon.showText(90, y, "OPTION")
-
-		# y += 15
-		# gcommon.setMenuColor(3, self.menuPos)
-		# gcommon.showText(90, y, "EXIT")
+		elif self.state == 104:
+			self.drawTitleNormal()
+			pyxel.pal()
+			for c in range(1, 15):
+				pyxel.pal(c, 7)
+			pyxel.blt(self.subCnt*8, 24, 4, self.subCnt*8, 24, 40, 80, 0)		# pyxel.pal()
+			pyxel.pal()
+			
 		self.drawMenu(self.state == 200 and self.cnt & 2 == 0, 1.0)
 
 		pyxel.text(200, 188, "CREDIT(S) "  +str(self.credits), 7)

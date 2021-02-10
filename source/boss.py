@@ -12,9 +12,10 @@ BOSS_2_HP = 2800
 BOSS_3_HP = 3000
 BOSS_4_HP = 3500
 BOSS_FACTORY_HP = 5500
-BOSS_LAST_1 = 2500
-BOSS_LAST_2 = 2500
-BOSS_LAST_3 = 1500
+BOSS_LAST_1 = 2000
+BOSS_LAST_2 = 2000
+BOSS_LAST_3 = 2000
+BOSS_LAST_CORE_HP = 1500
 
 class Boss1Base(enemy.EnemyBase):
 	def __init__(self, t):
@@ -2932,7 +2933,7 @@ class BossLast1Core(enemy.EnemyBase):
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
-		self.hp = 1500
+		self.hp = BOSS_LAST_CORE_HP
 		self.score = 50000
 		self.rad = 0.0
 		#self.dx = 0.0
