@@ -19,7 +19,7 @@ class Defaults:
 	INIT_START_STAGE = 1
 	# 残機
 	INIT_PLAYER_STOCK = 3
-	INIT_BGM_VOL = 10
+	INIT_BGM_VOL = 7
 	INIT_SOUND_VOL = 10
 	INIT_DIFFICULTY = DIFFICULTY_NORMAL
 	INIT_CREDITS = 3
@@ -269,7 +269,8 @@ class BGM:
 		[1.0, "Blaze.mp3"],
 		[1.0, "game_maoudamashii_9_jingle02.mp3"],
 		[1.0, "game_maoudamashii_9_jingle07.mp3"],
-		[1.0, "idola_cell.mp3"]
+		[1.0, "idola_cell.mp3"],
+		[0.6, "Fireworks.mp3"]
 	] 
 
 	STAGE1 = 0		#"Dream_Fantasy.mp3"
@@ -286,6 +287,7 @@ class BGM:
 	GAME_OVER = 11		#"game_maoudamashii_9_jingle07.mp3"
 	#TITLE = "Underground_Worship.mp3"
 	TITLE = 12		#"idola_cell.mp3"
+	ENDING = 13
 
 	@classmethod
 	def getBgm(cls, no):

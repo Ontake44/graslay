@@ -79,9 +79,9 @@ class EndingScene0:
 
 		if self.state == 0:
 			if self.cnt & 2 == 0:
-				pyxel.blt(104, 76, 0, 208, 0, 48, 48, 0)
+				pyxel.blt(104, 76, 2, 208, 0, 48, 48, 0)
 			else:
-				pyxel.blt(104, 76, 0, 208, 48, 48, 48, 0)
+				pyxel.blt(104, 76, 2, 208, 48, 48, 48, 0)
 
 		elif self.state == 1:
 			if self.radius < 150:
@@ -98,7 +98,7 @@ class EndingScene0:
 		if self.state == 2:
 			if self.cnt % 3 == 0:
 				sx = self.sptable[self.cnt % 4]
-				pyxel.blt(self.px -15, self.py -15, 0, 32*sx, 0, 32, 32, 0)
+				pyxel.blt(self.px -15, self.py -15, 2, 32*sx, 0, 32, 32, 0)
 
 		newTbl = []
 		for s in self.tbl:
@@ -188,23 +188,24 @@ class EndingScene1:
 
 		x = self.px 	#+ random.randrange(-1, 1)
 		y = self.py #+ random.randrange(-1, 1)
-		pyxel.blt(x, y, 0, 0, 48, 96, 80, 0)
+		pyxel.blt(x, y, 2, 0, 48, 96, 80, 0)
 		if self.cnt & 2 == 0:
 			if self.state < 2:
 				if self.cnt % 4 == 0:
-					pyxel.blt(x +77, y +75, 0, 0, 128, 48, 48, 0)
+					pyxel.blt(x +77, y +75, 2, 0, 128, 48, 48, 0)
 				else:
-					pyxel.blt(x +77, y +75, 0, 48, 128, 56, 56, 0)
+					pyxel.blt(x +77, y +75, 2, 48, 128, 56, 56, 0)
 			else:
 				if self.cnt % 4 == 0:
-					pyxel.blt(x +77, y +75, 0, 48, 128, 56, 56, 0)
+					pyxel.blt(x +77, y +75, 2, 48, 128, 56, 56, 0)
 				else:
-					pyxel.blt(x +77, y +75, 0, 104, 128, 72, 72, 0)
+					pyxel.blt(x +77, y +75, 2, 104, 128, 72, 72, 0)
 
 		for obj in self.objs:
 			if obj.removeFlag == False:
 				obj.draw()
 
+# 本星に帰る
 class EndingScene2:
 	def __init__(self, parent):
 		self.parent = parent
@@ -217,22 +218,27 @@ class EndingScene2:
 		self.state = 0
 		self.cnt = 0
 		self.objs = []
+		gcommon.BGM.playOnce(gcommon.BGM.ENDING)
 
 	def update(self):
 		if self.state == 0:
 			self.py += self.dy
-			self.dy *= 0.985
-			self.size *= 0.98
+			self.dy *= 0.98	#	0.985
+			self.size *= 0.99
 			if self.cnt < 46 and self.cnt % 8 == 0:
 				obj = enemy.Particle2(self.px, self.py+4, 20)
 				self.objs.append(obj)
-			if self.cnt > 120:
+			if self.cnt > 240:
 				self.cnt = 0
 				self.state = 1
 		elif self.state == 1:
 			if self.cnt > 60:
 				self.cnt = 0
 				self.state = 2
+		elif self.state == 2:
+			if self.cnt > 600:
+				self.cnt = 0
+				gcommon.app.startTitle()
 		newObjs = []
 		for obj in self.objs:
 			if obj.removeFlag == False:
@@ -247,7 +253,7 @@ class EndingScene2:
 		for i in range(0,96):
 			pyxel.pset(EndingScene.star_ary[i][0], i*2, int(random.randrange(0,2)+5))
 		
-		pyxel.blt(90, 40, 0, 128, 48, 56, 56, 2)
+		pyxel.blt(90, 40, 2, 128, 48, 56, 56, 2)
 		if self.state == 0:
 			gcommon.stretchBlt(self.px - self.sx * self.size/2, self.py - self.sy * self.size/2, 	\
 				self.sx * self.size, self.sy * self.size,	\
@@ -267,12 +273,12 @@ class EndingScene2:
 				obj.draw()
 
 	def drawShine(self, x, y, n):
-		pyxel.blt(x, y, 0, 160 -int(n)*32, 0, 32, 32, 0)
+		pyxel.blt(x, y, 2, 160 -int(n)*32, 0, 32, 32, 0)
 
 class EndingScene:
 	star_ary = []
 	def __init__(self):
-		pyxel.image(0).load(0,0,"assets/Ending0.png")
+		pyxel.image(2).load(0,0,"assets/Ending0.png")
 		pyxel.image(1).load(0,0,"assets/Ending1.png")
 		
 		EndingScene.star_ary = []

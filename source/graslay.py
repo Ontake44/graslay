@@ -2299,6 +2299,8 @@ class App:
 		gcommon.GameSession.credits -= 1
 		gcommon.GameSession.playerStock -= 1
 		self.setScene(MainGame(self.stage))
+		# Ending Test
+		#self.setScene(ending.EndingScene())
 
 	def startCustomGame(self, difficulty, stage, playerStock):
 		self.stage = stage

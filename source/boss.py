@@ -7,6 +7,15 @@ import enemy
 
 # ボス処理
 
+BOSS_1_HP = 1200
+BOSS_2_HP = 2800
+BOSS_3_HP = 3000
+BOSS_4_HP = 3500
+BOSS_FACTORY_HP = 5500
+BOSS_LAST_1 = 2500
+BOSS_LAST_2 = 2500
+BOSS_LAST_3 = 1500
+
 class Boss1Base(enemy.EnemyBase):
 	def __init__(self, t):
 		super(Boss1Base, self).__init__()
@@ -89,7 +98,7 @@ class Boss1(enemy.EnemyBase):
 				self.shotFix4()
 			if self.cnt > 120:
 				self.nextState()
-				self.hp = 1000
+				self.hp = BOSS_1_HP
 		elif self.state == 3:
 			# ４、８方向ショット
 			if self.subState == 0:
@@ -700,7 +709,7 @@ class Boss2(enemy.EnemyBase):
 			self.y += self.dy
 			if self.x > 150:
 				self.dx = 0
-				self.hp = 2500		# ここでHPを入れなおす
+				self.hp = BOSS_2_HP		# ここでHPを入れなおす
 				self.setState(4)
 		elif self.state == 4:
 			self.x += self.dx
@@ -951,7 +960,7 @@ class Boss3(enemy.EnemyBase):
 		self.top = 9
 		self.right = 63
 		self.bottom = 38
-		self.hp = 2000
+		self.hp = BOSS_3_HP
 		self.layer = gcommon.C_LAYER_SKY
 		self.score = 5000
 		self.subcnt = 0
@@ -1251,7 +1260,7 @@ class Boss4(enemy.EnemyBase):
 		self.top = 8
 		self.right = 87
 		self.bottom = 45
-		self.hp = 2500
+		self.hp = BOSS_4_HP
 		self.subState = 0
 		self.subCnt = 0
 		self.hitcolor1 = 9
@@ -1581,7 +1590,7 @@ class BossFactory(enemy.EnemyBase):
 		self.top = 8
 		self.right = 87
 		self.bottom = 45
-		self.hp = 4500
+		self.hp = BOSS_FACTORY_HP
 		self.score = 10000
 		self.subState = 0
 		self.subCnt = 0
@@ -1716,25 +1725,38 @@ class BossFactory(enemy.EnemyBase):
 					if self.subCnt == 30:
 						self.setSubState(3)
 				else:
-					rr = 0 if self.finMode == 0 else math.pi/4
-					if self.subCnt % 20 == 0:
-						dr64 = gcommon.get_atan_no_to_ship(self.x +39.5, self.y +39.5)
-						if self.subCnt % 40 == 0:
+					if self.finMode == 0:
+						rr = 0
+						if self.subCnt % 20 == 0:
+							dr64 = gcommon.get_atan_no_to_ship(self.x +39.5, self.y +39.5)
+							if self.subCnt % 40 == 0:
+								for i in range(4):
+									enemy.enemy_shot_dr(
+										self.x +39.5 +math.cos(self.rad + rr + math.pi/2 * i) * 32,
+										self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
+										2.5, 0, dr64 -4)
+									enemy.enemy_shot_dr(
+										self.x +39.5 +math.cos(self.rad + rr + math.pi/2 * i) * 32,
+										self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
+										2.5, 0, dr64 +4)
+							else:
+								for i in range(4):
+									enemy.enemy_shot_dr(
+										self.x +39.5 +math.cos(self.rad + rr + math.pi/2 * i) * 32,
+										self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
+										3, 0, dr64)
+					else:
+						if self.subCnt % 15 == 0:
 							for i in range(4):
-								enemy.enemy_shot_dr(
-									self.x +39.5 +math.cos(self.rad + rr + math.pi/2 * i) * 32,
-									self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
-									2.5, 0, dr64 -4)
-								enemy.enemy_shot_dr(
-									self.x +39.5 +math.cos(self.rad + rr + math.pi/2 * i) * 32,
-									self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
-									2.5, 0, dr64 +4)
-						else:
-							for i in range(4):
-								enemy.enemy_shot_dr(
-									self.x +39.5 +math.cos(self.rad + rr + math.pi/2 * i) * 32,
-									self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
-									3, 0, dr64)
+								enemy.enemy_shot_offset(
+									self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+									self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+									4, 0, 2)
+								enemy.enemy_shot_offset(
+									self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+									self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+									4, 0, -2)
+
 					if self.subCnt == 64:
 						self.setSubState(3)
 			elif self.subState == 3:
@@ -2092,9 +2114,9 @@ class BossLast1(enemy.EnemyBase):
 	launcherTable = [[38,24],[66,128+15],[66,49],[38,128+40]]
 	table8 = [5,3,6,2,1,7,4,0]
 	arrowDrTable = [1.0, 0.8, 1.2, 0.95, 1.1, 0.7, 1.05, 0.9, 1.3, 0.85, 1.15]
-	initHp = 5000		# 2000
-	hp2 = 3500			# 1900
-	hp3 = 1500			# 1700
+	initHp = BOSS_LAST_1 + BOSS_LAST_2 + BOSS_LAST_3	# 5000		# 2000
+	hp2 = BOSS_LAST_2 + BOSS_LAST_3 # 3500			# 1900
+	hp3 = BOSS_LAST_3	# 1500			# 1700
 	def __init__(self, t):
 		super(BossLast1, self).__init__()
 		self.x = 256
@@ -2104,6 +2126,7 @@ class BossLast1(enemy.EnemyBase):
 		self.right = 111
 		self.bottom = 111
 		self.hp = BossLast1.initHp
+		print("inithp = " + str(self.hp))
 		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.ground = True
 		self.score = 20000

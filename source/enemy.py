@@ -991,8 +991,9 @@ class Missile2(EnemyBase):
 			self.dx -= 0.2
 			if self.dx > 3:
 				self.dx = 3
-		if self.x < 100:
-			enemy_shot_dr(self.x + 8, self.y + 3, 2, 0, 32)
+		if self.x < 120:
+			enemy_shot_dr(self.x + 8, self.y + 3, 3, 0, 31)
+			enemy_shot_dr(self.x + 8, self.y + 3, 3, 0, 33)
 			self.remove()
 		
 	def drawMissile(self):
@@ -1005,7 +1006,6 @@ class Missile2(EnemyBase):
 				pyxel.blt(self.x + 32, self.y, 1, 48, 72, 32, 7, gcommon.TP_COLOR)
 			else:
 				pyxel.blt(self.x + 32, self.y-1, 1, 48, 72, 32, -7, gcommon.TP_COLOR)
-
 
 class Missile3(EnemyBase):
 	def __init__(self, x, y, dy):
