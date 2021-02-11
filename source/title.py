@@ -24,6 +24,7 @@ class TitleScene:
 		((2,6),(1,7),(5,7),(12,7),(6,7)),
 		((2,7),(1,7),(5,7),(12,7),(6,7)),
 	)
+	polyPoints = [[0,0],[24,0],[0,72],[-24,72]]
 	def __init__(self):
 		gcommon.map_y = 0
 		self.cnt = 0
@@ -276,11 +277,7 @@ class TitleScene:
 			pyxel.blt(0, 24, 1, 0, 40, 256, 80, 0)
 		elif self.state == 5:
 			self.drawTitleNormal()
-			pyxel.pal()
-			for c in range(1, 15):
-				pyxel.pal(c, 7)
-			pyxel.blt(self.subCnt*8, 24, 4, self.subCnt*8, 24, 40, 80, 0)		# pyxel.pal()
-			pyxel.pal()
+			self.drawFlash(self.subCnt*8, 24)
 		elif self.state == 6:
 			self.drawTitleNormal()
 			self.drawMenu(False, self.cnt/20)
@@ -312,11 +309,7 @@ class TitleScene:
 			pyxel.blt(0, 24, 1, 0, 40, 256, 80, 0)		# pyxel.pal()
 		elif self.state == 104:
 			self.drawTitleNormal()
-			pyxel.pal()
-			for c in range(1, 15):
-				pyxel.pal(c, 7)
-			pyxel.blt(self.subCnt*8, 24, 4, self.subCnt*8, 24, 40, 80, 0)		# pyxel.pal()
-			pyxel.pal()
+			self.drawFlash(self.subCnt*8, 32)
 			
 		self.drawMenu(self.state == 200 and self.cnt & 2 == 0, 1.0)
 
@@ -330,6 +323,14 @@ class TitleScene:
 			gcommon.drawMenuCursor()
 		#pyxel.blt(78, 120 + self.menuPos * 15, 0, 8, 32, 8, 8, gcommon.TP_COLOR)
 		
+	def drawFlash(self, x, y):
+		pyxel.pal()
+		for c in range(1, 15):
+			pyxel.pal(c, 7)
+		#pyxel.blt(self.subCnt*8, 24, 4, self.subCnt*8, 24, 40, 80, 0)
+		gcommon.drawPolygonSystemImage(gcommon.getShitPoints([x, y], TitleScene.polyPoints))
+		pyxel.pal()
+
 	def drawMenu(self, startFlag, rate):
 		pyxel.pal()
 		y = 120

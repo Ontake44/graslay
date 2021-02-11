@@ -10,6 +10,7 @@ import pygame.mixer
 from optionMenu import OptionMenuScene
 from title import TitleScene
 import customStartMenu
+import launch
 import ending
 
 # 自機
@@ -68,7 +69,7 @@ class MyShip:
 			# 復活中
 			self.dx = 0
 			self.x += 1
-			if self.x >= 8:
+			if self.x >= gcommon.MYSHIP_START_X:
 				self.cnt = 0
 				self.sub_scene = 4
 		elif self.sub_scene == 4:
@@ -305,14 +306,8 @@ class MyShip:
 		return s
 	
 	def setStartPosition(self):
-		self.x = 8
+		self.x = gcommon.MYSHIP_START_X
 		self.y = gcommon.MYSHIP_START_Y
-		self.yBuffer = [0] * 20
-		self.yBufferIndex = 0
-
-	def getLastYBuffer(self):
-		i = (self.yBufferIndex +1) % len(self.yBuffer)
-		return self.yBuffer[i]
 		
 
 # return True: 消えた False:消えてない
@@ -1289,7 +1284,6 @@ class MainGame:
 		self.story_pos = 0
 		self.event_pos = 0
 		self.mapOffsetX = 0
-		self.star_pos = 0
 		gcommon.drawMap = None
 		gcommon.game_timer = 0
 		gcommon.map_x = 0
@@ -1492,9 +1486,9 @@ class MainGame:
 
 		# 星
 		if gcommon.scroll_flag and gcommon.draw_star:
-			self.star_pos -= 0.2
-			if self.star_pos<0:
-				self.star_pos += 255
+			gcommon.star_pos -= 0.2
+			if gcommon.star_pos<0:
+				gcommon.star_pos += 255
 
 		self.ExecuteEvent()
 
@@ -1560,8 +1554,7 @@ class MainGame:
 		
 		# 星
 		if gcommon.draw_star:
-			for i in range(0,96):
-				pyxel.pset(((int)(gcommon.star_ary[i][0]+self.star_pos))&255, i*2, gcommon.star_ary[i][1])
+			gcommon.drawStar(gcommon.star_pos)
 
 		gcommon.ObjMgr.drawDrawMapBackground()
 
@@ -1780,16 +1773,11 @@ class MainGame:
 					if obj.checkMyShipCollision():
 						self.my_broken()
 						break
-				#elif obj.layer==gcommon.C_LAYER_ITEM:
-				#	if gcommon.check_collision(obj, gcommon.ObjMgr.myShip):
-				#		self.catch_item(obj)
-				#		obj.removeFlag = True
 
 	def my_broken(self):
 		gcommon.ObjMgr.myShip.sub_scene = 2
 		gcommon.ObjMgr.myShip.cnt = 0
-		#gcommon.power = gcommon.START_MY_POWER
-		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+		gcommon.sound(gcommon.SOUND_LARGE_EXP, gcommon.SOUND_CH1)
 
 	def initEvent(self):
 		if self.stage == 1:
@@ -1807,7 +1795,7 @@ class MainGame:
 	
 	def initEvent1(self):
 		self.eventTable =[ \
-			[0, StartBGM, gcommon.BGM.STAGE1],
+			#[0, StartBGM, gcommon.BGM.STAGE1],
 			[660,StartMapDraw1],		\
 			[1560,SetMapScroll, 0.25, -0.25],	\
 			[2180,SetMapScroll, 0.5, 0.0],
@@ -2298,9 +2286,14 @@ class App:
 			gcommon.enemy_shot_rate = 1.0
 		gcommon.GameSession.credits -= 1
 		gcommon.GameSession.playerStock -= 1
-		self.setScene(MainGame(self.stage))
+		# 発艦
+		self.setScene(launch.LaunchScene())
+		
 		# Ending Test
 		#self.setScene(ending.EndingScene())
+
+	def startMainGame(self):
+		self.setScene(MainGame(1))
 
 	def startCustomGame(self, difficulty, stage, playerStock):
 		self.stage = stage
@@ -2346,7 +2339,6 @@ class App:
 	def update(self):
 		if pyxel.btnp(pyxel.KEY_Q):
 			pyxel.quit()
-
 
 		if self.nextScene != None:
 			self.nextScene.init()

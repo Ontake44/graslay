@@ -111,7 +111,13 @@ SOUND_FEELER_GROW = 14
 SOUND_BOSS3_ANCHOR = 15
 SOUND_AFTER_BURNER = 16
 SOUND_SHOT3 = 17
-SOUND_MENUMOVE=18
+SOUND_MENUMOVE = 18
+
+# ch
+# 0 : 敵の爆発
+# 1 : 自機ショット、自機爆発
+SOUND_CH0 = 0
+SOUND_CH1 = 1
 
 #                 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
 sound_priority = [0,2,1,4,5,3,6,0,8,1, 0, 6, 6, 1, 6, 6, 6, 1, 0]
@@ -152,6 +158,7 @@ atan_table = []
 cos_table = []
 sin_table = []
 
+MYSHIP_START_X = 8
 MYSHIP_START_Y = 200/2 -8
 
 # 座標系は下の上下逆になることに注意
@@ -204,6 +211,7 @@ powerRate = 1.0
 enemy_shot_rate = 1		# EASY:0.75  NORMAL:1.0
 
 draw_star = False
+star_pos = 0
 
 app = None
 
@@ -270,7 +278,8 @@ class BGM:
 		[1.0, "game_maoudamashii_9_jingle02.mp3"],
 		[1.0, "game_maoudamashii_9_jingle07.mp3"],
 		[1.0, "idola_cell.mp3"],
-		[0.6, "Fireworks.mp3"]
+		[0.6, "Fireworks.mp3"],
+		[1.0, "Dream_Fantasy.mp3"]		#"Runners_High.mp3"
 	] 
 
 	STAGE1 = 0		#"Dream_Fantasy.mp3"
@@ -288,6 +297,7 @@ class BGM:
 	#TITLE = "Underground_Worship.mp3"
 	TITLE = 12		#"idola_cell.mp3"
 	ENDING = 13
+	LAUNCH = 14
 
 	@classmethod
 	def getBgm(cls, no):
@@ -418,6 +428,10 @@ def initStar():
 	for i in range(0,96):
 		o = [int(random.randrange(0,256)), int(random.randrange(0,2)+5)]
 		star_ary.append(o)
+
+def drawStar(star_pos):
+	for i in range(0,96):
+		pyxel.pset(((int)(star_ary[i][0] +star_pos))&255, i*2, star_ary[i][1])
 
 def resource_path(relative_path):
     try:
@@ -672,20 +686,20 @@ def draw_splash2(o, offset):
 		#- kore ha tekito
 		r += 0.11 + i*0.04
 
-def sound(snd):
+def sound(snd,ch=0):
 	if Settings.soundVolume > 0:
-		n = pyxel.play_pos(0)
+		n = pyxel.play_pos(ch)
 		if n >=0:
 			pass
 			#print("snd=" + hex(n))
 		if (n == -1):
-			pyxel.play(0, snd)
+			pyxel.play(ch, snd)
 		else:
 			sn = int(n/100)
 			if sn < len(sound_priority):
 				if sound_priority[sn]<sound_priority[snd]:
-					pyxel.stop(0)
-					pyxel.play(0, snd)
+					pyxel.stop(ch)
+					pyxel.play(ch, snd)
 			else:
 				print("Illegal sound number! " + str(sn))
 
@@ -721,6 +735,7 @@ class ObjMgr:
 		cls.myShip = None
 		cls.shots.clear()
 		cls.shotGroups.clear()
+		cls.missleGroups.clear()
 		cls.objs.clear()
 		cls.nextDrawMap = None
 		cls.drawMap = None
@@ -1018,6 +1033,9 @@ def drawPolygons(polys):
 	for p in polys.polygons:
 		drawPolygon3(p)
 
+# destPos   [x,y]
+# points    [[x0,y0],[x1,y1],...]
+# offsetPos [x,y]
 def getAnglePoints(destPos, points, offsetPos, rad):
 	xpoints = []
 	c = math.cos(rad)
@@ -1025,6 +1043,17 @@ def getAnglePoints(destPos, points, offsetPos, rad):
 	for p in points:
 		x = destPos[0] + (p[0]- offsetPos[0]) * c - (p[1] -offsetPos[1]) * s
 		y = destPos[1] + ((p[0] -offsetPos[0]) * s + (p[1] -offsetPos[1]) * c)
+		xpoints.append([x,y])
+	return xpoints
+
+# destPos   [x,y]
+# points    [[x0,y0],[x1,y1],...]
+# offsetPos [x,y]
+def getShitPoints(destPos, points):
+	xpoints = []
+	for p in points:
+		x = destPos[0] + p[0]
+		y = destPos[1] + p[1]
 		xpoints.append([x,y])
 	return xpoints
 
@@ -1243,6 +1272,7 @@ def setPolyPoints(points, start, end, includeStart):
 					yy += 1
 
 # ソリッド・エリア・スキャン・コンバージョン？でポリゴンを描く
+# バンク４に描く
 # poly [x,y]配列
 def drawPolygonSystemImage(poly):
 	points = []
