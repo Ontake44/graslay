@@ -1387,3 +1387,11 @@ def drawMenuCursor():
 def drawRectbs(rects, clr):
 	for rect in rects:
 		pyxel.rectb(rect.left, rect.top, rect.getWidth(), rect.getHeight(), clr)
+
+# 符号付整数化
+# sint(-1.5) -> -2
+def sint(n):
+	if n > 0:
+		return int(n)
+	else:
+		return int(n -0.5)

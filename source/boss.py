@@ -2127,7 +2127,6 @@ class BossLast1(enemy.EnemyBase):
 		self.right = 111
 		self.bottom = 111
 		self.hp = BossLast1.initHp
-		print("inithp = " + str(self.hp))
 		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.ground = True
 		self.score = 20000
