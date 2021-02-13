@@ -110,6 +110,16 @@ class LaunchScene:
 		pyxel.cls(0)
 		gcommon.drawStar(gcommon.star_pos)
 
+		shipx = gcommon.sint(self.x)
+		if self.x > -512:
+			# 下半分
+
+			self.setLightPal()
+			pyxel.blt(shipx, self.y2, 2, 0, 0, 256, 96, gcommon.TP_COLOR)
+			pyxel.blt(shipx +256, self.y2, 2, 0, 96, 216, 96, gcommon.TP_COLOR)
+			pyxel.pal()
+
+
 		# 自機
 		if self.state >= 2:
 			pyxel.blt(self.mx, self.my, 0, 0, 0, 24, 16, gcommon.TP_COLOR)
@@ -121,28 +131,28 @@ class LaunchScene:
 				if self.cnt % 2 == 0:
 					pyxel.blt(self.mx-32, self.my+4, 0, 120, 8, 32, 8, gcommon.TP_COLOR)
 
+			if (self.y2 - self.y) > 2:
+				for i in range(0, 3):
+					if pyxel.frame_count & 2 == 0:
+						pyxel.blt(shipx +96 +i*32, self.y+64, 2, 0 + ((pyxel.frame_count>>3) & 3) *8, 208 , 8, 2, gcommon.TP_COLOR)
 		# 上半分
 		if self.x > -512:
 			self.setLightPal()
-			pyxel.blt(self.x, self.y, 1, 0, 0, 256, 64, gcommon.TP_COLOR)
-			pyxel.blt(self.x +256, self.y, 1, 0, 96, 216, 64, gcommon.TP_COLOR)
-			pyxel.blt(self.x, self.y+64, 1, 0, 64, 80, 32, gcommon.TP_COLOR)
+			pyxel.blt(shipx, self.y, 1, 0, 0, 256, 64, gcommon.TP_COLOR)
+			pyxel.blt(shipx +256, self.y, 1, 0, 96, 216, 64, gcommon.TP_COLOR)
+			pyxel.blt(shipx, self.y+64, 1, 0, 64, 80, 32, gcommon.TP_COLOR)
 			pyxel.pal()
 
-		if self.x > -512:
-			# 下半分
-			self.setLightPal()
-			pyxel.blt(self.x, self.y2, 2, 0, 0, 256, 96, gcommon.TP_COLOR)
-			pyxel.blt(self.x +256, self.y2, 2, 0, 96, 216, 96, gcommon.TP_COLOR)
-			pyxel.pal()
+			# 下半分の、手前に来るところをもう一度描く
+			pyxel.blt(shipx +122, self.y2 +57, 2, 122, 57, 80, 7, gcommon.TP_COLOR)
 
 			# バーニア
 			if self.cnt % 2 == 0:
 				sx = 72 if self.cnt % 4 == 0 else 120
-				pyxel.blt(gcommon.sint(self.x -27), self.y+36, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
-				pyxel.blt(gcommon.sint(self.x -22), self.y+48, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
-				pyxel.blt(gcommon.sint(self.x -22), self.y+59, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
-				pyxel.blt(gcommon.sint(self.x -27), self.y+71, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
+				pyxel.blt(shipx -27, self.y+36, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
+				pyxel.blt(shipx -22, self.y+48, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
+				pyxel.blt(shipx -22, self.y+59, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
+				pyxel.blt(shipx -27, self.y+71, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
 
 		for obj in self.objs:
 			if obj.removeFlag == False:
