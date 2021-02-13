@@ -12,6 +12,7 @@ class LaunchScene:
 		self.x = 256	# -256 -216
 		self.targetX = -16
 		self.y = gcommon.MYSHIP_START_Y +12  -50
+		self.y2 = self.y
 		self.dx = 0	#3
 		#self.dy = -2
 		self.mx = 80
@@ -23,7 +24,8 @@ class LaunchScene:
 		gcommon.BGM.play(gcommon.BGM.LAUNCH)
 
 	def init(self):
-		pyxel.image(1).load(0,0,"assets/launch.png")
+		pyxel.image(1).load(0,0,"assets/launch1.png")
+		pyxel.image(2).load(0,0,"assets/launch2.png")
 
 	def update(self):
 		gcommon.star_pos -= 0.2
@@ -50,8 +52,9 @@ class LaunchScene:
 			self.nextState()
 		elif self.state == 2:
 			# 自機発艦準備
-			if (self.y + 50-12) < self.my:
-				self.my -= 0.25
+			if (self.y + 50+12) > self.my:
+				self.my += 0.25
+				self.y2 += 0.25
 			if self.cnt > 60 and self.cnt < 90:
 				self.afterBurner = 1
 				gcommon.sound(gcommon.SOUND_AFTER_BURNER)
@@ -107,12 +110,6 @@ class LaunchScene:
 		pyxel.cls(0)
 		gcommon.drawStar(gcommon.star_pos)
 
-		# 上半分
-		if self.x > -512:
-			self.setLightPal()
-			pyxel.blt(self.x, self.y, 1, 0, 0, 256, 50, gcommon.TP_COLOR)
-			pyxel.blt(self.x +256, self.y, 1, 0, 96, 216, 50, gcommon.TP_COLOR)
-			pyxel.pal()
 		# 自機
 		if self.state >= 2:
 			pyxel.blt(self.mx, self.my, 0, 0, 0, 24, 16, gcommon.TP_COLOR)
@@ -124,12 +121,19 @@ class LaunchScene:
 				if self.cnt % 2 == 0:
 					pyxel.blt(self.mx-32, self.my+4, 0, 120, 8, 32, 8, gcommon.TP_COLOR)
 
+		# 上半分
+		if self.x > -512:
+			self.setLightPal()
+			pyxel.blt(self.x, self.y, 1, 0, 0, 256, 64, gcommon.TP_COLOR)
+			pyxel.blt(self.x +256, self.y, 1, 0, 96, 216, 64, gcommon.TP_COLOR)
+			pyxel.blt(self.x, self.y+64, 1, 0, 64, 80, 32, gcommon.TP_COLOR)
+			pyxel.pal()
 
 		if self.x > -512:
 			# 下半分
 			self.setLightPal()
-			pyxel.blt(self.x, self.y+50, 1, 0, 50, 256, 96-50, gcommon.TP_COLOR)
-			pyxel.blt(self.x +256, self.y+50, 1, 0, 96+50, 216, 96-50, gcommon.TP_COLOR)
+			pyxel.blt(self.x, self.y2, 2, 0, 0, 256, 96, gcommon.TP_COLOR)
+			pyxel.blt(self.x +256, self.y2, 2, 0, 96, 216, 96, gcommon.TP_COLOR)
 			pyxel.pal()
 
 			# バーニア
