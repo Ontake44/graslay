@@ -11,21 +11,21 @@ class LaunchScene:
 		self.state = 0
 		self.x = 256	# -256 -216
 		self.targetX = -16
-		self.y = gcommon.MYSHIP_START_Y +12  -50
+		self.y = gcommon.MYSHIP_START_Y -64
 		self.y2 = self.y
 		self.dx = 0	#3
 		#self.dy = -2
 		self.mx = 80
-		self.my = self.y + 50
+		self.my = self.y + 64-14
 		self.mdx = 0
 		self.afterBurner = 0
 		self.cnt = 0
 		self.objs = []
-		gcommon.BGM.play(gcommon.BGM.LAUNCH)
 
 	def init(self):
 		pyxel.image(1).load(0,0,"assets/launch1.png")
 		pyxel.image(2).load(0,0,"assets/launch2.png")
+		gcommon.BGM.play(gcommon.BGM.LAUNCH)
 
 	def update(self):
 		gcommon.star_pos -= 0.2
@@ -52,7 +52,7 @@ class LaunchScene:
 			self.nextState()
 		elif self.state == 2:
 			# 自機発艦準備
-			if (self.y + 50+12) > self.my:
+			if (self.y + 64) > self.my:
 				self.my += 0.25
 				self.y2 += 0.25
 			if self.cnt > 60 and self.cnt < 90:
