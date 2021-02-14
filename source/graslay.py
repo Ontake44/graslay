@@ -1269,8 +1269,9 @@ class SetMapScroll:
 		pass
 
 class MainGame:
-	def __init__(self, stage):
+	def __init__(self, stage, restart=False):
 		self.stage = stage
+		self.restart = restart
 	
 	def init(self):
 		self.mouseManager = gcommon.MouseManager()
@@ -1313,6 +1314,9 @@ class MainGame:
 			loadMapData(1, "assets/graslay1b.pyxmap")
 			loadMapAttribute("assets/graslay1.mapatr")
 			pyxel.tilemap(1).refimg = 1
+			if self.restart:
+				# 初期スタートは発艦時にBGM開始されているので、BGM流すのはリスタート時だけ
+				gcommon.BGM.play(gcommon.BGM.STAGE1)
 		elif self.stage == 2:
 			#pyxel.load("assets/graslay_dangeon22.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay2.png")
@@ -1456,11 +1460,11 @@ class MainGame:
 			if self.pauseMenuPos == 0:
 				if gcommon.checkShotKeyRectP(self.pauseMenuRects[self.pauseMenuPos]):
 					# YES
-					self.pauseMode = gcommon.PAUSE_NONE
-					gcommon.GameSession.credits -= 1
-					pygame.mixer.music.unpause()
-					gcommon.GameSession.playerStock = gcommon.Defaults.INIT_PLAYER_STOCK -1
-					gcommon.ObjMgr.myShip.sub_scene = 3
+					# コンティニー時はステージ最初に戻される
+					# self.pauseMode = gcommon.PAUSE_NONE
+					# gcommon.ObjMgr.myShip.sub_scene = 3
+					gcommon.GameSession.execContinue()
+					gcommon.app.restartStage()
 
 			elif self.pauseMenuPos == 1:
 				if gcommon.checkShotKeyRectP(self.pauseMenuRects[self.pauseMenuPos]):
@@ -2314,6 +2318,9 @@ class App:
 	def startStage(self, stage):
 		self.stage = stage
 		self.setScene(MainGame(stage))
+
+	def restartStage(self):
+		self.setScene(MainGame(self.stage, True))
 
 	def startNextStage(self):
 		if self.stage == 6:

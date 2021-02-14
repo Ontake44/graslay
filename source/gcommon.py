@@ -112,6 +112,7 @@ SOUND_BOSS3_ANCHOR = 15
 SOUND_AFTER_BURNER = 16
 SOUND_SHOT3 = 17
 SOUND_MENUMOVE = 18
+SOUND_EXTENDED = 7
 
 # ch
 # 0 : 敵の爆発
@@ -120,7 +121,7 @@ SOUND_CH0 = 0
 SOUND_CH1 = 1
 
 #                 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
-sound_priority = [0,2,1,4,5,3,6,0,8,1, 0, 6, 6, 1, 6, 6, 6, 1, 0]
+sound_priority = [0,2,1,4,5,3,6,8,8,1, 0, 6, 6, 1, 6, 6, 6, 1, 0]
 
 KEY_HOLD = 20
 KEY_PERIOD = 5
@@ -225,6 +226,8 @@ class GameSession:
 	difficulty = DIFFICULTY_NORMAL
 	playerStock = 0
 	score = 0
+	scoreCheck = 0
+	scoreFirstExtend = False
 	credits = 0
 	gameMode = GAMEMODE_NORMAL
 	weaponSave = WEAPON_STRAIGHT
@@ -234,6 +237,9 @@ class GameSession:
 		GameSession.difficulty = difficulty
 		GameSession.playerStock = playerStock
 		GameSession.score = 0
+		GameSession.scoreCheck = 0
+		GameSession.scoreFirstExtend = False
+
 		GameSession.gameMode = gameMode
 		GameSession.credits = credits
 		GameSession.weaponSave = WEAPON_STRAIGHT
@@ -249,6 +255,26 @@ class GameSession:
 	@classmethod
 	def addScore(cls, score):
 		GameSession.score += score
+		GameSession.scoreCheck += score
+		if GameSession.scoreFirstExtend == False and GameSession.scoreCheck >= 20000:
+			GameSession.playerStock += 1
+			GameSession.scoreFirstExtend = True
+			sound(SOUND_EXTENDED, SOUND_CH1)
+			debugPrint("First Extended")
+		elif GameSession.scoreCheck >= 50000:
+			GameSession.playerStock += 1
+			GameSession.scoreCheck = 0
+			sound(SOUND_EXTENDED, SOUND_CH1)
+			debugPrint("Extended by 50000")
+
+	# 
+	@classmethod
+	def execContinue(cls):
+		GameSession.credits -= 1
+		GameSession.playerStock = Defaults.INIT_PLAYER_STOCK -1
+		GameSession.score = 0
+		GameSession.scoreCheck = 0
+		GameSession.scoreFirstExtend = False
 
 # ====================================================================
 
@@ -1395,3 +1421,7 @@ def sint(n):
 		return int(n)
 	else:
 		return int(n -0.5)
+
+def debugPrint(s):
+	if DebugMode:
+		print(s)
