@@ -1891,21 +1891,22 @@ class BossFactory(enemy.EnemyBase):
 				# 		yy = self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32
 				# 		enemy.enemy_shot(xx, yy, 3, 0)
 				if self.subCnt & 31 == 1:
+					rr = 0 if self.finMode == 0 else math.pi/4
 					n = 5 if gcommon.GameSession.isNormalOrMore() else 4
 					dr = gcommon.get_atan_no_to_ship(self.x +39.5, self.y +39.5)
 					if self.subCnt & 32 == 0:
 						#print("5")
 						for i in range(4):
 							enemy.enemy_shot_dr_multi(
-								self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
-								self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+								self.x +39.5 +math.cos(self.rad + rr +math.pi/2 * i) * 32,
+								self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
 								2, 0, dr, n, 6)
 					else:
 						#print("4")
 						for i in range(4):
 							enemy.enemy_shot_dr_multi(
-								self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
-								self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+								self.x +39.5 +math.cos(self.rad + rr +math.pi/2 * i) * 32,
+								self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
 								2, 0, dr, n -1, 4)
 
 				if self.subCnt > 150:
