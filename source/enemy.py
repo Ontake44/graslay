@@ -104,6 +104,7 @@ class EnemyBase:
 				if shot.effect and self.shotEffect:
 					# 跳弾表示
 					Particle1.appendShotCenter(shot)
+					gcommon.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
 				self.hit = True
 			return True
 		else:
@@ -2172,6 +2173,7 @@ class Lift1(EnemyBase):
 		self.right = 63
 		self.bottom = 15
 		self.hp = 999999
+		self.shotEffect = False
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True
 		self.hitCheck = True

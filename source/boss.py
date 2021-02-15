@@ -1899,14 +1899,14 @@ class BossFactory(enemy.EnemyBase):
 							enemy.enemy_shot_dr_multi(
 								self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
 								self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32,
-								2, 0, dr, n, 5)
+								2, 0, dr, n, 6)
 					else:
 						#print("4")
 						for i in range(4):
 							enemy.enemy_shot_dr_multi(
 								self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
 								self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32,
-								2, 0, dr, n -1, 5)
+								2, 0, dr, n -1, 4)
 
 				if self.subCnt > 150:
 					self.setSubState(2)
@@ -1982,6 +1982,7 @@ class BossFactory(enemy.EnemyBase):
 		if hit:
 			rad = math.atan2(shot.dy, shot.dx)
 			enemy.Particle1.appendCenter(shot, rad)
+			gcommon.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
 			self.hp -= shot.shotPower
 			if self.hp <= 0:
 				self.broken()
