@@ -1471,6 +1471,7 @@ class BossFactoryShot1(enemy.EnemyBase):
 		self.image = 2
 		self.imageX = 0
 		self.imageY = 96
+		self.maxSpeed = 4 if gcommon.GameSession.isNormalOrMore() else 3
 
 	def update(self):
 		if self.cnt & 2 == 0 and self.cnt <= 63:
@@ -1630,6 +1631,9 @@ class BossFactory(enemy.EnemyBase):
 		self.moveDr64 = 0
 		self.speed = 0
 		self.stateCycle = 0
+		# 回転ON/OFF
+		self.rolling = True
+		self.dr64 = 0
 
 	def nextState(self):
 		self.state += 1
@@ -1651,9 +1655,13 @@ class BossFactory(enemy.EnemyBase):
 
 	def update(self):
 		self.subCnt += 1
-		self.rad += self.omega
-		if self.rad >= math.pi*2:
-			self.rad -= math.pi*2
+		if self.rolling:
+			self.rad += self.omega
+		if self.rad >= math.pi/2:
+			self.rad -= math.pi/2
+		elif self.rad <= -math.pi/2:
+			self.rad += math.pi/2
+
 		if self.state == 0:
 			if self.subState == 0:
 				# 後ろから落下
@@ -1708,6 +1716,7 @@ class BossFactory(enemy.EnemyBase):
 			elif self.subState == 2:
 				# 開いている（攻撃）
 				if self.stateCycle & 1 == 0:
+					# 最初（奇数）のサイクル
 					if self.finMode == 0:
 						if self.subCnt & 7 == 0:
 							for i in range(4):
@@ -1726,6 +1735,7 @@ class BossFactory(enemy.EnemyBase):
 					if self.subCnt == 30:
 						self.setSubState(3)
 				else:
+					# 偶数サイクル
 					if self.finMode == 0:
 						rr = 0
 						if self.subCnt % 20 == 0:
@@ -1795,6 +1805,7 @@ class BossFactory(enemy.EnemyBase):
 					elif self.dy < 2.0:
 						self.dy += 0.05
 		elif self.state == 2:
+			# 拡散ビーム
 			if self.subState == 0:
 				# 待ち
 				if self.centerRadius >= 1:
@@ -1854,11 +1865,59 @@ class BossFactory(enemy.EnemyBase):
 				l = math.hypot(152 -self.x, (gcommon.SCREEN_HEIGHT -80)/2 -self.y)
 				if l < 4:
 					self.stateCycle += 1
-					self.setState(1)
+					# ステート1に戻る
+					self.setState(4)
 				elif l < 50:
 					self.speed -= 0.25
 					if self.speed < 0.5:
 						self.speed = 0.5
+		elif self.state == 4:
+			if self.subState == 0:
+				# 開く
+				if self.distance < 38:
+					self.distance += 0.5
+				#print("rad = " + str(self.rad))
+				if self.distance >= 38 and abs(self.rad) <= math.pi/64 :
+					self.rad = 0.0
+					self.rolling = False
+					self.setSubState(1)
+					self.dr64 = -1
+			elif self.subState == 1:
+				#if self.dr64 == -1:
+				#	self.dr64 = gcommon.get_atan_no_to_ship(xx, yy)
+				# if self.subCnt & 7 == 0:
+				# 	for i in range(4):
+				# 		xx = self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32
+				# 		yy = self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32
+				# 		enemy.enemy_shot(xx, yy, 3, 0)
+				if self.subCnt & 31 == 1:
+					n = 5 if gcommon.GameSession.isNormalOrMore() else 4
+					dr = gcommon.get_atan_no_to_ship(self.x +39.5, self.y +39.5)
+					if self.subCnt & 32 == 0:
+						#print("5")
+						for i in range(4):
+							enemy.enemy_shot_dr_multi(
+								self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+								self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+								2, 0, dr, n, 5)
+					else:
+						#print("4")
+						for i in range(4):
+							enemy.enemy_shot_dr_multi(
+								self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+								self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32,
+								2, 0, dr, n -1, 5)
+
+				if self.subCnt > 150:
+					self.setSubState(2)
+			elif self.subState == 2:
+				# 閉まる
+				self.distance -= 0.5
+				if self.distance < 22:
+					self.distance = 22.0
+					# ステート1に戻る
+					self.setState(1)
+					self.rolling = True
 
 		#self.xpoints1 = []
 		#self.xpoints2 = []

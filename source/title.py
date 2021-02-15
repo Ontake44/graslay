@@ -55,11 +55,10 @@ class TitleScene:
 			gcommon.Rect.createWH(128 -8 -48 -4, 120, 8, 8),
 			gcommon.Rect.createWH(128 +48 +4, 120, 8, 8),
 		]
-		gcommon.BGM.play(gcommon.BGM.TITLE)
 
 
 	def init(self):
-		pass
+		gcommon.BGM.play(gcommon.BGM.TITLE)
 
 	def update(self):
 		self.star_pos -= 0.25

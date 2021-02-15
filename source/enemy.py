@@ -28,8 +28,24 @@ def enemy_shot(x, y, speed, shotType):
 def enemy_shot_offset(x, y, speed, shotType, offsetDr):
 	gcommon.ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, offsetDr))
 
+def enemy_shot_multi(x, y, speed, shotType, count, angleDr):
+	for i in range(count):
+		gcommon.ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, int(angleDr * (count/2 -i))))
+
 def enemy_shot_dr(x, y, speed, shotType, dr):
 	gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr))
+
+def enemy_shot_dr_multi(x, y, speed, shotType, dr, count, angleDr):
+	if count & 1 == 1:
+		gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr))
+		for i in range(count>>1):
+			gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr + angleDr * i))
+			gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr - angleDr * i))
+	else:
+		for i in range(count>>1):
+			gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr + int(angleDr/2 + angleDr * i)))
+			gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr - int(angleDr/2 + angleDr * i)))
+
 
 def remove_all_battery():
 	for obj in gcommon.ObjMgr.objs:
