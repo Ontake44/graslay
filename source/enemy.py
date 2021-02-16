@@ -52,36 +52,37 @@ def remove_all_battery():
 		if obj.t==gcommon.T_BATTERY1:
 			obj.removeFlag = True
 
-# 敵
+# 敵基本クラス
 class EnemyBase:
 	def __init__(self):
-		self.t = 0
+		self.t = None		# パラメータリスト
 		self.x = 0
 		self.y = 0
 		self.left = 0
 		self.top = 0
 		self.right = 0
 		self.bottom = 0
-		self.collisionRects = None		# List of Rect
-		self.hp = 0
-		self.state = 0
-		self.cnt = 0
-		self.frameCount = 0
-		self.hit = False
-		self.layer = 0
-		self.score = 0
-		self.hitcolor1 = 0
-		self.hitcolor2 = 0
-		self.exptype = gcommon.C_EXPTYPE_SKY_S
-		self.expsound = -1
-		self.score = 0
-		self.ground = False			# スクロール同期
-		self.shotHitCheck = True	# 自機弾との当たり判定
-		self.hitCheck = True	# 自機と敵との当たり判定
+		self.collisionRects = None		# 当たり判定矩形リスト
+		self.hp = 0						# HP
+		self.state = 0					# 状態
+		self.cnt = 0					# 汎用カウント
+		self.frameCount = 0				# updateフレームカウント
+		self.hit = False				# ヒットフラグ
+		self.layer = 0					# 表示レイヤ
+		self.score = 0					# スコア
+		self.hitcolor1 = 0				# ヒットカラー変更前色
+		self.hitcolor2 = 0				# ヒットカラー変更後色
+		self.exptype = gcommon.C_EXPTYPE_SKY_S	# 爆発種類
+		self.expsound = -1				# 爆発サウンド
+		self.score = 0					# スコア
+		self.ground = False				# 地上フラグ（True:スクロール同期）
+		self.shotHitCheck = True		# 自機弾との当たり判定
+		self.hitCheck = True			# 自機と敵との当たり判定
 		self.enemyShotCollision = False	# 敵弾との当たり判定を行う
-		self.shotEffect = True		# 自機弾が当たった時のエフェクト
-		self.removeFlag = False
-		self.nextStateNo = -1
+		self.shotEffect = True			# 自機弾が当たった時のエフェクト
+		self.shotEffectSound = True		# エフェクトサウンド（shotEffect==Trueのみ）
+		self.removeFlag = False			# 削除フラグ
+		self.nextStateNo = -1			# 次状態
 
 	def nextState(self):
 		self.nextStateNo = self.state + 1
@@ -104,7 +105,8 @@ class EnemyBase:
 				if shot.effect and self.shotEffect:
 					# 跳弾表示
 					Particle1.appendShotCenter(shot)
-					gcommon.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
+					if self.shotEffectSound:
+						gcommon.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
 				self.hit = True
 			return True
 		else:
@@ -2620,6 +2622,7 @@ class Spider1(EnemyBase):
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True
 		self.score = 200
+		self.shotEffectSound = False
 		self.legPos = 0
 		self.legMax = 36
 		self.legAngle = 40		#35
@@ -3213,6 +3216,7 @@ class Shutter3(EnemyBase):
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
+		self.shotEffectSound = False
 
 	def update(self):
 		if self.x <= -16:
@@ -3293,6 +3297,7 @@ class BattleShip1(EnemyBase):
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
+		self.shotEffectSound = False
 		self.cnt2 = 0
 		self.mover = CountMover(self, self.moveTable, False)
 		self.laser = None
