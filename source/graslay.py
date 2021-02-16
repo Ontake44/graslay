@@ -6,6 +6,12 @@ import os
 import gcommon
 import enemy
 import boss
+import boss1
+import boss2
+import boss3
+import boss4
+import bossFactory
+import bossLast
 import pygame.mixer
 from optionMenu import OptionMenuScene
 from title import TitleScene
@@ -1314,8 +1320,8 @@ class MainGame:
 			loadMapData(1, "assets/graslay1b.pyxmap")
 			loadMapAttribute("assets/graslay1.mapatr")
 			pyxel.tilemap(1).refimg = 1
-			if self.restart:
-				# 初期スタートは発艦時にBGM開始されているので、BGM流すのはリスタート時だけ
+			if self.restart or gcommon.GameSession.gameMode == gcommon.GAMEMODE_CUSTOM:
+				# 初期スタートは発艦時にBGM開始されているので、BGM流すのはリスタート・カスタム時だけ
 				gcommon.BGM.play(gcommon.BGM.STAGE1)
 		elif self.stage == 2:
 			#pyxel.load("assets/graslay_dangeon22.pyxres", False, False, True, True)
@@ -1974,8 +1980,8 @@ class MainGame:
 			[4730, enemy.RollingFighter1Group, 110, 15, 4],		\
 			[4830, enemy.MissileShip, 120, 200],		\
 			[4860, enemy.MissileShip, 70, 200],		\
-			[5100, boss.Boss1, 256, 60],		\
-			[5100, boss.Boss1Base, 256, 60],		\
+			[5100, boss1.Boss1, 256, 60],		\
+			[5100, boss1.Boss1Base, 256, 60],		\
 			# [5100, enemy.DockArm, 204, 59, 180],		\
 			# [5100, enemy.DockArm, 212, 59, 180],		\
 			# [5130, enemy.DockArm, 206, 59, 180],		\
@@ -2049,12 +2055,12 @@ class MainGame:
 			[6000, enemy.Worm1, 230, 8, 6, 5, 160],		\
 			[6000, enemy.Worm1, 228, 25, 2, 5, 160],		\
 
-			[6400, boss.Boss2, 241, 16],		\
+			[6400, boss2.Boss2, 241, 16],		\
 		]
 
 	def initStory3(self):
 		self.story=[ \
-			[3730+128, boss.Boss3],		\
+			[3730+128, boss3.Boss3],		\
 		]
 
 	def initStory4(self):
@@ -2067,7 +2073,7 @@ class MainGame:
 			[600, enemy.RollingFighter1Group, 30, 15, 4],		\
 			[2500, enemy.RollingFighter1Group, 120, 15, 4],		\
 			[3300, enemy.RollingFighter1Group, 30, 15, 4],		\
-			[4230 +512, boss.Boss4, 0, 0],		\
+			[4230 +512, boss4.Boss4, 0, 0],		\
 		]
 
 	def initStoryFactory(self):
@@ -2086,7 +2092,7 @@ class MainGame:
 			[4530, enemy.Jumper1, 256, 30, 0.05],		\
 			[4600, enemy.Jumper1, 256, 20, 0.05],		\
 			[4630, enemy.Jumper1, 256, 30, 0.05],		\
-			[6850, boss.BossFactory, 0, 0],		\
+			[6850, bossFactory.BossFactory, 0, 0],		\
 		]
 
 	def initStoryLast(self):
@@ -2215,7 +2221,7 @@ class MainGame:
 			[7300 +baseOffset, enemy.Tank1, -24, 16, 1, 3],	\
 			[7400 +baseOffset, enemy.Tank1, 256, 16, 1, 0],	\
 			[7500 +baseOffset, enemy.Tank1, -24, 16, 1, 3],	\
-			[8400 +baseOffset, boss.BossLast1],	\
+			[8400 +baseOffset, bossLast.BossLast1],	\
 		]
 
 def parseCommandLine():
@@ -2356,6 +2362,5 @@ class App:
 	def draw(self):
 
 		self.scene.draw()
-
 
 App()
