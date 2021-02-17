@@ -114,7 +114,7 @@ class BossFactory(enemy.EnemyBase):
 		self.right = 87
 		self.bottom = 45
 		self.hp = boss.BOSS_FACTORY_HP
-		self.score = 10000
+		self.score = 15000
 		self.subState = 0
 		self.subCnt = 0
 		self.hitcolor1 = 9

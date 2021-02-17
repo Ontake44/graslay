@@ -776,7 +776,7 @@ class Fan1a(EnemyBase):
 		self.dy = 0
 		self.time1 = 30
 		self.layer = gcommon.C_LAYER_SKY
-		self.score = 10
+		self.score = 50
 		self.targetX = (gcommon.SCREEN_MAX_X - gcommon.SCREEN_MIN_X)/2.0
 		self.targetY = (gcommon.SCREEN_MAX_Y - gcommon.SCREEN_MIN_Y)/2.0
 		self.x = self.targetX + math.cos(self.dr) * 180
@@ -868,7 +868,7 @@ class Fan1(EnemyBase):
 		#self.time1 = 60
 		#self.time2 = 90
 		self.layer = gcommon.C_LAYER_SKY
-		self.score = 10
+		self.score = 50
 	
 	def update(self):
 		if self.state == 0:
@@ -3120,7 +3120,7 @@ class Fan2(EnemyBase):
 		self.hp = 1
 		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.ground = True
-		self.score = 10
+		self.score = 50
 
 	def update(self):
 		if self.state == 0:
@@ -3550,7 +3550,7 @@ class Fighter3(EnemyBase):
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
 		self.mover = CountMover(self, self.moveTable, False)
-		self.score = 30
+		self.score = 100
 
 	def update(self):
 		self.mover.update()

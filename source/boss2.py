@@ -384,7 +384,7 @@ class Boss2(enemy.EnemyBase):
 		self.hp = 999999		# 破壊できない
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True
-		self.score = 5000
+		self.score = 7000
 		self.subcnt = 0
 		self.dx = 0.5
 		self.dy = 0

@@ -44,7 +44,7 @@ class Boss3(enemy.EnemyBase):
 		self.bottom = 38
 		self.hp = boss.BOSS_3_HP
 		self.layer = gcommon.C_LAYER_SKY
-		self.score = 5000
+		self.score = 10000
 		self.subcnt = 0
 		self.hitcolor1 = 13
 		self.hitcolor2 = 7
