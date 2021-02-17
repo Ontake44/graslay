@@ -97,7 +97,6 @@ C_COLOR_KEY = 13
 SOUND_SHOT = 0
 SOUND_MID_EXP = 1
 SOUND_SMALL_EXP = 2
-#SOUND_ITEM_GET = 3
 SOUND_HIT = 3
 SOUND_LARGE_EXP = 4
 SOUND_PWUP = 6
@@ -114,6 +113,7 @@ SOUND_AFTER_BURNER = 16
 SOUND_SHOT3 = 17
 SOUND_MENUMOVE = 18
 SOUND_EXTENDED = 7
+SOUND_ITEM_GET = 19
 
 # ch
 # 0 : 敵の爆発
@@ -122,8 +122,8 @@ SOUND_CH0 = 0
 SOUND_CH1 = 1
 SOUND_CH2 = 2
 
-#                 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
-sound_priority = [0,2,1,4,5,3,6,8,8,1, 0, 6, 6, 1, 6, 6, 6, 1, 0]
+#                 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+sound_priority = [0,2,1,4,5,3,6,8,8,1, 0, 6, 6, 1, 6, 6, 6, 1, 0, 5]
 
 KEY_HOLD = 20
 KEY_PERIOD = 5
@@ -268,6 +268,11 @@ class GameSession:
 			GameSession.scoreCheck = 0
 			sound(SOUND_EXTENDED, SOUND_CH1)
 			debugPrint("Extended by 50000")
+
+	@classmethod
+	def addPlayerStock(cls):
+		GameSession.playerStock += 1
+		sound(SOUND_EXTENDED, SOUND_CH1)
 
 	# 
 	@classmethod

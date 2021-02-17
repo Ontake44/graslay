@@ -18,6 +18,7 @@ from title import TitleScene
 import customStartMenu
 import launch
 import ending
+import item
 
 # 自機
 class MyShip:
@@ -720,6 +721,12 @@ class MapDraw1:
 					gcommon.setMapDataByMapPos(mx, my, 0)
 					obj = enemy.FixedShutter1(mx, my, 2)
 					gcommon.ObjMgr.addObj(obj)
+				elif n in (426, 427):
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					gcommon.ObjMgr.addObj(item.ScoreItem1(mx, my, (n==427)))
+				elif n in (428, 429):
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					gcommon.ObjMgr.addObj(item.OneUpItem1(mx, my, (n==429)))
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 
