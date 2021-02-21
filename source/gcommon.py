@@ -7,6 +7,7 @@ import sys
 import os
 import random
 import pygame.mixer
+import item
 
 START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 
@@ -1432,3 +1433,16 @@ def sint(n):
 def debugPrint(s):
 	if DebugMode:
 		print(s)
+
+
+def doMapCharacter(n, mx, my):
+	if n in (426, 427):
+		setMapDataByMapPos(mx, my, 0)
+		ObjMgr.addObj(item.ScoreItem1(mx, my, (n==427)))
+		return True
+	elif n in (428, 429):
+		setMapDataByMapPos(mx, my, 0)
+		ObjMgr.addObj(item.OneUpItem1(mx, my, (n==429)))
+		return True
+	else:
+		return False

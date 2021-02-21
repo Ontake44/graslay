@@ -721,12 +721,6 @@ class MapDraw1:
 					gcommon.setMapDataByMapPos(mx, my, 0)
 					obj = enemy.FixedShutter1(mx, my, 2)
 					gcommon.ObjMgr.addObj(obj)
-				elif n in (426, 427):
-					gcommon.setMapDataByMapPos(mx, my, 0)
-					gcommon.ObjMgr.addObj(item.ScoreItem1(mx, my, (n==427)))
-				elif n in (428, 429):
-					gcommon.setMapDataByMapPos(mx, my, 0)
-					gcommon.ObjMgr.addObj(item.OneUpItem1(mx, my, (n==429)))
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 
@@ -844,6 +838,8 @@ class MapDraw3:
 						else:
 							obj = enemy.Shutter1(pos[0], pos[1] -16*size +8, -1, size, 0, speed, param1, param2)
 						gcommon.ObjMgr.addObj(obj)
+					else:
+						gcommon.doMapCharacter(n, mx, my)
 			gcommon.map_y += gcommon.cur_map_dy
 			if gcommon.map_y < 0:
 				gcommon.map_y = 128 * 8 + gcommon.map_y
@@ -1784,12 +1780,11 @@ class MainGame:
 					break
 
 		# my ship & enemy
-		if gcommon.ObjMgr.myShip.sub_scene == 1:
-			for obj in gcommon.ObjMgr.objs:
-				if obj.removeFlag == False and obj.hitCheck:
-					if obj.checkMyShipCollision():
-						self.my_broken()
-						break
+		for obj in gcommon.ObjMgr.objs:
+			if obj.removeFlag == False and obj.hitCheck:
+				if obj.checkMyShipCollision() and gcommon.ObjMgr.myShip.sub_scene == 1:
+					self.my_broken()
+					break
 
 	def my_broken(self):
 		gcommon.ObjMgr.myShip.sub_scene = 2
