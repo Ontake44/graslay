@@ -1010,11 +1010,16 @@ class Missile2(EnemyBase):
 			self.dx -= 0.2
 			if self.dx > 3:
 				self.dx = 3
-		if self.x < 120:
-			enemy_shot_dr(self.x + 8, self.y + 3, 3, 0, 31)
-			enemy_shot_dr(self.x + 8, self.y + 3, 3, 0, 33)
-			self.remove()
-		
+		# if self.x < 120:
+		# 	enemy_shot_dr(self.x + 8, self.y + 3, 3, 0, 31)
+		# 	enemy_shot_dr(self.x + 8, self.y + 3, 3, 0, 33)
+
+	def broken(self):
+		#enemy_shot_dr(self.x + 8, self.y + 3, 4, 0, 31)
+		#enemy_shot_dr(self.x + 8, self.y + 3, 4, 0, 33)
+		enemy_shot_dr_multi(self.x + 8, self.y + 3, 3, 0, 32, 4, 3)
+		super(Missile2, self).broken()
+
 	def drawMissile(self):
 		pyxel.blt(self.x, self.y, 1, 80, 64, 32, 7, gcommon.TP_COLOR)
 		
@@ -2378,7 +2383,7 @@ class Walker1(EnemyBase):
 		self.top = 24
 		self.right = 55
 		self.bottom = 47
-		self.hp = 500
+		self.hp = 700
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True
 		self.score = 1000
