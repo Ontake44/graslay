@@ -721,6 +721,9 @@ class MapDraw1:
 					gcommon.setMapDataByMapPos(mx, my, 0)
 					obj = enemy.FixedShutter1(mx, my, 2)
 					gcommon.ObjMgr.addObj(obj)
+				else:
+					# 共通のマップキャラクタ処理
+					gcommon.doMapCharacter(n, mx, my)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 
@@ -749,6 +752,13 @@ class MapDraw2:
 		pass
 
 	def update(self, skip):
+		if skip == False:
+			# スキップ時はマップデータやオブジェクト追加しない
+			for my in range(0, 128):
+				mx = gcommon.screenPosToMapPosX(256)
+				n = gcommon.getMapDataByMapPos(mx, my)
+				# 共通のマップキャラクタ処理
+				gcommon.doMapCharacter(n, mx, my)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 	
@@ -839,6 +849,7 @@ class MapDraw3:
 							obj = enemy.Shutter1(pos[0], pos[1] -16*size +8, -1, size, 0, speed, param1, param2)
 						gcommon.ObjMgr.addObj(obj)
 					else:
+						# 共通のマップキャラクタ処理
 						gcommon.doMapCharacter(n, mx, my)
 			gcommon.map_y += gcommon.cur_map_dy
 			if gcommon.map_y < 0:
@@ -934,6 +945,9 @@ class MapDraw4:
 					if n == 391:
 						obj.direction = -1
 					gcommon.ObjMgr.addObj(obj)
+				else:
+					# 共通のマップキャラクタ処理
+					gcommon.doMapCharacter(n, mx, my)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 		gcommon.back_map_x += gcommon.cur_scroll_x/2
@@ -1054,6 +1068,9 @@ class MapDrawFactory:
 					elif n == 403:
 						gcommon.setMapDataByMapPos(mx, my, 0)
 						gcommon.ObjMgr.addObj(enemy.LiftAppear1(mx, my, 1))
+					else:
+						# 共通のマップキャラクタ処理
+						gcommon.doMapCharacter(n, mx, my)
 			gcommon.map_x += gcommon.cur_scroll_x
 			gcommon.map_y += gcommon.cur_scroll_y
 			gcommon.map_y += gcommon.cur_map_dy
@@ -1167,6 +1184,9 @@ class MapDrawLast:
 					else:
 						obj = enemy.Shutter3(mx, my, 1, waitCount* 30)
 					gcommon.ObjMgr.addObj(obj)
+				else:
+					# 共通のマップキャラクタ処理
+					gcommon.doMapCharacter(n, mx, my)
 
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
@@ -2073,8 +2093,8 @@ class MainGame:
 			[430, enemy.RollingFighter1Group, 30, 15, 4],		\
 			[500, enemy.RollingFighter1Group, 120, 15, 4],		\
 			[600, enemy.RollingFighter1Group, 30, 15, 4],		\
-			[1712, enemy.Fan1bLauncher, 75, 48, 48, 20],	\
-			[1712, enemy.Fan1bLauncher, 78, 22, 16, 20],	\
+			[1712, enemy.Fan1bLauncher, 76, 48, 48, 20],	\
+			#[1712, enemy.Fan1bLauncher, 78, 22, 16, 20],	\
 			[2500, enemy.RollingFighter1Group, 120, 15, 4],		\
 			[3300, enemy.RollingFighter1Group, 30, 15, 4],		\
 			[4230 +512, boss4.Boss4, 0, 0],		\

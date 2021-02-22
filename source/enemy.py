@@ -496,6 +496,7 @@ class RollingFighter1(EnemyBase):
 		super(RollingFighter1, self).__init__()
 		self.x = 256
 		self.y = t[2]
+		self.shotFlag = t[3] if len(t) > 3 else False
 		self.left = 2
 		self.top = 2
 		self.right = 15
@@ -514,7 +515,7 @@ class RollingFighter1(EnemyBase):
 		self.y = self.y + self.dy
 		self.dy = gcommon.sin_table[self.dr] * 2.0
 		self.dr = (self.dr + 1) & 63
-		if self.cnt == 30 and gcommon.GameSession.isNormalOrMore():
+		if self.cnt == 30 and self.shotFlag:
 			enemy_shot(self.x +8, self.y +8, 2, 0)
 
 	def draw(self):
@@ -532,7 +533,7 @@ class RollingFighter1Group(EnemyBase):
 
 	def update(self):
 		if self.cnt % self.interval == 0:
-			gcommon.ObjMgr.addObj(RollingFighter1([0, 0, self.y]))
+			gcommon.ObjMgr.addObj(RollingFighter1([0, 0, self.y, self.cnt2==0 or gcommon.GameSession.isNormalOrMore()]))
 			self.cnt2 += 1
 			if self.cnt2 >= self.max:
 				self.remove()
@@ -943,7 +944,7 @@ class Fan1bLauncher(EnemyBase):
 		gcommon.debugPrint("Fan1bLauncher")
 
 	def update(self):
-		if self.x < 0:
+		if self.x < 0 or self.frameCount > 420:
 			self.remove()
 			return
 		if self.cnt % self.interval == 0:
@@ -1790,7 +1791,7 @@ class RuinPillar1(FallingObject):
 		self.enemyShotCollision = True
 
 	def draw(self):
-		pyxel.bltm(int(self.x), self.y, 0, self.bx, 0, 2, self.size * 8, gcommon.TP_COLOR)
+		pyxel.bltm(gcommon.sint(self.x), self.y, 0, self.bx, 0, 2, self.size * 8, gcommon.TP_COLOR)
 		#pyxel.rectb(self.x +self.left, self.y + self.top, self.right -self.left+1, self.bottom -self.top+1, 7)
 
 
@@ -1819,8 +1820,7 @@ class RuinFloor1(FallingObject):
 				return
 
 	def draw(self):
-		pyxel.bltm(self.x, self.y, 0, 14, self.by, self.size *2, 2, gcommon.TP_COLOR)
-		#pyxel.rectb(self.x +self.left, self.y + self.top, self.right -self.left+1, self.bottom -self.top+1, 7)
+		pyxel.bltm(gcommon.sint(self.x), self.y, 0, 14, self.by, self.size *2, 2, gcommon.TP_COLOR)
 
 # 遺跡と落ちる砲台
 class Battery2(FallingObject):
