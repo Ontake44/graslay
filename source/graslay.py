@@ -2073,6 +2073,8 @@ class MainGame:
 			[430, enemy.RollingFighter1Group, 30, 15, 4],		\
 			[500, enemy.RollingFighter1Group, 120, 15, 4],		\
 			[600, enemy.RollingFighter1Group, 30, 15, 4],		\
+			[1712, enemy.Fan1bLauncher, 75, 48, 48, 20],	\
+			[1712, enemy.Fan1bLauncher, 78, 22, 16, 20],	\
 			[2500, enemy.RollingFighter1Group, 120, 15, 4],		\
 			[3300, enemy.RollingFighter1Group, 30, 15, 4],		\
 			[4230 +512, boss4.Boss4, 0, 0],		\

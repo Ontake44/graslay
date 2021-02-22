@@ -896,6 +896,62 @@ class Fan1(EnemyBase):
 	def draw(self):
 		pyxel.blt(self.x, self.y, 1, 0 + (self.cnt & 4) * 4, 64, 16, 16, gcommon.TP_COLOR)
 
+class Fan1b(EnemyBase):
+	def __init__(self, x, y, dr64):
+		super(Fan1b, self).__init__()
+		self.x = x
+		self.y = y
+		self.left = 2
+		self.top = 2
+		self.right = 14
+		self.bottom = 14
+		self.hp = 1
+		self.dx = gcommon.cos_table[dr64] * 2
+		self.dy = gcommon.sin_table[dr64] * 2
+		self.layer = gcommon.C_LAYER_SKY
+		self.score = 50
+		self.ground = True
+	
+	def update(self):
+		self.x += self.dx
+		self.y += self.dy
+		if self.x < -16 or self.x > gcommon.SCREEN_MAX_X:
+			self.remove()
+			return
+		if self.y < -16 or self.y > gcommon.SCREEN_MAX_Y:
+			self.remove()
+			return
+
+		if self.frameCount == 30 and gcommon.GameSession.isNormalOrMore():
+			enemy_shot(self.x +8, self.y +8, 2, 0)
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, 1, 0 + (self.cnt & 4) * 4, 64, 16, 16, gcommon.TP_COLOR)
+
+
+class Fan1bLauncher(EnemyBase):
+	def __init__(self, t):
+		super(Fan1bLauncher, self).__init__()
+		pos = gcommon.mapPosToScreenPos(t[2], t[3])
+		self.x = pos[0]
+		self.y = pos[1]
+		self.dr64 = t[4]
+		self.interval = t[5]
+		self.ground = True
+		self.hitCheck = False
+		self.shotHitCheck = False
+		gcommon.debugPrint("Fan1bLauncher")
+
+	def update(self):
+		if self.x < 0:
+			self.remove()
+			return
+		if self.cnt % self.interval == 0:
+			gcommon.ObjMgr.addObj(Fan1b(self.x, self.y, self.dr64))
+
+	def draw(self):
+		pass
+
 class MissileShip(EnemyBase):
 	def __init__(self, t):
 		super(MissileShip, self).__init__()
@@ -1017,7 +1073,7 @@ class Missile2(EnemyBase):
 	def broken(self):
 		#enemy_shot_dr(self.x + 8, self.y + 3, 4, 0, 31)
 		#enemy_shot_dr(self.x + 8, self.y + 3, 4, 0, 33)
-		enemy_shot_dr_multi(self.x + 8, self.y + 3, 3, 0, 32, 4, 3)
+		enemy_shot_dr_multi(self.x + 8, self.y + 3, 3, 0, 32, 4, 4)
 		super(Missile2, self).broken()
 
 	def drawMissile(self):
