@@ -2439,7 +2439,7 @@ class Walker1(EnemyBase):
 		self.top = 24
 		self.right = 55
 		self.bottom = 47
-		self.hp = 700
+		self.hp = 1000
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True
 		self.score = 1000
@@ -3399,7 +3399,7 @@ class BattleShip1(EnemyBase):
 		if self.laser != None:
 			self.laser.x = self.x
 			self.laser.y = self.y +41
-		if self.x <= -512:
+		if self.x <= -512-32:
 			if self.laser != None and self.laser.removeFlag == False:
 				self.laser.remove()
 				self.laser = None
@@ -3407,16 +3407,38 @@ class BattleShip1(EnemyBase):
 		self.cnt2 += 1
 	
 	def draw(self):
+		self.drawBackFire(0, 7)
+		self.drawBackFire(0, 20)
+		self.drawBackFire(0, 55)
+		self.drawBackFire(0, 68)
 		if self.isRed:
 			pyxel.pal(4,2)
 			pyxel.pal(9,8)
 			pyxel.pal(10,14)
+		# if self.frameCount & 2 == 0:
+		# 	pyxel.blt(gcommon.sint(self.x +512), self.y +8, 0, 72, 8, -32, 8, gcommon.TP_COLOR)
+		# else:
+		# 	pyxel.blt(gcommon.sint(self.x +512), self.y +8, 0, 120, 8, -32, 8, gcommon.TP_COLOR)
+
 		# 前半分
-		pyxel.blt(self.x, self.y, 2, 0, 0, 256, 104, 3)
+		pyxel.blt(gcommon.sint(self.x), self.y, 2, 0, 0, 256, 104, 3)
 		# 後半分
-		pyxel.blt(self.x +256, self.y, 2, 0, 104, 256, 104, 3)
+		pyxel.blt(gcommon.sint(self.x +256), self.y, 2, 0, 104, 256, 104, 3)
 		if self.isRed:
 			pyxel.pal()
+
+	def drawBackFire1(self, x, y):
+		if self.frameCount & 2 == 0:
+			pyxel.blt(gcommon.sint(self.x +512 +x), self.y +y, 0, 72, 8, -32, 9, gcommon.TP_COLOR)
+		else:
+			pyxel.blt(gcommon.sint(self.x +512 +x), self.y +y, 0, 120, 8, -32, 9, gcommon.TP_COLOR)
+
+	def drawBackFire(self, x, y):
+		n = self.frameCount % 3
+		if n == 0:
+			pyxel.blt(gcommon.sint(self.x +512 +x), self.y +y, 2, 128, 224, 32, 9, 3)
+		elif n == 1:
+			pyxel.blt(gcommon.sint(self.x +512 +x), self.y +y, 2, 160, 224, 32, 9, 3)
 
 class BattleShip1Bridge(EnemyBase):
 	def __init__(self, x, y, isRed):

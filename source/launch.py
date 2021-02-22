@@ -147,12 +147,24 @@ class LaunchScene:
 			pyxel.blt(shipx +122, self.y2 +57, 2, 122, 57, 80, 7, gcommon.TP_COLOR)
 
 			# バーニア
-			if self.cnt % 2 == 0:
-				sx = 72 if self.cnt % 4 == 0 else 120
-				pyxel.blt(shipx -27, self.y+36, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
-				pyxel.blt(shipx -22, self.y+48, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
-				pyxel.blt(shipx -22, self.y+59, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
-				pyxel.blt(shipx -27, self.y+71, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
+			# if self.cnt % 2 == 0:
+			# 	sx = 72 if self.cnt % 4 == 0 else 120
+			# 	pyxel.blt(shipx -27, self.y+36, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
+			# 	pyxel.blt(shipx -22, self.y+48, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
+			# 	pyxel.blt(shipx -22, self.y+59, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
+			# 	pyxel.blt(shipx -27, self.y+71, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
+			n = self.cnt % 3
+			if n == 0:
+				sx = 72
+			elif n == 1:
+				sx = 120
+			else:
+				return
+			pyxel.blt(shipx -27, self.y+36, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
+			pyxel.blt(shipx -22, self.y+48, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
+			pyxel.blt(shipx -22, self.y+59, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
+			pyxel.blt(shipx -27, self.y+71, 0, sx, 8, 32, 8, gcommon.TP_COLOR)
+
 
 		for obj in self.objs:
 			if obj.removeFlag == False:
