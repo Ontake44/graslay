@@ -477,6 +477,7 @@ def resource_path(relative_path):
 
 
 def loadSettings():
+	json_file = None
 	try:
 		settingsPath = os.path.join(os.path.expanduser("~"), SETTINGS_FILE)
 
@@ -514,10 +515,14 @@ def loadSettings():
 		if credits > 0 and credits < 100:
 			Settings.credits = credits
 	
-		json_file.close()
-
-	except IOError:
+	except:
 		pass
+	finally:
+		if json_file != None:
+			try:
+				json_file.close()
+			except:
+				pass
 
 
 def saveSettings():
@@ -535,7 +540,7 @@ def saveSettings():
 		json.dump(json_data, json_file)
 		json_file.close()
 
-	except IOError:
+	except:
 		pass
 
 def init_atan_table():
