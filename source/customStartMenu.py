@@ -1,17 +1,19 @@
 import pyxel
 import gcommon
 
-MENU_DIFFCULTY = 0
-MENU_PLAYER_STOCK = 1
-MENU_START_STAGE = 2
-MENU_GAME_START = 3
-MENU_EXIT = 4
+MENU_PLAYER_STOCK = 0
+MENU_START_STAGE = 1
+MENU_GAME_START = 2
+MENU_EXIT = 3
 
 MENU_VALUE_X = 180
+START_X = 80
 
 class CustomStartMenuScene:
 	def __init__(self):
-		self.menuYList = (50, 70, 90, 118, 138)
+		self.star_pos = 0
+		oy = 16
+		self.menuYList = (50 +oy, 70 +oy, 90 +oy, 118 +oy)
 		self.menuPos = 0
 		self.state = 0
 		self.cnt = 0
@@ -20,23 +22,26 @@ class CustomStartMenuScene:
 		for y in self.menuYList:
 			self.menuRects.append(gcommon.Rect.create(
 				16, y, 16 +224 -1, y +12-1))
-		self.difficultyRects = [
-			gcommon.Rect.createWH(MENU_VALUE_X -10, self.menuYList[0], 8, 8),
-			gcommon.Rect.createWH(MENU_VALUE_X +8*6 +2, self.menuYList[0], 8, 8),
-		]
 		self.playerStockRects = [
+			gcommon.Rect.createWH(MENU_VALUE_X -10, self.menuYList[0], 8, 8),
+			gcommon.Rect.createWH(MENU_VALUE_X -10+26, self.menuYList[0], 8, 8)
+		]
+		self.startStageRects = [
 			gcommon.Rect.createWH(MENU_VALUE_X -10, self.menuYList[1], 8, 8),
 			gcommon.Rect.createWH(MENU_VALUE_X -10+26, self.menuYList[1], 8, 8)
 		]
-		self.startStageRects = [
-			gcommon.Rect.createWH(MENU_VALUE_X -10, self.menuYList[2], 8, 8),
-			gcommon.Rect.createWH(MENU_VALUE_X -10+26, self.menuYList[2], 8, 8)
+		self.difficultyRects = [
+			gcommon.Rect.createWH(START_X -12, self.menuYList[2], 8, 8),
+			gcommon.Rect.createWH(START_X +(6+6)*8 + 4, self.menuYList[2], 8, 8),
 		]
 
 	def init(self):
 		self.menuPos = 0
 
 	def update(self):
+		self.star_pos -= 0.25
+		if self.star_pos<0:
+			self.star_pos += 200
 		self.mouseManager.update()
 		if self.cnt >= 6*60:
 			self.cnt = 0
@@ -45,11 +50,11 @@ class CustomStartMenuScene:
 				gcommon.sound(gcommon.SOUND_MENUMOVE)
 				self.menuPos -= 1
 				if self.menuPos < 0:
-					self.menuPos = 4
+					self.menuPos = 3
 			if gcommon.checkDownP():
 				gcommon.sound(gcommon.SOUND_MENUMOVE)
 				self.menuPos += 1
-				if self.menuPos > 4:
+				if self.menuPos > 3:
 					self.menuPos = 0
 			
 			if self.mouseManager.visible:
@@ -57,17 +62,7 @@ class CustomStartMenuScene:
 				if n != -1:
 					self.menuPos = n
 
-			if self.menuPos == MENU_DIFFCULTY:
-				n = -1
-				if self.mouseManager.visible:
-					n = gcommon.checkMouseMenuPos(self.difficultyRects)
-				if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
-					gcommon.Settings.difficulty = gcommon.DIFFICULTY_NORMAL
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
-				elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
-					gcommon.Settings.difficulty = gcommon.DIFFICULTY_EASY
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
-			elif self.menuPos == MENU_PLAYER_STOCK:
+			if self.menuPos == MENU_PLAYER_STOCK:
 				n = -1
 				if self.mouseManager.visible:
 					n = gcommon.checkMouseMenuPos(self.playerStockRects)
@@ -97,9 +92,17 @@ class CustomStartMenuScene:
 						gcommon.Settings.startStage = 1
 
 			elif self.menuPos == MENU_GAME_START:
-				if gcommon.checkShotKeyRectP(self.menuRects[MENU_GAME_START]):
+				n = -1
+				if self.mouseManager.visible:
+					n = gcommon.checkMouseMenuPos(self.difficultyRects)
+				if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
+					gcommon.Settings.difficulty = gcommon.DIFFICULTY_NORMAL
+					gcommon.sound(gcommon.SOUND_MENUMOVE)
+				elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
+					gcommon.Settings.difficulty = gcommon.DIFFICULTY_EASY
+					gcommon.sound(gcommon.SOUND_MENUMOVE)
+				elif gcommon.checkShotKeyP():
 					gcommon.saveSettings()
-					gcommon.BGM.stop()
 					gcommon.sound(gcommon.SOUND_GAMESTART)
 					self.state = 1
 					self.cnt = 0
@@ -124,44 +127,61 @@ class CustomStartMenuScene:
 		self.cnt += 1
 
 	def draw(self):
-		pyxel.cls(1)
-		gcommon.showTextHCenter(8, "CUSTOM START")
+		pyxel.cls(0)
+		self.drawStar()
+		gcommon.showTextHCenter(32, "CUSTOM START")
 		
 		x1 = 48
 		x2 = MENU_VALUE_X
-		self.setOptionColor(MENU_DIFFCULTY)
-		gcommon.showText(x1, self.menuYList[0], "DIFFICULTY")
-		text = gcommon.difficultyText[gcommon.Settings.difficulty]
-		gcommon.showText(x2, self.menuYList[0], text)
-		if MENU_DIFFCULTY == self.menuPos:
-			leftMarker = (gcommon.Settings.difficulty == gcommon.DIFFICULTY_NORMAL)
-			gcommon.drawLeftMarker(x2 -10, self.menuYList[0], leftMarker)
-			gcommon.drawRightMarker(x2 +6*8 + 2, self.menuYList[0], not leftMarker)
+		x3 = START_X
 
+		idx = 0
 		self.setOptionColor(MENU_PLAYER_STOCK)
-		gcommon.showText(x1, self.menuYList[1], "PLAYER STOCK")
-		gcommon.showText(x2, self.menuYList[1], str(gcommon.Settings.playerStock).rjust(2))
+		gcommon.showText(x1, self.menuYList[idx], "PLAYER STOCK")
+		gcommon.showText(x2, self.menuYList[idx], str(gcommon.Settings.playerStock).rjust(2))
 		if MENU_PLAYER_STOCK == self.menuPos:
-			gcommon.drawUpDownMarker2(x2 -10, self.menuYList[1], 1, 99, gcommon.Settings.playerStock)
-
+			gcommon.drawUpDownMarker2(x2 -10, self.menuYList[idx], 1, 99, gcommon.Settings.playerStock)
+		
+		idx += 1
 		self.setOptionColor(MENU_START_STAGE)
-		gcommon.showText(x1, self.menuYList[2], "START STAGE")
-		gcommon.showText(x2, self.menuYList[2], str(gcommon.Settings.startStage).rjust(2))
+		gcommon.showText(x1, self.menuYList[idx], "START STAGE")
+		gcommon.showText(x2, self.menuYList[idx], str(gcommon.Settings.startStage).rjust(2))
 		if MENU_START_STAGE == self.menuPos:
-			gcommon.drawUpDownMarker2(x2 -10, self.menuYList[2], 1, 6, gcommon.Settings.startStage)
+			gcommon.drawUpDownMarker2(x2 -10, self.menuYList[idx], 1, 6, gcommon.Settings.startStage)
+		idx += 1
 
+		text = gcommon.difficultyText[gcommon.Settings.difficulty] + " START"
 		if self.state == 0:
-			self.setOptionColor(MENU_GAME_START)
-			gcommon.showTextHCenter(self.menuYList[3], "GAME START")
+			if self.state == 0 and self.menuPos == MENU_GAME_START and self.cnt & 16 == 0:
+				pyxel.pal(7, 8)
+				pyxel.pal(5, 4)
+			else:
+				self.setOptionColor(MENU_GAME_START)
+			gcommon.showText(x3, self.menuYList[idx], text)
+			if MENU_GAME_START == self.menuPos:
+				leftMarker = (gcommon.Settings.difficulty == gcommon.DIFFICULTY_NORMAL)
+				gcommon.drawLeftMarker(x3 -12, self.menuYList[idx], leftMarker)
+				gcommon.drawRightMarker(x3 +(6+6)*8 + 4, self.menuYList[idx], not leftMarker)
 		else:
 			if self.cnt & 2 == 0:
 				pyxel.pal(7, 8)
-			gcommon.showTextHCenter(self.menuYList[3], "GAME START")
-			if self.cnt & 2 == 0:
-				pyxel.pal()
+				pyxel.pal(5, 4)
+			gcommon.showText(x3, self.menuYList[idx], text)
+		pyxel.pal()
+		idx += 1
+
+		# if self.state == 0:
+		# 	self.setOptionColor(MENU_GAME_START)
+		# 	gcommon.showTextHCenter(self.menuYList[3], "GAME START")
+		# else:
+		# 	if self.cnt & 2 == 0:
+		# 		pyxel.pal(7, 8)
+		# 	gcommon.showTextHCenter(self.menuYList[3], "GAME START")
+		# 	if self.cnt & 2 == 0:
+		# 		pyxel.pal()
 		
 		self.setOptionColor(MENU_EXIT)
-		gcommon.showTextHCenter(self.menuYList[4], "EXIT")
+		gcommon.showTextHCenter(self.menuYList[idx], "EXIT")
 		
 		gcommon.setBrightness1()
 		y = self.menuYList[self.menuPos] -2
@@ -176,4 +196,7 @@ class CustomStartMenuScene:
 		else:
 			pyxel.pal(7, 12)
 
-#
+	def drawStar(self):
+		for i in range(0,96):
+			pyxel.pset(gcommon.star_ary[i][0], int(i*2 +self.star_pos) % 200, gcommon.star_ary[i][1])
+

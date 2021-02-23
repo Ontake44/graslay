@@ -14,7 +14,7 @@ START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 DIFFICULTY_EASY = 0
 DIFFICULTY_NORMAL = 1
 
-difficultyText = ("EASY", "NORMAL")
+difficultyText = ("EASY  ", "NORMAL")
 
 class Defaults:
 	INIT_START_STAGE = 1

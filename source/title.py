@@ -310,7 +310,7 @@ class TitleScene:
 			self.drawTitleNormal()
 			self.drawFlash(self.subCnt*8, 32)
 			
-		self.drawMenu(self.state == 200 and self.cnt & 2 == 0, 1.0)
+		self.drawMenu(self.state == 200, 1.0)
 
 		pyxel.text(200, 188, "CREDIT(S) "  +str(self.credits), 7)
 		pyxel.blt(10, 186, 0, 88, 120, 8, 8, 0)
@@ -333,18 +333,21 @@ class TitleScene:
 	def drawMenu(self, startFlag, rate):
 		pyxel.pal()
 		y = 120
-		if startFlag:
-			pyxel.pal(7, 8)
+		if rate < 1.0:
+			gcommon.setMenuColor(0, -1)
 		else:
-			gcommon.setMenuColor(0, self.menuPos)
+			if (startFlag and self.cnt & 2 == 0) or (startFlag == False and self.menuPos == 0 and self.cnt & 16 == 0):
+				pyxel.pal(7, 8)
+				pyxel.pal(5, 4)
+			else:
+				gcommon.setMenuColor(0, self.menuPos)
 		text = gcommon.difficultyText[self.difficulty] + " START"
 		gcommon.showTextRateHCenter(y, text, rate)
-		if self.menuPos == 0:
+		if rate == 1.0 and self.menuPos == 0:
 			leftMarker = (self.difficulty == gcommon.DIFFICULTY_NORMAL)
 			gcommon.drawLeftMarker(128 -8 -48 -4, y, leftMarker)
 			gcommon.drawRightMarker(128 +48 + 4, y, not leftMarker)
-		if startFlag:
-			pyxel.pal()
+		pyxel.pal()
 
 		y += 15
 		gcommon.setMenuColor(1, self.menuPos)
@@ -358,8 +361,9 @@ class TitleScene:
 		gcommon.setMenuColor(3, self.menuPos)
 		gcommon.showTextRateHCenter(y, "EXIT", rate)
 
-		gcommon.setBrightness1()
-		pyxel.blt(48, 118 + self.menuPos * 15, 4, 48, 118 + self.menuPos * 15, 160, 12)
-		pyxel.pal()
+		if rate == 1.0:
+			gcommon.setBrightness1()
+			pyxel.blt(48, 118 + self.menuPos * 15, 4, 48, 118 + self.menuPos * 15, 160, 12)
+			pyxel.pal()
 
 		#gcommon.drawRectbs(self.difficultyRects, 8)
