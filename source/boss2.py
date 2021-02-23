@@ -406,7 +406,7 @@ class Boss2(enemy.EnemyBase):
 		gcommon.ObjMgr.addObj(self.feelers[1])
 		gcommon.ObjMgr.addObj(self.feelers[2])
 		gcommon.ObjMgr.addObj(self.feelers[3])
-		
+		self.bossCells = []
 		#self.upperBase = Boss2Base(self,0)
 		#self.lowerBase = Boss2Base(self,1)
 		#gcommon.ObjMgr.addObj(self.upperBase)
@@ -521,22 +521,22 @@ class Boss2(enemy.EnemyBase):
 				# 触手伸ばす攻撃
 				if self.cycleCount & 1 == 0:
 					if self.subcnt == 1:
-						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+29, 24))
+						self.bossCells.append(gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+29, 24)))
 						gcommon.sound(gcommon.SOUND_FEELER_GROW)
 					elif self.subcnt == 20:
-						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+8, 40))
+						self.bossCells.append(gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+8, 40)))
 					elif self.subcnt == 40:
-						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+8, 24))
+						self.bossCells.append(gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+8, 24)))
 					elif self.subcnt == 60:
-						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+29, 40))
+						self.bossCells.append(gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+29, 40)))
 				else:
 					if self.subcnt == 1:
-						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +14, self.y+16, 32))
+						self.bossCells.append(gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +14, self.y+16, 32)))
 						gcommon.sound(gcommon.SOUND_FEELER_GROW)
 					elif self.subcnt == 15:
-						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +33, self.y+5, 20))
+						self.bossCells.append(gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +33, self.y+5, 20)))
 					elif self.subcnt == 30:
-						gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +31, self.y+33, 40))
+						self.bossCells.append(gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +31, self.y+33, 40)))
 					#elif self.subcnt == 45:
 					#	gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +48, self.y+6, 24))
 					#elif self.subcnt == 60:
@@ -570,6 +570,9 @@ class Boss2(enemy.EnemyBase):
 	def broken(self):
 		for feeler in self.feelers:
 			feeler.remove()
+		for cell in self.bossCells:
+			if cell.removeFlag == False:
+				cell.remove()
 		self.remove()
 		enemy.removeEnemyShot()
 		gcommon.ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
