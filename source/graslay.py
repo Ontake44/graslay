@@ -19,6 +19,7 @@ import customStartMenu
 import launch
 import ending
 import item
+import ranking
 
 # 自機
 class MyShip:
@@ -1489,11 +1490,12 @@ class MainGame:
 			if self.pauseMenuPos == 0:
 				if gcommon.checkShotKeyRectP(self.pauseMenuRects[self.pauseMenuPos]):
 					# YES
-					# コンティニー時はステージ最初に戻される
-					# self.pauseMode = gcommon.PAUSE_NONE
-					# gcommon.ObjMgr.myShip.sub_scene = 3
 					gcommon.GameSession.execContinue()
-					gcommon.app.restartStage()
+					self.pauseMode = gcommon.PAUSE_NONE
+					gcommon.ObjMgr.myShip.sub_scene = 3
+					#pygame.mixer.music.unpause()
+					# # コンティニー時はステージ最初に戻される
+					# # gcommon.app.restartStage()
 
 			elif self.pauseMenuPos == 1:
 				if gcommon.checkShotKeyRectP(self.pauseMenuRects[self.pauseMenuPos]):
@@ -2290,6 +2292,9 @@ class App:
 		gcommon.init_atan_table()
 		gcommon.initStar()
 		
+		rm = ranking.RankingManager()
+		rm.load()
+
 		#self.scene = MainGame()
 		self.nextScene = None
 		self.scene = None
@@ -2361,6 +2366,7 @@ class App:
 	def startGameOver(self):
 		self.setScene(GameOver())
 
+
 	def startStageClear(self, stage):
 		self.setScene(StageClear(stage))
 
@@ -2369,6 +2375,9 @@ class App:
 
 	def startOption(self):
 		self.setScene(OptionMenuScene())
+
+	def startScoreRanking(self):
+		self.setScene(ranking.RankingDispScene())
 
 	def startCustomStartMenu(self):
 		self.setScene(customStartMenu.CustomStartMenuScene())

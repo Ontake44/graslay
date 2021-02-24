@@ -14,7 +14,7 @@ START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 DIFFICULTY_EASY = 0
 DIFFICULTY_NORMAL = 1
 
-difficultyText = ("EASY  ", "NORMAL")
+difficultyText = (" EASY ", "NORMAL")
 
 class Defaults:
 	INIT_START_STAGE = 1
@@ -295,6 +295,8 @@ class Settings:
 	soundVolume = Defaults.INIT_SOUND_VOL
 	difficulty = Defaults.INIT_DIFFICULTY
 	credits = Defaults.INIT_CREDITS
+	normalRanking = None
+	easyRanking = None
 
 class BGM:
 	bgmList = [
@@ -474,8 +476,6 @@ def resource_path(relative_path):
         base_path = os.path.dirname(__file__)
     return os.path.join(base_path, relative_path)
 
-
-
 def loadSettings():
 	json_file = None
 	try:
@@ -514,7 +514,7 @@ def loadSettings():
 			Settings.difficulty = difficulty
 		if credits > 0 and credits < 100:
 			Settings.credits = credits
-	
+
 	except:
 		pass
 	finally:
@@ -533,6 +533,7 @@ def saveSettings():
 		"difficulty" : 	Settings.difficulty,	\
 		"credits" : Settings.credits	\
 	}
+
 	try:
 		settingsPath = os.path.join(os.path.expanduser("~"), SETTINGS_FILE)
 
@@ -978,8 +979,15 @@ def showText(x, y, s):
 		code = ord(c)
 		if code >= 65 and code <= 90:
 			pyxel.blt(x, y, 0, (code-65)*8, 128, 8, 8, TP_COLOR)
-		elif code >= 48 and code <= 57:
+		elif code >= 0x30 and code <= 0x39:
+			# 数字
 			pyxel.blt(x, y, 0, (code-48)*8, 136, 8, 8, TP_COLOR)
+		elif code >= 0x3A and code <= 0x3F:
+			# :;<=>?
+			pyxel.blt(x, y, 0, 208 + (code-0x3A)*8, 128, 8, 8, TP_COLOR)
+		elif code >= 0x20 and code <= 0x2F:
+			# スペース - /
+			pyxel.blt(x, y, 0, 80 + (code-0x20)*8, 136, 8, 8, TP_COLOR)
 		x += 8
 
 # rateは 0 - 1
@@ -1451,3 +1459,4 @@ def doMapCharacter(n, mx, my):
 		return True
 	else:
 		return False
+

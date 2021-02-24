@@ -3,16 +3,18 @@ import gcommon
 
 OPTIONMENU_BGM_VOL = 0
 OPTIONMENU_SOUND_VOL = 1
-OPTIONMENU_EXIT = 2
+OPTIONMENU_SCORE_RANKIG = 2
+OPTIONMENU_EXIT = 3
 
 MENU_VALUE_X = 180
 
 class OptionMenuScene:
 	def __init__(self):
+		self.star_pos = 0
 		self.menuPos = 0
 		self.mouseManager = gcommon.MouseManager()
 		self.menuRects = []
-		for i in range(3):
+		for i in range(4):
 			self.menuRects.append(gcommon.Rect.createWH(
 				32, 48 + i * 20, 192, 12))
 		# BGM Marker
@@ -30,6 +32,9 @@ class OptionMenuScene:
 		self.menuPos = 0
 
 	def update(self):
+		self.star_pos -= 0.25
+		if self.star_pos<0:
+			self.star_pos += 200
 		self.mouseManager.update()
 		if gcommon.checkUpP():
 			gcommon.sound(gcommon.SOUND_MENUMOVE)
@@ -71,31 +76,20 @@ class OptionMenuScene:
 			elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
 				gcommon.Settings.soundVolume = 0
 				gcommon.sound(gcommon.SOUND_MENUMOVE)
-		
-		# if gcommon.checkRightP():
-		# 	gcommon.sound(gcommon.SOUND_MENUMOVE)
-		# 	if self.menuPos == OPTIONMENU_BGM_VOL:
-		# 		gcommon.Settings.bgmVolume += 1
-		# 		if gcommon.Settings.bgmVolume > 10:
-		# 			gcommon.Settings.bgmVolume = 10
-		# 	elif self.menuPos == OPTIONMENU_SOUND_VOL:
-		# 		gcommon.Settings.soundVolume = 10
-		# elif gcommon.checkLeftP():
-		# 	gcommon.sound(gcommon.SOUND_MENUMOVE)
-		# 	if self.menuPos == OPTIONMENU_BGM_VOL:
-		# 		gcommon.Settings.bgmVolume -= 1
-		# 		if gcommon.Settings.bgmVolume < 0:
-		# 			gcommon.Settings.bgmVolume = 0
-		# 	elif self.menuPos == OPTIONMENU_SOUND_VOL:
-		# 		gcommon.Settings.soundVolume = 0
-		
-		if self.menuPos == OPTIONMENU_EXIT and gcommon.checkShotKeyRectP(self.menuRects[OPTIONMENU_EXIT]):
+
+		elif self.menuPos == OPTIONMENU_SCORE_RANKIG and gcommon.checkShotKeyRectP(self.menuRects[OPTIONMENU_SCORE_RANKIG]):
+			gcommon.sound(gcommon.SOUND_MENUMOVE)
+			gcommon.saveSettings()
+			gcommon.app.startScoreRanking()
+
+		elif self.menuPos == OPTIONMENU_EXIT and gcommon.checkShotKeyRectP(self.menuRects[OPTIONMENU_EXIT]):
 			gcommon.sound(gcommon.SOUND_MENUMOVE)
 			gcommon.saveSettings()
 			gcommon.app.startTitle()
 
 	def draw(self):
-		pyxel.cls(1)
+		pyxel.cls(0)
+		self.drawStar()
 
 		pyxel.pal()
 		x1 = 72
@@ -120,7 +114,11 @@ class OptionMenuScene:
 			gcommon.drawLeftMarker(x2 -10, y, leftMarker)
 			gcommon.drawRightMarker(x2 +len(se)*8 + 2, y, not leftMarker)
 		y += 20
-		
+
+		gcommon.setMenuColor(OPTIONMENU_SCORE_RANKIG, self.menuPos)
+		gcommon.showTextHCenter(y, "SCORE RANKING")
+		y += 20
+
 		gcommon.setMenuColor(OPTIONMENU_EXIT, self.menuPos)
 		gcommon.showTextHCenter(y, "EXIT")
 		
@@ -130,3 +128,7 @@ class OptionMenuScene:
 
 		if self.mouseManager.visible:
 			gcommon.drawMenuCursor()
+
+	def drawStar(self):
+		for i in range(0,96):
+			pyxel.pset(gcommon.star_ary[i][0], int(i*2 +self.star_pos) % 200, gcommon.star_ary[i][1])
