@@ -153,7 +153,7 @@ class EnterPlayerNameScene:
 	allCharsList = ("ABCDEFGHIJKLM", "NOPQRSTUVWXYZ", "0123456789", " .-?!")
 	allChars = allCharsList[0] + allCharsList[1] + allCharsList[2] + allCharsList[3]
 	ALPHA_X = 16
-	ALPHA_Y = 104
+	ALPHA_Y = 112
 	def __init__(self):
 		self.bgStarV = gcommon.BGStarV()
 		self.mouseManager = gcommon.MouseManager()
@@ -172,7 +172,7 @@ class EnterPlayerNameScene:
 		self.name = ""
 
 	def init(self):
-		pass
+		gcommon.BGM.playOnce(gcommon.BGM.RANKING)
 
 	def update(self):
 		self.bgStarV.update()
@@ -246,44 +246,52 @@ class EnterPlayerNameScene:
 		pyxel.cls(0)
 		self.bgStarV.draw()
 
-		gcommon.showTextHCenter(8, "ENTER YOUR NAME")
+		ty = 16
+		gcommon.showTextHCenter(ty, "ENTER YOUR NAME")
+		ty += 16
 
-		gcommon.showTextHCenter(24, "= " + gcommon.difficultyText[gcommon.GameSession.difficulty] + " =")
+		gcommon.showTextHCenter(ty, "= " + gcommon.difficultyText[gcommon.GameSession.difficulty] + " =")
 
 		x0 = 32
 		x1 = 128
-		gcommon.showText(x0, 48, "SCORE")
-		gcommon.showText(x1, 48, str(gcommon.GameSession.score).rjust(8, "0"))
+		ty += 24
+		gcommon.showText(x0, ty, "SCORE")
+		gcommon.showText(x1, ty, str(gcommon.GameSession.score).rjust(8, "0"))
+		ty += 16
 
-		gcommon.showText(x0, 64, "STAGE")
+		gcommon.showText(x0, ty, "STAGE")
 		stage = ""
 		if gcommon.GameSession.stage == -1:
 			stage = "CLEAR"
 		else:
 			stage = "  " + str(gcommon.GameSession.stage)
-		gcommon.showText(x1, 64, stage)
+		gcommon.showText(x1, ty, stage)
+		ty += 16
 
-		gcommon.showText(x0, 80, "YOUR NAME")
-		gcommon.showText(x1, 80, self.name)
-		pyxel.rectb(x1 -4, 80-4, 8*3 + 8, 16, 5)
+		gcommon.showText(x0, ty, "YOUR NAME")
+		gcommon.showText(x1, ty, self.name)
+		pyxel.rectb(x1 -4, ty-4, 8*3 + 8, 16, 5)
 
 		pyxel.pal(7, 12)
 		index = 0
 		x0 = __class__.ALPHA_X = 16
+		ty = __class__.ALPHA_Y
 		for y, chars in enumerate(__class__.allCharsList):
 			for i, c in enumerate(chars):
 				self.setOptionColor(index)
-				gcommon.showText(x0 + i*18, __class__.ALPHA_Y + y * 18, str(c))
+				gcommon.showText(x0 + i*18, ty, str(c))
 				index += 1
+			ty += 18
 		
+		ty -= 18
 		# BackSpace
 		self.setOptionColor(index)
-		pyxel.blt(x0 + 5 * 18, 104 + 3*18, 0, 208, 136, 8, 8, gcommon.TP_COLOR)
+		pyxel.blt(x0 + 5 * 18, ty, 0, 208, 136, 8, 8, gcommon.TP_COLOR)
 		index += 1
 		
 		# End
 		self.setOptionColor(index)
-		pyxel.blt(x0 + 6 * 18, 104 + 3*18, 0, 216, 136, 16, 8, gcommon.TP_COLOR)
+		pyxel.blt(x0 + 6 * 18, ty, 0, 216, 136, 16, 8, gcommon.TP_COLOR)
 		index += 1
 		
 		pyxel.pal()

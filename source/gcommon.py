@@ -319,7 +319,8 @@ class BGM:
 		[1.0, "game_maoudamashii_9_jingle07.mp3"],
 		[1.0, "idola_cell.mp3"],
 		[0.6, "Fireworks.mp3"],
-		[1.0, "Dream_Fantasy.mp3"]		#"Runners_High.mp3"
+		[1.0, "Dream_Fantasy.mp3"],		#"Runners_High.mp3"
+		[1.0, "with_silence.mp3"]
 	] 
 
 	STAGE1 = 0		#"Dream_Fantasy.mp3"
@@ -338,6 +339,7 @@ class BGM:
 	TITLE = 12		#"idola_cell.mp3"
 	ENDING = 13
 	LAUNCH = 14
+	RANKING = 15
 
 	@classmethod
 	def getBgm(cls, no):
