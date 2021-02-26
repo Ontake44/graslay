@@ -187,6 +187,8 @@ game_timer = 0
 #score = 0
 DebugMode = False
 ShowCollision = False
+# カスタムモードだけどノーマルと同じような動作
+CustomNormal = False
 
 scroll_flag = True
 cur_scroll_x = 0.0
@@ -228,6 +230,7 @@ mapAttribute = []
 class GameSession:
 	difficulty = DIFFICULTY_NORMAL
 	playerStock = 0
+	stage = 0
 	score = 0
 	scoreCheck = 0
 	scoreFirstExtend = False
@@ -236,12 +239,13 @@ class GameSession:
 	weaponSave = WEAPON_STRAIGHT
 
 	@classmethod
-	def init(cls, difficulty, playerStock, gameMode, credits):
+	def init(cls, difficulty, playerStock, gameMode, stage, credits):
 		GameSession.difficulty = difficulty
 		GameSession.playerStock = playerStock
 		GameSession.score = 0
 		GameSession.scoreCheck = 0
 		GameSession.scoreFirstExtend = False
+		GameSession.stage = stage
 
 		GameSession.gameMode = gameMode
 		GameSession.credits = credits
@@ -382,6 +386,11 @@ class MouseManager:
 			self.mouseCounter += 1
 			if self.mouseCounter > 180:
 				self.visible = False
+	
+	def draw(self):
+		# マウスカーソル
+		if self.visible:
+			drawMenuCursor()
 
 class ClassicRand:
 	def __init__(self):
@@ -392,6 +401,18 @@ class ClassicRand:
 		self.x = (self.x * 1103515245+12345)&2147483647
 		return self.x
 
+class BGStarV:
+	def __init__(self):
+		self.star_pos = 0
+
+	def update(self):
+		self.star_pos -= 0.25
+		if self.star_pos<0:
+			self.star_pos += 200
+
+	def draw(self):
+		for i in range(0,96):
+			pyxel.pset(star_ary[i][0], int(i*2 + self.star_pos) % 200, star_ary[i][1])
 
 class Rect:
 	def __init__(self):

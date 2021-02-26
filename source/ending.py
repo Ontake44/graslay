@@ -238,7 +238,7 @@ class EndingScene2:
 		elif self.state == 2:
 			if self.cnt > 600:
 				self.cnt = 0
-				gcommon.app.startTitle()
+				gcommon.app.startGameClear()
 		newObjs = []
 		for obj in self.objs:
 			if obj.removeFlag == False:

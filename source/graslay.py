@@ -651,7 +651,7 @@ class GameOver:
 				if gcommon.GameSession.credits == 0 and gcommon.Settings.credits < 99:
 					gcommon.Settings.credits += 1
 					gcommon.saveSettings()
-			gcommon.app.startTitle()
+			gcommon.app.startRanking()
 	
 	def draw(self):
 		pyxel.cls(0)
@@ -1465,9 +1465,10 @@ class MainGame:
 	def OnPlayerStockOver(self):
 		if gcommon.GameSession.gameMode == gcommon.GAMEMODE_NORMAL:
 			if gcommon.GameSession.credits == 0:
+				# クレジットが無くなればゲームオーバー
 				gcommon.app.startGameOver()
 			else:
-				# CONTINUE確認
+				# クレジットがあればCONTINUE確認
 				self.pauseMode = gcommon.PAUSE_CONTINUE
 				self.pauseCnt = 0
 		else:
@@ -1488,8 +1489,12 @@ class MainGame:
 				self.pauseMenuPos = n
 		if self.pauseCnt > 30:
 			if self.pauseMenuPos == 0:
+				# コンティニーする
 				if gcommon.checkShotKeyRectP(self.pauseMenuRects[self.pauseMenuPos]):
 					# YES
+					rankingManager = ranking.RankingManager()
+					# コンティニー時のランキング追加
+					rankingManager.addContinueRecord()
 					gcommon.GameSession.execContinue()
 					self.pauseMode = gcommon.PAUSE_NONE
 					gcommon.ObjMgr.myShip.sub_scene = 3
@@ -1498,6 +1503,7 @@ class MainGame:
 					# # gcommon.app.restartStage()
 
 			elif self.pauseMenuPos == 1:
+				# ゲームオーバー
 				if gcommon.checkShotKeyRectP(self.pauseMenuRects[self.pauseMenuPos]):
 					# NO
 					gcommon.app.startGameOver()
@@ -2259,9 +2265,14 @@ def parseCommandLine():
 				gcommon.START_GAME_TIMER = int(sys.argv[idx+1])
 				print("set START_GAME_TIMER = " + str(gcommon.START_GAME_TIMER))
 		elif arg.upper() == "-DEBUG":
+			print("set Debug")
 			gcommon.DebugMode = True
 		elif arg.upper() == "-SHOWCOLLISION":
+			print("set Show Collision")
 			gcommon.ShowCollision = True
+		elif arg.upper() == "-CUSTOMNORMAL":
+			print("set Custom Normal")
+			gcommon.CustomNormal = True
 		idx+=1
 
 def loadMapData(tm, fileName):
@@ -2315,7 +2326,7 @@ class App:
 		#print("Difficulty : " + str(difficulty))
 		gcommon.Settings.difficulty = difficulty
 		gcommon.saveSettings()
-		gcommon.GameSession.init(difficulty, gcommon.Defaults.INIT_PLAYER_STOCK, gcommon.GAMEMODE_NORMAL, gcommon.Settings.credits)
+		gcommon.GameSession.init(difficulty, gcommon.Defaults.INIT_PLAYER_STOCK, gcommon.GAMEMODE_NORMAL, 1, gcommon.Settings.credits)
 		if gcommon.GameSession.difficulty == gcommon.DIFFICULTY_EASY:
 			gcommon.powerRate = 1.5
 			gcommon.enemy_shot_rate = 0.75
@@ -2339,7 +2350,12 @@ class App:
 		#print("Difficulty : " + str(difficulty))
 		gcommon.Settings.difficulty = difficulty
 		gcommon.saveSettings()
-		gcommon.GameSession.init(difficulty, playerStock, gcommon.GAMEMODE_CUSTOM, 1)
+		if gcommon.CustomNormal:
+			# カスタムでも通常にしたい場合（デバッグ）
+			gcommon.GameSession.init(difficulty, playerStock, gcommon.GAMEMODE_NORMAL, stage, 1)
+		else:
+			# 通常
+			gcommon.GameSession.init(difficulty, playerStock, gcommon.GAMEMODE_CUSTOM, stage, 1)
 		if gcommon.GameSession.difficulty == gcommon.DIFFICULTY_EASY:
 			gcommon.powerRate = 1.5
 			gcommon.enemy_shot_rate = 0.75
@@ -2352,6 +2368,7 @@ class App:
 
 	def startStage(self, stage):
 		self.stage = stage
+		gcommon.GameSession.stage = self.stage
 		self.setScene(MainGame(stage))
 
 	def restartStage(self):
@@ -2359,25 +2376,47 @@ class App:
 
 	def startNextStage(self):
 		if self.stage == 6:
-			self.startGameClear()
+			gcommon.GameSession.stage = -1
+			self.startEnding()
 		else:
-			self.startStage(self.stage+1)
+			self.startStage(self.stage +1)
 
 	def startGameOver(self):
 		self.setScene(GameOver())
 
+	# ランキングに載るかどうかチェックし、
+	# 載る場合はネームエントリー、載らない場合はタイトル画面へ遷移
+	def startRanking(self):
+		rankingManager = ranking.RankingManager()
+		rankingManager.load()
+		if rankingManager.inTop10(gcommon.GameSession.difficulty, gcommon.GameSession.score):
+			self.setScene(ranking.EnterPlayerNameScene())
+		else:
+			self.startTitle()
+
+	def startGameClear(self):
+		rankingManager = ranking.RankingManager()
+		rankingManager.load()
+		if rankingManager.inTop10(gcommon.GameSession.difficulty, gcommon.GameSession.score):
+			# トップ１０に入るようであればネームエントリー
+			self.setScene(ranking.EnterPlayerNameScene())
+		else:
+			self.startTitle()
 
 	def startStageClear(self, stage):
 		self.setScene(StageClear(stage))
 
-	def startGameClear(self):
+	def startEnding(self):
 		self.setScene(ending.EndingScene())
 
 	def startOption(self):
 		self.setScene(OptionMenuScene())
 
-	def startScoreRanking(self):
-		self.setScene(ranking.RankingDispScene())
+	def startScoreRanking(self, exitTo):
+		self.setScene(ranking.RankingDispScene(exitTo))
+
+	def startEnterPlayerNameScene(self):
+		self.setScene(ranking.EnterPlayerNameScene())
 
 	def startCustomStartMenu(self):
 		self.setScene(customStartMenu.CustomStartMenuScene())

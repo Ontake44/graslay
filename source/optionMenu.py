@@ -40,11 +40,11 @@ class OptionMenuScene:
 			gcommon.sound(gcommon.SOUND_MENUMOVE)
 			self.menuPos -= 1
 			if self.menuPos < 0:
-				self.menuPos = 2
+				self.menuPos = 3
 		if gcommon.checkDownP():
 			gcommon.sound(gcommon.SOUND_MENUMOVE)
 			self.menuPos += 1
-			if self.menuPos > 2:
+			if self.menuPos > 3:
 				self.menuPos = 0
 
 		if self.mouseManager.visible:
@@ -80,7 +80,8 @@ class OptionMenuScene:
 		elif self.menuPos == OPTIONMENU_SCORE_RANKIG and gcommon.checkShotKeyRectP(self.menuRects[OPTIONMENU_SCORE_RANKIG]):
 			gcommon.sound(gcommon.SOUND_MENUMOVE)
 			gcommon.saveSettings()
-			gcommon.app.startScoreRanking()
+			gcommon.app.startScoreRanking(1)
+			#gcommon.app.startEnterPlayerNameScene()
 
 		elif self.menuPos == OPTIONMENU_EXIT and gcommon.checkShotKeyRectP(self.menuRects[OPTIONMENU_EXIT]):
 			gcommon.sound(gcommon.SOUND_MENUMOVE)
