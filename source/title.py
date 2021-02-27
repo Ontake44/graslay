@@ -316,6 +316,7 @@ class TitleScene:
 		pyxel.blt(10, 186, 0, 88, 120, 8, 8, 0)
 		pyxel.text(20, 188, "2021 ONTAKE44", 7)
 
+		gcommon.showTextHCentor2(188, "VER " + gcommon.VERSION , 7)
 
 		pyxel.pal()
 		if self.mouseManager.visible:
