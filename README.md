@@ -10,7 +10,7 @@ GRASLAYはレトロ風横スクロールシューティングゲームです。
 ## 動作環境
 Windows 7,8.1,10の64bit専用です。
 
-Pyxelというクラシックゲームエンジンで動作しています。Pyxelに関しては以下のサイトをご覧ください。
+Pyxelというレトロゲームエンジンで動作しています。Pyxelに関しては以下のサイトをご覧ください。
 <https://github.com/kitao/pyxel/blob/master/README.ja.md>
 
 
