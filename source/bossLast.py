@@ -214,7 +214,7 @@ class BossLast1(enemy.EnemyBase):
 			# 	self.arrowRad = math.pi + math.pi * (self.random.rand() % 100 -50)/120
 			# 	gcommon.ObjMgr.addObj(BossLastArrowShot(self.x +32+16+32, self.y +64+16+16, self.arrowRad))
 			# ひし形弾
-			count = 5 if gcommon.GameSession.isEasy() else 3
+			count = 8 if gcommon.GameSession.isEasy() else 5
 			if self.cnt % count == 0:
 				gcommon.ObjMgr.addObj(BossLastFallShotGroup(self.x +32+16+32, self.y +64+16+16,
 					math.pi + math.pi * (self.random.rand() % 100 -50)/120, 
@@ -289,17 +289,19 @@ class BossLast1(enemy.EnemyBase):
 		#	enemy.Particle1.appendCenter(shot, rad)
 		if self.mode == 0:
 			if self.brokenState == 0 and self.hp < BossLast1.hp2:
-				# 初期状態
+				# 初期状態⇒先端が欠けた状態
 				self.brokenState = 1
 				enemy.create_explosion(self.x +32+32, self.y +64+16+16, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M)
+				gcommon.GameSession.addScore(1000)
 			elif self.brokenState == 1 and self.hp < BossLast1.hp3:
-				# 先端が欠けた状態
+				# 先端が欠けた状態⇒コアむき出し状態
 				self.brokenState = 2
 				self.mode = 1
 				self.setState(0)
 				self.removeAllShot()
 				enemy.create_explosion(self.x +32+32, self.y +64+16+16, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M)
 				enemy.Splash.append(self.x +32+32+24, self.y +64+16+16, gcommon.C_LAYER_EXP_SKY)
+				gcommon.GameSession.addScore(3000)
 		return ret
 
 	def broken(self):
@@ -311,6 +313,7 @@ class BossLast1(enemy.EnemyBase):
 		enemy.removeEnemyShot()
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
+		gcommon.GameSession.addScore(self.score)
 
 	def removeAllShot(self):
 		enemy.removeEnemyShot()
@@ -521,7 +524,8 @@ class BossLastBattery1(enemy.EnemyBase):
 		self.top = 2
 		self.right = 13
 		self.bottom = 13
-		self.hp = 2000
+		self.hp = 500
+		self.score = 200
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = False
 		self.hitCheck = True
@@ -607,9 +611,6 @@ class BossLastDiamondBeam(enemy.EnemyBase):
 		elif self.cnt < 60 and self.speed < 5:
 			self.speed *= 1.1
 
-		if self.cnt & 15 == 15:
-			enemy.Particle1.append(self.x, self.y, gcommon.atan_table[self.dr] + math.pi)
-
 		self.x += gcommon.cos_table[self.dr] * self.speed
 		self.y += gcommon.sin_table[self.dr] * self.speed
 		#if self.speed < 6:
@@ -641,6 +642,8 @@ class BossLastDiamondShot(enemy.EnemyBase):
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
+		self.hp = 1
+		self.score = 20
 		self.speed = 3.0
 		self.particleTable = []
 
@@ -748,6 +751,7 @@ class BossLastArrowShot(enemy.EnemyBase):
 	def draw(self):
 		gcommon.drawPolygons(gcommon.getAnglePolygons([self.x, self.y], self.polygons, [0, 7], -self.dr))
 
+# ひし形の弾。回るように動く
 class BossLastFallShot(enemy.EnemyBase):
 	points = [[11,0],[0,7],[11,14],[22,7]]
 	def __init__(self, x, y, rad, omega):
@@ -764,6 +768,8 @@ class BossLastFallShot(enemy.EnemyBase):
 		self.hitCheck = True
 		self.shotHitCheck = False
 		self.enemyShotCollision = False
+		self.hp = 1
+		self.score = 20
 		self.speed = 4.0
 		self.rad = rad		#math.pi
 		self.clr = 8

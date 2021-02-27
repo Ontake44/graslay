@@ -242,6 +242,7 @@ class EnemyShot(EnemyBase):
 			self.right = 13
 			self.bottom = 13
 		else:
+			# 破壊可能
 			self.shotHitCheck = True
 			self.x = x -8
 			self.y = y -8
@@ -249,6 +250,8 @@ class EnemyShot(EnemyBase):
 			self.top = 2
 			self.right = 13
 			self.bottom = 13
+			self.hp = 1
+			self.score = 20
 		self.speed = speed
 		self.type = gcommon.T_E_SHOT1
 		self.layer = gcommon.C_LAYER_E_SHOT

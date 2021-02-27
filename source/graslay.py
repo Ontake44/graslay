@@ -281,17 +281,24 @@ class MyShip:
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+6, self.y +4, dx, -dy, 1)))
 			else:
 				self.shotMax = 2
+				# 前
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 6, 0, 2)))
 				
+				# やや斜め前
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 5.5, 2.3, -3)))
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 5.5, -2.3, 3)))
 				
+				# 斜め前
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 4.2, 4.2, -4)))
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 4.2, -4.2, 4)))
 
+				# 斜め後
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x-2, self.y +4, -4.2, 4.2, 4)))
 				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x-2, self.y +4, -4.2, -4.2, -4)))
-			
+
+				# 後ろ
+				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x-2, self.y +4, -6, 0, 2)))
+
 			gcommon.sound(gcommon.SOUND_SHOT)
 			gcommon.ObjMgr.shotGroups.append(shotGroup)
 	
@@ -651,7 +658,11 @@ class GameOver:
 				if gcommon.GameSession.credits == 0 and gcommon.Settings.credits < 99:
 					gcommon.Settings.credits += 1
 					gcommon.saveSettings()
-			gcommon.app.startRanking()
+				# ランキング入るのはノーマルだけ
+				gcommon.app.startRanking()
+			else:
+				# カスタム
+				gcommon.app.startTitle()
 	
 	def draw(self):
 		pyxel.cls(0)
@@ -2395,11 +2406,14 @@ class App:
 			self.startTitle()
 
 	def startGameClear(self):
-		rankingManager = ranking.RankingManager()
-		rankingManager.load()
-		if rankingManager.inTop10(gcommon.GameSession.difficulty, gcommon.GameSession.score):
-			# トップ１０に入るようであればネームエントリー
-			self.setScene(ranking.EnterPlayerNameScene())
+		if gcommon.GameSession.gameMode == gcommon.GAMEMODE_NORMAL:
+			rankingManager = ranking.RankingManager()
+			rankingManager.load()
+			if rankingManager.inTop10(gcommon.GameSession.difficulty, gcommon.GameSession.score):
+				# トップ１０に入るようであればネームエントリー
+				self.setScene(ranking.EnterPlayerNameScene())
+			else:
+				self.startTitle()
 		else:
 			self.startTitle()
 

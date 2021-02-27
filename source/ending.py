@@ -210,13 +210,14 @@ class EndingScene2:
 	def __init__(self, parent):
 		self.parent = parent
 		self.py = 190
-		self.px = 140
+		self.px = 150
 		self.dy = -2
 		self.sx = 88
 		self.sy = 32
 		self.size = 1.0
 		self.state = 0
 		self.cnt = 0
+		self.message = "THE END"
 		self.objs = []
 		gcommon.BGM.playOnce(gcommon.BGM.ENDING)
 
@@ -232,10 +233,12 @@ class EndingScene2:
 				self.cnt = 0
 				self.state = 1
 		elif self.state == 1:
-			if self.cnt > 60:
+			# 待ち
+			if self.cnt > 120:
 				self.cnt = 0
 				self.state = 2
 		elif self.state == 2:
+			# キラーン！ ☆
 			if self.cnt > 600:
 				self.cnt = 0
 				gcommon.app.startGameClear()
@@ -253,13 +256,13 @@ class EndingScene2:
 		for i in range(0,96):
 			pyxel.pset(EndingScene.star_ary[i][0], i*2, int(random.randrange(0,2)+5))
 		
-		pyxel.blt(90, 40, 2, 128, 48, 56, 56, 2)
+		pyxel.blt(128 -56/2, 40, 2, 128, 48, 56, 56, 2)
 		if self.state == 0:
 			gcommon.stretchBlt(self.px - self.sx * self.size/2, self.py - self.sy * self.size/2, 	\
 				self.sx * self.size, self.sy * self.size,	\
 				1, 0, 0, self.sx, self.sy)
 		elif self.state == 2:
-			px = 122
+			px = 132
 			py = 60
 			if self.cnt < 18:
 				self.drawShine(px, py, int(self.cnt/6))
@@ -268,6 +271,13 @@ class EndingScene2:
 					self.drawShine(px, py, 2)
 			elif self.cnt < 80:
 				self.drawShine(px, py, int(2 -(self.cnt-62)/6))
+			elif self.cnt >= 150:
+				l = int((self.cnt -150)/20)
+				sl = len(self.message)
+				if l > sl:
+					l = sl
+				gcommon.showText(128 -sl*4, 120, self.message[:l])
+
 		for obj in self.objs:
 			if obj.removeFlag == False:
 				obj.draw()
