@@ -329,6 +329,10 @@ class Boss2Cell(enemy.EnemyBase):
 			del self.cells[-1]	# 最後から消す
 			if len(self.cells) == 0:
 				self.remove()
+			else:
+				pos = self.cells[len(self.cells)-1]
+				self.x = pos[0]
+				self.y = pos[1]
 
 	def draw(self):
 		index = len(self.cells) -1
