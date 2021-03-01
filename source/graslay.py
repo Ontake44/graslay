@@ -110,7 +110,6 @@ class MyShip:
 		mouseDy = 0
 		self.sprite = 0
 		dy = 0
-		#if pyxel.btn(pyxel.MOUSE_LEFT_BUTTON):
 		if self.mouseManager.visible:
 			if cx < pyxel.mouse_x -2:
 				mouseDx = 1
@@ -261,9 +260,6 @@ class MyShip:
 		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
 
 	def drawMyShip(self):
-		#if gcommon.set_color_shadow():
-		#	pyxel.blt(self.x +16, self.y +16, 0, self.sprite * 16, 0, 16, 16, gcommon.TP_COLOR)
-		#	pyxel.pal()
 		pyxel.blt(self.x, self.y, 0, self.sprite * 24, 0, 24, 16, gcommon.TP_COLOR)
 
 	# 自機弾発射
@@ -972,10 +968,6 @@ class MapDraw4:
 			pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, gcommon.TP_COLOR)
 
 	def draw(self):
-		# if gcommon.map_x < 0:
-		# 	pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
-		# else:
-		# 	pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, (int)(gcommon.map_x/8), (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 		# 上下ループマップなのでややこしい
 		if gcommon.map_x < 0:
 			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
@@ -1007,8 +999,6 @@ class MapDrawFactory:
 			gcommon.cur_map_dy = 0
 
 	def update(self, skip):
-		#gcommon.map_x += gcommon.cur_scroll_x
-		#gcommon.map_y += gcommon.cur_scroll_y
 		if gcommon.game_timer > 15000:
 			# ボス出現
 			if gcommon.map_y > 336:
@@ -1219,12 +1209,7 @@ class MapDrawLast:
 			if gcommon.back_map_x < 2:
 				pyxel.pal()
 			
-
 	def draw(self):
-		# if gcommon.map_x < 0:
-		# 	pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
-		# else:
-		# 	pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, (int)(gcommon.map_x/8), (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 		# 上下ループマップなのでややこしい
 		if gcommon.map_x < 0:
 			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, 3)
@@ -1240,9 +1225,6 @@ class MapDrawLast:
 
 class StartMapDraw1:
 	def __init__(self, t):
-		#gcommon.drawMap = MapDraw()
-		#gcommon.map_x = -32 * 8
-		#gcommon.map_y = 24*8
 		gcommon.ObjMgr.setDrawMap(MapDraw1())
 
 	def do(self):
@@ -1258,9 +1240,6 @@ class StartBGM:
 
 class StartMapDraw2:
 	def __init__(self, t):
-		#gcommon.drawMap = MapDraw2()
-		#gcommon.map_x = 0
-		#gcommon.map_y = 24*8
 		gcommon.ObjMgr.setDrawMap(MapDraw2())
 
 	def do(self):
