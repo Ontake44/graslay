@@ -409,7 +409,7 @@ class BossLastBeam2(enemy.EnemyBase):
 		self.flag = flag		# 最初にどっちに向くか
 		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.ground = False
-		self.hitCheck = True
+		self.hitCheck = False
 		self.shotHitCheck = False
 		self.enemyShotCollision = False
 		self.polygonList1 = []
@@ -426,22 +426,29 @@ class BossLastBeam2(enemy.EnemyBase):
 		if self.flag:
 			if self.state == 0:
 				self.size += 0.05
+				if self.size >= 0.125:
+					self.size = 0.125
+				if self.cnt > 45:
+					self.hitCheck = True
+					self.nextState()
+			elif self.state == 1:
+				self.size += 0.05
 				if self.size >= 2.0:
 					self.size = 2.0
 				if self.cnt > 45:
 					self.nextState()
-			elif self.state == 1:
+			elif self.state == 2:
 				if self.cnt > 30:
 					self.nextState()
-			elif self.state == 2:
+			elif self.state == 3:
 				self.rad -= self.omega
 				if self.rad < (math.pi -self.angle):
 					self.nextState()
-			elif self.state == 3:
+			elif self.state == 4:
 				self.rad += self.omega
 				if self.rad > (math.pi +self.angle):
 					self.nextState()
-			elif self.state == 4:
+			elif self.state == 5:
 				self.rad -= self.omega
 				if self.rad <= math.pi:
 					self.rad = math.pi
@@ -453,22 +460,29 @@ class BossLastBeam2(enemy.EnemyBase):
 		else:
 			if self.state == 0:
 				self.size += 0.05
+				if self.size >= 0.125:
+					self.size = 0.125
+				if self.cnt > 45:
+					self.hitCheck = True
+					self.nextState()
+			elif self.state == 1:
+				self.size += 0.05
 				if self.size >= 2.0:
 					self.size = 2.0
 				if self.cnt > 45:
 					self.nextState()
-			elif self.state == 1:
+			elif self.state == 2:
 				if self.cnt > 30:
 					self.nextState()
-			elif self.state == 2:
+			elif self.state == 3:
 				self.rad += self.omega
 				if self.rad > (math.pi +self.angle):
 					self.nextState()
-			elif self.state == 3:
+			elif self.state == 4:
 				self.rad -= self.omega
 				if self.rad < (math.pi -self.angle):
 					self.nextState()
-			elif self.state == 4:
+			elif self.state == 5:
 				self.rad += self.omega
 				if self.rad >= math.pi:
 					self.rad = math.pi
@@ -506,9 +520,10 @@ class BossLastBeam2(enemy.EnemyBase):
 			self.xpolygonList2.polygons[0].clr = 10
 			self.xpolygonList3.polygons[0].clr = 7
 		else:
-			self.xpolygonList1.polygons[0].clr = 8
-			self.xpolygonList2.polygons[0].clr = 9
-			self.xpolygonList3.polygons[0].clr = 10
+			if self.state > 0:
+				self.xpolygonList1.polygons[0].clr = 8
+				self.xpolygonList2.polygons[0].clr = 9
+				self.xpolygonList3.polygons[0].clr = 10
 		gcommon.drawPolygons(self.xpolygonList1)
 		gcommon.drawPolygons(self.xpolygonList2)
 		gcommon.drawPolygons(self.xpolygonList3)

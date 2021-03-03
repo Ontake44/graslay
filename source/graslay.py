@@ -1861,7 +1861,7 @@ class App:
 			self.startEnding()
 		else:
 			self.startStage(self.stage +1)
-
+		
 	def startGameOver(self):
 		self.setScene(GameOver())
 
