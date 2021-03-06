@@ -357,7 +357,7 @@ class BossFactory(enemy.EnemyBase):
 				self.moveDr64 = -1
 			if self.subState == 0:
 				# 追いかける
-				if self.cnt % 4 == 0 and self.cnt <= 30:
+				if self.cnt % 4 == 0 and self.cnt <= 30 * gcommon.GameSession.enemy_shot_rate:
 					tempDr = gcommon.get_atan_no_to_ship(self.x +39.5, self.y +39.5)
 					# 右左を決める
 					if self.moveDr64 == -1:

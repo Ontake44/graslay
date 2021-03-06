@@ -154,6 +154,15 @@ class MapDraw3:
 						else:
 							obj = enemy.Shutter1(pos[0], pos[1] -16*size +8, -1, size, 0, speed, param1, param2)
 						gcommon.ObjMgr.addObj(obj)
+					elif n == 398:
+						# 固定シャッター
+						size = gcommon.getMapDataByMapPos(mx+1, my) -576
+						if gcommon.GameSession.isEasy():
+							gcommon.setMapDataByMapPos2(mx, my, 0, 2, 1)
+							obj = enemy.FixedShutter1(mx, my, size)
+							gcommon.ObjMgr.addObj(obj)
+						else:
+							gcommon.setMapDataByMapPos2(mx, my, 11, 2, size *2)
 					else:
 						# 共通のマップキャラクタ処理
 						gcommon.doMapCharacter(n, mx, my)

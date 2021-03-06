@@ -250,7 +250,8 @@ class GameSession:
 	credits = 0
 	gameMode = GAMEMODE_NORMAL
 	weaponSave = WEAPON_STRAIGHT
-
+	enemy_shot_rate = ENEMY_SHOT_RATE_NORMAL
+	powerRate = POWER_RATE_NORMAL
 	@classmethod
 	def init(cls, difficulty, playerStock, gameMode, stage, credits):
 		__class__.difficulty = difficulty

@@ -1636,7 +1636,7 @@ class FixedShutter1(EnemyBase):
 		pos = gcommon.mapPosToScreenPos(mx, my)
 		self.x = pos[0]		# screen x
 		self.y = pos[1]		# screen y
-		self.size = size	# 大きさ（16ドット単位）
+		self.size = size	# 縦方向大きさ（16ドット単位）
 		self.left = 0
 		self.right = 15
 		self.top = 0
