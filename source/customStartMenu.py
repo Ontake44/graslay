@@ -18,6 +18,7 @@ class CustomStartMenuScene:
 		self.state = 0
 		self.cnt = 0
 		self.mouseManager = gcommon.MouseManager()
+		self.difficulty = gcommon.Settings.difficulty
 		self.menuRects = []
 		for y in self.menuYList:
 			self.menuRects.append(gcommon.Rect.create(
@@ -96,11 +97,13 @@ class CustomStartMenuScene:
 				if self.mouseManager.visible:
 					n = gcommon.checkMouseMenuPos(self.difficultyRects)
 				if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
-					gcommon.Settings.difficulty = gcommon.DIFFICULTY_NORMAL
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
+					if self.difficulty < 2:
+						gcommon.sound(gcommon.SOUND_MENUMOVE)
+						self.difficulty += 1
 				elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
-					gcommon.Settings.difficulty = gcommon.DIFFICULTY_EASY
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
+					if self.difficulty > 0:
+						gcommon.sound(gcommon.SOUND_MENUMOVE)
+						self.difficulty -= 1
 				elif gcommon.checkShotKeyP():
 					gcommon.saveSettings()
 					gcommon.sound(gcommon.SOUND_GAMESTART)
@@ -111,19 +114,10 @@ class CustomStartMenuScene:
 				if gcommon.checkShotKeyRectP(self.menuRects[MENU_EXIT]):
 					gcommon.sound(gcommon.SOUND_MENUMOVE)
 					gcommon.app.startTitle()
-
-			# if gcommon.checkShotKey():
-			# 	gcommon.saveSettings()
-			# 	if self.menuPos == MENU_GAME_START:
-			# 		gcommon.sound(gcommon.SOUND_GAMESTART)
-			# 		self.state = 1
-			# 		self.cnt = 0
-			# 	elif self.menuPos == MENU_EXIT:
-			# 		gcommon.app.startTitle()
 		else:
 			# GAME START
 			if self.cnt > 40:
-				gcommon.app.startCustomGame(gcommon.Settings.difficulty, gcommon.Settings.startStage, gcommon.Settings.playerStock)
+				gcommon.app.startCustomGame(self.difficulty, gcommon.Settings.startStage, gcommon.Settings.playerStock)
 		self.cnt += 1
 
 	def draw(self):
@@ -150,7 +144,7 @@ class CustomStartMenuScene:
 			gcommon.drawUpDownMarker2(x2 -10, self.menuYList[idx], 1, 6, gcommon.Settings.startStage)
 		idx += 1
 
-		text = gcommon.difficultyText[gcommon.Settings.difficulty] + " START"
+		text = gcommon.difficultyText[self.difficulty] + " START"
 		if self.state == 0:
 			if self.state == 0 and self.menuPos == MENU_GAME_START and self.cnt & 16 == 0:
 				pyxel.pal(7, 8)
@@ -159,9 +153,8 @@ class CustomStartMenuScene:
 				self.setOptionColor(MENU_GAME_START)
 			gcommon.showText(x3, self.menuYList[idx], text)
 			if MENU_GAME_START == self.menuPos:
-				leftMarker = (gcommon.Settings.difficulty == gcommon.DIFFICULTY_NORMAL)
-				gcommon.drawLeftMarker(x3 -12, self.menuYList[idx], leftMarker)
-				gcommon.drawRightMarker(x3 +(6+6)*8 + 4, self.menuYList[idx], not leftMarker)
+				gcommon.drawLeftMarker(x3 -12, self.menuYList[idx], self.difficulty > 0)
+				gcommon.drawRightMarker(x3 +(6+6)*8 + 4, self.menuYList[idx], self.difficulty < 2)
 		else:
 			if self.cnt & 2 == 0:
 				pyxel.pal(7, 8)

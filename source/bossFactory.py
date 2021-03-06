@@ -24,7 +24,7 @@ class BossFactoryShot1(enemy.EnemyBase):
 		self.image = 2
 		self.imageX = 0
 		self.imageY = 96
-		self.maxSpeed = 4 if gcommon.GameSession.isNormalOrMore() else 3
+		self.maxSpeed = 4 if gcommon.GameSession.isHard() else 3
 
 	def update(self):
 		if self.cnt & 2 == 0 and self.cnt <= 63:
@@ -413,7 +413,7 @@ class BossFactory(enemy.EnemyBase):
 				# 		enemy.enemy_shot(xx, yy, 3, 0)
 				if self.subCnt & 31 == 1:
 					rr = 0 if self.finMode == 0 else math.pi/4
-					n = 5 if gcommon.GameSession.isNormalOrMore() else 4
+					n = 5 if gcommon.GameSession.isHard() else 4
 					dr = gcommon.get_atan_no_to_ship(self.x +39.5, self.y +39.5)
 					if self.subCnt & 32 == 0:
 						#print("5")

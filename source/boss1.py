@@ -38,6 +38,7 @@ class Boss1Base(enemy.EnemyBase):
  
 
 class Boss1(enemy.EnemyBase):
+	beamTimes = (45, 60, 90)
 	def __init__(self, t):
 		super(Boss1, self).__init__()
 		self.x = t[2]
@@ -56,9 +57,8 @@ class Boss1(enemy.EnemyBase):
 		self.beam = 0
 		self.subState = 0
 		self.isLeft = True
-		self.beamTime = 90
-		if gcommon.GameSession.isEasy():
-			self.beamTime = 60
+		self.beamTime = __class__.beamTimes[gcommon.GameSession.difficulty]
+		gcommon.debugPrint("beam Time = " + str(self.beamTime))
 		self.tbl = []
 		self.beamObj = Boss1Beam(self)
 		gcommon.ObjMgr.addObj(self.beamObj)
@@ -99,7 +99,7 @@ class Boss1(enemy.EnemyBase):
 				if self.y > 150:
 					self.y = 150
 			if self.cnt & 15 == 15:
-				if gcommon.GameSession.isEasy():
+				if gcommon.GameSession.isNormalOrLess():
 					self.shotFix4()
 				else:
 					self.shotFix8()

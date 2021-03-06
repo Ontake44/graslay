@@ -118,7 +118,7 @@ class MapDraw3:
 						# 砲台
 						gcommon.setMapDataByMapPos(mx, my, 0)
 						obj = enemy.Battery1([0,0,mx, my, 0])
-						if gcommon.GameSession.isNormalOrMore():
+						if gcommon.GameSession.isHard():
 							obj.first = 20
 							obj.shot_speed = 3
 						if n == 391:

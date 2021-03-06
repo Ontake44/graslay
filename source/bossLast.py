@@ -130,7 +130,7 @@ class BossLast1(enemy.EnemyBase):
 					enemy.ContinuousShot.create(self.x + 66, self.y +49, self.shotType, count, 5, 4)
 				elif n == 3:
 					enemy.ContinuousShot.create(self.x + 38, self.y +128+40, self.shotType, count, 5, 4)
-				if gcommon.GameSession.isNormalOrMore():
+				if gcommon.GameSession.isHard():
 					self.shotType = 1 + (self.shotType + 1) % 3
 			if self.cnt> 100:
 				self.nextState()
@@ -171,7 +171,7 @@ class BossLast1(enemy.EnemyBase):
 
 		elif self.state == 6:
 			# レーザー砲台射出
-			if gcommon.GameSession.isNormalOrMore():
+			if gcommon.GameSession.isHard():
 				if self.cnt % 40 == 1:
 					gcommon.ObjMgr.objs.append(BossLastBattery1(156, 192, -1))
 				elif self.cnt % 40 == 21:
@@ -198,7 +198,7 @@ class BossLast1(enemy.EnemyBase):
 				self.nextState()
 		elif self.state == 2:
 			# ダイアモンドショットホーミング射出
-			count = 15 if gcommon.GameSession.isEasy() else 8
+			count = 15 if gcommon.GameSession.isNormalOrLess() else 8
 			if self.cnt % count == 0:
 				n = BossLast1.table8[int(self.cnt /8) & 7]
 				gcommon.ObjMgr.addObj(BossLastDiamondShot(self.x +32+16+32, self.y +64+16+16+8, 24 -n*2))
@@ -214,7 +214,7 @@ class BossLast1(enemy.EnemyBase):
 			# 	self.arrowRad = math.pi + math.pi * (self.random.rand() % 100 -50)/120
 			# 	gcommon.ObjMgr.addObj(BossLastArrowShot(self.x +32+16+32, self.y +64+16+16, self.arrowRad))
 			# ひし形弾
-			count = 8 if gcommon.GameSession.isEasy() else 5
+			count = 8 if gcommon.GameSession.isNormalOrLess() else 5
 			if self.cnt % count == 0:
 				gcommon.ObjMgr.addObj(BossLastFallShotGroup(self.x +32+16+32, self.y +64+16+16,
 					math.pi + math.pi * (self.random.rand() % 100 -50)/120, 
@@ -991,7 +991,7 @@ class BossLast1Core(enemy.EnemyBase):
 				self.random = gcommon.ClassicRand()
 			self.y += 4.2 * math.sin(self.radY)
 			self.radY += math.pi/60
-			count = 15 if gcommon.GameSession.isEasy() else 7
+			count = 15 if gcommon.GameSession.isNormalOrLess() else 7
 			if self.cnt % (self.random.rand() % count +3) == 0:
 				gcommon.ObjMgr.addObj(BossLastStraightBeam(self.x -16, self.y))
 			if self.cnt > 240:
@@ -1027,7 +1027,7 @@ class BossLast1Core(enemy.EnemyBase):
 					self.setState(2)
 					self.angle = 0.0
 					self.cycleCount += 1
-			count = 10 if gcommon.GameSession.isEasy() else 5
+			count = 10 if gcommon.GameSession.isNormalOrLess() else 5
 			if self.cnt % count == 0:
 				gcommon.ObjMgr.addObj(boss.BossLaserBeam1(self.x +math.cos(workAngle)* 24, self.y +math.sin(workAngle) * 24, workAngle))
 				gcommon.ObjMgr.addObj(boss.BossLaserBeam1(self.x -math.cos(workAngle)* 24, self.y -math.sin(workAngle) * 24, workAngle + math.pi))

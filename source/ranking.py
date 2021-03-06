@@ -8,6 +8,7 @@ import json
 import ranking
 from operator import itemgetter
 
+# ランキング表示
 class RankingDispScene:
 	LEFT_MARKER_X = 128 -8*4 -2
 	RIGHT_MARKER_X = 128 +8*3 + 2
@@ -61,11 +62,13 @@ class RankingDispScene:
 			if self.mouseManager.visible:
 				n = gcommon.checkMouseMenuPos(self.markerRects)
 			if gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
-				self.difficulty = gcommon.DIFFICULTY_EASY
+				if self.difficulty > 0:
+					gcommon.sound(gcommon.SOUND_MENUMOVE)
+					self.difficulty -= 1
 			elif gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
-				self.difficulty = gcommon.DIFFICULTY_NORMAL
+				if self.difficulty < 2:
+					gcommon.sound(gcommon.SOUND_MENUMOVE)
+					self.difficulty += 1
 
 		elif self.menuPos == 1:	# EXIT
 			if gcommon.checkShotKeyRectP(self.menuRects[1]):
@@ -87,9 +90,8 @@ class RankingDispScene:
 		gcommon.showTextHCenter(__class__.EXIT_Y, "EXIT")
 		pyxel.pal()
 		
-		leftMarker = (self.difficulty == gcommon.DIFFICULTY_NORMAL)
-		gcommon.drawLeftMarker(__class__.LEFT_MARKER_X, __class__.MARKER_Y, leftMarker)
-		gcommon.drawRightMarker(__class__.RIGHT_MARKER_X, __class__.MARKER_Y, not leftMarker)
+		gcommon.drawLeftMarker(__class__.LEFT_MARKER_X, __class__.MARKER_Y, self.difficulty > 0)
+		gcommon.drawRightMarker(__class__.RIGHT_MARKER_X, __class__.MARKER_Y, self.difficulty < 2)
 
 		# カラムヘッダー
 		pyxel.pal(7, 12)
@@ -100,8 +102,10 @@ class RankingDispScene:
 		cols = __class__.colXList
 		if self.difficulty == gcommon.DIFFICULTY_EASY:
 			rankingList = self.rakingManager.easyRanking
-		else:
+		elif self.difficulty == gcommon.DIFFICULTY_NORMAL:
 			rankingList = self.rakingManager.normalRanking
+		else:
+			rankingList = self.rakingManager.hardRanking
 		if rankingList == None:
 			rankingList = []
 		sy = 56
@@ -314,6 +318,7 @@ class RankingManager:
 	def __init__(self):
 		self.normalRanking = []
 		self.easyRanking = []
+		self.hardRanking = []
 
 	def load(self):
 		jsonFile = None
@@ -323,13 +328,11 @@ class RankingManager:
 			jsonData = json.load(jsonFile)
 
 			if "normal" in jsonData:
-				#print("find normal")
 				self.normalRanking = self.getRanking(jsonData["normal"])
-				#for rec in self.normalRanking:
-				#	print("rank :" + rec.name)
 			if "easy" in jsonData:
-				#print("find normal")
 				self.easyRanking = self.getRanking(jsonData["easy"])
+			if "hard" in jsonData:
+				self.hardRanking = self.getRanking(jsonData["hard"])
 		except:
 			pass
 		finally:
@@ -345,6 +348,8 @@ class RankingManager:
 			ranking["normal"] = self.getRankingJsonList(self.normalRanking)
 		if self.easyRanking != None:
 			ranking["easy"] = self.getRankingJsonList(self.easyRanking)
+		if self.hardRanking != None:
+			ranking["hard"] = self.getRankingJsonList(self.hardRanking)
 		#json_data["ranking"] = ranking
 		try:
 			settingsPath = os.path.join(os.path.expanduser("~"), RankingManager.RECORD_FILE)
@@ -360,8 +365,10 @@ class RankingManager:
 		ranking = None
 		if difficulty == gcommon.DIFFICULTY_EASY:
 			ranking = self.easyRanking
-		else:
+		elif difficulty == gcommon.DIFFICULTY_NORMAL:
 			ranking = self.normalRanking
+		else:
+			ranking = self.hardRanking
 		if ranking != None:
 			if len(ranking) < 10:
 				return True
@@ -384,8 +391,10 @@ class RankingManager:
 		item.stage = stage
 		if difficulty == gcommon.DIFFICULTY_EASY:
 			ranking = self.easyRanking
-		else:
+		elif difficulty == gcommon.DIFFICULTY_NORMAL:
 			ranking = self.normalRanking
+		else:
+			ranking = self.hardRanking
 		ranking.append(item)
 		ranking.sort(key=lambda i: i.score, reverse=True)
 		if len(ranking) > 10:

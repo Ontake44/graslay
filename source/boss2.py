@@ -137,6 +137,7 @@ class Boss2Base2(enemy.EnemyBase):
 #   2 : ゆらゆら開始
 #   3 : 縮む
 class Feeler(enemy.EnemyBase):
+	shotCycles = (70, 50, 30)
 	def __init__(self, parentObj, offsetX, offsetY, dr, count):
 		super(Feeler, self).__init__()
 		self.x = parentObj.x + offsetX
@@ -155,10 +156,7 @@ class Feeler(enemy.EnemyBase):
 		self.mode = 0
 		self.subDr = 0
 		self.state = 0		# 0:縮小状態 1,2:モードで動作中
-		if gcommon.GameSession.isEasy():
-			self.shotCycle = 50
-		else:
-			self.shotCycle = 30
+		self.shotCycle = __class__.shotCycles[gcommon.GameSession.difficulty]
 		for i in range(0, count):
 			self.cells.append([0, 0])
 		# 触手セルの当たり判定範囲

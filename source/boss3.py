@@ -34,6 +34,7 @@ class Boss3Anchor:
 #  9 体当たり・戻る
 #  10 最初に戻る
 class Boss3(enemy.EnemyBase):
+	shotCycles = (32, 24, 15)
 	def __init__(self, t):
 		super(Boss3, self).__init__()
 		self.x = 256
@@ -61,10 +62,7 @@ class Boss3(enemy.EnemyBase):
 		self.body_min_y = 16
 		self.body_max_y = 128
 		self.cycleCount = 0
-		if gcommon.GameSession.isEasy():
-			self.shotCycle = 24
-		else:
-			self.shotCycle = 15
+		self.shotCycle = __class__.shotCycles[gcommon.GameSession.difficulty]
 
 	def nextState(self):
 		self.state += 1
@@ -142,7 +140,7 @@ class Boss3(enemy.EnemyBase):
 					self.body.y = self.body_min_y
 
 			self.setBodyAnchorPos()
-			if self.cnt % 20 == 0:
+			if self.cnt % self.shotCycle == 0:
 				enemy.enemy_shot(self.x+20, self.y+27, 4, 0)
 				enemy.enemy_shot(self.x+20, self.y+160-27, 4, 0)
 				gcommon.sound(gcommon.SOUND_SHOT2)

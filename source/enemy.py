@@ -260,16 +260,16 @@ class EnemyShot(EnemyBase):
 	def createToMyShip(cls, x, y, speed, shotType, offsetDr):
 		shot = EnemyShot(x, y, speed, shotType)
 		r = gcommon.get_atan_to_ship2(x,y,offsetDr)
-		shot.dx = math.cos(r) * speed * gcommon.enemy_shot_rate
-		shot.dy = math.sin(r) * speed * gcommon.enemy_shot_rate
+		shot.dx = math.cos(r) * speed * gcommon.GameSession.enemy_shot_rate
+		shot.dy = math.sin(r) * speed * gcommon.GameSession.enemy_shot_rate
 		return shot
 	
 	@classmethod
 	def createSpecifiedDirection(cls, x, y, speed, shotType, dr):
 		shot = EnemyShot(x, y, speed, shotType)
 		r = dr & 63
-		shot.dx = math.cos(gcommon.atan_table[r]) * speed * gcommon.enemy_shot_rate
-		shot.dy = math.sin(gcommon.atan_table[r]) * speed * gcommon.enemy_shot_rate
+		shot.dx = math.cos(gcommon.atan_table[r]) * speed * gcommon.GameSession.enemy_shot_rate
+		shot.dy = math.sin(gcommon.atan_table[r]) * speed * gcommon.GameSession.enemy_shot_rate
 		return shot
 
 	def update(self):
@@ -486,7 +486,7 @@ class Jumper1(EnemyBase):
 				self.dy = -self.dy
 		#elif gcommon.isMapFreePos(self.x + 8, self.y -4) == False:
 		#	self.dy = -self.dy
-		if self.cnt == 30 and gcommon.GameSession.isNormalOrMore():
+		if self.cnt == 30 and gcommon.GameSession.isHard():
 			enemy_shot(self.x +8, self.y +8, 2, 0)
 
 	def draw(self):
@@ -536,7 +536,7 @@ class RollingFighter1Group(EnemyBase):
 
 	def update(self):
 		if self.cnt % self.interval == 0:
-			gcommon.ObjMgr.addObj(RollingFighter1([0, 0, self.y, self.cnt2==0 or gcommon.GameSession.isNormalOrMore()]))
+			gcommon.ObjMgr.addObj(RollingFighter1([0, 0, self.y, self.cnt2==0 or gcommon.GameSession.isHard()]))
 			self.cnt2 += 1
 			if self.cnt2 >= self.max:
 				self.remove()
@@ -570,8 +570,8 @@ class Battery1(EnemyBase):
 		self.hitcolor1 = 8
 		self.hitcolor2 = 14
 		self.exptype = gcommon.C_EXPTYPE_GRD_S
-		self.interval = int(120 / gcommon.enemy_shot_rate)
-		self.first = int(120 / gcommon.enemy_shot_rate)
+		self.interval = int(120 / gcommon.GameSession.enemy_shot_rate)
+		self.first = int(120 / gcommon.GameSession.enemy_shot_rate)
 		self.shot_speed = 2
 		self.remove_min_x = -16
 
@@ -824,7 +824,7 @@ class Fan1aGroup(EnemyBase):
 		self.shotHitCheck = False
 		r = 0.0
 		for i in range(self.max):
-			if r != 0.0 or gcommon.GameSession.isNormalOrMore():
+			if r != 0.0 or gcommon.GameSession.isHard():
 				gcommon.ObjMgr.addObj(Fan1a([0, 0, r +math.pi]))
 			r += math.pi * 2.0 /self.max
 		self.remove()
@@ -894,7 +894,7 @@ class Fan1(EnemyBase):
 		if self.x <= -16:
 			self.remove()
 			return
-		if self.shotFlag and self.frameCount == 60 and gcommon.GameSession.isNormalOrMore():
+		if self.shotFlag and self.frameCount == 60 and gcommon.GameSession.isHard():
 			enemy_shot(self.x +8, self.y +8, 2, 0)
 
 	def draw(self):
@@ -926,7 +926,7 @@ class Fan1b(EnemyBase):
 			self.remove()
 			return
 
-		if self.frameCount == 30 and gcommon.GameSession.isNormalOrMore():
+		if self.frameCount == 30 and gcommon.GameSession.isHard():
 			enemy_shot(self.x +8, self.y +8, 2, 0)
 
 	def draw(self):
@@ -1203,34 +1203,34 @@ class Cell1Group1(EnemyBase):
 		if self.hv == 0:
 			if self.cnt == 0:
 				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY]))
-				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
+				obj.shotFlag = gcommon.GameSession.isHard()
 			elif self.cnt == 20:
 				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 50]))
-				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
+				obj.shotFlag = gcommon.GameSession.isHard()
 			elif self.cnt == 40:
 				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 20]))
 			elif self.cnt == 60:
 				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 70]))
-				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
+				obj.shotFlag = gcommon.GameSession.isHard()
 			elif self.cnt == 80:
 				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 30]))
-				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
+				obj.shotFlag = gcommon.GameSession.isHard()
 				self.remove()
 		else:
 			if self.cnt == 0:
 				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY]))
-				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
+				obj.shotFlag = gcommon.GameSession.isHard()
 			elif self.cnt == 20:
 				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +50, self.startY]))
-				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
+				obj.shotFlag = gcommon.GameSession.isHard()
 			elif self.cnt == 40:
 				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +20, self.startY]))
 			elif self.cnt == 60:
 				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +70, self.startY]))
-				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
+				obj.shotFlag = gcommon.GameSession.isHard()
 			elif self.cnt == 80:
 				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +30, self.startY]))
-				obj.shotFlag = gcommon.GameSession.isNormalOrMore()
+				obj.shotFlag = gcommon.GameSession.isHard()
 				self.remove()
 
 	def draw(self):
@@ -1304,7 +1304,7 @@ class Worm1(EnemyBase):
 		self.dr = 48
 		self.offsetX = 4
 		self.offsetY = 0
-		if gcommon.GameSession.difficulty == gcommon.DIFFICULTY_EASY:
+		if gcommon.GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
 			self.shotCycle  = 63
 		else:
 			self.shotCycle  = 31
@@ -1832,7 +1832,7 @@ class Battery2(FallingObject):
 		super(Battery2, self).__init__(mx, my, direction, 2, 2, False)
 		self.left = 2
 		self.right = 13
-		self.interval = int(63 / gcommon.enemy_shot_rate)
+		self.interval = int(63 / gcommon.GameSession.enemy_shot_rate)
 		if self.direction == 1:
 			self.top = 5
 			self.bottom = 15

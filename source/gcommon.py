@@ -14,8 +14,9 @@ START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 
 DIFFICULTY_EASY = 0
 DIFFICULTY_NORMAL = 1
+DIFFICULTY_HARD = 2
 
-difficultyText = (" EASY ", "NORMAL")
+difficultyText = (" EASY ", "NORMAL", " HARD ")
 
 class Defaults:
 	INIT_START_STAGE = 1
@@ -213,9 +214,17 @@ long_map = False
 # 現在未使用（パワーアップ無いので）
 #power = START_MY_POWER
 
-powerRate = 1.0
+POWER_RATE_EASY = 2.0
+POWER_RATE_NORMAL = 1.5
+POWER_RATE_HARD = 1.0
 
-enemy_shot_rate = 1		# EASY:0.75  NORMAL:1.0
+ENEMY_SHOT_RATE_EASY = 0.65
+ENEMY_SHOT_RATE_NORMAL = 0.75
+ENEMY_SHOT_RATE_HARD = 1.0
+
+DIFFICULTY_RATE_EASY = 0.75
+DIFFICULTY_RATE_NORMAL = 1.0
+DIFFICULTY_RATE_HARD = 1.5
 
 draw_star = False
 star_pos = 0
@@ -228,8 +237,11 @@ star_ary = []
 
 mapAttribute = []
 
+
+
 class GameSession:
 	difficulty = DIFFICULTY_NORMAL
+	difficutlyRate = 1.0
 	playerStock = 0
 	stage = 0
 	score = 0
@@ -241,53 +253,77 @@ class GameSession:
 
 	@classmethod
 	def init(cls, difficulty, playerStock, gameMode, stage, credits):
-		GameSession.difficulty = difficulty
-		GameSession.playerStock = playerStock
-		GameSession.score = 0
-		GameSession.scoreCheck = 0
-		GameSession.scoreFirstExtend = False
-		GameSession.stage = stage
+		__class__.difficulty = difficulty
+		__class__.playerStock = playerStock
+		__class__.score = 0
+		__class__.scoreCheck = 0
+		__class__.scoreFirstExtend = False
+		__class__.stage = stage
 
-		GameSession.gameMode = gameMode
-		GameSession.credits = credits
-		GameSession.weaponSave = WEAPON_STRAIGHT
+		__class__.gameMode = gameMode
+		__class__.credits = credits
+		__class__.weaponSave = WEAPON_STRAIGHT
+		if __class__.difficulty == DIFFICULTY_EASY:
+			# Easy
+			__class__.powerRate = POWER_RATE_EASY
+			__class__.enemy_shot_rate = ENEMY_SHOT_RATE_EASY
+			__class__.difficutlyRate = DIFFICULTY_RATE_EASY
+		elif __class__.difficulty == DIFFICULTY_NORMAL:
+			# Normal
+			__class__.powerRate = POWER_RATE_NORMAL
+			__class__.enemy_shot_rate = ENEMY_SHOT_RATE_NORMAL
+			__class__.difficutlyRate = DIFFICULTY_RATE_NORMAL
+		else:
+			# Hard
+			__class__.powerRate = POWER_RATE_HARD
+			__class__.enemy_shot_rate = ENEMY_SHOT_RATE_HARD
+			__class__.difficutlyRate = DIFFICULTY_RATE_HARD
 
 	@classmethod
 	def isEasy(cls):
-		return GameSession.difficulty == DIFFICULTY_EASY
+		return __class__.difficulty == DIFFICULTY_EASY
 
 	@classmethod
-	def isNormalOrMore(cls):
-		return GameSession.difficulty == DIFFICULTY_NORMAL
+	def isNormal(cls):
+		return __class__.difficulty == DIFFICULTY_NORMAL
+
+	# ノーマル以下
+	@classmethod
+	def isNormalOrLess(cls):
+		return __class__.difficulty <= DIFFICULTY_NORMAL
+
+	@classmethod
+	def isHard(cls):
+		return __class__.difficulty == DIFFICULTY_HARD
 	
 	@classmethod
 	def addScore(cls, score):
-		GameSession.score += score
-		GameSession.scoreCheck += score
-		if GameSession.scoreFirstExtend == False and GameSession.scoreCheck >= 20000:
-			GameSession.playerStock += 1
-			GameSession.scoreFirstExtend = True
+		__class__.score += score
+		__class__.scoreCheck += score
+		if __class__.scoreFirstExtend == False and __class__.scoreCheck >= 20000:
+			__class__.playerStock += 1
+			__class__.scoreFirstExtend = True
 			sound(SOUND_EXTENDED, SOUND_CH1)
 			debugPrint("First Extended")
-		elif GameSession.scoreCheck >= 50000:
-			GameSession.playerStock += 1
-			GameSession.scoreCheck = 0
+		elif __class__.scoreCheck >= 50000:
+			__class__.playerStock += 1
+			__class__.scoreCheck = 0
 			sound(SOUND_EXTENDED, SOUND_CH1)
 			debugPrint("Extended by 50000")
 
 	@classmethod
 	def addPlayerStock(cls):
-		GameSession.playerStock += 1
+		__class__.playerStock += 1
 		sound(SOUND_EXTENDED, SOUND_CH1)
 
 	# 
 	@classmethod
 	def execContinue(cls):
-		GameSession.credits -= 1
-		GameSession.playerStock = Defaults.INIT_PLAYER_STOCK -1
-		GameSession.score = 0
-		GameSession.scoreCheck = 0
-		GameSession.scoreFirstExtend = False
+		__class__.credits -= 1
+		__class__.playerStock = Defaults.INIT_PLAYER_STOCK -1
+		__class__.score = 0
+		__class__.scoreCheck = 0
+		__class__.scoreFirstExtend = False
 
 # ====================================================================
 
@@ -534,7 +570,7 @@ def loadSettings():
 			Settings.bgmVolume = bgmVol
 		if soundVol >= 0 and soundVol <= 10:
 			Settings.soundVolume = soundVol
-		if difficulty in (DIFFICULTY_EASY, DIFFICULTY_NORMAL):
+		if difficulty in (DIFFICULTY_EASY, DIFFICULTY_NORMAL, DIFFICULTY_HARD):
 			Settings.difficulty = difficulty
 		if credits > 0 and credits < 100:
 			Settings.credits = credits

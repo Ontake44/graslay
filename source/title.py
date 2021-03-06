@@ -157,12 +157,14 @@ class TitleScene:
 				if self.mouseManager.visible:
 					n = gcommon.checkMouseMenuPos(self.difficultyRects)
 				if gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
-					self.difficulty = gcommon.DIFFICULTY_EASY
+					if self.difficulty > 0:
+						gcommon.sound(gcommon.SOUND_MENUMOVE)
+						self.difficulty -= 1
 					return
 				elif gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
-					self.difficulty = gcommon.DIFFICULTY_NORMAL
+					if self.difficulty < 2:
+						gcommon.sound(gcommon.SOUND_MENUMOVE)
+						self.difficulty += 1
 					return
 				elif gcommon.checkShotKeyRectP(self.menuRects[TITLEMENU_START]):
 					gcommon.BGM.stop()
@@ -345,9 +347,8 @@ class TitleScene:
 		text = gcommon.difficultyText[self.difficulty] + " START"
 		gcommon.showTextRateHCenter(y, text, rate)
 		if rate == 1.0 and self.menuPos == 0:
-			leftMarker = (self.difficulty == gcommon.DIFFICULTY_NORMAL)
-			gcommon.drawLeftMarker(128 -8 -48 -4, y, leftMarker)
-			gcommon.drawRightMarker(128 +48 + 4, y, not leftMarker)
+			gcommon.drawLeftMarker(128 -8 -48 -4, y, self.difficulty > 0)
+			gcommon.drawRightMarker(128 +48 + 4, y, self.difficulty < 2)
 		pyxel.pal()
 
 		y += 15

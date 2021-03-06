@@ -149,14 +149,14 @@ class Boss4(enemy.EnemyBase):
 			enemy.enemy_shot_dr(self.x +48, self.y +42, speed, 0, 33)
 			enemy.enemy_shot_dr(self.x +52, self.y +48, speed, 0, 27)
 			
-			if gcommon.GameSession.isNormalOrMore():
+			if gcommon.GameSession.isHard():
 				enemy.enemy_shot_dr(self.x +52, self.y +16, speed, 0, 37)
 				enemy.enemy_shot_dr(self.x +52, self.y +48, speed, 0, 29)
 		else:
 			speed = 1.5
 			enemy.enemy_shot_dr(self.x +52, self.y +16, speed, 1, 36)
 			enemy.enemy_shot_dr(self.x +52, self.y +48, speed, 1, 28)
-			if gcommon.GameSession.isNormalOrMore():
+			if gcommon.GameSession.isHard():
 				enemy.enemy_shot_dr(self.x +48, self.y +22, speed, 1, 34)
 				enemy.enemy_shot_dr(self.x +48, self.y +42, speed, 1, 30)
 		gcommon.sound(gcommon.SOUND_SHOT2)
