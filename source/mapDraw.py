@@ -100,14 +100,17 @@ class MapDraw3:
 		gcommon.map_y += gcommon.cur_scroll_y
 		gcommon.back_map_x += gcommon.cur_scroll_x/4
 		if gcommon.game_timer > 3550+128:
-			if gcommon.map_y > 336:
-				gcommon.map_y -= 0.50
-				if gcommon.map_y < 336:
-					gcommon.map_y = 336
-			elif gcommon.map_y < 336:
-				gcommon.map_y += 0.50
+			if gcommon.game_timer >= 3730+128:
+				gcommon.map_y = 336
+			else:
 				if gcommon.map_y > 336:
-					gcommon.map_y = 336
+					gcommon.map_y -= 0.50
+					if gcommon.map_y < 336:
+						gcommon.map_y = 336
+				elif gcommon.map_y < 336:
+					gcommon.map_y += 0.50
+					if gcommon.map_y > 336:
+						gcommon.map_y = 336
 		else:
 			if skip == False:
 				# スキップ時はマップデータやオブジェクト追加しない
