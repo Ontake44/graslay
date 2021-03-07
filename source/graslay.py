@@ -332,15 +332,7 @@ class MyShip:
 def checkShotMapCollision(obj, px, py):
 	no = gcommon.getMapData(px, py)
 	if gcommon.app.stage == 3:
-		if no == 4:
-			obj.remove()
-			gcommon.setMapData(px, py, 0)
-			return True
-		elif no == 5:
-			obj.remove()
-			gcommon.setMapData(px, py, 0)
-			return True
-		elif no == 6:
+		if no in (4, 5, 6):
 			obj.remove()
 			gcommon.setMapData(px, py, 0)
 			return True

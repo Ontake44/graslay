@@ -185,6 +185,24 @@ class CountMover:
 				else:
 					self.isEnd = True
 
+class WhereAppear(EnemyBase):
+	def __init__(self, t):
+		super(WhereAppear, self).__init__()
+		condition = t[2]
+		className = t[3]
+		table = t[4]
+		if condition:
+			# timer, タイプの分のダミーを挿入する
+			table.insert(0, 0)
+			table.insert(0, 0)
+			obj = className(table)
+			gcommon.ObjMgr.objs.append(obj)
+			obj.appended()
+
+	def update(self):
+		self.remove()
+
+
 # 爆発生成
 # cx,cy center
 # exlayer explosion layer
@@ -460,7 +478,7 @@ class Jumper1(EnemyBase):
 		self.top = 2
 		self.right = 13
 		self.bottom = 13
-		self.hp = 20
+		self.hp = 10
 		self.layer = gcommon.C_LAYER_SKY
 		self.score = 50
 		self.hitcolor1 = 5
@@ -2256,7 +2274,7 @@ class Lift1(EnemyBase):
 	def draw(self):
 		pyxel.blt(self.x, self.y, 2, 48, 0, 64, 16, gcommon.TP_COLOR)
 
-
+# 砲台が乗っているリフト
 class LiftAppear1(EnemyBase):
 	def __init__(self, mx, my, direction):
 		super(LiftAppear1, self).__init__()
@@ -2274,7 +2292,8 @@ class LiftAppear1(EnemyBase):
 		self.hitCheck = False
 		self.shotHitCheck = False
 		self.enemyShotCollision = False
-		self.interval = 120
+		self.interval = 240 if gcommon.GameSession.isEasy() else 180
+
 
 	def update(self):
 		if self.cnt % self.interval == 0:

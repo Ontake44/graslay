@@ -238,7 +238,6 @@ star_ary = []
 mapAttribute = []
 
 
-
 class GameSession:
 	difficulty = DIFFICULTY_NORMAL
 	difficutlyRate = 1.0
@@ -287,6 +286,10 @@ class GameSession:
 	@classmethod
 	def isNormal(cls):
 		return __class__.difficulty == DIFFICULTY_NORMAL
+
+	@classmethod
+	def isNormalOrMore(cls):
+		return __class__.difficulty >= DIFFICULTY_NORMAL
 
 	# ノーマル以下
 	@classmethod

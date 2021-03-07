@@ -87,8 +87,8 @@ class Story:
 			[4000, enemy.Jumper1, 256, 150, -0.1],		\
 			[4030, enemy.Jumper1, 256, 150, -0.1],		\
 			[4060, enemy.Jumper1, 256, 150, -0.1],		\
-			[4160, enemy.Jumper1, -16, 50, 0.1],		\
-			[4190, enemy.Jumper1, -16, 50, 0.1],		\
+			[4160, enemy.WhereAppear, gcommon.GameSession.isNormalOrMore(), enemy.Jumper1, [-16, 50, 0.1]],
+			[4190, enemy.WhereAppear, gcommon.GameSession.isNormalOrMore(), enemy.Jumper1, [-16, 50, 0.1]],
 			[4200, enemy.Battery1, 162, 60, 1],		\
 			[4200, enemy.Battery1, 164, 60, 1],		\
 			[4200, enemy.Jumper1, 256, 130, -0.1],		\
@@ -119,7 +119,7 @@ class Story:
 		return [ \
 			[180, enemy.Cell1Group1, 256, 10, 0],		\
 			[240, enemy.Cell1Group1, 256, 60, 0],		\
-			[260, enemy.Cell1Group1, -16, 60, 0],		\
+			[260, enemy.WhereAppear, gcommon.GameSession.isNormalOrMore(), enemy.Cell1Group1, [-16, 60, 0]],		\
 			[320, enemy.Cell1Group1, 256, 20, 0],		\
 			[400, enemy.Cell1Group1, 256, 50, 0],		\
 			[1100, enemy.Cell1Group1, 20, 192, 1],		\
@@ -152,7 +152,7 @@ class Story:
 
 			# 斜面に上からへばり付いてるやつ
 			[4800, enemy.Worm1, 144, 15, 7, 5, 160],		\
-			[5000, enemy.Cell1Group1, -256, 20, 0],		\
+			[5000, enemy.WhereAppear, gcommon.GameSession.isNormalOrMore(), enemy.Cell1Group1, [-256, 20, 0]],
 
 			[5300, enemy.Worm1, 175, 28, 2, 5, 160],		\
 
