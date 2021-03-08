@@ -9,7 +9,7 @@ import random
 import pygame.mixer
 import item
 
-VERSION = "0.92"
+VERSION = "1.00"
 START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 
 DIFFICULTY_EASY = 0
