@@ -21,7 +21,7 @@ zipファイルを解凍後、graslay.exeを実行してください。
 ふりーむ！ 
 https://www.freem.ne.jp/win/game/25159
 
-またはこのGitHub
+または一応このGitHub
 https://github.com/Ontake44/graslay/releases/tag/1.00
 
 プログラムがアンチウィルスソフトに削除される場合があります。
