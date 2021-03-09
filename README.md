@@ -17,7 +17,12 @@ Pyxelというレトロゲームエンジンで動作しています。Pyxelに�
 ## 実行方法
 プログラムは以下にzipがあるのでダウンロードしてください。
 zipファイルを解凍後、graslay.exeを実行してください。
-[Download]https://github.com/Ontake44/graslay/tree/master/bin
+
+ふりーむ！ 
+https://www.freem.ne.jp/win/game/25159
+
+またはこのGitHub
+https://github.com/Ontake44/graslay/releases/tag/1.00
 
 プログラムがアンチウィルスソフトに削除される場合があります。
 ダウンロードしても削除されてしまう場合は、除外フォルダを設定しそこにダウンロードするなどの対処をしてください。
@@ -113,7 +118,7 @@ ISAo様
 ### 0.91
 * テスト版初回公開
 
-### 0.92
+### 1.00
 * 0.91のEASY,NORMALをNORMAL,HARDに変更し、新たに調整したEASYを追加。
 * ステージ２ボスの触手パンチで当たり判定が残るのを修正。
 
