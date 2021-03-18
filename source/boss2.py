@@ -261,16 +261,16 @@ class Feeler(enemy.EnemyBase):
 			y = self.y +pos[1]
 			if gcommon.check_collision2(x, y, self.cellRect, shot):
 				hit = True
-		
-		if hit:
-			self.hp -= shot.shotPower
-			if self.hp <= 0:
-				self.broken()
-			else:
-				self.hit = True
-			return True
-		else:
-			return False
+		return hit
+
+	# def doShotCollision(self, shot):
+	# 	self.hp -= shot.shotPower
+	# 	if self.hp <= 0:
+	# 		self.broken()
+	# 		return True
+	# 	else:
+	# 		self.hit = True
+	# 		return False
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
@@ -547,13 +547,6 @@ class Boss2(enemy.EnemyBase):
 
 	def draw(self):
 		pyxel.blt(self.x, self.y, 1, 176, 208, 80, 48, gcommon.TP_COLOR)
-		
-	# def checkShotCollision(self, shot):
-	# 	ret = super(Boss2, self).checkShotCollision(shot)
-	# 	if ret:
-	# 		rad = math.atan2(shot.dy, shot.dx)
-	# 		enemy.Particle1.appendCenter(shot, rad)
-	# 	return ret
 
 	def nextTbl(self):
 		self.tblIndex +=1

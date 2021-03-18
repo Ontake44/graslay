@@ -195,13 +195,6 @@ class Boss1(enemy.EnemyBase):
 				pyxel.blt(bx, self.y +10, 1, sx, 208, 16, 40, gcommon.TP_COLOR)
 				bx -=16
 
-	# def checkShotCollision(self, shot):
-	# 	ret = super(Boss1, self).checkShotCollision(shot)
-	# 	if ret:
-	# 		rad = math.atan2(shot.dy, shot.dx)
-	# 		enemy.Particle1.appendCenter(shot, rad)
-	# 	return ret
-
 	def getDirection(self, dr64):
 		if self.isLeft:
 			return dr64

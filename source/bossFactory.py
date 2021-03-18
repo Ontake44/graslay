@@ -497,22 +497,20 @@ class BossFactory(enemy.EnemyBase):
 	def checkShotCollision(self, shot):
 		if shot.removeFlag:
 			return False
-		hit = False
 		pos = gcommon.getCenterPos(shot)
-		if math.hypot(self.x+39.5-pos[0], self.y+39.5 -pos[1]) <40:
-			hit = True
-		if hit:
-			rad = math.atan2(shot.dy, shot.dx)
-			enemy.Particle1.appendCenter(shot, rad)
-			gcommon.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
-			self.hp -= shot.shotPower
-			if self.hp <= 0:
-				self.broken()
-			else:
-				self.hit = True
-			return True
-		else:
-			return False
+		return math.hypot(self.x+39.5-pos[0], self.y+39.5 -pos[1]) <40
+
+	# def doShotCollision(self, shot):
+	# 	rad = math.atan2(shot.dy, shot.dx)
+	# 	enemy.Particle1.appendCenter(shot, rad)
+	# 	gcommon.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
+	# 	self.hp -= shot.shotPower
+	# 	if self.hp <= 0:
+	# 		self.broken()
+	# 		return True
+	# 	else:
+	# 		self.hit = True
+	# 		return False
 
 		# 自機と敵との当たり判定
 	def checkMyShipCollision(self):

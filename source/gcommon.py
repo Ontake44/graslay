@@ -8,6 +8,7 @@ import os
 import random
 import pygame.mixer
 import item
+from enum import Enum
 
 VERSION = "1.00"
 START_GAME_TIMER= 0		# 3600 :3		#2700 :2
@@ -16,20 +17,34 @@ DIFFICULTY_EASY = 0
 DIFFICULTY_NORMAL = 1
 DIFFICULTY_HARD = 2
 
+# 機体種別
+class WeaponType:
+	TYPE_A = 0		# Axelay
+	TYPE_B = 1		# Bic Viper
+
+
 difficultyText = (" EASY ", "NORMAL", " HARD ")
 
 class Defaults:
 	INIT_START_STAGE = 1
+	INIT_WEAPON_TYPE = WeaponType.TYPE_A
 	# 残機
 	INIT_PLAYER_STOCK = 3
 	INIT_BGM_VOL = 7
 	INIT_SOUND_VOL = 10
 	INIT_DIFFICULTY = DIFFICULTY_NORMAL
 	INIT_CREDITS = 3
+	INIT_MULTIPLE_COUNT = 4
 
 WEAPON_STRAIGHT = 0
 WEAPON_ROUND = 1
 WEAPON_WIDE = 2
+
+B_WEAPON_DOUBLE = 0
+B_WEAPON_TAILGUN = 1
+B_WEAPON_LASER = 2
+B_WEAPON_RIPPLE = 3
+
 
 PAUSE_NONE = 0		# ゲーム中
 PAUSE_PAUSE = 1		# PAUSE
@@ -138,10 +153,21 @@ SHOT1_POWER = 5
 SHOT2_POWER = 7
 SHOT_POWERS = (SHOT0_POWER, SHOT1_POWER, SHOT2_POWER)
 
+B_SHOT0_POWER = 5		# 5
+B_SHOT1_POWER = 5
+B_SHOT2_POWER = 3
+B_SHOT3_POWER = 5
+B_SHOT_POWERS = (B_SHOT0_POWER, B_SHOT1_POWER, B_SHOT2_POWER)
+
 MISSILE0_POWER = 5
 MISSILE1_POWER = 5
 MISSILE2_POWER = 5
 MISSILE_POWERS = (MISSILE0_POWER, MISSILE1_POWER, MISSILE1_POWER)
+
+B_MISSILE0_POWER = 5
+B_MISSILE1_POWER = 5
+B_MISSILE2_POWER = 5
+
 
 TP_COLOR = 2
 
@@ -245,12 +271,19 @@ class GameSession:
 	stage = 0
 	score = 0
 	scoreCheck = 0
+	model = WeaponType.TYPE_A
 	scoreFirstExtend = False
 	credits = 0
 	gameMode = GAMEMODE_NORMAL
 	weaponSave = WEAPON_STRAIGHT
 	enemy_shot_rate = ENEMY_SHOT_RATE_NORMAL
 	powerRate = POWER_RATE_NORMAL
+	multipleCount = Defaults.INIT_MULTIPLE_COUNT
+
+	@classmethod
+	def initNormal(cls, difficulty):
+		__class__.init(difficulty, Defaults.INIT_PLAYER_STOCK, GAMEMODE_NORMAL, 1, Settings.credits)
+
 	@classmethod
 	def init(cls, difficulty, playerStock, gameMode, stage, credits):
 		__class__.difficulty = difficulty
@@ -335,6 +368,8 @@ SETTINGS_FILE = ".graslay"
 
 class Settings:
 	playerStock = Defaults.INIT_PLAYER_STOCK
+	weaponType = Defaults.INIT_WEAPON_TYPE
+	multipleCount = Defaults.INIT_MULTIPLE_COUNT
 	startStage = Defaults.INIT_START_STAGE
 	bgmVolume = Defaults.INIT_BGM_VOL
 	soundVolume = Defaults.INIT_SOUND_VOL
@@ -457,6 +492,18 @@ class BGStarV:
 		for i in range(0,96):
 			pyxel.pset(star_ary[i][0], int(i*2 + self.star_pos) % 200, star_ary[i][1])
 
+class Pos:
+	def __init__(self):
+		self.x = 0
+		self.y = 0
+
+	@classmethod
+	def create(cls, x, y):
+		p = Pos()
+		p.x = x
+		p.y = y
+		return p
+
 class Rect:
 	def __init__(self):
 		self.left = 0
@@ -551,6 +598,8 @@ def loadSettings():
 		soundVol = 10
 		difficulty = Defaults.INIT_DIFFICULTY
 		credits = Defaults.INIT_CREDITS
+		weaponType = Defaults.INIT_WEAPON_TYPE
+		multipleCount = Defaults.INIT_MULTIPLE_COUNT
 		json_file = open(settingsPath, "r")
 		json_data = json.load(json_file)
 		if "playerStock" in json_data:
@@ -565,6 +614,10 @@ def loadSettings():
 			difficulty = int(json_data["difficulty"])
 		if "credits" in json_data:
 			credits = int(json_data["credits"])
+		if "weaponType" in json_data:
+			weaponType = int(json_data["weaponType"])
+		if "multipleCount" in json_data:
+			multipleCount = int(json_data["multipleCount"])
 
 		if playerStock >= 1 and playerStock <= 99:
 			Settings.playerStock = playerStock
@@ -578,7 +631,10 @@ def loadSettings():
 			Settings.difficulty = difficulty
 		if credits > 0 and credits < 100:
 			Settings.credits = credits
-
+		if weaponType == WeaponType.TYPE_A or weaponType == WeaponType.TYPE_B:
+			Settings.weaponType = weaponType
+		if multipleCount >= 0 and multipleCount <= 20:
+			Settings.multipleCount = multipleCount
 	except:
 		pass
 	finally:
@@ -595,7 +651,9 @@ def saveSettings():
 		"bgmVol": Settings.bgmVolume, \
 		"soundVol" : Settings.soundVolume, \
 		"difficulty" : 	Settings.difficulty,	\
-		"credits" : Settings.credits	\
+		"credits" : Settings.credits,	\
+		"weaponType" : Settings.weaponType,		\
+		"multipleCount" : Settings.multipleCount		\
 	}
 
 	try:
@@ -826,6 +884,9 @@ class ObjMgr:
 	shots = []
 	shotGroups = []
 	missleGroups = []
+	# マルチプル用
+	mshotGroupsList = []
+	mmissileGroupsList = []
 
 	# 敵
 	objs = []
@@ -840,6 +901,12 @@ class ObjMgr:
 		cls.shots.clear()
 		cls.shotGroups.clear()
 		cls.missleGroups.clear()
+		cls.mshotGroupsList.clear()
+		cls.mmissileGroupsList.clear()
+		for i in range(GameSession.multipleCount):
+			cls.mshotGroupsList.append([])
+			cls.mmissileGroupsList.append([])
+		
 		cls.objs.clear()
 		cls.nextDrawMap = None
 		cls.drawMap = None

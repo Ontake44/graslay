@@ -199,12 +199,6 @@ class Boss4(enemy.EnemyBase):
 
 		pyxel.blt(self.x, self.y, 1, 160, 200, 96, 56, gcommon.TP_COLOR)
 
-	# def checkShotCollision(self, shot):
-	# 	ret = super(Boss4, self).checkShotCollision(shot)
-	# 	if ret:
-	# 		enemy.Particle1.appendShotCenter(shot)
-	# 	return ret
-
 	def broken(self):
 		self.remove()
 		enemy.removeEnemyShot()

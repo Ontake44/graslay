@@ -293,11 +293,9 @@ class BossLast1(enemy.EnemyBase):
 		# 下
 		pyxel.blt(self.x, self.y +128, 2, 96, 0, 160, 64, 3)
 
-	def checkShotCollision(self, shot):
-		ret = super(BossLast1, self).checkShotCollision(shot)
-		#if ret:
-		#	rad = math.atan2(shot.dy, shot.dx)
-		#	enemy.Particle1.appendCenter(shot, rad)
+
+	def doShotCollision(self, shot):
+		ret = super(BossLast1, self).doShotCollision(shot)
 		if self.mode == 0:
 			if self.brokenState == 0 and self.hp < BossLast1.hp2:
 				# 初期状態⇒先端が欠けた状態

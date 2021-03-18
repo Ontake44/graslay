@@ -92,24 +92,27 @@ class EnemyBase:
 		self.nextStateNo = state
 		self.cnt = 0
 
-	# 自機弾と敵との当たり判定と破壊処理
+	# 自機弾と敵との当たり判定
 	def checkShotCollision(self, shot):
 		if shot.removeFlag == False and	\
 			((self.collisionRects != None and gcommon.check_collision_list(self.x, self.y, self.collisionRects, shot))	\
 			or	\
 			(self.collisionRects == None and gcommon.check_collision(self, shot))):
-			self.hp -= shot.shotPower
-			if self.hp <= 0:
-				self.broken()
-			else:
-				if shot.effect and self.shotEffect:
-					# 跳弾表示
-					Particle1.appendShotCenter(shot)
-					if self.shotEffectSound:
-						gcommon.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
-				self.hit = True
 			return True
 		else:
+			return False
+
+	# 当たった場合の破壊処理
+	# 破壊した場合True
+	def doShotCollision(self, shot):
+		self.hp -= shot.shotPower
+		if self.hp <= 0:
+			self.broken()
+			return True
+		else:
+			if shot.effect and self.shotEffect:
+				shot.doEffect(self.shotEffectSound)
+			self.hit = True
 			return False
 
 	# 自機と敵との当たり判定
@@ -1479,16 +1482,16 @@ class Worm1(EnemyBase):
 				y = self.y +self.offsetY +pos[1]
 				if gcommon.check_collision2(x, y, self.cellRect, shot):
 					hit = True
-		
-		if hit:
-			self.hp -= shot.shotPower
-			if self.hp <= 0:
-				self.broken()
-			else:
-				self.hit = True
-			return True
-		else:
-			return False
+		return hit
+
+	# def doShotCollision(self, shot):
+	# 	self.hp -= shot.shotPower
+	# 	if self.hp <= 0:
+	# 		self.broken()
+	# 		return True
+	# 	else:
+	# 		self.hit = True
+	# 		return False
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
@@ -1729,6 +1732,7 @@ class Shutter1(EnemyBase):
 
 # 落下物基本クラス
 class FallingObject(EnemyBase):
+	OVERSIZE = 4
 	def __init__(self, mx, my, direction, mWidth, mHeight, needDummyBlock):
 		super(FallingObject, self).__init__()
 		pos = gcommon.mapPosToScreenPos(mx, my)
@@ -1739,8 +1743,8 @@ class FallingObject(EnemyBase):
 		self.direction = direction		# 1 or -1
 		self.mWidth = mWidth	# 幅（8ドット単位）
 		self.mHeight = mHeight	# 高さ（8ドット単位）
-		self.left = 0
-		self.right = self.mWidth * 8 -1
+		self.left = -__class__.OVERSIZE
+		self.right = self.mWidth * 8 -1 +__class__.OVERSIZE*2
 		self.top = 0
 		self.bottom = self.mHeight * 8 -1
 		self.hp = 999999
@@ -2119,11 +2123,13 @@ class Wind1(EnemyBase):
 		if gcommon.check_collision(self, gcommon.ObjMgr.myShip):
 			#gcommon.cur_map_dy = self.direction/2
 			gcommon.ObjMgr.myShip.x += gcommon.direction_map[self.direction][0]/2
+			gcommon.ObjMgr.myShip.moveActionFlag = True
 			if gcommon.ObjMgr.myShip.x < 0:
 				gcommon.ObjMgr.myShip.x = 0
 			elif gcommon.ObjMgr.myShip.x > 240:
 				gcommon.ObjMgr.myShip.x = 240
 			gcommon.ObjMgr.myShip.y += gcommon.direction_map[self.direction][1]/2
+			gcommon.ObjMgr.myShip.moveActionFlag = True
 			if gcommon.ObjMgr.myShip.y < 2:
 				gcommon.ObjMgr.myShip.y = 2
 			elif gcommon.ObjMgr.myShip.y > 176:
@@ -2566,13 +2572,6 @@ class Walker1(EnemyBase):
 
 	def setMode(self, mode):
 		self.mode = mode
-
-	# def checkShotCollision(self, shot):
-	# 	ret = super(Walker1, self).checkShotCollision(shot)
-	# 	if ret:
-	# 		rad = math.atan2(shot.dy, shot.dx)
-	# 		Particle1.appendCenter(shot, rad)
-	# 	return ret
 
 	def remove(self):
 		super(Walker1, self).remove()

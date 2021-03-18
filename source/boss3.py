@@ -251,21 +251,18 @@ class Boss3(enemy.EnemyBase):
 	def checkShotCollision(self, shot):
 		if shot.removeFlag:
 			return False
-		hit = False
-		if gcommon.check_collision(self.body, shot):
-			hit = True
-		
-		if hit:
-			rad = math.atan2(shot.dy, shot.dx)
-			enemy.Particle1.appendCenter(shot, rad)
-			self.hp -= shot.shotPower
-			if self.hp <= 0:
-				self.broken()
-			else:
-				self.hit = True
-			return True
-		else:
-			return False
+		return gcommon.check_collision(self.body, shot)
+	
+	# def doShotCollision(self, shot):
+	# 	rad = math.atan2(shot.dy, shot.dx)
+	# 	enemy.Particle1.appendCenter(shot, rad)
+	# 	self.hp -= shot.shotPower
+	# 	if self.hp <= 0:
+	# 		self.broken()
+	# 		return True
+	# 	else:
+	# 		self.hit = True
+	# 		return False
 	
 		# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
