@@ -10,7 +10,7 @@ import pygame.mixer
 import item
 from enum import Enum
 
-VERSION = "1.00"
+VERSION = "1.10"
 START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 
 DIFFICULTY_EASY = 0
@@ -132,6 +132,8 @@ SOUND_SHOT3 = 17
 SOUND_MENUMOVE = 18
 SOUND_EXTENDED = 7
 SOUND_ITEM_GET = 19
+SOUND_LASER = 25
+SOUND_RIPPLE = 26
 
 # ch
 # 0 : 敵の爆発
@@ -140,8 +142,8 @@ SOUND_CH0 = 0
 SOUND_CH1 = 1
 SOUND_CH2 = 2
 
-#                 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
-sound_priority = [0,2,1,4,5,3,6,8,8,1, 0, 6, 6, 1, 6, 6, 6, 1, 0, 5]
+#                 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26
+sound_priority = [0,2,1,4,5,3,6,8,8,1, 0, 6, 6, 1, 6, 6, 6, 1, 0, 5, 0, 0, 0, 0, 0, 0, 0]
 
 KEY_HOLD = 20
 KEY_PERIOD = 5

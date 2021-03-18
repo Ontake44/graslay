@@ -394,17 +394,24 @@ class MyShipB(MyShipBase):
 				#self.appendShot(shotGroup, self.createShot(x+12, y +4, 8, 0, 0))
 				self.appendShot(shotGroup, MyShotBDouble(x +12, y+7, 0))
 				self.appendShot(shotGroup, MyShotBDouble(x +10, y+4, 1))
+				if n == -1:
+					gcommon.sound(gcommon.SOUND_SHOT)
 			elif self.weapon == 1:
 				self.shotMax = 2
 				self.appendShot(shotGroup, MyShotBDouble(x +12, y+7, 0))
 				self.appendShot(shotGroup, MyShotBDouble(x, y+7, 2))
+				if n == -1:
+					gcommon.sound(gcommon.SOUND_SHOT)
 			elif self.weapon == 2:
 				self.shotMax = 1
 				self.appendShot(shotGroup, MyShotBLaser(self.posList, self.posLate, n))
+				if n == -1:
+					gcommon.sound(gcommon.SOUND_SHOT)
 			else:
 				self.shotMax = 2
 				self.appendShot(shotGroup, MyShotBRipple(x +12, y+7))
-			gcommon.sound(gcommon.SOUND_SHOT)
+				if n == -1:
+					gcommon.sound(gcommon.SOUND_SHOT)
 			shotGroups.append(shotGroup)
 	
 
@@ -629,7 +636,7 @@ class MyShotBDouble(MyShotBase):
 		# 当たり判定描画
 		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
 		if self.direction in (0,2):
-			pyxel.blt(self.x, self.y, 0, 128, 19, 8, 2, gcommon.TP_COLOR)
+			pyxel.blt(self.x, self.y, 0, 128, 19, 8 if self.direction == 0 else -8, 2, gcommon.TP_COLOR)
 		else:
 			pyxel.blt(self.x -2.5, self.y -2.5, 0, 136, 16, 5, 5, gcommon.TP_COLOR)
 
@@ -700,8 +707,6 @@ class MyShotBLaser(MyShotBase):
 				return
 
 	def draw(self):
-		# 当たり判定描画
-		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
 		l = 0
 		while(l < self.right):
 			pyxel.blt(self.x +l, self.y, 0, 144, 19, 8, 2, gcommon.TP_COLOR)
