@@ -1,4 +1,4 @@
-GRASLAY version 0.92
+GRASLAY version 1.10
 
 GRASLAYはレトロ風横スクロールシューティングゲームです。
 
@@ -26,7 +26,7 @@ zipファイルを解凍後、graslay.exeを実行してください。
 * Qキーでいつでもプログラム終了できます。
 * PCのゲームコントローラでも操作できます。PS4のコントローラもUSB接続で可能です。
 * 難易度はEASYとNORMALがあります。コンティニーでクレジットが無くなってゲームオーバーになるとクレジットが増えるようになります。
-* CUSTOMモードで任意の残機、ステージから開始できます。この場合スコアランキングには登録されません。
+* CUSTOMモードで任意の残機、ステージから開始できます、また追加武装も選択できます。ただし、スコアランキングには登録されません。
 
 ## ゲームについて
 
@@ -43,9 +43,9 @@ zipファイルを解凍後、graslay.exeを実行してください。
 
 武器は以下の３種類の組み合わせになります。パワーアップはありません。
 
-* __STRAIGHT__ 直線方向のショットと、上下ボムを発射します。
-* __ROUND__ ショットを押し続けると、真後ろから前方まで可変します。また、前方にミサイルを発射します。
-* __MULTI__ ８方向のショットと、やや後ろ下にスプレッドボムを発射します。
+* STRAIGHT 直線方向のショットと、上下ボムを発射します。
+* ROUND ショットを押し続けると、真後ろから前方まで可変します。また、前方にミサイルを発射します。
+* MULTI ８方向のショットと、やや後ろ下にスプレッドボムを発射します。
 
 ## 不具合等
 
@@ -73,6 +73,7 @@ https://twitter.com/Ontake441
 素晴らしい曲をありがとうございます（順不同）。
 
 shimtone様
+https://dova-s.jp/_contents/author/profile295.html
 * タイトル idola cell
 * ステージ３ Spear
 * ステージ５ Abstract
@@ -83,18 +84,29 @@ shimtone様
 * ランキング with silence
 
 FLASH☆BEAT様
+https://dova-s.jp/_contents/author/profile266.html
 * ステージ１ Dream Fantasy
 * エンディング Fireworks
 
 ISAo様
+https://dova-s.jp/_contents/author/profile081.html
 * 最終ボス Blaze
 
 魔王魂様
+https://maoudamashii.jokersounds.com/music_bgm.html
 * ステージ２ ダンジョン２２
 * ステージ４ ダンジョン１５
 * ステージクリアー ジングル０２
 * ゲームオーバー ジングル０７
 
+
+## ライセンスについて
+本ゲームでは以下ソフトウエアを使用しています。
+Licenesフォルダも参照してください。
+
+* https://www.python.org/
+* https://github.com/kitao/pyxel/blob/master/README.ja.md
+* https://www.pygame.org/
 
 
 ## ご注意
@@ -112,4 +124,6 @@ ISAo様
 * 0.91のEASY,NORMALをNORMAL,HARDに変更し、新たに調整したEASYを追加。
 * ステージ２ボスの触手パンチで当たり判定が残るのを修正。
 
+### 1.10
+* カスタムモードで追加武装を選択できるようにした。
 
