@@ -35,6 +35,7 @@ class Defaults:
 	INIT_DIFFICULTY = DIFFICULTY_NORMAL
 	INIT_CREDITS = 3
 	INIT_MULTIPLE_COUNT = 4
+	INIT_MOUSE_ENABLED = True
 
 WEAPON_STRAIGHT = 0
 WEAPON_ROUND = 1
@@ -379,6 +380,7 @@ class Settings:
 	credits = Defaults.INIT_CREDITS
 	normalRanking = None
 	easyRanking = None
+	mouseEnabled = Defaults.INIT_MOUSE_ENABLED
 
 class BGM:
 	bgmList = [
@@ -453,7 +455,10 @@ class MouseManager:
 		return pyxel.mouse_x < 0 or pyxel.mouse_y < 0 or pyxel.mouse_x >= pyxel.width or pyxel.mouse_y >= pyxel.height
 
 	def update(self):
-
+		if Settings.mouseEnabled == False:
+			self.visible = False
+			return
+		
 		# 5秒マウス触らなかったらカーソル消える
 		if (self.prevMouseX != pyxel.mouse_x or self.prevMouseY != pyxel.mouse_y) and self.isOutOfScreen() == False:
 			self.mouseCounter = 0
@@ -598,6 +603,7 @@ def loadSettings():
 		startStage = 1
 		bgmVol = 6
 		soundVol = 10
+		mouseEnabled = "1"
 		difficulty = Defaults.INIT_DIFFICULTY
 		credits = Defaults.INIT_CREDITS
 		weaponType = Defaults.INIT_WEAPON_TYPE
@@ -612,6 +618,8 @@ def loadSettings():
 			bgmVol = int(json_data["bgmVol"])
 		if "soundVol" in json_data:
 			soundVol = int(json_data["soundVol"])
+		if "mouseEnabled" in json_data:
+			mouseEnabled = int(json_data["mouseEnabled"])
 		if "difficulty" in json_data:
 			difficulty = int(json_data["difficulty"])
 		if "credits" in json_data:
@@ -629,6 +637,7 @@ def loadSettings():
 			Settings.bgmVolume = bgmVol
 		if soundVol >= 0 and soundVol <= 10:
 			Settings.soundVolume = soundVol
+		Settings.mouseEnabled = True if mouseEnabled == "1" else False
 		if difficulty in (DIFFICULTY_EASY, DIFFICULTY_NORMAL, DIFFICULTY_HARD):
 			Settings.difficulty = difficulty
 		if credits > 0 and credits < 100:
@@ -652,6 +661,7 @@ def saveSettings():
 		"startStage": Settings.startStage, \
 		"bgmVol": Settings.bgmVolume, \
 		"soundVol" : Settings.soundVolume, \
+		"mouseEnabled" : "1" if Settings.mouseEnabled else "0",	\
 		"difficulty" : 	Settings.difficulty,	\
 		"credits" : Settings.credits,	\
 		"weaponType" : Settings.weaponType,		\

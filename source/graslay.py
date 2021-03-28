@@ -200,7 +200,12 @@ class MainGame:
 		self.pauseMenuRects = [
 			gcommon.Rect.createWH(127-32 +10, 192/2 -32 +15,  80-8, 8),
 			gcommon.Rect.createWH(127-32 +10, 192/2 -32 +25,  80-8, 8),
-			gcommon.Rect.createWH(127-32 +10, 192/2 -32 +35,  80-8, 8)
+			gcommon.Rect.createWH(127-32 +10, 192/2 -32 +35,  80-8, 8),
+			gcommon.Rect.createWH(127-32 +10, 192/2 -32 +45,  80-8, 8)
+		]
+		self.pauseMouseOnOffRects = [
+			gcommon.Rect.createWH(127-32 +10 +26, 192/2 -32 +26 -1,  8, 8),
+			gcommon.Rect.createWH(127-32 +10 +48, 192/2 -32 +26 -1,  8, 8)
 		]
 		self.pauseCnt = 0
 		pyxel.mouse(False)
@@ -309,10 +314,10 @@ class MainGame:
 			self.pauseMode = gcommon.PAUSE_NONE
 			pygame.mixer.music.unpause()
 		elif gcommon.checkUpP():
-			self.pauseMenuPos = (self.pauseMenuPos - 1) % 3
+			self.pauseMenuPos = (self.pauseMenuPos - 1) % 4
 			return
 		elif gcommon.checkDownP():
-			self.pauseMenuPos = (self.pauseMenuPos + 1) % 3
+			self.pauseMenuPos = (self.pauseMenuPos + 1) % 4
 			return
 		if self.mouseManager.visible:
 			n = gcommon.checkMouseMenuPos(self.pauseMenuRects)
@@ -325,10 +330,19 @@ class MainGame:
 					self.pauseMode = gcommon.PAUSE_NONE
 					pygame.mixer.music.unpause()
 			elif self.pauseMenuPos == 1:
+				# MOUSE OFF/ON
+				n = -1
+				if self.mouseManager.visible:
+					n = gcommon.checkMouseMenuPos(self.pauseMouseOnOffRects)
+				if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
+					gcommon.Settings.mouseEnabled = True
+				elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
+					gcommon.Settings.mouseEnabled = False
+			elif self.pauseMenuPos == 2:
 				if gcommon.checkShotKeyRectP(self.pauseMenuRects[self.pauseMenuPos]):
 					# TITLE
 					gcommon.app.startTitle()
-			elif self.pauseMenuPos == 2:
+			elif self.pauseMenuPos == 3:
 				if gcommon.checkShotKeyRectP(self.pauseMenuRects[self.pauseMenuPos]):
 					# EXIT
 					pyxel.quit()
@@ -589,16 +603,27 @@ class MainGame:
 			pyxel.rectb(obj.x +obj.left, obj.y + obj.top, obj.right -obj.left+1, obj.bottom -obj.top+1, 8)
 
 	def drawPauseMenu(self):
-		pyxel.rect(127 -40, 192/2 -32, 80, 48, 0)
-		pyxel.rectb(127 -39, 192/2 -31, 78, 46, 7)
+		# PAUSEメニューはベタ描き
+		pyxel.rect(127 -40, 192/2 -32, 80, 60, 0)
+		pyxel.rectb(127 -39, 192/2 -31, 78, 58, 7)
 		pyxel.rect(127 -37, 192/2 -29, 74, 8, 1)
 		pyxel.text(127 -40 + 28, 192/2 -32 +4, "PAUSE", 7)
 
 		pyxel.rect(127 -40+4, 192/2 -32 +15 + self.pauseMenuPos * 10, 80-8, 8, 2)
 
-		pyxel.text(127-32 +10, 192/2 -32 +16, "CONTINUE", 7)
-		pyxel.text(127-32 +10, 192/2 -32 +26, "TITLE", 7)
-		pyxel.text(127-32 +10, 192/2 -32 +36, "EXIT", 7)
+		pyxel.text(127-32 +4, 192/2 -32 +16, "CONTINUE", 7)
+		
+		#MOUSE
+		y = 192/2 -32 +26
+		pyxel.text(127-32 +4, y, "MOUSE", 7)
+
+		leftMarker = (gcommon.Settings.mouseEnabled == True)
+		pyxel.text(127-32 +10 +36, y, "ON " if gcommon.Settings.mouseEnabled else "OFF", 7)
+		gcommon.drawLeftMarker(127-32 +10 +26, y -1, leftMarker)
+		gcommon.drawRightMarker(127-32 +10 +48, y -1, not leftMarker)
+
+		pyxel.text(127-32 +4, 192/2 -32 +36, "TITLE", 7)
+		pyxel.text(127-32 +4, 192/2 -32 +46, "EXIT", 7)
 
 	def drawContinueMenu(self):
 		pyxel.rect(127 -40, 192/2 -32, 80, 48, 0)

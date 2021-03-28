@@ -3,8 +3,9 @@ import gcommon
 
 OPTIONMENU_BGM_VOL = 0
 OPTIONMENU_SOUND_VOL = 1
-OPTIONMENU_SCORE_RANKIG = 2
-OPTIONMENU_EXIT = 3
+OPTIONMENU_MOUSE_ENABLED = 2
+OPTIONMENU_SCORE_RANKIG = 3
+OPTIONMENU_EXIT = 4
 
 MENU_VALUE_X = 180
 
@@ -14,7 +15,7 @@ class OptionMenuScene:
 		self.menuPos = 0
 		self.mouseManager = gcommon.MouseManager()
 		self.menuRects = []
-		for i in range(4):
+		for i in range(5):
 			self.menuRects.append(gcommon.Rect.createWH(
 				32, 48 + i * 20, 192, 12))
 		# BGM Marker
@@ -26,6 +27,11 @@ class OptionMenuScene:
 		self.seUpDownRects = [
 			gcommon.Rect.createWH(MENU_VALUE_X -10, 70, 8, 8),
 			gcommon.Rect.createWH(MENU_VALUE_X +8*3+2, 70, 8, 8)
+		]
+		# Mouse ON/OFF Marker
+		self.mouseOnOffRects = [
+			gcommon.Rect.createWH(MENU_VALUE_X -10, 90, 8, 8),
+			gcommon.Rect.createWH(MENU_VALUE_X +8*3+2, 90, 8, 8)
 		]
 
 	def init(self):
@@ -40,11 +46,11 @@ class OptionMenuScene:
 			gcommon.sound(gcommon.SOUND_MENUMOVE)
 			self.menuPos -= 1
 			if self.menuPos < 0:
-				self.menuPos = 3
+				self.menuPos = 4
 		if gcommon.checkDownP():
 			gcommon.sound(gcommon.SOUND_MENUMOVE)
 			self.menuPos += 1
-			if self.menuPos > 3:
+			if self.menuPos > 4:
 				self.menuPos = 0
 
 		if self.mouseManager.visible:
@@ -75,6 +81,17 @@ class OptionMenuScene:
 				gcommon.sound(gcommon.SOUND_MENUMOVE)
 			elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
 				gcommon.Settings.soundVolume = 0
+				gcommon.sound(gcommon.SOUND_MENUMOVE)
+
+		elif self.menuPos == OPTIONMENU_MOUSE_ENABLED:
+			n = -1
+			if self.mouseManager.visible:
+				n = gcommon.checkMouseMenuPos(self.mouseOnOffRects)
+			if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
+				gcommon.Settings.mouseEnabled = True
+				gcommon.sound(gcommon.SOUND_MENUMOVE)
+			elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
+				gcommon.Settings.mouseEnabled = False
 				gcommon.sound(gcommon.SOUND_MENUMOVE)
 
 		elif self.menuPos == OPTIONMENU_SCORE_RANKIG and gcommon.checkShotKeyRectP(self.menuRects[OPTIONMENU_SCORE_RANKIG]):
@@ -110,8 +127,17 @@ class OptionMenuScene:
 		se = "ON " if gcommon.Settings.soundVolume > 0 else "OFF"
 		gcommon.showText(x2, y, se)
 		if OPTIONMENU_SOUND_VOL == self.menuPos:
-			#gcommon.drawUpDownMarker(x2 -10, y)
 			leftMarker = (gcommon.Settings.soundVolume > 0)
+			gcommon.drawLeftMarker(x2 -10, y, leftMarker)
+			gcommon.drawRightMarker(x2 +len(se)*8 + 2, y, not leftMarker)
+		y += 20
+
+		gcommon.setMenuColor(OPTIONMENU_MOUSE_ENABLED, self.menuPos)
+		gcommon.showText(x1, y, "MOUSE")
+		mouseOnOff = "ON " if gcommon.Settings.mouseEnabled else "OFF"
+		gcommon.showText(x2, y, mouseOnOff)
+		if OPTIONMENU_MOUSE_ENABLED == self.menuPos:
+			leftMarker = (gcommon.Settings.mouseEnabled == True)
 			gcommon.drawLeftMarker(x2 -10, y, leftMarker)
 			gcommon.drawRightMarker(x2 +len(se)*8 + 2, y, not leftMarker)
 		y += 20
