@@ -385,7 +385,7 @@ class Settings:
 class BGM:
 	bgmList = [
 		# volume rate, filename
-		[0.6, "Dream_Fantasy.mp3"],
+		[0.5, "Dream_Fantasy.mp3"],
 		[1.0, "game_maoudamashii_6_dangeon22.mp3"],
 		[1.0, "Spear.mp3"],
 		[1.0, "game_maoudamashii_6_dangeon15.mp3"],
@@ -399,7 +399,7 @@ class BGM:
 		[1.0, "game_maoudamashii_9_jingle07.mp3"],
 		[1.0, "idola_cell.mp3"],
 		[0.6, "Fireworks.mp3"],
-		[1.0, "Dream_Fantasy.mp3"],		#"Runners_High.mp3"
+		[0.5, "Dream_Fantasy.mp3"],		#"Runners_High.mp3"
 		[1.0, "with_silence.mp3"]
 	] 
 

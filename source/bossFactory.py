@@ -155,6 +155,7 @@ class BossFactory(enemy.EnemyBase):
 		# 回転ON/OFF
 		self.rolling = True
 		self.dr64 = 0
+		self.dr64List = [0] * 4
 
 	def nextState(self):
 		self.state += 1
@@ -227,6 +228,7 @@ class BossFactory(enemy.EnemyBase):
 					self.nextState()
 		elif self.state == 1:
 			if self.subState == 0:
+				# 待ち
 				if self.subCnt == 30:
 					self.setSubState(1)
 			elif self.subState == 1:
@@ -258,38 +260,27 @@ class BossFactory(enemy.EnemyBase):
 				else:
 					# 偶数サイクル
 					if self.finMode == 0:
-						rr = 0
-						if self.subCnt % 20 == 0:
-							dr64 = gcommon.get_atan_no_to_ship(self.x +39.5, self.y +39.5)
-							if self.subCnt % 40 == 0:
-								for i in range(4):
-									enemy.enemy_shot_dr(
-										self.x +39.5 +math.cos(self.rad + rr + math.pi/2 * i) * 32,
-										self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
-										2.5, 0, dr64 -4)
-									enemy.enemy_shot_dr(
-										self.x +39.5 +math.cos(self.rad + rr + math.pi/2 * i) * 32,
-										self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
-										2.5, 0, dr64 +4)
-							else:
-								for i in range(4):
-									enemy.enemy_shot_dr(
-										self.x +39.5 +math.cos(self.rad + rr + math.pi/2 * i) * 32,
-										self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
-										3, 0, dr64)
-					else:
-						if self.subCnt % 15 == 0:
+						if self.subCnt == 1:
+							self.omega = math.pi/64
+						# 卍のように撃つ
+						if self.subCnt % 4 == 1:
+							rr = 0 if self.finMode == 0 else math.pi/4
 							for i in range(4):
-								enemy.enemy_shot_offset(
-									self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
-									self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32,
-									4, 0, 2)
-								enemy.enemy_shot_offset(
-									self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
-									self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32,
-									4, 0, -2)
-
-					if self.subCnt == 64:
+								px = self.x +39.5 +math.cos(self.rad + rr +math.pi/2 * i) * 32
+								py = self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32
+								no = gcommon.get_atan_no(self.x +39.5, self.y +39.5, px, py)
+								enemy.enemy_shot_dr(px, py, 3, 0, no)
+							#self.omega += math.pi/2400
+							# 弾を少しずらすため、回転を遅くする
+							self.omega *= 0.99
+					else:
+						if self.subCnt % 5 == 0:
+							for i in range(4):
+								px = self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32
+								py = self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32
+								gcommon.ObjMgr.addObj(BossFactoryShot2(px, py, self.rad + math.pi/4 - math.pi/2 + math.pi/2 * i))
+					if self.subCnt >= 150:
+						self.omega = -math.pi/64
 						self.setSubState(3)
 			elif self.subState == 3:
 				# 閉まる
@@ -525,4 +516,38 @@ class BossFactory(enemy.EnemyBase):
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
 		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,5], 240))
+
+# 弧を描くように回って飛ぶ
+# x,y は中心座標
+class BossFactoryShot2(enemy.EnemyBase):
+	def __init__(self, x, y, rad):
+		super(BossFactoryShot2, self).__init__()
+		self.x = x
+		self.y = y
+		self.rad = rad
+		self.left = -3.0
+		self.top = -3.0
+		self.right = 3.0
+		self.bottom = 3.0
+		self.layer = gcommon.C_LAYER_SKY
+		self.hitCheck = True
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+
+	def update(self):
+		if self.cnt > 180:
+			self.remove()
+			return
+		self.x += math.cos(self.rad) * 2.0
+		self.y += math.sin(self.rad) * 2.0
+		self.rad -= math.pi/256
+		if self.rad < 0.0:
+			self.rad += math.pi*2.0
+
+	def draw(self):
+		if self.cnt & 2 == 0:
+			pyxel.blt(self.x -4.0, self.y -4.0, 2, 0, 144, 9, 9, 2)
+		else:
+			pyxel.blt(self.x -4.0, self.y -4.0, 2, 16, 144, 9, 9, 2)
+
 
