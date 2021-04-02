@@ -696,6 +696,14 @@ def atan2x(x, y):
 		r = r + math.pi * 2
 	return r
 
+# radを -pi ～piの間に正規化する
+def radNormalize(rad):
+	r = math.fmod(rad, math.pi * 2)
+	if r > math.pi:
+		r -= math.pi * 2
+	elif r < -math.pi:
+		r += math.pi * 2
+	return r
 
 def get_atan(x1,y1,x2,y2,offsetdr):
 	return atan_table[get_atan_no(x1,y1,x2,y2)+offsetdr & 63]
