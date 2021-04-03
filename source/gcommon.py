@@ -968,6 +968,11 @@ class ObjMgr:
 		if cls.drawMap != None:
 			cls.drawMap.draw()
 
+	@classmethod
+	def drawDrawMap2(cls):
+		if cls.drawMap != None:
+			cls.drawMap.draw2()
+
 def bltStripe(x, y, img, u, v, w, h, col, p):
 	for yy in range(p, h, 2):
 		pyxel.blt(x, y +yy, img, u, v +yy, w, 1, col)

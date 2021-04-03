@@ -149,10 +149,18 @@ class EnemyBase:
 # [0] to cnt
 # [1] mode
 #  mode = 0
-#    [2] dx
-#    [3] dy
+#    [2] dx 速度
+#    [3] dy 速度
 #  mode = 1
 #    [2] Layer
+#  mode = 2
+#    [2] ax 加速度
+#    [3] ay 加速度
+#  mode = 3
+#    現状の速度を保つ
+#  mode = 4
+#    [2] aax 変位加速度 0.95とか
+#    [3] aay 変位加速度
 class CountMover:
 	def __init__(self, obj, table, loopFlag):
 		self.obj = obj
@@ -162,6 +170,8 @@ class CountMover:
 		self.isEnd = False
 		self.cycleCount = 0
 		self.cnt = 0
+		self.dx = 0.0
+		self.dy = 0.0
 
 	def update(self):
 		if self.isEnd:
@@ -169,13 +179,30 @@ class CountMover:
 		item = self.table[self.tableIndex]
 		if self.cnt < item[0]:
 			if item[1] == 0:
-				self.obj.x += item[2]
-				self.obj.y += item[3]
+				self.dx = item[2]
+				self.dy = item[3]
+				self.obj.x += self.dx
+				self.obj.y += self.dy
 				self.cnt += 1
 			elif item[1] == 1:
 				self.obj.layer = item[2]
 				self.cnt += 1
-				#print("set layer :" + str(self.obj.layer))
+			elif item[1] == 2:
+				self.obj.x += self.dx
+				self.obj.y += self.dy
+				self.dx += item[2]
+				self.dy += item[3]
+				self.cnt += 1
+			elif item[1] == 3:
+				self.obj.x += self.dx
+				self.obj.y += self.dy
+				self.cnt += 1
+			elif item[1] == 4:
+				self.obj.x += self.dx
+				self.obj.y += self.dy
+				self.dx *= item[2]
+				self.dy *= item[3]
+				self.cnt += 1
 			else:
 				print("CountMover mode is invalid :" +str(item[1]))
 		else:

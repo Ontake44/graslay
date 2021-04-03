@@ -11,6 +11,7 @@ import boss3
 import boss4
 import bossFactory
 import bossLast
+from enemyBattery import MovableBattery1
 
 class Story:
 	@classmethod
@@ -183,6 +184,32 @@ class Story:
 			[6000, enemy.Worm1, 228, 25, 2, 5, 160],		\
 
 			[6400, boss2.Boss2, 241, 16],		\
+		]
+
+	@classmethod
+	def getStoryWarehouse(cls):
+		return [
+			[600, MovableBattery1, 33, 45,
+				[[300, 0, 0.0, -1.0],[30, 0, -3.0, 0.5],[600, 0, -3.0,0.0]]
+			],
+			[660, MovableBattery1, 40, 18,
+				[[96, 0, 0.0, 1.0],[56, 0, -1.0, 0.0],[150, 0, 0.0, 1.0]]
+			],
+			[780, MovableBattery1, 47, 18,
+				[[300, 0, 0.0, 1.0]]
+			],
+			[870, MovableBattery1, 40, 18,
+				[[48, 0, 0.0, 1.0], [26*8, 0, 1.0, 0.0], [6*8, 0, 0.0, 1.0], [8*8, 0, 1.0, 0.0], [300, 0, 0.0, 1.0]]
+			],
+			[1100, MovableBattery1, 47, 45,
+				[[300, 0, 0.0, -1.0]]
+			],
+			[1230, MovableBattery1, 66, 45,
+				[[300, 0, 0.0, -1.0]]
+			],
+			[1260, MovableBattery1, 74, 18,
+				[[300, 0, 0.0, 1.0]]
+			],
 		]
 
 	@classmethod

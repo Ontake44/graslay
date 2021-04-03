@@ -25,6 +25,7 @@ from optionMenu import OptionMenuScene
 from title import TitleScene
 from mapDraw import MapDraw1
 from mapDraw import MapDraw2
+from mapDraw import MapDrawWarehouse
 from mapDraw import MapDraw3
 from mapDraw import MapDraw4
 from mapDraw import MapDrawFactory
@@ -110,6 +111,12 @@ class StartMapDraw1:
 	def do(self):
 		pass
 
+class StartMapDraw:
+	def __init__(self, t):
+		gcommon.ObjMgr.setDrawMap(t[2]())
+
+	def do(self):
+		pass
 
 class StartBGM:
 	def __init__(self, t):
@@ -210,6 +217,22 @@ class MainGame:
 		self.pauseCnt = 0
 		pyxel.mouse(False)
 
+		#elif self.stage == 3:
+		#	pyxel.image(1).load(0,0,"assets\gra-den3a.png")
+		#	pyxel.image(2).load(0,0,"assets\gra-den3b.png")
+		#	self.mapOffsetX = 64
+		#	gcommon.draw_star = True
+		self.initStage()
+
+		self.skipGameTimer()
+
+		pyxel.tilemap(0).refimg = 1
+		gcommon.mapFreeTable = [0, 32, 33, 34, 65, 66]
+
+	def initStage(self):
+		self.initStageRouteA()
+
+	def initStageRouteA(self):
 		if self.stage == 1:
 			#pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay1.png")
@@ -236,7 +259,20 @@ class MainGame:
 			loadMapData(0, "assets/graslay2.pyxmap")
 			loadMapAttribute("assets/graslay2.mapatr")
 		elif self.stage == 3:
-			#pyxel.load("assets/graslay_rock03.pyxres", False, False, True, True)
+			# 倉庫
+			pyxel.image(1).load(0,0,"assets/stage_warehouse.png")
+			self.mapOffsetX = 0
+			gcommon.sync_map_y = 0
+			gcommon.long_map = False
+			gcommon.draw_star = False
+			gcommon.eshot_sync_scroll = False
+			loadMapData(0, "assets/stage_warehouse0.pyxmap")
+			loadMapData(1, "assets/stage_warehouse1.pyxmap")
+			pyxel.tilemap(0).refimg = 1
+			pyxel.tilemap(1).refimg = 1
+			loadMapAttribute("assets/graslay2.mapatr")
+		elif self.stage == 4:
+			# 高速スクロール
 			pyxel.image(1).load(0,0,"assets/graslay3.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = 1
@@ -249,8 +285,8 @@ class MainGame:
 			loadMapAttribute("assets/graslay3.mapatr")
 			pyxel.tilemap(1).refimg = 1
 			pyxel.tilemap(2).refimg = 1
-		elif self.stage == 4:
-			#pyxel.load("assets/graslay_dangeon15.pyxres", False, False, True, True)
+		elif self.stage == 5:
+			# 遺跡
 			pyxel.image(1).load(0,0,"assets/graslay4.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = 0
@@ -261,8 +297,8 @@ class MainGame:
 			loadMapData(1, "assets/graslay4b.pyxmap")
 			loadMapAttribute("assets/graslay4.mapatr")
 			pyxel.tilemap(1).refimg = 1
-		elif self.stage == 5:
-			#pyxel.load("assets/graslay_dangeon10.pyxres", False, False, True, True)
+		elif self.stage == 6:
+			# ファクトリー
 			pyxel.image(1).load(0,0,"assets/graslay_factory.png")
 			pyxel.image(2).load(0,0,"assets/graslay_factory-2.png")
 			self.mapOffsetX = 0
@@ -274,8 +310,8 @@ class MainGame:
 			loadMapData(1, "assets/graslay_factoryb.pyxmap")
 			loadMapAttribute("assets/graslay_factory.mapatr")
 			pyxel.tilemap(1).refimg = 1
-		elif self.stage == 6:
-			#pyxel.load("assets/graslay_dangeon10.pyxres", False, False, True, True)
+		elif self.stage == 7:
+			# 最終ステージ
 			pyxel.image(1).load(0,0,"assets/graslay_last.png")
 			pyxel.image(2).load(0,0,"assets/graslay_last-1.png")
 			#pyxel.image(2).load(0,0,"assets/graslay_last-2.png")
@@ -536,6 +572,8 @@ class MainGame:
 		# my ship
 		gcommon.ObjMgr.myShip.draw()
 
+		gcommon.ObjMgr.drawDrawMap2()
+
 		for obj in gcommon.ObjMgr.objs:
 			if (obj.layer & gcommon.C_LAYER_UPPER_SKY) != 0:
 				obj.drawLayer(gcommon.C_LAYER_UPPER_SKY)
@@ -734,12 +772,14 @@ class MainGame:
 		elif self.stage == 2:
 			self.initEvent2()
 		elif self.stage == 3:
-			self.initEvent3()
+			self.initEventWarehouse()
 		elif self.stage == 4:
-			self.initEvent4()
+			self.initEvent3()
 		elif self.stage == 5:
-			self.initEventFactory()
+			self.initEvent4()
 		elif self.stage == 6:
+			self.initEventFactory()
+		elif self.stage == 7:
 			self.initEventLast()
 	
 	def initEvent1(self):
@@ -772,6 +812,13 @@ class MainGame:
 			[4608,SetMapScroll, 0.25, -0.25],	\
 			[5216,SetMapScroll, 0.50, 0.0],	\
 			[6300, StartBGM, gcommon.BGM.BOSS],
+		]
+
+	def initEventWarehouse(self):
+		self.eventTable =[ \
+			[0, StartBGM, gcommon.BGM.STAGE5],
+			[0,StartMapDraw, MapDrawWarehouse],		\
+			[2192,SetMapScroll, 0.0, 0.5],
 		]
 
 	def initEvent3(self):
@@ -819,12 +866,14 @@ class MainGame:
 		elif self.stage == 2:
 			self.story = story.Story.getStory2()
 		elif self.stage == 3:
-			self.story = story.Story.getStory3()
+			self.story = story.Story.getStoryWarehouse()
 		elif self.stage == 4:
-			self.story = story.Story.getStory4()
+			self.story = story.Story.getStory3()
 		elif self.stage == 5:
-			self.story = story.Story.getStoryFactory()
+			self.story = story.Story.getStory4()
 		elif self.stage == 6:
+			self.story = story.Story.getStoryFactory()
+		elif self.stage == 7:
 			self.story = story.Story.getStoryLast()
 
 
