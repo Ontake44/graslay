@@ -1086,15 +1086,25 @@ def screenPosToMapPosX(x):
 	global map_x
 	return int((map_x +x)/8)
 
+# 壁当たり判定有無を返す
 def isMapFree(no):
 	global mapAttribute
-	return mapAttribute[no >> 5][no & 31] == "0"
+	return mapAttribute[no >> 5][no & 31] != "1"
 	#global mapFreeTable
 	#if no >= 512:
 	#	return True
 	#else:
 	#	return no in mapFreeTable
 
+# 敵弾発射可能？
+def isShotMapPos(x, y):
+	no = getMapData(x, y)
+	if no >= 0:
+		global mapAttribute
+		c = mapAttribute[no >> 5][no & 31]
+		return c == "0"
+	else:
+		return True
 
 def isMapFreePos(x, y):
 	no = getMapData(x, y)

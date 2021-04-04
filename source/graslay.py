@@ -270,7 +270,7 @@ class MainGame:
 			loadMapData(1, "assets/stage_warehouse1.pyxmap")
 			pyxel.tilemap(0).refimg = 1
 			pyxel.tilemap(1).refimg = 1
-			loadMapAttribute("assets/graslay2.mapatr")
+			loadMapAttribute("assets/stage_warehouse.mapatr")
 		elif self.stage == 4:
 			# 高速スクロール
 			pyxel.image(1).load(0,0,"assets/graslay3.png")
@@ -910,7 +910,6 @@ def loadMapAttribute(fileName):
 class App:
 	def __init__(self):
 		gcommon.app = self
-	
 		# コマンドライン解析
 		parseCommandLine()
 		

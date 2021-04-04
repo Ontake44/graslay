@@ -12,6 +12,7 @@ import boss4
 import bossFactory
 import bossLast
 from enemyBattery import MovableBattery1
+from enemyArmored import Armored1
 
 class Story:
 	@classmethod
@@ -188,27 +189,62 @@ class Story:
 
 	@classmethod
 	def getStoryWarehouse(cls):
+		baseOffset = 0
 		return [
-			[600, MovableBattery1, 33, 45,
+			[150, Armored1, 256, 120,
+				[
+					[50, 0, -2.0, 0.0],	# 0: 右から出現
+					[40, 4, 0.9, 0.0],  # 1: 減速
+					[1, 0, 0.0, 0.0],	# 2: 速度リセット
+					[30, 2, 0.0, -0.1], # 3: 上に移動
+					[20, 4, 0.95, 0.95], # 4: 上移動減速
+					[1, 0, 0.0, 0.0],	# 5: 速度リセット
+					[120, 2, -0.05, 0.0]	#  5: 左に移動
+				]
+			],
+			[210, Armored1, 256, 20,
+				[
+					[20, 0, -2.0, 0.0],	# 0: 右から出現
+					[40, 4, 0.9, 0.0],  # 1: 減速
+					[1, 0, 0.0, 0.0],	# 2: 速度リセット
+					[30, 2, 0.0, 0.1], # 3: 下に移動
+					[20, 4, 0.95, 0.95], # 4: 上移動減速
+					[1, 0, 0.0, 0.0],	# 5: 速度リセット
+					[120, 2, -0.05, 0.0]	#  5: 左に移動
+				]
+			],
+			[baseOffset + 600, MovableBattery1, 33, 45, 60,
 				[[300, 0, 0.0, -1.0],[30, 0, -3.0, 0.5],[600, 0, -3.0,0.0]]
 			],
-			[660, MovableBattery1, 40, 18,
+			[baseOffset + 660, MovableBattery1, 40, 18, 60,
 				[[96, 0, 0.0, 1.0],[56, 0, -1.0, 0.0],[150, 0, 0.0, 1.0]]
 			],
-			[780, MovableBattery1, 47, 18,
+			[baseOffset + 780, MovableBattery1, 47, 18, 60,
 				[[300, 0, 0.0, 1.0]]
 			],
-			[870, MovableBattery1, 40, 18,
+			[baseOffset + 870, MovableBattery1, 40, 18, 60,
 				[[48, 0, 0.0, 1.0], [26*8, 0, 1.0, 0.0], [6*8, 0, 0.0, 1.0], [8*8, 0, 1.0, 0.0], [300, 0, 0.0, 1.0]]
 			],
-			[1100, MovableBattery1, 47, 45,
+			[baseOffset + 1100, MovableBattery1, 47, 45, 60,
 				[[300, 0, 0.0, -1.0]]
 			],
-			[1230, MovableBattery1, 66, 45,
+			[baseOffset + 1230, MovableBattery1, 66, 45, 60,
 				[[300, 0, 0.0, -1.0]]
 			],
-			[1260, MovableBattery1, 74, 18,
+			[baseOffset + 1260, MovableBattery1, 74, 18, 60,
 				[[300, 0, 0.0, 1.0]]
+			],
+			[baseOffset + 1600, MovableBattery1, 89, 44, 60,
+				[[14*8, 0, 0.0, -1.0],[42*8, 0, 1.0, 0.0]]
+			],
+			[baseOffset + 1780, MovableBattery1, 89, 44, 60,
+				[[14*8, 0, 0.0, -1.0],[16*8, 0, 1.0, 0.0],[300, 0, 0.0, 1.0]]
+			],
+			[baseOffset + 1780, MovableBattery1, 105, 18, 60,
+				[[8*8, 0, 0.0, 1.0],[3*8, 0, 0.0, 0.0],[4*8, 0, 0.0, 1.0],[14*8, 0, 1.0, 0.0],[30*8, 0, 0.0, -1.0]]
+			],
+			[baseOffset + 2380, MovableBattery1, 102, 53, 60,
+				[[80*8, 0, 1.0, 0.0]]
 			],
 		]
 

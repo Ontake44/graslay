@@ -104,7 +104,18 @@ class MapDrawWarehouse:
 				my = 127 -i
 				mx = gcommon.screenPosToMapPosX(256)
 				n = gcommon.getMapDataByMapPos(mx, my)
-				gcommon.doMapCharacter(n, mx, my)
+				if n in (390, 391):
+					# 砲台
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					obj = enemy.Battery1([0,0,mx, my, 0])
+					if gcommon.GameSession.isHard():
+						obj.first = 20
+						obj.shot_speed = 3
+					if n == 391:
+						obj.mirror = 1
+					gcommon.ObjMgr.addObj(obj)
+				else:
+					gcommon.doMapCharacter(n, mx, my)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 		gcommon.back_map_x += gcommon.cur_scroll_x/2
