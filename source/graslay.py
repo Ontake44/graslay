@@ -668,13 +668,9 @@ class MainGame:
 			
 			for shot in gcommon.ObjMgr.shots:
 				if obj.checkShotCollision(shot):
-					shot.hit(obj, obj.doShotCollision(shot))
-					#shot.removeFlag = True
-					#shot.group.remove(shot)
-					#if len(shot.group.shots) == 0:
-					#	gcommon.ObjMgr.shotGroups.remove(shot.group)
-						
-					if obj.removeFlag:
+					broken = obj.doShotCollision(shot)
+					shot.hit(obj, broken)
+					if broken or obj.removeFlag:
 						break
 		# enemy shot and wallObj
 		for wallObj in gcommon.ObjMgr.objs:
