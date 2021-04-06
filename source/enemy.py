@@ -1535,7 +1535,7 @@ class Worm1(EnemyBase):
 
 	def broken(self):
 		gcommon.GameSession.addScore(self.score)
-		self.state = 100
+		self.setState(100)
 		self.cnt = 0
 		self.shotHitCheck = False
 

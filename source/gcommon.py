@@ -164,7 +164,7 @@ B_SHOT_POWERS = (B_SHOT0_POWER, B_SHOT1_POWER, B_SHOT2_POWER)
 
 MISSILE0_POWER = 5
 MISSILE1_POWER = 5
-MISSILE2_POWER = 5
+MISSILE2_POWER = 2
 MISSILE_POWERS = (MISSILE0_POWER, MISSILE1_POWER, MISSILE1_POWER)
 
 B_MISSILE0_POWER = 5
@@ -1089,7 +1089,7 @@ def screenPosToMapPosX(x):
 # 壁当たり判定有無を返す
 def isMapFree(no):
 	global mapAttribute
-	return mapAttribute[no >> 5][no & 31] != "1"
+	return mapAttribute[no >> 5][no & 31] == "0"	#		 != "1"
 	#global mapFreeTable
 	#if no >= 512:
 	#	return True

@@ -731,13 +731,9 @@ class MainGame:
 			
 			for shot in gcommon.ObjMgr.shots:
 				if obj.checkShotCollision(shot):
-					shot.hit(obj, obj.doShotCollision(shot))
-					#shot.removeFlag = True
-					#shot.group.remove(shot)
-					#if len(shot.group.shots) == 0:
-					#	gcommon.ObjMgr.shotGroups.remove(shot.group)
-						
-					if obj.removeFlag:
+					broken = obj.doShotCollision(shot)
+					shot.hit(obj, broken)
+					if broken or obj.removeFlag:
 						break
 		# enemy shot and wallObj
 		for wallObj in gcommon.ObjMgr.objs:
@@ -818,7 +814,8 @@ class MainGame:
 		self.eventTable =[ \
 			[0, StartBGM, gcommon.BGM.STAGE5],
 			[0,StartMapDraw, MapDrawWarehouse],		\
-			[2192,SetMapScroll, 0.0, 0.5],
+			[2184,SetMapScroll, 0.0, 0.5],
+			[3384,SetMapScroll, 0.5, 0.0],
 		]
 
 	def initEvent3(self):

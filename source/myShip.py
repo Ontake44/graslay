@@ -488,7 +488,7 @@ class MyShipB(MyShipBase):
 # return True: 消えた False:消えてない
 def checkShotMapCollision(obj, px, py):
 	no = gcommon.getMapData(px, py)
-	if gcommon.app.stage == 3:
+	if gcommon.app.stage == 4:
 		if no in (4, 5, 6):
 			obj.remove()
 			gcommon.setMapData(px, py, 0)
@@ -501,7 +501,7 @@ def checkShotMapCollision(obj, px, py):
 # return True: 壁 False:壁じゃない
 def checkShotMapCollisionPerfonate(px, py):
 	no = gcommon.getMapData(px, py)
-	if gcommon.app.stage == 3:
+	if gcommon.app.stage == 4:
 		if no in (4, 5, 6):
 			gcommon.setMapData(px, py, 0)
 			return False
@@ -510,7 +510,7 @@ def checkShotMapCollisionPerfonate(px, py):
 	return False
 
 def clearDeletableMapData(px, py, width):
-	if gcommon.app.stage != 3:
+	if gcommon.app.stage != 4:
 		return
 	for i in range(width):
 		no = gcommon.getMapData(px + i*8, py)
