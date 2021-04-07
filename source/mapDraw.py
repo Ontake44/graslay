@@ -9,6 +9,7 @@ class MapDraw1:
 	def init(self):
 		gcommon.map_x = -32 * 8
 		gcommon.map_y = 24*8
+		gcommon.mapHeight = 8 * 256
 
 	def update0(self, skip):
 		pass
@@ -50,6 +51,7 @@ class MapDraw2:
 	def init(self):
 		gcommon.map_x = 0
 		gcommon.map_y = 24*8
+		gcommon.mapHeight = 8 * 256
 
 	def update0(self, skip):
 		pass
@@ -85,6 +87,7 @@ class MapDraw3:
 	def init(self):
 		gcommon.map_x = -32 * 8
 		gcommon.map_y = 24*8
+		gcommon.mapHeight = 8 * 128
 		gcommon.back_map_x = -32 * 8/4
 		gcommon.back_map_y = 0
 		gcommon.cur_scroll_x = 2.0
@@ -221,6 +224,7 @@ class MapDraw4:
 	def init(self):
 		gcommon.map_x = -32 * 8
 		gcommon.map_y = 24*8
+		gcommon.mapHeight = 8 * 256
 		gcommon.back_map_x = -32 * 8/2
 		gcommon.back_map_y = 0
 
@@ -295,6 +299,7 @@ class MapDrawFactory:
 	def init(self):
 		gcommon.map_x = -32 * 8
 		gcommon.map_y = 24*8
+		gcommon.mapHeight = 8 * 256
 		gcommon.cur_scroll_x = 0.5
 		gcommon.cur_scroll_y = 0.0
 		gcommon.back_map_x = -32 * 8
@@ -436,6 +441,7 @@ class MapDrawLast:
 	def init(self):
 		gcommon.map_x = -32 * 8
 		gcommon.map_y = 24*8
+		gcommon.mapHeight = 8 * 256
 		gcommon.back_map_x = -32 * 8
 		gcommon.back_map_y = 0
 		pyxel.image(2).load(0,0,"assets/graslay_last-2.png")
