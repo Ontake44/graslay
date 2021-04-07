@@ -230,6 +230,7 @@ cur_map_dy = 0.0
 
 map_x = 0.0
 map_y = 0.0
+mapHeight = 8 * 256
 
 back_map_x = 0.0
 back_map_y = 0.0
@@ -1089,7 +1090,7 @@ def screenPosToMapPosX(x):
 # 壁当たり判定有無を返す
 def isMapFree(no):
 	global mapAttribute
-	return mapAttribute[no >> 5][no & 31] == "0"	#		 != "1"
+	return mapAttribute[no >> 5][no & 31] != "1"
 	#global mapFreeTable
 	#if no >= 512:
 	#	return True
@@ -1123,10 +1124,18 @@ def isMapFreeByMapPos(mx, my):
 def mapPosToScreenPos(mx, my):
 	global map_x
 	global map_y
+	global mapHeight
 	if ObjMgr.drawMap == None:
 		return [-9999,-9999]
 	else:
-		return [mx * 8 - int(map_x), my * 8 - map_y]
+		y = my * 8 - map_y
+		if y < 0:
+			if y < -int(mapHeight/2):
+				y += mapHeight
+		else:
+			if y > int(mapHeight/2):
+				y -= mapHeight
+		return [mx * 8 - int(map_x), y]
 
 def mapYToScreenY(y):
 	return y - map_y
