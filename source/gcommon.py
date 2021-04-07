@@ -275,7 +275,7 @@ class GameSession:
 	stage = 0
 	score = 0
 	scoreCheck = 0
-	model = WeaponType.TYPE_A
+	weaponType = WeaponType.TYPE_A
 	scoreFirstExtend = False
 	credits = 0
 	gameMode = GAMEMODE_NORMAL

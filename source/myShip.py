@@ -341,7 +341,7 @@ class MyShipA(MyShipBase):
 class MyShipB(MyShipBase):
 	missileCycles = (10, 10, 20, 10)
 	def __init__(self, parent):
-		self.posLate = 8
+		self.posLate = 12
 		self.posList = []
 		for i in range(gcommon.GameSession.multipleCount * self.posLate):
 			self.posList.append(Pos.create(0 ,0))
@@ -392,14 +392,14 @@ class MyShipB(MyShipBase):
 				# Double
 				self.shotMax = 2
 				#self.appendShot(shotGroup, self.createShot(x+12, y +4, 8, 0, 0))
-				self.appendShot(shotGroup, MyShotBDouble(x +12, y+7, 0))
+				self.appendShot(shotGroup, MyShotBDouble(x +14, y+7.5, 0))
 				self.appendShot(shotGroup, MyShotBDouble(x +10, y+4, 1))
 				if n == -1:
 					gcommon.sound(gcommon.SOUND_SHOT)
 			elif self.weapon == 1:
 				self.shotMax = 2
-				self.appendShot(shotGroup, MyShotBDouble(x +12, y+7, 0))
-				self.appendShot(shotGroup, MyShotBDouble(x, y+7, 2))
+				self.appendShot(shotGroup, MyShotBDouble(x +14, y+7.5, 0))
+				self.appendShot(shotGroup, MyShotBDouble(x, y+7.5, 2))
 				if n == -1:
 					gcommon.sound(gcommon.SOUND_SHOT)
 			elif self.weapon == 2:
@@ -409,7 +409,7 @@ class MyShipB(MyShipBase):
 					gcommon.sound(gcommon.SOUND_SHOT)
 			else:
 				self.shotMax = 2
-				self.appendShot(shotGroup, MyShotBRipple(x +12, y+7))
+				self.appendShot(shotGroup, MyShotBRipple(x +16, y+7))
 				if n == -1:
 					gcommon.sound(gcommon.SOUND_SHOT)
 			shotGroups.append(shotGroup)
@@ -636,7 +636,7 @@ class MyShotBDouble(MyShotBase):
 		# 当たり判定描画
 		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
 		if self.direction in (0,2):
-			pyxel.blt(self.x, self.y, 0, 128, 19, 8 if self.direction == 0 else -8, 2, gcommon.TP_COLOR)
+			pyxel.blt(self.x -4.5, self.y -0.5, 0, 128, 19, 8 if self.direction == 0 else -8, 2, gcommon.TP_COLOR)
 		else:
 			pyxel.blt(self.x -2.5, self.y -2.5, 0, 136, 16, 5, 5, gcommon.TP_COLOR)
 
