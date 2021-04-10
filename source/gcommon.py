@@ -1002,6 +1002,18 @@ def getMapData(x, y):
 		my = int((map_y +y)/8)
 	return getMapDataByMapPos(mx, my)
 
+# 倉庫ステージ等に使う
+def getMapDataPage(page, x, y):
+	global map_x
+	global map_y
+	global long_map
+	mx = int((map_x +x)/8)
+	if long_map:
+		my = int((map_y +y)/8) & 127
+	else:
+		my = int((map_y +y)/8)
+	return getMapDataByMapPosPage(page, mx, my)
+
 def getMapDataByMapPos(mx, my):
 	global map_x
 	global map_y
@@ -1022,6 +1034,29 @@ def getMapDataByMapPos(mx, my):
 		else:
 			if mx>=0 and mx<256 and my>=0 and my<256:
 				return pyxel.tilemap(0).get(mx, my)
+			else:
+				return -1
+
+def getMapDataByMapPosPage(page, mx, my):
+	global map_x
+	global map_y
+	global long_map
+	#print("--mx = " + str(mx) + " my=" + str(my))
+	if ObjMgr.drawMap == None:
+		return -1
+	else:
+		if long_map:
+			# 最大マップ4画面幅 mx<1024
+			if mx>=0 and mx<256*4 and my>=0 and my<128:
+				tm = int(mx/512) + page
+				moffset = (int(mx/256) & 1) * 128
+				return pyxel.tilemap(tm).get(mx & 255, (my + moffset) & 255)
+			else:
+				#print("mx = " + str(mx) + " my=" + str(my))
+				return -3
+		else:
+			if mx>=0 and mx<256 and my>=0 and my<256:
+				return pyxel.tilemap(page).get(mx, my)
 			else:
 				return -1
 
@@ -1070,6 +1105,25 @@ def setMapDataByMapPos(mx, my, p):
 		else:
 			if mx>=0 and mx<256 and my>=0 and my<256:
 				pyxel.tilemap(0).set(mx, my, p)
+			else:
+				return
+
+def setMapDataByMapPosPage(page, mx, my, p):
+	global long_map
+	if ObjMgr.drawMap == None:
+		return
+	else:
+		if long_map:
+			# 最大マップ4画面幅 mx<1024
+			if mx>=0 and mx<256*4 and my>=0 and my<128:
+				tm = int(mx/512) + page
+				moffset = (int(mx/256) & 1) * 128
+				pyxel.tilemap(tm).set(mx & 255, (my + moffset) & 255, p)
+			else:
+				return
+		else:
+			if mx>=0 and mx<256 and my>=0 and my<256:
+				pyxel.tilemap(page).set(mx, my, p)
 			else:
 				return
 

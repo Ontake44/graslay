@@ -40,12 +40,12 @@ class Armored1(EnemyBase):
 	def draw(self):
 		n = self.cnt % 3
 		if n != 2:
-			pyxel.blt(self.x +28, self.y, 1, n * 16, 224, 16, 24, 2)
+			pyxel.blt(self.x +28, self.y, 2, n * 16, 224, 16, 24, 2)
 
 		spNo = 0
 		if abs(self.mover.dy) > 0.01:
 			spNo = 2
 		elif abs(self.mover.dx) < 1.0:
 			spNo = 1
-		pyxel.blt(self.x, self.y, 1, __class__.srcXTable[spNo], 184, 40, 40, 2)
+		pyxel.blt(self.x, self.y, 2, __class__.srcXTable[spNo], 184, 40, 40, 2)
 

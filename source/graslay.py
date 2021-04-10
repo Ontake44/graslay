@@ -261,15 +261,18 @@ class MainGame:
 		elif self.stage == 3:
 			# 倉庫
 			pyxel.image(1).load(0,0,"assets/stage_warehouse.png")
+			pyxel.image(2).load(0,0,"assets/stage_warehouse-2.png")
 			self.mapOffsetX = 0
 			gcommon.sync_map_y = 0
-			gcommon.long_map = False
+			gcommon.long_map = True
 			gcommon.draw_star = False
 			gcommon.eshot_sync_scroll = False
 			loadMapData(0, "assets/stage_warehouse0.pyxmap")
-			loadMapData(1, "assets/stage_warehouse1.pyxmap")
+			loadMapData(2, "assets/stage_warehouse1.pyxmap")
+			loadMapData(7, "assets/stage_warehouseb.pyxmap")
 			pyxel.tilemap(0).refimg = 1
-			pyxel.tilemap(1).refimg = 1
+			pyxel.tilemap(2).refimg = 1
+			pyxel.tilemap(7).refimg = 1  # background
 			loadMapAttribute("assets/stage_warehouse.mapatr")
 		elif self.stage == 4:
 			# 高速スクロール
@@ -816,6 +819,7 @@ class MainGame:
 			[0,StartMapDraw, MapDrawWarehouse],		\
 			[2184,SetMapScroll, 0.0, 0.5],
 			[3384,SetMapScroll, 0.5, 0.0],
+			[4712,SetMapScroll, 0.0, -0.5],
 		]
 
 	def initEvent3(self):

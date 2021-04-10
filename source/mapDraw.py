@@ -86,6 +86,7 @@ class MapDraw2:
 	def draw2(self):
 		pass
 
+# 倉庫ステージ
 class MapDrawWarehouse:
 	def __init__(self):
 		pass
@@ -106,10 +107,10 @@ class MapDrawWarehouse:
 			for i in range(0, 128):
 				my = 127 -i
 				mx = gcommon.screenPosToMapPosX(256)
-				n = gcommon.getMapDataByMapPos(mx, my)
+				n = gcommon.getMapDataByMapPosPage(2, mx, my)
 				if n in (390, 391):
 					# 砲台
-					gcommon.setMapDataByMapPos(mx, my, 0)
+					gcommon.setMapDataByMapPosPage(2, mx, my, 0)
 					obj = enemy.Battery1([0,0,mx, my, 0])
 					if gcommon.GameSession.isHard():
 						obj.first = 20
@@ -124,22 +125,25 @@ class MapDrawWarehouse:
 		gcommon.back_map_x += gcommon.cur_scroll_x/2
 
 	def drawBackground(self):
-		pass
-		# if gcommon.back_map_x < 0:
-		# 	pyxel.bltm(-1 * int(gcommon.back_map_x), 0, 1, 0, 24,33,33, gcommon.TP_COLOR)
-		# else:
-		# 	mx = (int)(gcommon.back_map_x/8)
-		# 	pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, gcommon.TP_COLOR)
+		if gcommon.back_map_x < 0:
+			pyxel.bltm(-1 * int(gcommon.back_map_x), 0, 7, 0, 24,33,33,3)
+		else:
+			mx = (int)(gcommon.back_map_x/8)
+			pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 7, mx, 24,33,33, 3)
 
 	def draw(self):
-		tm = 1
+		tm = 2
 		if gcommon.map_x < 0:
 			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), tm, 0, (int)(gcommon.map_y/8),33,33, 3)
 		else:
 			#tm = 1 + int(gcommon.map_x/4096)
 			moffset = (int(gcommon.map_x/2048) & 1) * 128
-			#w = int((gcommon.map_x %2048)/8)
+			w = int((gcommon.map_x %2048)/8)
 			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, 3)
+			if w >= 224:
+				tm2 = tm + int((gcommon.map_x+256)/4096)
+				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
+				pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, 3)
 		# 上下ループマップなのでややこしい
 		# if gcommon.map_x < 0:
 		# 	pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, 3)
@@ -160,8 +164,12 @@ class MapDrawWarehouse:
 		else:
 			#tm = 1 + int(gcommon.map_x/4096)
 			moffset = (int(gcommon.map_x/2048) & 1) * 128
-			#w = int((gcommon.map_x %2048)/8)
+			w = int((gcommon.map_x %2048)/8)
 			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, 3)
+			if w >= 224:
+				tm2 = int((gcommon.map_x+256)/4096)
+				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
+				pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, 3)
 			# if w >= 224:
 			# 	tm2 = int((gcommon.map_x+256)/4096)
 			# 	moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
