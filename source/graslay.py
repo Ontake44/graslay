@@ -820,6 +820,9 @@ class MainGame:
 			[2184,SetMapScroll, 0.0, 0.5],
 			[3384,SetMapScroll, 0.5, 0.0],
 			[4712,SetMapScroll, 0.0, -0.5],
+			[5504,SetMapScroll, 0.5, 0.0],
+			[6800, StartBGM, gcommon.BGM.BOSS],
+			[7320,SetMapScroll, 0.0, 0.0],
 		]
 
 	def initEvent3(self):

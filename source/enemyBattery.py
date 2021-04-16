@@ -12,8 +12,11 @@ from enemy import CountMover
 # x, yは中心座標 t[2], t[3]はマップ座標
 class MovableBattery1(EnemyBase):
 	lightTable = (0, 2, 4, 8, 8, 4, 2, 0)
+	spTable = (3, 2, 1, 0, -1, 0, 1, 2)
 	def __init__(self, t):
 		super(MovableBattery1, self).__init__()
+		self.mx = t[2]
+		self.my = t[3]
 		pos = gcommon.mapPosToScreenPos(t[2], t[3])
 		self.x = pos[0] + 3.5
 		self.y = pos[1] + 3.5
@@ -24,7 +27,7 @@ class MovableBattery1(EnemyBase):
 		self.right = 11
 		self.bottom = 11
 		self.layer = gcommon.C_LAYER_GRD
-		self.hp = 100
+		self.hp = 80
 		self.shotInterval = int(120 / gcommon.GameSession.enemy_shot_rate)
 		self.hitCheck = True
 		self.shotHitCheck = True
@@ -32,21 +35,45 @@ class MovableBattery1(EnemyBase):
 		self.mover = CountMover(self, self.moveTable, False)
 		self.ground = True
 		self.score = 500
+		# 0 :閉じている
+		# 1 :開く1
+		# 2 :開く2
+		# 3 :開く3
+		# 4 :開く4  ショット
+		# 5 :開く3
+		# 6 :開く2
+		# 7 :開く1
+		self.shotState = 0
+		self.shotCnt = 0
 
 	def update(self):
 		self.mover.update()
-		if self.x <= -24 or self.x >= gcommon.SCREEN_MAX_X+24 or self.y <= -24 or self.y >= gcommon.SCREEN_MAX_Y+24:
+		if self.x <= -96 or self.x >= gcommon.SCREEN_MAX_X+96 or self.y <= -96 or self.y >= gcommon.SCREEN_MAX_Y+96:
 			self.remove()
 			gcommon.debugPrint("remove Battery")
+			if self.cnt < 10:
+				gcommon.debugPrint("MovableBattery1 is ng start point (" +  str(self.mx) + ","+ str(self.my) +") (" + str(self.x) + "," + str(self.y)+"")
 			return
 		if self.firstShot == self.cnt or (self.cnt > self.firstShot and (self.cnt - self.firstShot) % self.shotInterval == 0):
-			if gcommon.isShotMapPos(self.x, self.y):
-				enemy.enemy_shot(self.x, self.y, 3, 0)
+			if self.shotState == 0:
+				self.shotState = 1
+		if self.shotState >= 1:
+			self.shotCnt += 1
+			if self.shotCnt > 5:
+				self.shotCnt = 0
+				self.shotState += 1
+				if self.shotState == 4 and gcommon.isShotMapPos(self.x, self.y):
+					enemy.enemy_shot(self.x, self.y, 3, 0)
+				elif self.shotState >= 8:
+					self.shotState = 0
 
 	def draw(self):
 		n = (self.cnt>>2) % len(__class__.lightTable)
 		pyxel.pal(8, __class__.lightTable[n])
+		sp = __class__.spTable[self.shotState]
 		pyxel.blt(self.x -11.5, self.y -11.5, 2, 0, 0, 24, 24, 3)
+		if sp >= 0:
+			pyxel.blt(self.x -11.5+4, self.y -11.5+4, 2, sp*16, 24, 16, 16)
 		pyxel.pal()
 
 # 武装なしのコンテナキャリアー
@@ -54,6 +81,8 @@ class ContainerCarrier1(EnemyBase):
 	lightTable = (0, 2, 4, 8, 8, 4, 2, 0)
 	def __init__(self, t):
 		super(ContainerCarrier1, self).__init__()
+		self.mx = t[2]
+		self.my = t[3]
 		pos = gcommon.mapPosToScreenPos(t[2], t[3])
 		self.x = pos[0] + 3.5
 		self.y = pos[1] + 3.5
@@ -73,8 +102,10 @@ class ContainerCarrier1(EnemyBase):
 
 	def update(self):
 		self.mover.update()
-		if self.x <= -24 or self.x >= gcommon.SCREEN_MAX_X+24 or self.y <= -24 or self.y >= gcommon.SCREEN_MAX_Y+24:
+		if self.x <= -96 or self.x >= gcommon.SCREEN_MAX_X+96 or self.y <= -96 or self.y >= gcommon.SCREEN_MAX_Y+96:
 			self.remove()
+			if self.cnt < 10:
+				gcommon.debugPrint("ContainerCarrier1 is ng start point (" +  str(self.mx) + ","+ str(self.my) +") (" + str(self.x) + "," + str(self.y)+"")
 			return
 
 	def draw(self):

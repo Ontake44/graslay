@@ -94,7 +94,7 @@ class MapDrawWarehouse:
 	def init(self):
 		gcommon.map_x = -32 * 8
 		gcommon.map_y = 20*8
-		gcommon.back_map_x = -32 * 8/2
+		gcommon.back_map_x = 0		#-32 * 8/2
 		gcommon.back_map_y = 0
 		gcommon.mapHeight = 8 * 256
 

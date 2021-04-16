@@ -35,6 +35,9 @@ def enemy_shot_multi(x, y, speed, shotType, count, angleDr):
 def enemy_shot_dr(x, y, speed, shotType, dr):
 	gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr))
 
+def enemy_shot_rad(x, y, speed, shotType, rad):
+	gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedRad(x, y, speed, shotType, rad))
+
 def enemy_shot_dr_multi(x, y, speed, shotType, dr, count, angleDr):
 	if count & 1 == 1:
 		gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr))
@@ -148,6 +151,8 @@ class EnemyBase:
 
 # [0] to cnt
 # [1] mode
+#  mode = -1
+#    停止
 #  mode = 0
 #    [2] dx 速度
 #    [3] dy 速度
@@ -161,6 +166,10 @@ class EnemyBase:
 #  mode = 4
 #    [2] aax 変位加速度 0.95とか
 #    [3] aay 変位加速度
+#  mode = 5  ※to cntは使用しない
+#    [2] 移動先座標X
+#    [3] 移動先座標Y
+#    [4] 速度
 class CountMover:
 	def __init__(self, obj, table, loopFlag):
 		self.obj = obj
@@ -177,7 +186,17 @@ class CountMover:
 		if self.isEnd:
 			return
 		item = self.table[self.tableIndex]
-		if self.cnt < item[0]:
+		if item[1] == 5:
+			# 移動先座標指定
+			rad = math.atan2(item[3] -self.obj.y, item[2] -self.obj.x)
+			self.obj.x += math.cos(rad) * item[4]
+			self.obj.y += math.sin(rad) * item[4]
+			xx = item[2] -self.obj.x
+			yy = item[3] -self.obj.y
+			if math.sqrt(xx*xx + yy*yy) < item[4]:
+				self.nextTable()
+
+		elif self.cnt < item[0]:
 			if item[1] == 0:
 				self.dx = item[2]
 				self.dy = item[3]
@@ -203,17 +222,24 @@ class CountMover:
 				self.dx *= item[2]
 				self.dy *= item[3]
 				self.cnt += 1
+			elif item[1] == -1:
+				# 停止
+				pass
 			else:
 				print("CountMover mode is invalid :" +str(item[1]))
+			self.cnt += 1
 		else:
-			self.tableIndex += 1
-			self.cnt = 0
-			if self.tableIndex == len(self.table):
-				if self.loopFlag:
-					self.cycleCount += 1
-					self.tableIndex = 0
-				else:
-					self.isEnd = True
+			self.nextTable()
+
+	def nextTable(self):
+		self.tableIndex += 1
+		self.cnt = 0
+		if self.tableIndex == len(self.table):
+			if self.loopFlag:
+				self.cycleCount += 1
+				self.tableIndex = 0
+			else:
+				self.isEnd = True
 
 class WhereAppear(EnemyBase):
 	def __init__(self, t):
@@ -318,6 +344,13 @@ class EnemyShot(EnemyBase):
 		r = dr & 63
 		shot.dx = math.cos(gcommon.atan_table[r]) * speed * gcommon.GameSession.enemy_shot_rate
 		shot.dy = math.sin(gcommon.atan_table[r]) * speed * gcommon.GameSession.enemy_shot_rate
+		return shot
+
+	@classmethod
+	def createSpecifiedRad(cls, x, y, speed, shotType, rad):
+		shot = EnemyShot(x, y, speed, shotType)
+		shot.dx = math.cos(rad) * speed * gcommon.GameSession.enemy_shot_rate
+		shot.dy = math.sin(rad) * speed * gcommon.GameSession.enemy_shot_rate
 		return shot
 
 	def update(self):
@@ -538,8 +571,51 @@ class Jumper1(EnemyBase):
 			enemy_shot(self.x +8, self.y +8, 2, 0)
 
 	def draw(self):
-		pyxel.blt(self.x, self.y, 1, 80, 64, 16, 16, gcommon.TP_COLOR)
+		n = (self.cnt>>2) % 3
+		pyxel.blt(self.x, self.y, 1, 80 + n*16, 64, 16, 16, gcommon.TP_COLOR)
 
+class Jumper2(EnemyBase):
+	def __init__(self, t):
+		super(Jumper2, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.ax = t[4]
+		self.left = 2
+		self.top = 2
+		self.right = 13
+		self.bottom = 13
+		self.hp = 10
+		self.layer = gcommon.C_LAYER_SKY
+		self.score = 50
+		self.hitcolor1 = 5
+		self.hitcolor2 = 6
+		self.exptype = gcommon.C_EXPTYPE_SKY_S
+		self.dy = -1
+		if self.y <= -16:
+			self.dy = 1
+		self.dx = 0.0
+
+	def update(self):
+		self.y = self.y + self.dy
+		if self.x < -16 or self.x > 256 or self.y < -16 or self.y > gcommon.SCREEN_MAX_Y +16:
+			self.remove()
+			return
+		self.x = self.x + self.dx
+		self.dx = self.dx + self.ax
+		if self.dx > 0:
+			if gcommon.isMapFreePos(self.x + 16 + self.dx, self.y +8) == False:
+				self.dx = -self.dx
+		else:
+			if gcommon.isMapFreePos(self.x + self.dx, self.y + 8) == False:
+				self.dx = -self.dx
+		#elif gcommon.isMapFreePos(self.x + 8, self.y -4) == False:
+		#	self.dy = -self.dy
+		if self.cnt == 30 and gcommon.GameSession.isHard():
+			enemy_shot(self.x +8, self.y +8, 2, 0)
+
+	def draw(self):
+		n = (self.cnt>>2) % 3
+		pyxel.blt(self.x, self.y, 1, n*16, 112, 16, 16, gcommon.TP_COLOR)
 
 
 class RollingFighter1(EnemyBase):

@@ -569,9 +569,10 @@ class RectObj:
 screenRectObj = RectObj(0, 0, SCREEN_MIN_X, SCREEN_MIN_Y, SCREEN_MAX_X, SCREEN_MAX_Y)
 
 class Polygon:
-	def __init__(self, points, clr):
+	def __init__(self, points, clr, fill=True):
 		self.points = points
 		self.clr = clr
+		self.fill = fill
 
 class Polygons:
 	def __init__(self, polygons):
@@ -705,6 +706,22 @@ def radNormalize(rad):
 	elif r < -math.pi:
 		r += math.pi * 2
 	return r
+
+# 指定した座標・ラジアンから、自機方向にomega回転した値を返す
+def getRadToShip(x, y, rad, omega):
+	tempDr = get_atan_rad_to_ship(x, y)
+	rr = radNormalize(tempDr - rad)
+	if rr == 0.0:
+		pass
+	elif  rr > 0.0:
+		rad += omega
+		if rad >= math.pi*2:
+			rad -= math.pi*2
+	else:
+		rad -= omega
+		if rad <= 0.0:
+			rad += math.pi*2
+	return rad
 
 def get_atan(x1,y1,x2,y2,offsetdr):
 	return atan_table[get_atan_no(x1,y1,x2,y2)+offsetdr & 63]
@@ -1296,13 +1313,21 @@ def drawConnectedLines(points, clr):
 
 # Polygonクラス指定で描く
 def drawPolygon3(polygon):
-	poly = polygon.points
-	sx = poly[0][0]
-	sy = poly[0][1]
-	for i in range(len(poly)-2):
-		pyxel.tri(sx, sy, 
-			poly[i+1][0], poly[i+1][1],
-			poly[i+2][0], poly[i+2][1], polygon.clr)	
+	points = polygon.points
+	if polygon.fill:
+		sx = points[0][0]
+		sy = points[0][1]
+		for i in range(len(points)-2):
+			pyxel.tri(sx, sy, 
+				points[i+1][0], points[i+1][1],
+				points[i+2][0], points[i+2][1], polygon.clr)
+	else:
+		# ワイヤーフレーム
+		endIndex = len(points) -1
+		if endIndex > 1:
+			for i in range(endIndex):
+				pyxel.line(points[i][0], points[i][1], points[i+1][0], points[i+1][1], polygon.clr)
+		pyxel.line(points[endIndex][0], points[endIndex][1], points[0][0], points[0][1], polygon.clr)
 
 # Ploygonsクラス指定で描く
 def drawPolygons(polys):
@@ -1347,7 +1372,7 @@ def getAnglePolygons(destPos, polygons, offsetPos, rad):
 			x = destPos[0] + (p[0] - offsetPos[0]) * c - (p[1] -offsetPos[1]) * s
 			y = destPos[1] + ((p[0] -offsetPos[0]) * s + (p[1] -offsetPos[1]) * c)
 			xpoints.append([x,y])
-		xpoly = Polygon(xpoints, poly.clr)
+		xpoly = Polygon(xpoints, poly.clr, poly.fill)
 		xpolygons.append(xpoly)
 	return Polygons(xpolygons)
 

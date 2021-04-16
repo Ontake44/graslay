@@ -11,6 +11,7 @@ import boss3
 import boss4
 import bossFactory
 import bossLast
+import bossWarehouse
 from enemyBattery import MovableBattery1
 from enemyBattery import ContainerCarrier1
 from enemyBattery import Tractor1
@@ -275,6 +276,9 @@ class Story:
 			[baseOffset + 2380, MovableBattery1, 102, 53, 60,
 				[[80*8, 0, 1.0, 0.0]]
 			],
+			[baseOffset + 2400, MovableBattery1, 136, 53, 60,
+				[[13*8, 0, -1.0, 0.0], [80*8, 0, 0.0, 1.0]]
+			],
 			[baseOffset + 2410, MovableBattery1, 102, 53, 60,
 				[[15*8, 0, 1.0, 0.0], [80*8, 0, 0.0, 1.0]]
 			],
@@ -293,6 +297,15 @@ class Story:
 			[baseOffset + 2920, MovableBattery1, 134, 72, 60,
 				[[11*8, 0, -1.0, 0.0], [80*8, 0, 0.0, 1.0]]
 			],
+			[baseOffset + 3100, MovableBattery1, 101, 96, 60,
+				[[16*8, 0, 1.0, 0.0], [80*8, 0, 0.0, 1.0]]
+			],
+			[baseOffset + 3100, MovableBattery1, 135, 96, 60,
+				[[12*8, 0, -1.0, 0.0], [80*8, 0, 0.0, 1.0]]
+			],
+			[baseOffset + 3360, MovableBattery1, 101, 96, 180,
+				[[16*8, 0, 1.0, 0.0], [80*8, 0, 0.0, 1.0]]
+			],
 			[baseOffset + 3400, Armored1, 256, 130,
 				[
 					[40, 0, -2.0, 0.0],	# 0: 右から出現
@@ -306,6 +319,9 @@ class Story:
 					[1, 0, 0.0, 0.0],	# 5: 速度リセット
 					[120, 2, -0.05, 0.0]	#  5: 左に移動
 				]
+			],
+			[baseOffset + 3400, MovableBattery1, 135, 96, 60,
+				[[12*8, 0, -1.0, 0.0], [80*8, 0, 0.0, 1.0]]
 			],
 			[baseOffset + 3460, Armored1, 256, 60,
 				[
@@ -328,6 +344,142 @@ class Story:
 			[baseOffset + 3590, enemy.Jumper1, -16, 70, 0.1],
 			[baseOffset + 3590, enemy.Jumper1, 256, 70, 0.1],
 			[baseOffset + 3620, enemy.Jumper1, -16, 70, 0.1],
+			[baseOffset + 3800, MovableBattery1, 163, 119, 60,
+				[[80*8, 0, 0.0, -1.0]]
+			],
+			[baseOffset + 3860, MovableBattery1, 163, 119, 60,
+				[[80*8, 0, 0.0, -1.0]]
+			],
+			[baseOffset + 3960, enemy.Jumper1, 256, 70, 0.1],
+			[baseOffset + 3990, enemy.Jumper1, -16, 70, 0.1],
+			[baseOffset + 3990, enemy.Jumper1, 256, 70, 0.1],
+			[baseOffset + 4020, enemy.Jumper1, -16, 70, 0.1],
+
+			[baseOffset + 4100, Armored1, 256, 130,
+				[
+					[40, 0, -2.0, 0.0],	# 0: 右から出現
+					[40, 4, 0.9, 0.0],  # 1: 減速
+					[1, 0, 0.0, 0.0],	# 2: 速度リセット
+					[25, 2, 0.0, -0.1], # 3: 上に移動
+					[20, 4, 0.95, 0.95], # 4: 上移動減速
+					[20, 0, 0.0, 0.0],	# 5: 速度リセット
+					[30, 2, 0.0, 0.075], # 3: 下に移動
+					[20, 4, 0.95, 0.95], # 4: 下移動減速
+					[1, 0, 0.0, 0.0],	# 5: 速度リセット
+					[120, 2, -0.05, 0.0]	#  5: 左に移動
+				]
+			],
+			[baseOffset + 4160, Armored1, 256, 60,
+				[
+					[20, 0, -2.0, 0.0],	# 0: 右から出現
+					[40, 4, 0.9, 0.0],  # 1: 減速
+					[1, 0, 0.0, 0.0],	# 2: 速度リセット
+					[25, 2, 0.0, 0.1], # 3: 下に移動
+					[20, 4, 0.95, 0.95], # 4: 下移動減速
+					[20, 0, 0.0, 0.0],	# 5: 速度リセット
+					[30, 2, 0.0, -0.075], # 3: 上に移動
+					[20, 4, 0.95, 0.95], # 4: 上移動減速
+					[1, 0, 0.0, 0.0],	# 5: 速度リセット
+					[120, 2, -0.05, 0.0]	#  5: 左に移動
+				]
+			],
+
+			[baseOffset + 4230, enemy.Jumper1, 256, 80, 0.1],
+			[baseOffset + 4260, enemy.Jumper1, 256, 80, 0.1],
+			[baseOffset + 4300, enemy.Jumper1, -16, 70, 0.1],
+			[baseOffset + 4330, enemy.Jumper1, -16, 60, 0.1],
+
+			[baseOffset + 4400, enemy.Jumper1, 256, 60, 0.1],
+			[baseOffset + 4600, enemy.Jumper1, -16, 70, 0.1],
+			# 4712上スクロール
+			[baseOffset + 4700, enemy.EnemyGroup, ContainerCarrier1,
+				[0, None, 188, 96,
+					[[50*8, 0, 1.0, 0.0]]
+				],
+				30, 5
+			],
+			[baseOffset + 4800, enemy.EnemyGroup, ContainerCarrier1,
+				[0, None, 218, 83,
+					[[50*8, 0, -1.0, 0.0]]
+				],
+				30, 9
+			],
+			[baseOffset + 4830, enemy.Jumper2, 90, -16, -0.075],
+			[baseOffset + 4850, enemy.Jumper2, 90, -16, -0.075],
+			[baseOffset + 4890, enemy.Jumper2, 150, -16, 0.075],
+			[baseOffset + 4910, enemy.Jumper2, 150, -16, 0.075],
+			[baseOffset + 4960, enemy.Jumper2, 90, -16, -0.075],
+			[baseOffset + 5020, enemy.Jumper2, 150, -16, 0.075],
+			[baseOffset + 5160, enemy.EnemyGroup, MovableBattery1, 
+				[0, None, 199, 61, 90,
+					[[80*8, 0, 0.0, 1.0]]
+				],
+				30, 3
+			],
+			[baseOffset + 5400, enemy.EnemyGroup, MovableBattery1, 
+				[0, None, 207, 77, 90,
+					[[80*8, 0, 0.0, -1.0]]
+				],
+				30, 3
+			],
+			[baseOffset + 5400, MovableBattery1, 219, 78, 60,
+				[[25*8, 0, 0.0, -1.0], [100*8, 0, 1.0, 0.0]]
+			],
+			# 5512右スクロール
+			[baseOffset + 5660, enemy.EnemyGroup, MovableBattery1, 
+				[0, None, 235, 61, 60,
+					[[16*8, 0, -1.0, 0.0], [100*8, 0, 0.0, -1.0]]
+				], 48, 2
+			],
+			[baseOffset + 5660, enemy.EnemyGroup, MovableBattery1, 
+				[0, None, 219, 42, 150,
+					[[11*8, 0, 0.0, 1.0], [100*8, 0, 1.0, 0.0]]
+				], 48, 2
+			],
+			# [baseOffset + 5860, MovableBattery1, 219, 71, 60,
+			# 	[[19*8, 0, 0.0, -1.0], [100*8, 0, 1.0, 0.0]]
+			# ],
+			[baseOffset + 5860, enemy.EnemyGroup, MovableBattery1, 
+				[0, None, 219, 71, 60,
+					[[10*8, 0, 0.0, -1.0], [30*8, 0, 1.0, 0.0], [100*8, 0, 0.0, -1.0], [100*8, 0, 1.0, 0.0]]
+				], 48, 2
+			],
+			[baseOffset + 6060, enemy.EnemyGroup, MovableBattery1, 
+				[0, None, 249, 42, 60,
+					[[11*8, 0, 0.0, 1.0], [100*8, 0, -1.0, 0.0]]
+				], 48, 2
+			],
+			[baseOffset + 6200, enemy.EnemyGroup, MovableBattery1, 
+				[0, None, 6+256, 200-128, 60,
+					[[11*8, 0, 0.0, -1.0], [100*8, 0, -1.0, 0.0]]
+				], 48, 3
+			],
+			[baseOffset + 6400, enemy.EnemyGroup, MovableBattery1, 
+				[0, None, 6+256, 170-128, 60,
+					[[100*8, 0, 0.0, 1.0]]
+				], 48, 3
+			],
+			[baseOffset + 6500, enemy.EnemyGroup, MovableBattery1, 
+				[0, None, 30+256, 170-128, 60,
+					[[11*8, 0, 0.0, 1.0], [100*8, 0, -1.0, 0.0]]
+				], 48, 3
+			],
+			[baseOffset + 6550, enemy.EnemyGroup, MovableBattery1, 
+				[0, None, 30+256, 200-128, 60,
+					[[11*8, 0, 0.0, -1.0], [100*8, 0, -1.0, 0.0]]
+				], 48, 3
+			],
+			[baseOffset + 6600, enemy.EnemyGroup, MovableBattery1, 
+				[0, None, 38+256, 170-128, 60,
+					[[11*8, 0, 0.0, 1.0], [100*8, 0, -1.0, 0.0]]
+				], 48, 3
+			],
+			[baseOffset + 6650, enemy.EnemyGroup, MovableBattery1, 
+				[0, None, 38+256, 200-128, 60,
+					[[11*8, 0, 0.0, -1.0], [100*8, 0, -1.0, 0.0]]
+				], 48, 3
+			],
+			[baseOffset + 7200, bossWarehouse.BossWarehouse],
 		]
 
 	@classmethod
