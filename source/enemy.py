@@ -189,8 +189,10 @@ class CountMover:
 		if item[1] == 5:
 			# 移動先座標指定
 			rad = math.atan2(item[3] -self.obj.y, item[2] -self.obj.x)
-			self.obj.x += math.cos(rad) * item[4]
-			self.obj.y += math.sin(rad) * item[4]
+			self.dx = math.cos(rad) * item[4]
+			self.dy = math.sin(rad) * item[4]
+			self.obj.x += self.dx
+			self.obj.y += self.dy
 			xx = item[2] -self.obj.x
 			yy = item[3] -self.obj.y
 			if math.sqrt(xx*xx + yy*yy) < item[4]:
@@ -202,29 +204,25 @@ class CountMover:
 				self.dy = item[3]
 				self.obj.x += self.dx
 				self.obj.y += self.dy
-				self.cnt += 1
 			elif item[1] == 1:
 				self.obj.layer = item[2]
-				self.cnt += 1
 			elif item[1] == 2:
 				self.obj.x += self.dx
 				self.obj.y += self.dy
 				self.dx += item[2]
 				self.dy += item[3]
-				self.cnt += 1
 			elif item[1] == 3:
 				self.obj.x += self.dx
 				self.obj.y += self.dy
-				self.cnt += 1
 			elif item[1] == 4:
 				self.obj.x += self.dx
 				self.obj.y += self.dy
 				self.dx *= item[2]
 				self.dy *= item[3]
-				self.cnt += 1
 			elif item[1] == -1:
 				# 停止
-				pass
+				self.dx = 0.0
+				self.dy = 0.0
 			else:
 				print("CountMover mode is invalid :" +str(item[1]))
 			self.cnt += 1

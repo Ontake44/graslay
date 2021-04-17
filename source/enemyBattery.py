@@ -22,6 +22,27 @@ class MovableBattery1(EnemyBase):
 		self.y = pos[1] + 3.5
 		self.firstShot = t[4]
 		self.moveTable = t[5]
+		if self.x <= -96 or self.x >= gcommon.SCREEN_MAX_X+96 or self.y <= -96 or self.y >= gcommon.SCREEN_MAX_Y+96:
+			self.remove()
+			gcommon.debugPrint("MovableBattery1 is ng start point (" +  str(self.mx) + ","+ str(self.my) +") (" + str(self.x) + "," + str(self.y)+"")
+			return
+		else:
+			gcommon.ObjMgr.addObj(MovableBattery1p(self.x, self.y, self.firstShot, self.moveTable))
+
+	def update(self):
+		pass
+
+# 倉庫内移動砲台
+# x, yは中心座標 t[2], t[3]はマップ座標
+class MovableBattery1p(EnemyBase):
+	lightTable = (0, 2, 4, 8, 8, 4, 2, 0)
+	spTable = (3, 2, 1, 0, -1, 0, 1, 2)
+	def __init__(self, x, y, firstShot, moveTable):
+		super(MovableBattery1p, self).__init__()
+		self.x = x
+		self.y = y
+		self.firstShot = firstShot
+		self.moveTable = moveTable
 		self.left = -11
 		self.top = -11
 		self.right = 11
@@ -50,9 +71,6 @@ class MovableBattery1(EnemyBase):
 		self.mover.update()
 		if self.x <= -96 or self.x >= gcommon.SCREEN_MAX_X+96 or self.y <= -96 or self.y >= gcommon.SCREEN_MAX_Y+96:
 			self.remove()
-			gcommon.debugPrint("remove Battery")
-			if self.cnt < 10:
-				gcommon.debugPrint("MovableBattery1 is ng start point (" +  str(self.mx) + ","+ str(self.my) +") (" + str(self.x) + "," + str(self.y)+"")
 			return
 		if self.firstShot == self.cnt or (self.cnt > self.firstShot and (self.cnt - self.firstShot) % self.shotInterval == 0):
 			if self.shotState == 0:
@@ -71,9 +89,9 @@ class MovableBattery1(EnemyBase):
 		n = (self.cnt>>2) % len(__class__.lightTable)
 		pyxel.pal(8, __class__.lightTable[n])
 		sp = __class__.spTable[self.shotState]
-		pyxel.blt(self.x -11.5, self.y -11.5, 2, 0, 0, 24, 24, 3)
+		pyxel.blt(gcommon.sint(self.x -11.5), gcommon.sint(self.y -11.5), 2, 0, 0, 24, 24, 3)
 		if sp >= 0:
-			pyxel.blt(self.x -11.5+4, self.y -11.5+4, 2, sp*16, 24, 16, 16)
+			pyxel.blt(gcommon.sint(self.x -11.5)+4, gcommon.sint(self.y -11.5)+4, 2, sp*16, 24, 16, 16)
 		pyxel.pal()
 
 # 武装なしのコンテナキャリアー
@@ -111,7 +129,7 @@ class ContainerCarrier1(EnemyBase):
 	def draw(self):
 		n = (self.cnt>>2) % len(__class__.lightTable)
 		pyxel.pal(8, __class__.lightTable[n])
-		pyxel.blt(self.x -11.5, self.y -11.5, 2, 24, 0, 24, 24, 3)
+		pyxel.blt(gcommon.sint(self.x -11.5), gcommon.sint(self.y -11.5), 2, 24, 0, 24, 24, 3)
 		pyxel.pal()
 
 # 牽引車

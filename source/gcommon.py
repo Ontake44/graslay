@@ -713,11 +713,11 @@ def getRadToShip(x, y, rad, omega):
 	rr = radNormalize(tempDr - rad)
 	if rr == 0.0:
 		pass
-	elif  rr > 0.0:
+	elif  rr > 0.0 and abs(rr) >= omega:
 		rad += omega
 		if rad >= math.pi*2:
 			rad -= math.pi*2
-	else:
+	elif abs(rr) >= omega:
 		rad -= omega
 		if rad <= 0.0:
 			rad += math.pi*2
@@ -750,7 +750,7 @@ def get_atan_to_ship2(x, y, offsetdr):
 		return get_atan(x, y, ObjMgr.myShip.x +8, ObjMgr.myShip.y+8, offsetdr)
 
 def get_atan_rad_to_ship(x, y):
-	return math.atan2(ObjMgr.myShip.y -y, ObjMgr.myShip.x -x)
+	return math.atan2(ObjMgr.myShip.y +8 -y, ObjMgr.myShip.x +8 -x)
 
 # r1からみて、r2が右側(-1)か左側(1)のどちらかを返す
 def get_leftOrRight(r1, r2):
@@ -1695,7 +1695,7 @@ def sint(n):
 	if n > 0:
 		return int(n)
 	else:
-		return int(n -0.5)
+		return int(n -1.0)
 
 def debugPrint(s):
 	if DebugMode:

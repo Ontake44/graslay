@@ -5,6 +5,7 @@ import gcommon
 import enemy
 import boss
 import enemyShot
+import enemyBattery
 
 bossWarehouseOutline = [
 	#[18,-1],[41, -1], [52, 10], [52, 31], [41, 42], [18, 42], [7, 30], [7, 10]
@@ -86,31 +87,59 @@ bossWarehouseGun6 = [
 	[4, 24], [13, 24]
 ]
 
+# clr = 6
+bossWarehouseGunUpper0 = [
+	[21, 11], [25, 11], [31, 17], [18, 16]
+]
+# clr = 5
+bossWarehouseGunUpper1 = [
+	[18, 25], [31, 24], [25, 30], [21, 30]
+]
+# clr = 1
+bossWarehouseGunUpper2 = [
+	[21, 11], [22, 18], [22, 23], [21, 30], [18, 25], [18, 16]
+]
+
+# clr = 1
+bossWarehouse4shot0 = [
+	[0, 0], [7, 0], [7, 7], [0, 7]
+]
+# clr = 5
+bossWarehouse4shot1 = [
+	[1, 1], [6, 1], [6, 6], [1, 6]
+]
+# clr = 6
+bossWarehouse4shot2 = [
+	[1, 4], [6, 4], [6, 6], [1, 6]
+]
+
 class BossWarehouse(enemy.EnemyBase):
 	moveTable = [
 		[0, 5, 150, 95.5, 0.5], 	# 0 前進
-		[30, -1],					# 1
+		[50, -1],					# 1 砲台射出
 		[0, 5, 200, 95.5, 0.5], 	# 2 後ろに下がる
 		[120, -1],					# 3 射撃
 		[0, 5, 150, 95.5 -64, 0.5],	# 4 前方上
-		[120, -1],					# 5
+		[120, -1],					# 5 砲台射出
 		[0, 5, 200, 95.5 -64, 0.5],	# 6 後方上
 		[120, -1],					# 7 射撃
 		[0, 5, 150, 95.5+64, 0.5],	# 8 前方下
-		[120, -1],					# 9
+		[120, -1],					# 9 砲台射出
 		[0, 5, 200, 95.5+64, 0.5],	# 10 後方下
 		[120, -1],					# 11 射撃
 	]
+	pos4rads = [math.pi/5.0, -math.pi/5.0, math.pi -math.pi/5.0, math.pi +math.pi/5.0]
+	shot4poss = [[-6, -16], [10, -16], [-6, 16], [10, 16]]
 	def __init__(self, t):
 		super(BossWarehouse, self).__init__()
 		self.x = 256 + 48
 		self.y = 95.5	#95.5
-		self.layer = gcommon.C_LAYER_SKY
-		self.left = 27
-		self.top = 8
-		self.right = 87
-		self.bottom = 45
-		self.hp = boss.BOSS_FACTORY_HP
+		self.layer = gcommon.C_LAYER_GRD | gcommon.C_LAYER_SKY
+		self.left = -36
+		self.top = -44
+		self.right = 64
+		self.bottom = 44
+		self.hp = boss.BOSS_WAREHOUSE_HP
 		self.score = 15000
 		self.subState = 0
 		self.subCnt = 0
@@ -137,38 +166,105 @@ class BossWarehouse(enemy.EnemyBase):
 		self.polygonList.append(gcommon.Polygon(bossWarehouseGun4, 12))
 		self.polygonList.append(gcommon.Polygon(bossWarehouseGun5, 7, False))
 		self.polygonList.append(gcommon.Polygon(bossWarehouseGun6, 7, False))
+		self.polygonList.append(gcommon.Polygon(bossWarehouseGunUpper0, 6))
+		self.polygonList.append(gcommon.Polygon(bossWarehouseGunUpper1, 5))
+		self.polygonList.append(gcommon.Polygon(bossWarehouseGunUpper2, 1))
+
+		self.polygonList4shot = []
+		self.polygonList4shot.append(gcommon.Polygon(bossWarehouse4shot0, 1))
+		self.polygonList4shot.append(gcommon.Polygon(bossWarehouse4shot1, 5))
+		self.polygonList4shot.append(gcommon.Polygon(bossWarehouse4shot2, 6))
 		self.xpolygonsList = []
+		self.xpolygons4shotList = []
 		self.gunRad = math.pi
 		self.gun_cx = self.x + 20.0
 		self.gun_cy = self.y
+		self.wheelCnt = 0
 
 	def update(self):
 		self.countMover.update()
 		self.gun_cx = self.x + 20.0
 		self.gun_cy = self.y
 		self.subCnt += 1
-		if self.countMover.tableIndex in (2, 6, 10):
+		if abs(self.countMover.dx) > 0.025 or abs(self.countMover.dy) > 0.025:
+			self.wheelCnt += 1
+		if self.countMover.tableIndex in (2, 4, 6, 8, 10):
 			self.gunRad = gcommon.getRadToShip(self.x, self.y, self.gunRad +math.pi, math.pi/60) - math.pi
-		if self.countMover.tableIndex in (3, 7, 11):
+		elif self.countMover.tableIndex in (1, 3, 5, 7, 9, 11):
 			self.shotMainState()
+		if self.countMover.tableIndex == 1:
+			if self.countMover.cnt % 45 == 0:
+				gcommon.ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[100*8, 0, -1.0, 0.0]]))
+		elif self.countMover.tableIndex == 5:
+			if self.countMover.cnt % 45 == 0:
+				gcommon.ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[0, 5, 44, self.y, 1.0],[100*8, 0, 0.0, 1.0]]))
+		elif self.countMover.tableIndex == 9:
+			if self.countMover.cnt % 45 == 0:
+				gcommon.ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[0, 5, 44, self.y, 1.0],[100*8, 0, 0.0, -1.0]]))
 		self.xpolygonsList = []
 		self.xpolygonsList.append(gcommon.getAnglePolygons([self.x + 20.0, self.y],
 			self.polygonList, [27.5, 19.5], self.gunRad))
+
+		self.xpolygons4shotList = []
+		self.xpolygons4shotList.append(gcommon.getAnglePolygons([self.x + 20.0, self.y],
+			self.polygonList4shot, [6, 18], self.gunRad))
+		self.xpolygons4shotList.append(gcommon.getAnglePolygons([self.x + 20.0, self.y],
+			self.polygonList4shot, [-6, 18], self.gunRad))
+
 		#self.gunRad += math.pi/360
-		if self.cnt % 45 == 0:
-			self.shot4directions()
+		#if self.cnt % 45 == 0:
+		#	self.shot4directions()
 
 	def draw(self):
-		pyxel.blt(self.x -48, self.y -51.5, 2, 136, 0, 120, 104, 3)
-		for polygons in self.xpolygonsList:
-			gcommon.drawPolygons(polygons)
+		pass
+
+	def drawLayer(self, layer):
+		if (layer & gcommon.C_LAYER_GRD) != 0:
+			# 車輪
+			n = (self.wheelCnt>>2) & 3
+			pyxel.blt(self.x -16 -16, gcommon.sint(self.y +36 -16), 2, 128 +n*32, 144, 32, 32, 0)
+			pyxel.blt(self.x -16 -16, gcommon.sint(self.y -36 -16), 2, 128 +(3-n)*32, 144, 32, 32, 0)
+			pyxel.blt(self.x +56 -16, gcommon.sint(self.y +36 -16), 2, 128 +n*32, 144, 32, 32, 0)
+			pyxel.blt(self.x +56 -16, gcommon.sint(self.y -36 -16), 2, 128 +(3-n)*32, 144, 32, 32, 0)
+			
+			pyxel.blt(self.x -48, gcommon.sint(self.y -51.5), 2, 136, 0, 120, 104, 3)
+
+
+		elif (layer & gcommon.C_LAYER_SKY) != 0:
+			pyxel.blt(self.x -48 +24, gcommon.sint(self.y -51.5) +32, 2, 136, 104, 40, 40)
+			for polygons in self.xpolygonsList:
+				gcommon.drawPolygons(polygons)
+
+			#for polygons in self.xpolygons4shotList:
+			#	gcommon.drawPolygons(polygons)
+
+			#pos = gcommon.getAngle(-12, -12, self.gunRad)
+			#pyxel.blt(self.gun_cx -3.5 +pos[0], self.gun_cy -3.5 + pos[1], 2, 176, 104, 8, 8, 3)
+
+			# for p in __class__.shot4poss:
+			# 	pos = gcommon.getAngle(p[0], p[1], self.gunRad)
+			# 	pyxel.blt(self.gun_cx + pos[0] -3.5,
+			# 			self.gun_cy + pos[1] -3.5,
+			# 			2, 176, 104, 8, 8, 3)
+
+
+	def broken(self):
+		self.remove()
+		enemy.removeEnemyShot()
+		gcommon.ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
+		gcommon.GameSession.addScore(self.score)
+		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
+		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,5], 240))
 
 	def shotMainState(self):
 		if self.countMover.cnt > 30 and self.countMover.cnt < 120 and self.countMover.cnt % 10 == 0:
 			self.shotMain()
-		if self.countMover.cnt >= 60 and self.countMover.cnt % 8 == 0:
-			enemy.enemy_shot_rad(self.gun_cx, self.gun_cy, 3.5, 0, self.gunRad + math.pi  - ( 125 -self.countMover.cnt) * math.pi/180)
-			enemy.enemy_shot_rad(self.gun_cx, self.gun_cy, 3.5, 0, self.gunRad + math.pi  + ( 125 -self.countMover.cnt) * math.pi/180)
+		if self.countMover.cnt >= 60 and self.countMover.cnt % 6 == 0:
+			px = self.gun_cx - 8.0 * math.cos(self.gunRad)
+			py = self.gun_cy - 8.0 * math.sin(self.gunRad)
+			enemy.enemy_shot_rad(px, py, 3.5, 0, self.gunRad + math.pi  - ( 125 -self.countMover.cnt) * math.pi/180)
+			enemy.enemy_shot_rad(px, py, 3.5, 0, self.gunRad + math.pi  + ( 125 -self.countMover.cnt) * math.pi/180)
 
 	def shotMain(self):
 		r = self.gunRad + math.pi
@@ -181,7 +277,5 @@ class BossWarehouse(enemy.EnemyBase):
 
 
 	def shot4directions(self):
-		r = math.pi/4.0
-		for i in range(4):
+		for r in __class__.pos4rads:
 			enemy.enemy_shot_rad(self.gun_cx + math.cos(self.gunRad + r) * 16, self.gun_cy + math.sin(self.gunRad +r) * 16, 3, 0, self.gunRad + r)
-			r += math.pi/2

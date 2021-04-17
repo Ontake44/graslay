@@ -16,7 +16,7 @@ BOSS_LAST_1 = 2000
 BOSS_LAST_2 = 4000
 BOSS_LAST_3 = 7000
 BOSS_LAST_CORE_HP = 1200
-
+BOSS_WAREHOUSE_HP = 7000
 
 # def remove_all_battery():
 # 	for obj in gcommon.ObjMgr.objs:

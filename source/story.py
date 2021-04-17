@@ -300,7 +300,7 @@ class Story:
 			[baseOffset + 3100, MovableBattery1, 101, 96, 60,
 				[[16*8, 0, 1.0, 0.0], [80*8, 0, 0.0, 1.0]]
 			],
-			[baseOffset + 3100, MovableBattery1, 135, 96, 60,
+			[baseOffset + 3160, MovableBattery1, 135, 96, 60,
 				[[12*8, 0, -1.0, 0.0], [80*8, 0, 0.0, 1.0]]
 			],
 			[baseOffset + 3360, MovableBattery1, 101, 96, 180,
