@@ -143,8 +143,8 @@ class BossWarehouse(enemy.EnemyBase):
 		self.score = 15000
 		self.subState = 0
 		self.subCnt = 0
-		self.hitcolor1 = 9
-		self.hitcolor2 = 10
+		self.hitcolor1 = 12
+		self.hitcolor2 = 6
 		self.ground = True
 		self.shotHitCheck = True	# 自機弾との当たり判定
 		self.hitCheck = True	# 自機と敵との当たり判定
@@ -221,7 +221,7 @@ class BossWarehouse(enemy.EnemyBase):
 	def drawLayer(self, layer):
 		if (layer & gcommon.C_LAYER_GRD) != 0:
 			# 車輪
-			n = (self.wheelCnt>>2) & 3
+			n = (self.wheelCnt>>1) & 3
 			pyxel.blt(self.x -16 -16, gcommon.sint(self.y +36 -16), 2, 128 +n*32, 144, 32, 32, 0)
 			pyxel.blt(self.x -16 -16, gcommon.sint(self.y -36 -16), 2, 128 +(3-n)*32, 144, 32, 32, 0)
 			pyxel.blt(self.x +56 -16, gcommon.sint(self.y +36 -16), 2, 128 +n*32, 144, 32, 32, 0)
