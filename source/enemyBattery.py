@@ -10,6 +10,7 @@ from enemy import CountMover
 
 # 倉庫内移動砲台
 # x, yは中心座標 t[2], t[3]はマップ座標
+# このクラスは生成用で、実際に画面上で動作するのはMovableBattery1p
 class MovableBattery1(EnemyBase):
 	lightTable = (0, 2, 4, 8, 8, 4, 2, 0)
 	spTable = (3, 2, 1, 0, -1, 0, 1, 2)
@@ -23,11 +24,10 @@ class MovableBattery1(EnemyBase):
 		self.firstShot = t[4]
 		self.moveTable = t[5]
 		if self.x <= -96 or self.x >= gcommon.SCREEN_MAX_X+96 or self.y <= -96 or self.y >= gcommon.SCREEN_MAX_Y+96:
-			self.remove()
 			gcommon.debugPrint("MovableBattery1 is ng start point (" +  str(self.mx) + ","+ str(self.my) +") (" + str(self.x) + "," + str(self.y)+"")
-			return
 		else:
 			gcommon.ObjMgr.addObj(MovableBattery1p(self.x, self.y, self.firstShot, self.moveTable))
+		self.remove()
 
 	def update(self):
 		pass
@@ -72,6 +72,7 @@ class MovableBattery1p(EnemyBase):
 	def update(self):
 		self.mover.update()
 		if self.x <= -96 or self.x >= gcommon.SCREEN_MAX_X+96 or self.y <= -96 or self.y >= gcommon.SCREEN_MAX_Y+96:
+			#gcommon.debugPrint("remove MovableBattery1p")
 			self.remove()
 			return
 		if self.firstShot == self.cnt or (self.cnt > self.firstShot and (self.cnt - self.firstShot) % self.shotInterval == 0):
