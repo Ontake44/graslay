@@ -1050,9 +1050,6 @@ class MyMissileB1(MyShotBase):
 			if gcommon.isMapFreePos(self.x, self.y) == False:
 				self.remove()
 
-	def hit(self, obj, brokenFlag):
-		pass
-
 	def draw(self):
 		if abs(self.dy) > 5:
 			pyxel.blt(self.x -3.5, self.y -3.5, 0, 128, 0, 8, 8 if self.isUpper else -8, gcommon.TP_COLOR)
