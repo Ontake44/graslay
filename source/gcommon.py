@@ -10,7 +10,7 @@ import pygame.mixer
 import item
 from enum import Enum
 
-VERSION = "1.10"
+VERSION = "1.11"
 START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 
 DIFFICULTY_EASY = 0
