@@ -341,7 +341,7 @@ class MyShipA(MyShipBase):
 class MyShipB(MyShipBase):
 	missileCycles = (10, 10, 20, 10)
 	def __init__(self, parent):
-		self.posLate = 8
+		self.posLate = 12
 		self.posList = []
 		for i in range(gcommon.GameSession.multipleCount * self.posLate):
 			self.posList.append(Pos.create(0 ,0))
