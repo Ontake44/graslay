@@ -30,7 +30,8 @@ from mapDraw import MapDraw3
 from mapDraw import MapDraw4
 from mapDraw import MapDrawFactory
 from mapDraw import MapDrawLast
-
+import stage
+import stageSelect
 
 #  ゲームオーバー
 #
@@ -75,7 +76,9 @@ class StageClear:
 	def update(self):
 		self.cnt+=1
 		if self.cnt > 5*60:
-			gcommon.app.startStage(self.stage+1)
+			stageManager = stage.StageManager()
+			stageList = stageManager.findNextStageList(self.stage)
+			gcommon.app.startStage(stageList[0].stage)
 	
 	def draw(self):
 		pyxel.rect(0,0,255,255,0)
@@ -233,7 +236,8 @@ class MainGame:
 		self.initStageRouteA()
 
 	def initStageRouteA(self):
-		if self.stage == 1:
+		gcommon.breakableMapData = False
+		if self.stage == "1":
 			#pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay1.png")
 			self.mapOffsetX = 0
@@ -248,7 +252,7 @@ class MainGame:
 			if self.restart or gcommon.GameSession.gameMode == gcommon.GAMEMODE_CUSTOM:
 				# 初期スタートは発艦時にBGM開始されているので、BGM流すのはリスタート・カスタム時だけ
 				gcommon.BGM.play(gcommon.BGM.STAGE1)
-		elif self.stage == 2:
+		elif self.stage == "2A":
 			#pyxel.load("assets/graslay_dangeon22.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay2.png")
 			self.mapOffsetX = 0
@@ -258,7 +262,7 @@ class MainGame:
 			gcommon.eshot_sync_scroll = False
 			loadMapData(0, "assets/graslay2.pyxmap")
 			loadMapAttribute("assets/graslay2.mapatr")
-		elif self.stage == 3:
+		elif self.stage == "3B":
 			# 倉庫
 			pyxel.image(1).load(0,0,"assets/stage_warehouse.png")
 			pyxel.image(2).load(0,0,"assets/stage_warehouse-2.png")
@@ -274,7 +278,7 @@ class MainGame:
 			pyxel.tilemap(2).refimg = 1
 			pyxel.tilemap(7).refimg = 1  # background
 			loadMapAttribute("assets/stage_warehouse.mapatr")
-		elif self.stage == 4:
+		elif self.stage == "3A":
 			# 高速スクロール
 			pyxel.image(1).load(0,0,"assets/graslay3.png")
 			self.mapOffsetX = 0
@@ -282,13 +286,14 @@ class MainGame:
 			gcommon.long_map = True
 			gcommon.draw_star = True
 			gcommon.eshot_sync_scroll = True
+			gcommon.breakableMapData = True
 			loadMapData(0, "assets/graslay3-0.pyxmap")
 			loadMapData(1, "assets/graslay3-1.pyxmap")
 			loadMapData(2, "assets/graslay3b.pyxmap")
 			loadMapAttribute("assets/graslay3.mapatr")
 			pyxel.tilemap(1).refimg = 1
 			pyxel.tilemap(2).refimg = 1
-		elif self.stage == 5:
+		elif self.stage == "4A":
 			# 遺跡
 			pyxel.image(1).load(0,0,"assets/graslay4.png")
 			self.mapOffsetX = 0
@@ -300,7 +305,7 @@ class MainGame:
 			loadMapData(1, "assets/graslay4b.pyxmap")
 			loadMapAttribute("assets/graslay4.mapatr")
 			pyxel.tilemap(1).refimg = 1
-		elif self.stage == 6:
+		elif self.stage == "5A":
 			# ファクトリー
 			pyxel.image(1).load(0,0,"assets/graslay_factory.png")
 			pyxel.image(2).load(0,0,"assets/graslay_factory-2.png")
@@ -313,7 +318,7 @@ class MainGame:
 			loadMapData(1, "assets/graslay_factoryb.pyxmap")
 			loadMapAttribute("assets/graslay_factory.mapatr")
 			pyxel.tilemap(1).refimg = 1
-		elif self.stage == 7:
+		elif self.stage == "6A":
 			# 最終ステージ
 			pyxel.image(1).load(0,0,"assets/graslay_last.png")
 			pyxel.image(2).load(0,0,"assets/graslay_last-1.png")
@@ -766,19 +771,19 @@ class MainGame:
 		gcommon.sound(gcommon.SOUND_LARGE_EXP, gcommon.SOUND_CH1)
 
 	def initEvent(self):
-		if self.stage == 1:
+		if self.stage == "1":
 			self.initEvent1()
-		elif self.stage == 2:
+		elif self.stage == "2A":
 			self.initEvent2()
-		elif self.stage == 3:
-			self.initEventWarehouse()
-		elif self.stage == 4:
+		elif self.stage == "3A":
 			self.initEvent3()
-		elif self.stage == 5:
+		elif self.stage == "3B":
+			self.initEventWarehouse()
+		elif self.stage == "4A":
 			self.initEvent4()
-		elif self.stage == 6:
+		elif self.stage == "5A":
 			self.initEventFactory()
-		elif self.stage == 7:
+		elif self.stage == "6A":
 			self.initEventLast()
 	
 	def initEvent1(self):
@@ -865,19 +870,19 @@ class MainGame:
 		]
 
 	def initStory(self):
-		if self.stage == 1:
+		if self.stage == "1":
 			self.story = story.Story.getStory1()
-		elif self.stage == 2:
+		elif self.stage == "2A":
 			self.story = story.Story.getStory2()
-		elif self.stage == 3:
-			self.story = story.Story.getStoryWarehouse()
-		elif self.stage == 4:
+		elif self.stage == "3A":
 			self.story = story.Story.getStory3()
-		elif self.stage == 5:
+		elif self.stage == "3B":
+			self.story = story.Story.getStoryWarehouse()
+		elif self.stage == "4A":
 			self.story = story.Story.getStory4()
-		elif self.stage == 6:
+		elif self.stage == "5A":
 			self.story = story.Story.getStoryFactory()
-		elif self.stage == 7:
+		elif self.stage == "6A":
 			self.story = story.Story.getStoryLast()
 
 
@@ -946,7 +951,7 @@ class App:
 		self.nextScene = nextScene
 
 	def startNormalGame(self, difficulty):
-		self.stage = 1
+		self.stage = "1"
 		#print("Difficulty : " + str(difficulty))
 		gcommon.Settings.difficulty = difficulty
 		gcommon.saveSettings()
@@ -961,9 +966,13 @@ class App:
 		#self.setScene(ending.EndingScene())
 
 	def startMainGame(self):
-		self.setScene(MainGame(1))
+		self.setScene(MainGame("1"))
 
 	def startCustomGame(self):
+		# debug
+		#stageManager = stage.StageManager()
+		#stageList = stageManager.findStage("3B")
+
 		#print("Difficulty : " + str(difficulty))
 		if gcommon.CustomNormal:
 			# カスタムでも通常にしたい場合（デバッグ）
@@ -985,13 +994,21 @@ class App:
 	def restartStage(self):
 		self.setScene(MainGame(self.stage, True))
 
-	def startNextStage(self):
-		if self.stage == 6:
-			gcommon.GameSession.stage = -1
+	def selectNextStage(self):
+		stageManager = stage.StageManager()
+		gcommon.debugPrint("selectNextStage " + self.stage)
+		stageList = stageManager.findNextStageList(self.stage)
+		if stageList == None:
+			gcommon.debugPrint("next stageList is None")
+			gcommon.GameSession.stage = "-1"
 			self.startEnding()
 		else:
-			self.startStage(self.stage +1)
-		
+			#self.startStage(stageList[0].stage)
+			self.setScene(stageSelect.StageSelectScene(self, self.stage, None))
+
+	def startNextStage(self, stage):
+		self.startStage(stage)
+
 	def startGameOver(self):
 		self.setScene(GameOver())
 
@@ -1025,6 +1042,7 @@ class App:
 
 	def startOption(self):
 		self.setScene(OptionMenuScene())
+		#self.setScene(stageSelect.StageSelectScene(self, "2A", {"1", "2A"}))
 
 	def startScoreRanking(self, exitTo):
 		self.setScene(ranking.RankingDispScene(exitTo))

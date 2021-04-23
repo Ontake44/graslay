@@ -26,7 +26,7 @@ class WeaponType:
 difficultyText = (" EASY ", "NORMAL", " HARD ")
 
 class Defaults:
-	INIT_START_STAGE = 1
+	INIT_START_STAGE = "1"
 	INIT_WEAPON_TYPE = WeaponType.TYPE_A
 	# 残機
 	INIT_PLAYER_STOCK = 3
@@ -241,6 +241,8 @@ eshot_sync_scroll = False
 
 long_map = False
 
+breakableMapData = False
+
 # 現在未使用（パワーアップ無いので）
 #power = START_MY_POWER
 
@@ -286,11 +288,11 @@ class GameSession:
 
 	@classmethod
 	def initNormal(cls, difficulty):
-		__class__.init(difficulty, Defaults.INIT_PLAYER_STOCK, GAMEMODE_NORMAL, 1, Settings.credits)
+		__class__.init(difficulty, Defaults.INIT_PLAYER_STOCK, GAMEMODE_NORMAL, "1", Settings.credits)
 
 	@classmethod
 	def init(cls, difficulty, playerStock, gameMode, stage, credits):
-		__class__.difficulty = difficulty
+		cls.difficulty = difficulty
 		__class__.playerStock = playerStock
 		__class__.score = 0
 		__class__.scoreCheck = 0
@@ -401,7 +403,8 @@ class BGM:
 		[1.0, "idola_cell.mp3"],
 		[0.6, "Fireworks.mp3"],
 		[0.5, "Dream_Fantasy.mp3"],		#"Runners_High.mp3"
-		[1.0, "with_silence.mp3"]
+		[1.0, "with_silence.mp3"],
+		[0.6, "Runners_High.mp3"]
 	] 
 
 	STAGE1 = 0		#"Dream_Fantasy.mp3"
@@ -421,6 +424,7 @@ class BGM:
 	ENDING = 13
 	LAUNCH = 14
 	RANKING = 15
+	STAGE_SELECT = 16
 
 	@classmethod
 	def getBgm(cls, no):
@@ -602,7 +606,7 @@ def loadSettings():
 		settingsPath = os.path.join(os.path.expanduser("~"), SETTINGS_FILE)
 
 		playerStock = 3
-		startStage = 1
+		startStage = "1"
 		bgmVol = 6
 		soundVol = 10
 		mouseEnabled = "1"
@@ -990,6 +994,11 @@ class ObjMgr:
 	def drawDrawMap2(cls):
 		if cls.drawMap != None:
 			cls.drawMap.draw2()
+
+	@classmethod
+	def debugListObj(cls):
+		for obj in cls.objs:
+			print(obj)
 
 def bltStripe(x, y, img, u, v, w, h, col, p):
 	for yy in range(p, h, 2):

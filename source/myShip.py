@@ -488,7 +488,7 @@ class MyShipB(MyShipBase):
 # return True: 消えた False:消えてない
 def checkShotMapCollision(obj, px, py):
 	no = gcommon.getMapData(px, py)
-	if gcommon.app.stage == 4:
+	if gcommon.breakableMapData:
 		if no in (4, 5, 6):
 			obj.remove()
 			gcommon.setMapData(px, py, 0)
@@ -501,7 +501,7 @@ def checkShotMapCollision(obj, px, py):
 # return True: 壁 False:壁じゃない
 def checkShotMapCollisionPerfonate(px, py):
 	no = gcommon.getMapData(px, py)
-	if gcommon.app.stage == 4:
+	if gcommon.breakableMapData:
 		if no in (4, 5, 6):
 			gcommon.setMapData(px, py, 0)
 			return False
@@ -1049,9 +1049,6 @@ class MyMissileB1(MyShotBase):
 				self.dy *= 1.05
 			if gcommon.isMapFreePos(self.x, self.y) == False:
 				self.remove()
-
-	def hit(self, obj, brokenFlag):
-		pass
 
 	def draw(self):
 		if abs(self.dy) > 5:

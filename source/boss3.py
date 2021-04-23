@@ -288,7 +288,7 @@ class Boss3(enemy.EnemyBase):
 		gcommon.ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self.body), gcommon.getCenterY(self.body), gcommon.C_LAYER_EXP_SKY))
 		gcommon.GameSession.addScore(self.score)
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
-		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,3], 240))
+		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"3A"], 240))
 
 class Boss3Shot(enemy.EnemyBase):
 	# x,y 弾の中心を指定

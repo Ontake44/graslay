@@ -1084,7 +1084,7 @@ class BossLast1Core(enemy.EnemyBase):
 		self.remove()
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		gcommon.ObjMgr.addObj(enemy.Delay(enemy.StageClear, [0,0,6], 240))
+		gcommon.ObjMgr.addObj(enemy.Delay(enemy.StageClear, [0,0,"6"], 240))
 
 # ぐるぐる螺旋ビーム
 class BossLastRoundBeam(enemy.EnemyBase):

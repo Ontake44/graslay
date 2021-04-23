@@ -234,7 +234,7 @@ class Boss1(enemy.EnemyBase):
 		self.remove()
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,1], 240))
+		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"1"], 240))
 
 
 # 波動砲発射前の、あの吸い込むようなやつ

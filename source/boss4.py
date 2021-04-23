@@ -206,5 +206,5 @@ class Boss4(enemy.EnemyBase):
 		gcommon.GameSession.addScore(self.score)
 		gcommon.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,4], 240))
+		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"4A"], 240))
 

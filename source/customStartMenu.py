@@ -12,6 +12,8 @@ MENU_VALUE_X = 172
 START_X = 80
 
 class CustomStartMenuScene:
+	# とりあえずのステージ選択
+	stageList = ["1", "2A", "3A", "3B", "4A", "5A", "6A"]
 	def __init__(self):
 		self.star_pos = 0
 		oy = 16
@@ -21,6 +23,7 @@ class CustomStartMenuScene:
 		self.cnt = 0
 		self.mouseManager = gcommon.MouseManager()
 		self.difficulty = gcommon.Settings.difficulty
+		self.stageIndex = 0
 		self.menuRects = []
 		for y in self.menuYList:
 			self.menuRects.append(gcommon.Rect.create(
@@ -98,14 +101,14 @@ class CustomStartMenuScene:
 					n = gcommon.checkMouseMenuPos(self.startStageRects)
 				if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
 					gcommon.sound(gcommon.SOUND_MENUMOVE)
-					gcommon.Settings.startStage += 1
-					if gcommon.Settings.startStage > 6:
-						gcommon.Settings.startStage = 6
+					self.stageIndex += 1
+					if self.stageIndex >= len(__class__.stageList):
+						self.stageIndex = len(__class__.stageList) -1
 				elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
 					gcommon.sound(gcommon.SOUND_MENUMOVE)
-					gcommon.Settings.startStage -= 1
-					if gcommon.Settings.startStage < 1:
-						gcommon.Settings.startStage = 1
+					self.stageIndex -= 1
+					if self.stageIndex < 0:
+						self.stageIndex = 0
 
 			elif self.menuPos == MENU_WEAPON_TYPE:
 				n = -1
@@ -160,6 +163,7 @@ class CustomStartMenuScene:
 		else:
 			# GAME START
 			if self.cnt > 40:
+				gcommon.Settings.startStage = __class__.stageList[self.stageIndex]
 				gcommon.app.startCustomGame()
 		self.cnt += 1
 
@@ -201,9 +205,9 @@ class CustomStartMenuScene:
 		idx += 1
 		self.setOptionColor(MENU_START_STAGE)
 		gcommon.showText(x1, self.menuYList[MENU_START_STAGE], "START STAGE")
-		gcommon.showText(x2, self.menuYList[MENU_START_STAGE], str(gcommon.Settings.startStage).rjust(2))
+		gcommon.showText(x2, self.menuYList[MENU_START_STAGE], __class__.stageList[self.stageIndex])
 		if MENU_START_STAGE == self.menuPos:
-			gcommon.drawUpDownMarker2(x2 -10, self.menuYList[MENU_START_STAGE], 1, 6, gcommon.Settings.startStage)
+			gcommon.drawUpDownMarker2(x2 -10, self.menuYList[MENU_START_STAGE], 0, len(__class__.stageList)-1, self.stageIndex)
 		idx += 1
 
 		text = gcommon.difficultyText[self.difficulty] + " START"

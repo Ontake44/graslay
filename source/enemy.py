@@ -740,25 +740,25 @@ def drawBattery1(x, y, mirror):
 		elif dr8 == 7:
 			pyxel.blt(x, y, 1, 16, 96, -16, -16, gcommon.TP_COLOR)
 
-class StageClearText(EnemyBase):
-	def __init__(self, stage):
-		super(StageClearText, self).__init__()
-		self.x = 0
-		self.y = 0
-		self.stage = stage
-		self.left = 0
-		self.top = 0
-		self.right = 0
-		self.bottom = 0
-		self.layer = gcommon.C_LAYER_TEXT
+# class StageClearText(EnemyBase):
+# 	def __init__(self, stage):
+# 		super(StageClearText, self).__init__()
+# 		self.x = 0
+# 		self.y = 0
+# 		self.stage = stage
+# 		self.left = 0
+# 		self.top = 0
+# 		self.right = 0
+# 		self.bottom = 0
+# 		self.layer = gcommon.C_LAYER_TEXT
 
-	def update(self):
-		pass
+# 	def update(self):
+# 		pass
 
-	def draw(self):
-		pyxel.blt(127-16*5/2, 90, 0, 0, 240, 80, 16, gcommon.TP_COLOR)
-		pyxel.blt(127-16/2, 114, 0, 146+ (self.stage -1)*16, 176, 16, 16, gcommon.TP_COLOR)
-		pyxel.blt(127-16*5/2, 138, 0, 80, 240, 80, 16, gcommon.TP_COLOR)
+# 	def draw(self):
+# 		pyxel.blt(127-16*5/2, 90, 0, 0, 240, 80, 16, gcommon.TP_COLOR)
+# 		pyxel.blt(127-16/2, 114, 0, 146+ (self.stage -1)*16, 176, 16, 16, gcommon.TP_COLOR)
+# 		pyxel.blt(127-16*5/2, 138, 0, 80, 240, 80, 16, gcommon.TP_COLOR)
 
 
 # class Splash(EnemyBase):
@@ -1733,8 +1733,8 @@ class StageClear(EnemyBase):
 		self.y = 90
 		self.hitCheck = False
 		self.shotHitCheck = False
-		self.stageNo = t[2]
-		self.text = "STAGE " + str(self.stageNo) + " CLEAR"
+		self.stage = t[2]
+		self.text = "STAGE " + self.stage + " CLEAR"
 		gcommon.BGM.playOnce(gcommon.BGM.STAGE_CLEAR)
 		gcommon.ObjMgr.myShip.setSubScene(5)
 
@@ -1746,10 +1746,10 @@ class StageClear(EnemyBase):
 		elif self.state == 1:
 			if self.cnt > 180:
 				self.remove()
-				gcommon.app.startNextStage()
+				gcommon.app.selectNextStage()
 
 	def draw(self):
-		if self.stageNo != 6:
+		if self.stage != "6":
 			gcommon.showText(self.x, self.y, self.text)
 
 class FixedShutter1(EnemyBase):
