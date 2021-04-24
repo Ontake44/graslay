@@ -26,7 +26,7 @@ class StageSelectScene:
         self.clearedMap = clearedMap
         if self.clearedMap == None:
             self.clearedMap = {}
-        self.stageManager = stage.StageManager()
+        self.stageManager = stage.StageLinkManager()
         self.nextStageList = self.stageManager.findNextStageList(self.currentStage)
         self.currentStageInfo = self.stageManager.findStage(self.currentStage)
         self.currentIndex = 0

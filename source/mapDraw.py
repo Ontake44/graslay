@@ -18,6 +18,20 @@ def doMapCharacter(n, mx, my):
 	else:
 		return False
 
+class MapData:
+	@classmethod
+	def loadMapData(cls, tm, fileName):
+		mapFile = open(gcommon.resource_path(fileName), mode = "r")
+		lines = mapFile.readlines()
+		mapFile.close()
+		pyxel.tilemap(tm).set(0, 0, lines)
+
+	@classmethod
+	def loadMapAttribute(cls, fileName):
+		attrFile = open(gcommon.resource_path(fileName), mode = "r")
+		gcommon.mapAttribute = attrFile.readlines()
+		attrFile.close()
+
 
 class MapDraw1:
 	def __init__(self):

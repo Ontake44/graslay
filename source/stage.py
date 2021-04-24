@@ -1,5 +1,8 @@
-
-
+import pyxel
+import gcommon
+from mapDraw import MapData
+from gameSession import GameSession
+from audio import BGM
 
 class StageInfo:
     def __init__(self, stage, stageNo, enabled, nextStageList):
@@ -18,7 +21,8 @@ class StageInfo:
                 if childNode != None:
                     childNode.setDrawFlag(flag)
 
-class StageManager:
+# 各ステージ間の関係を管理するクラス
+class StageLinkManager:
     def __init__(self):
         stage6A = StageInfo("6A", 6, True, None)
         # stage6B = StageInfo("6B", 6, False, None)
@@ -95,3 +99,103 @@ class StageManager:
             for childNode in node.nextStageList:
                 if childNode != None:
                     return self.nextStageList(childNode, stage)
+
+
+class Stage:
+    @classmethod
+    def initStage(cls, stage, restart):
+        gcommon.breakableMapData = False
+        pyxel.tilemap(0).refimg = 1
+
+        if stage == "1":
+            #pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
+            pyxel.image(1).load(0,0,"assets/graslay1.png")
+            gcommon.sync_map_y = 0
+            gcommon.long_map = False
+            gcommon.draw_star = True
+            gcommon.eshot_sync_scroll = False
+            MapData.loadMapData(0, "assets/graslay1.pyxmap")
+            MapData.loadMapData(1, "assets/graslay1b.pyxmap")
+            MapData.loadMapAttribute("assets/graslay1.mapatr")
+            pyxel.tilemap(1).refimg = 1
+            if restart or GameSession.gameMode == gcommon.GAMEMODE_CUSTOM:
+                # 初期スタートは発艦時にBGM開始されているので、BGM流すのはリスタート・カスタム時だけ
+                BGM.play(BGM.STAGE1)
+        elif stage == "2A":
+            #pyxel.load("assets/graslay_dangeon22.pyxres", False, False, True, True)
+            pyxel.image(1).load(0,0,"assets/graslay2.png")
+            gcommon.sync_map_y = 0
+            gcommon.long_map = False
+            gcommon.draw_star = False
+            gcommon.eshot_sync_scroll = False
+            MapData.loadMapData(0, "assets/graslay2.pyxmap")
+            MapData.loadMapAttribute("assets/graslay2.mapatr")
+        elif stage == "3B":
+            # 倉庫
+            pyxel.image(1).load(0,0,"assets/stage_warehouse.png")
+            pyxel.image(2).load(0,0,"assets/stage_warehouse-2.png")
+            gcommon.sync_map_y = 0
+            gcommon.long_map = True
+            gcommon.draw_star = False
+            gcommon.eshot_sync_scroll = False
+            MapData.loadMapData(0, "assets/stage_warehouse0.pyxmap")
+            MapData.loadMapData(2, "assets/stage_warehouse1.pyxmap")
+            MapData.loadMapData(7, "assets/stage_warehouseb.pyxmap")
+            pyxel.tilemap(0).refimg = 1
+            pyxel.tilemap(2).refimg = 1
+            pyxel.tilemap(7).refimg = 1  # background
+            MapData.loadMapAttribute("assets/stage_warehouse.mapatr")
+        elif stage == "3A":
+            # 高速スクロール
+            pyxel.image(1).load(0,0,"assets/graslay3.png")
+            gcommon.sync_map_y = 1
+            gcommon.long_map = True
+            gcommon.draw_star = True
+            gcommon.eshot_sync_scroll = True
+            gcommon.breakableMapData = True
+            MapData.loadMapData(0, "assets/graslay3-0.pyxmap")
+            MapData.loadMapData(1, "assets/graslay3-1.pyxmap")
+            MapData.loadMapData(2, "assets/graslay3b.pyxmap")
+            MapData.loadMapAttribute("assets/graslay3.mapatr")
+            pyxel.tilemap(1).refimg = 1
+            pyxel.tilemap(2).refimg = 1
+        elif stage == "4A":
+            # 遺跡
+            pyxel.image(1).load(0,0,"assets/graslay4.png")
+            gcommon.sync_map_y = 0
+            gcommon.long_map = True
+            gcommon.draw_star = True
+            gcommon.eshot_sync_scroll = False
+            MapData.loadMapData(0, "assets/graslay4.pyxmap")
+            MapData.loadMapData(1, "assets/graslay4b.pyxmap")
+            MapData.loadMapAttribute("assets/graslay4.mapatr")
+            pyxel.tilemap(1).refimg = 1
+        elif stage == "5A":
+            # ファクトリー
+            pyxel.image(1).load(0,0,"assets/graslay_factory.png")
+            pyxel.image(2).load(0,0,"assets/graslay_factory-2.png")
+            gcommon.sync_map_y = 0
+            gcommon.long_map = True
+            gcommon.draw_star = True
+            gcommon.eshot_sync_scroll = False
+            MapData.loadMapData(0, "assets/graslay_factory.pyxmap")
+            MapData.loadMapData(1, "assets/graslay_factoryb.pyxmap")
+            MapData.loadMapAttribute("assets/graslay_factory.mapatr")
+            pyxel.tilemap(1).refimg = 1
+        elif stage == "6A":
+            # 最終ステージ
+            pyxel.image(1).load(0,0,"assets/graslay_last.png")
+            pyxel.image(2).load(0,0,"assets/graslay_last-1.png")
+            #pyxel.image(2).load(0,0,"assets/graslay_last-2.png")
+            gcommon.sync_map_y = 0
+            gcommon.long_map = True
+            gcommon.draw_star = True
+            gcommon.eshot_sync_scroll = False
+            MapData.loadMapData(0, "assets/graslay_last.pyxmap")
+            MapData.loadMapData(1, "assets/graslay_lastb.pyxmap")
+            MapData.loadMapAttribute("assets/graslay_last.mapatr")
+            pyxel.tilemap(1).refimg = 1
+        #elif self.stage == 3:
+        #	pyxel.image(1).load(0,0,"assets\gra-den3a.png")
+        #	pyxel.image(2).load(0,0,"assets\gra-den3b.png")
+        #	gcommon.draw_star = True

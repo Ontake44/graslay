@@ -245,8 +245,6 @@ star_pos = 0
 
 app = None
 
-mapFreeTable = []
-
 star_ary = []
 
 mapAttribute = []
@@ -766,11 +764,6 @@ def screenPosToMapPosX(x):
 def isMapFree(no):
 	global mapAttribute
 	return mapAttribute[no >> 5][no & 31] != "1"
-	#global mapFreeTable
-	#if no >= 512:
-	#	return True
-	#else:
-	#	return no in mapFreeTable
 
 # 敵弾発射可能？
 def isShotMapPos(x, y):

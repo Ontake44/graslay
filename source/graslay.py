@@ -31,6 +31,7 @@ from mapDraw import MapDraw3
 from mapDraw import MapDraw4
 from mapDraw import MapDrawFactory
 from mapDraw import MapDrawLast
+from mapDraw import MapData
 import stage
 import stageSelect
 from objMgr import ObjMgr
@@ -83,7 +84,7 @@ class StageClear:
 	def update(self):
 		self.cnt+=1
 		if self.cnt > 5*60:
-			stageManager = stage.StageManager()
+			stageManager = stage.StageLinkManager()
 			stageList = stageManager.findNextStageList(self.stage)
 			gcommon.app.startStage(stageList[0].stage)
 	
@@ -204,7 +205,6 @@ class MainGame:
 
 		self.story_pos = 0
 		self.event_pos = 0
-		self.mapOffsetX = 0
 		gcommon.drawMap = None
 		gcommon.game_timer = 0
 		gcommon.map_x = 0
@@ -227,128 +227,11 @@ class MainGame:
 		self.pauseCnt = 0
 		pyxel.mouse(False)
 
-		#elif self.stage == 3:
-		#	pyxel.image(1).load(0,0,"assets\gra-den3a.png")
-		#	pyxel.image(2).load(0,0,"assets\gra-den3b.png")
-		#	self.mapOffsetX = 64
-		#	gcommon.draw_star = True
-		self.initStage()
+		# ステージ初期化
+		stage.Stage.initStage(self.stage, self.restart)
 
 		self.skipGameTimer()
 
-		pyxel.tilemap(0).refimg = 1
-		gcommon.mapFreeTable = [0, 32, 33, 34, 65, 66]
-
-	def initStage(self):
-		self.initStageRouteA()
-
-	def initStageRouteA(self):
-		gcommon.breakableMapData = False
-		if self.stage == "1":
-			#pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
-			pyxel.image(1).load(0,0,"assets/graslay1.png")
-			self.mapOffsetX = 0
-			gcommon.sync_map_y = 0
-			gcommon.long_map = False
-			gcommon.draw_star = True
-			gcommon.eshot_sync_scroll = False
-			loadMapData(0, "assets/graslay1.pyxmap")
-			loadMapData(1, "assets/graslay1b.pyxmap")
-			loadMapAttribute("assets/graslay1.mapatr")
-			pyxel.tilemap(1).refimg = 1
-			if self.restart or GameSession.gameMode == gcommon.GAMEMODE_CUSTOM:
-				# 初期スタートは発艦時にBGM開始されているので、BGM流すのはリスタート・カスタム時だけ
-				BGM.play(BGM.STAGE1)
-		elif self.stage == "2A":
-			#pyxel.load("assets/graslay_dangeon22.pyxres", False, False, True, True)
-			pyxel.image(1).load(0,0,"assets/graslay2.png")
-			self.mapOffsetX = 0
-			gcommon.sync_map_y = 0
-			gcommon.long_map = False
-			gcommon.draw_star = False
-			gcommon.eshot_sync_scroll = False
-			loadMapData(0, "assets/graslay2.pyxmap")
-			loadMapAttribute("assets/graslay2.mapatr")
-		elif self.stage == "3B":
-			# 倉庫
-			pyxel.image(1).load(0,0,"assets/stage_warehouse.png")
-			pyxel.image(2).load(0,0,"assets/stage_warehouse-2.png")
-			self.mapOffsetX = 0
-			gcommon.sync_map_y = 0
-			gcommon.long_map = True
-			gcommon.draw_star = False
-			gcommon.eshot_sync_scroll = False
-			loadMapData(0, "assets/stage_warehouse0.pyxmap")
-			loadMapData(2, "assets/stage_warehouse1.pyxmap")
-			loadMapData(7, "assets/stage_warehouseb.pyxmap")
-			pyxel.tilemap(0).refimg = 1
-			pyxel.tilemap(2).refimg = 1
-			pyxel.tilemap(7).refimg = 1  # background
-			loadMapAttribute("assets/stage_warehouse.mapatr")
-		elif self.stage == "3A":
-			# 高速スクロール
-			pyxel.image(1).load(0,0,"assets/graslay3.png")
-			self.mapOffsetX = 0
-			gcommon.sync_map_y = 1
-			gcommon.long_map = True
-			gcommon.draw_star = True
-			gcommon.eshot_sync_scroll = True
-			gcommon.breakableMapData = True
-			loadMapData(0, "assets/graslay3-0.pyxmap")
-			loadMapData(1, "assets/graslay3-1.pyxmap")
-			loadMapData(2, "assets/graslay3b.pyxmap")
-			loadMapAttribute("assets/graslay3.mapatr")
-			pyxel.tilemap(1).refimg = 1
-			pyxel.tilemap(2).refimg = 1
-		elif self.stage == "4A":
-			# 遺跡
-			pyxel.image(1).load(0,0,"assets/graslay4.png")
-			self.mapOffsetX = 0
-			gcommon.sync_map_y = 0
-			gcommon.long_map = True
-			gcommon.draw_star = True
-			gcommon.eshot_sync_scroll = False
-			loadMapData(0, "assets/graslay4.pyxmap")
-			loadMapData(1, "assets/graslay4b.pyxmap")
-			loadMapAttribute("assets/graslay4.mapatr")
-			pyxel.tilemap(1).refimg = 1
-		elif self.stage == "5A":
-			# ファクトリー
-			pyxel.image(1).load(0,0,"assets/graslay_factory.png")
-			pyxel.image(2).load(0,0,"assets/graslay_factory-2.png")
-			self.mapOffsetX = 0
-			gcommon.sync_map_y = 0
-			gcommon.long_map = True
-			gcommon.draw_star = True
-			gcommon.eshot_sync_scroll = False
-			loadMapData(0, "assets/graslay_factory.pyxmap")
-			loadMapData(1, "assets/graslay_factoryb.pyxmap")
-			loadMapAttribute("assets/graslay_factory.mapatr")
-			pyxel.tilemap(1).refimg = 1
-		elif self.stage == "6A":
-			# 最終ステージ
-			pyxel.image(1).load(0,0,"assets/graslay_last.png")
-			pyxel.image(2).load(0,0,"assets/graslay_last-1.png")
-			#pyxel.image(2).load(0,0,"assets/graslay_last-2.png")
-			self.mapOffsetX = 0
-			gcommon.sync_map_y = 0
-			gcommon.long_map = True
-			gcommon.draw_star = True
-			gcommon.eshot_sync_scroll = False
-			loadMapData(0, "assets/graslay_last.pyxmap")
-			loadMapData(1, "assets/graslay_lastb.pyxmap")
-			loadMapAttribute("assets/graslay_last.mapatr")
-			pyxel.tilemap(1).refimg = 1
-		#elif self.stage == 3:
-		#	pyxel.image(1).load(0,0,"assets\gra-den3a.png")
-		#	pyxel.image(2).load(0,0,"assets\gra-den3b.png")
-		#	self.mapOffsetX = 64
-		#	gcommon.draw_star = True
-
-		self.skipGameTimer()
-
-		pyxel.tilemap(0).refimg = 1
-		gcommon.mapFreeTable = [0, 32, 33, 34, 65, 66]
 
 
 	# デバッグ用のゲームタイマースキップ
@@ -912,16 +795,6 @@ def parseCommandLine():
 			gcommon.CustomNormal = True
 		idx+=1
 
-def loadMapData(tm, fileName):
-	mapFile = open(gcommon.resource_path(fileName), mode = "r")
-	lines = mapFile.readlines()
-	mapFile.close()
-	pyxel.tilemap(tm).set(0, 0, lines)
-
-def loadMapAttribute(fileName):
-	attrFile = open(gcommon.resource_path(fileName), mode = "r")
-	gcommon.mapAttribute = attrFile.readlines()
-	attrFile.close()
 
 class App:
 	def __init__(self):
@@ -977,7 +850,7 @@ class App:
 
 	def startCustomGame(self):
 		# debug
-		#stageManager = stage.StageManager()
+		#stageManager = stage.StageLinkManager()
 		#stageList = stageManager.findStage("3B")
 
 		#print("Difficulty : " + str(difficulty))
@@ -1002,7 +875,7 @@ class App:
 		self.setScene(MainGame(self.stage, True))
 
 	def selectNextStage(self):
-		stageManager = stage.StageManager()
+		stageManager = stage.StageLinkManager()
 		gcommon.debugPrint("selectNextStage " + self.stage)
 		stageList = stageManager.findNextStageList(self.stage)
 		if stageList == None:
