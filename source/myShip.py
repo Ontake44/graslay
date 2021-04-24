@@ -346,7 +346,7 @@ class MyShipB(MyShipBase):
 	def __init__(self, parent):
 		self.posLate = 12
 		self.posList = []
-		for i in range(GameSession.multipleCount * self.posLate):
+		for dummy in range(GameSession.multipleCount * self.posLate):
 			self.posList.append(Pos.create(0 ,0))
 		super(MyShipB, self).__init__(parent)
 		# 1:ゲーム中 2:爆発中 3:復活中

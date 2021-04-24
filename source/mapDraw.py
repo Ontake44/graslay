@@ -4,7 +4,7 @@ import enemy
 import item
 from objMgr import ObjMgr
 from gameSession import GameSession
-
+from drawing import Drawing
 
 def doMapCharacter(n, mx, my):
 	if n in (426, 427):
@@ -638,7 +638,7 @@ class MapDrawLast:
 	def drawBackground(self):
 		if gcommon.back_map_x >= 0:
 			if gcommon.back_map_x < 2:
-				gcommon.setBrightnessMinus1()
+				Drawing.setBrightnessMinus1()
 			mx = (int)(gcommon.back_map_x/8)
 			pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, 3)
 			if gcommon.back_map_x < 2:

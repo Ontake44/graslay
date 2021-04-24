@@ -160,7 +160,7 @@ class Feeler(enemy.EnemyBase):
 		self.subDr = 0
 		self.state = 0		# 0:縮小状態 1,2:モードで動作中
 		self.shotCycle = __class__.shotCycles[GameSession.difficulty]
-		for i in range(0, count):
+		for dummy in range(0, count):
 			self.cells.append([0, 0])
 		# 触手セルの当たり判定範囲
 		self.cellRect = gcommon.Rect.create(2,2,13,13)

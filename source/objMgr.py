@@ -26,7 +26,7 @@ class ObjMgr:
 		cls.missleGroups.clear()
 		cls.mshotGroupsList.clear()
 		cls.mmissileGroupsList.clear()
-		for i in range(multipleCount):
+		for dummy in range(multipleCount):
 			cls.mshotGroupsList.append([])
 			cls.mmissileGroupsList.append([])
 		

@@ -7,6 +7,7 @@ import boss
 from objMgr import ObjMgr
 from gameSession import GameSession
 from audio import BGM
+from drawing import Drawing
 
 # レーザー移動砲台発射口
 class BossLast1Launcher(enemy.EnemyBase):
@@ -275,7 +276,7 @@ class BossLast1(enemy.EnemyBase):
 
 		# コア部分
 		if self.brokenState in (1, 2):
-			gcommon.setBrightnessWithoutBlack(self.coreBrightness)
+			Drawing.setBrightnessWithoutBlack(self.coreBrightness)
 			BossLast1Core.drawCore(self.coreX, self.coreY, self.rad)
 			pyxel.pal()
 			if self.cnt & 3 == 0:
@@ -290,7 +291,7 @@ class BossLast1(enemy.EnemyBase):
 		pyxel.blt(self.x +32, self.y +64, 2, 0, 128, 96, 64, 3)
 		if self.brokenState in (0,1):
 			if self.hit:
-				gcommon.setBrightnessWithoutBlack(1)
+				Drawing.setBrightnessWithoutBlack(1)
 			pyxel.blt(self.x +32, self.y +64, 2, 0, self.brokenState* 64, 96, 64, 3)
 			pyxel.pal()
 		# 下
@@ -406,9 +407,9 @@ class BossLastBeam1(enemy.EnemyBase):
 				self.xpolygonList1.polygons[0].clr = 8
 				self.xpolygonList2.polygons[0].clr = 9
 				self.xpolygonList3.polygons[0].clr = 10
-			gcommon.drawPolygons(self.xpolygonList1)
-			gcommon.drawPolygons(self.xpolygonList2)
-			gcommon.drawPolygons(self.xpolygonList3)
+			Drawing.drawPolygons(self.xpolygonList1)
+			Drawing.drawPolygons(self.xpolygonList2)
+			Drawing.drawPolygons(self.xpolygonList3)
 
 #
 # 本体からの極太ビーム
@@ -536,9 +537,9 @@ class BossLastBeam2(enemy.EnemyBase):
 				self.xpolygonList1.polygons[0].clr = 8
 				self.xpolygonList2.polygons[0].clr = 9
 				self.xpolygonList3.polygons[0].clr = 10
-		gcommon.drawPolygons(self.xpolygonList1)
-		gcommon.drawPolygons(self.xpolygonList2)
-		gcommon.drawPolygons(self.xpolygonList3)
+		Drawing.drawPolygons(self.xpolygonList1)
+		Drawing.drawPolygons(self.xpolygonList2)
+		Drawing.drawPolygons(self.xpolygonList3)
 
 # ラスボス 移動レーザー砲台
 class BossLastBattery1(enemy.EnemyBase):
@@ -648,7 +649,7 @@ class BossLastDiamondBeam(enemy.EnemyBase):
 			self.remove()
 
 	def draw(self):
-		gcommon.drawPolygons(gcommon.getAnglePolygons([self.x, self.y], self.polygons, [11, 3], gcommon.atan_table[self.dr]))
+		Drawing.drawPolygons(gcommon.getAnglePolygons([self.x, self.y], self.polygons, [11, 3], gcommon.atan_table[self.dr]))
 
 # ダイアモンド型のホーミングミサイル
 class BossLastDiamondShot(enemy.EnemyBase):
@@ -740,7 +741,7 @@ class BossLastDiamondShot(enemy.EnemyBase):
 			pyxel.pset(s.x, s.y, 7)
 
 	def draw(self):
-		#gcommon.drawPolygons(gcommon.getAnglePolygons([self.x, self.y], self.polygons, [11, 3], gcommon.atan_table[self.dr]))
+		#Drawing.drawPolygons(gcommon.getAnglePolygons([self.x, self.y], self.polygons, [11, 3], gcommon.atan_table[self.dr]))
 		p  = BossLastDiamondShot.patternList[((self.dr+2)>>2) & 7]
 		#p  = BossLastDiamondShot.patternList[(self.cnt>>2) & 7]
 		pyxel.blt(self.x -11, self.y -11, 2, p[0] * 24, 216, 24 * p[1], -24 * p[2], 3)
@@ -776,7 +777,7 @@ class BossLastArrowShot(enemy.EnemyBase):
 			return
 
 	def draw(self):
-		gcommon.drawPolygons(gcommon.getAnglePolygons([self.x, self.y], self.polygons, [0, 7], -self.dr))
+		Drawing.drawPolygons(gcommon.getAnglePolygons([self.x, self.y], self.polygons, [0, 7], -self.dr))
 
 # ひし形の弾。回るように動く
 class BossLastFallShot(enemy.EnemyBase):
@@ -819,7 +820,7 @@ class BossLastFallShot(enemy.EnemyBase):
 	def draw(self):
 		#pyxel.circb(self.x, self.y, 8, 7)
 		xpoints = gcommon.getAnglePoints([self.x, self.y], BossLastFallShot.points, [11,7], -self.rad)
-		gcommon.drawQuadrangleB(xpoints, self.clr)
+		Drawing.drawQuadrangleB(xpoints, self.clr)
 
 class BossLastStraightBeam(enemy.EnemyBase):
 	def __init__(self, x, y):
@@ -951,7 +952,7 @@ class BossLast1Core(enemy.EnemyBase):
 		points.append([+8, +y])
 		points.append([+32, +0])
 		xpoints = gcommon.getAnglePoints([cx, cy], points, [0,0], angle)
-		gcommon.drawConnectedLines(xpoints, clr)
+		Drawing.drawConnectedLines(xpoints, clr)
 		if r >math.pi*0.75 and r <= math.pi * 1.75:
 			pass
 		else:
@@ -959,7 +960,7 @@ class BossLast1Core(enemy.EnemyBase):
 			#pyxel.line(cx +8, y, cx +8, y2, clr)
 			points = [[-8, y], [-8, y2], [+8, y], [+8, y2]]
 			xpoints = gcommon.getAnglePoints([cx, cy], points, [0,0], angle)
-			gcommon.drawLines(xpoints, clr)
+			Drawing.drawLines(xpoints, clr)
 
 	@classmethod
 	def drawCore(cls, x, y, rad):
@@ -1056,7 +1057,7 @@ class BossLast1Core(enemy.EnemyBase):
 		self.rad = (self.rad + math.pi/30) % (math.pi * 2)
 
 	def draw(self):
-		gcommon.setBrightnessWithoutBlack(self.coreBrightness)
+		Drawing.setBrightnessWithoutBlack(self.coreBrightness)
 		if self.cycleCount & 1 == 0:
 			BossLast1Core.drawCoreAngle(self.x, self.y, self.rad, self.angle)
 		else:

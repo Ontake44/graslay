@@ -38,6 +38,7 @@ from gameSession import GameSession
 from audio import BGM
 from mouseManager import MouseManager
 from settings import Settings
+from drawing import Drawing
 
 #  ゲームオーバー
 #
@@ -65,7 +66,7 @@ class GameOver:
 	
 	def draw(self):
 		pyxel.cls(0)
-		gcommon.showTextHCenter(90, "GAME OVER")
+		Drawing.showTextHCenter(90, "GAME OVER")
 
 #
 #  ステージクリアー
@@ -609,10 +610,10 @@ class MainGame:
 
 		pyxel.clip()
 		# SCORE表示
-		gcommon.showText(0,192, "SC " + str(GameSession.score).rjust(8))
+		Drawing.showText(0,192, "SC " + str(GameSession.score).rjust(8))
 		# 残機
 		pyxel.blt(232, 192, 0, 8, 32, 8, 8, gcommon.TP_COLOR)
-		gcommon.showText(242, 192, str(GameSession.playerStock).rjust(2))
+		Drawing.showText(242, 192, str(GameSession.playerStock).rjust(2))
 		
 		# 武器表示
 		if GameSession.weaponType == gcommon.WeaponType.TYPE_A:
@@ -671,8 +672,8 @@ class MainGame:
 
 		leftMarker = (Settings.mouseEnabled == True)
 		pyxel.text(127-32 +10 +36, y, "ON " if Settings.mouseEnabled else "OFF", 7)
-		gcommon.drawLeftMarker(127-32 +10 +26, y -1, leftMarker)
-		gcommon.drawRightMarker(127-32 +10 +48, y -1, not leftMarker)
+		Drawing.drawLeftMarker(127-32 +10 +26, y -1, leftMarker)
+		Drawing.drawRightMarker(127-32 +10 +48, y -1, not leftMarker)
 
 		pyxel.text(127-32 +4, 192/2 -32 +36, "TITLE", 7)
 		pyxel.text(127-32 +4, 192/2 -32 +46, "EXIT", 7)
@@ -681,7 +682,7 @@ class MainGame:
 		pyxel.rect(127 -40, 192/2 -32, 80, 48, 0)
 		pyxel.rectb(127 -39, 192/2 -31, 78, 46, 7)
 		pyxel.rect(127 -37, 192/2 -29, 74, 8, 1)
-		gcommon.showTextHCentor2(192/2 -32 +4, "CONTINUE ?", 7)
+		Drawing.showTextHCentor2(192/2 -32 +4, "CONTINUE ?", 7)
 
 		pyxel.rect(127 -40+4, 192/2 -32 +15 + self.pauseMenuPos * 10, 80-8, 8, 2)
 

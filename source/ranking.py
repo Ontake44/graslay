@@ -10,6 +10,7 @@ from operator import itemgetter
 from gameSession import GameSession
 from audio import BGM
 from mouseManager import MouseManager
+from drawing import Drawing
 
 # ランキング表示
 class RankingDispScene:
@@ -85,21 +86,21 @@ class RankingDispScene:
 		pyxel.cls(0)
 		self.drawStar()
 
-		gcommon.showTextHCenter(8, "SCORE RANKING")
+		Drawing.showTextHCenter(8, "SCORE RANKING")
 		self.setOptionColor(0)
-		gcommon.showTextHCenter(__class__.MARKER_Y, gcommon.difficultyText[self.difficulty])
+		Drawing.showTextHCenter(__class__.MARKER_Y, gcommon.difficultyText[self.difficulty])
 		
 		self.setOptionColor(1)
-		gcommon.showTextHCenter(__class__.EXIT_Y, "EXIT")
+		Drawing.showTextHCenter(__class__.EXIT_Y, "EXIT")
 		pyxel.pal()
 		
-		gcommon.drawLeftMarker(__class__.LEFT_MARKER_X, __class__.MARKER_Y, self.difficulty > 0)
-		gcommon.drawRightMarker(__class__.RIGHT_MARKER_X, __class__.MARKER_Y, self.difficulty < 2)
+		Drawing.drawLeftMarker(__class__.LEFT_MARKER_X, __class__.MARKER_Y, self.difficulty > 0)
+		Drawing.drawRightMarker(__class__.RIGHT_MARKER_X, __class__.MARKER_Y, self.difficulty < 2)
 
 		# カラムヘッダー
 		pyxel.pal(7, 12)
 		for i, x in enumerate(__class__.colXList):
-			gcommon.showText(x, 40, __class__.colNameList[i])
+			Drawing.showText(x, 40, __class__.colNameList[i])
 		pyxel.pal()
 
 		cols = __class__.colXList
@@ -120,16 +121,16 @@ class RankingDispScene:
 			if i < len(rankingList):
 				name = rankingList[i].name
 				score = str(rankingList[i].score).rjust(8)
-				if rankingList[i].stage == -1:
+				if rankingList[i].stage == "-1":
 					stage = "CLEAR"
 				else:
 					stage = "  " + str(rankingList[i].stage)
-			gcommon.showText(cols[0], sy + i* dy, __class__.rankList[i])
-			gcommon.showText(cols[1]+8, sy + i* dy, name)
-			gcommon.showText(cols[2], sy + i* dy, score)
-			gcommon.showText(cols[3], sy + i* dy, stage)
+			Drawing.showText(cols[0], sy + i* dy, __class__.rankList[i])
+			Drawing.showText(cols[1]+8, sy + i* dy, name)
+			Drawing.showText(cols[2], sy + i* dy, score)
+			Drawing.showText(cols[3], sy + i* dy, stage)
 
-		gcommon.setBrightness1()
+		Drawing.setBrightness1()
 		rect = self.menuRects[self.menuPos]
 		pyxel.blt(rect.left, rect.top, 4, rect.left, rect.top, rect.getWidth(), rect.getHeight())
 		pyxel.pal()
@@ -254,39 +255,39 @@ class EnterPlayerNameScene:
 		self.bgStarV.draw()
 
 		ty = 16
-		gcommon.showTextHCenter(ty, "ENTER YOUR NAME")
+		Drawing.showTextHCenter(ty, "ENTER YOUR NAME")
 		ty += 16
 
-		gcommon.showTextHCenter(ty, "= " + gcommon.difficultyText[GameSession.difficulty] + " =")
+		Drawing.showTextHCenter(ty, "= " + gcommon.difficultyText[GameSession.difficulty] + " =")
 
 		x0 = 32
 		x1 = 128
 		ty += 24
-		gcommon.showText(x0, ty, "SCORE")
-		gcommon.showText(x1, ty, str(GameSession.score).rjust(8, "0"))
+		Drawing.showText(x0, ty, "SCORE")
+		Drawing.showText(x1, ty, str(GameSession.score).rjust(8, "0"))
 		ty += 16
 
-		gcommon.showText(x0, ty, "STAGE")
+		Drawing.showText(x0, ty, "STAGE")
 		stage = ""
-		if GameSession.stage == -1:
+		if GameSession.stage == "-1":
 			stage = "CLEAR"
 		else:
 			stage = "  " + str(GameSession.stage)
-		gcommon.showText(x1, ty, stage)
+		Drawing.showText(x1, ty, stage)
 		ty += 16
 
-		gcommon.showText(x0, ty, "YOUR NAME")
-		gcommon.showText(x1, ty, self.name)
+		Drawing.showText(x0, ty, "YOUR NAME")
+		Drawing.showText(x1, ty, self.name)
 		pyxel.rectb(x1 -4, ty-4, 8*3 + 8, 16, 5)
 
 		pyxel.pal(7, 12)
 		index = 0
 		x0 = __class__.ALPHA_X = 16
 		ty = __class__.ALPHA_Y
-		for y, chars in enumerate(__class__.allCharsList):
+		for chars in __class__.allCharsList:
 			for i, c in enumerate(chars):
 				self.setOptionColor(index)
-				gcommon.showText(x0 + i*18, ty, str(c))
+				Drawing.showText(x0 + i*18, ty, str(c))
 				index += 1
 			ty += 18
 		
@@ -304,7 +305,7 @@ class EnterPlayerNameScene:
 		pyxel.pal()
 
 		rect = self.markerRects[self.rectIndex]
-		gcommon.setBrightness1()
+		Drawing.setBrightness1()
 		pyxel.blt(rect.left, rect.top, 4, rect.left, rect.top, rect.getWidth(), rect.getHeight())
 		pyxel.pal()
 
@@ -422,7 +423,8 @@ class RankingManager:
 			if "score" in r:
 				item.score = r["score"]
 			if "stage" in r:
-				item.stage = r["stage"]
+				# ver 1.xではstageが数値だったのでstrを入れている
+				item.stage = str(r["stage"])
 			#print("rank : " + str(item.rank))
 			#print("name : " + item.name)
 			rankingList.append(item)

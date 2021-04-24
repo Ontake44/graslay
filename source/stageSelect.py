@@ -3,6 +3,7 @@ import pyxel
 import stage
 import gcommon
 from audio import BGM
+from drawing import Drawing
 
 class StageSelectScene:
     imageColorTable = [
@@ -136,7 +137,7 @@ class StageSelectScene:
         for t in __class__.textColorTable[status]:
             pyxel.pal(t[0], t[1])
         if node != None:
-            gcommon.showText(node.x + 8, node.y +4, node.stage)
+            Drawing.showText(node.x + 8, node.y +4, node.stage)
         pyxel.pal()
         if node != None and node.nextStageList != None:
             for childNode in node.nextStageList:

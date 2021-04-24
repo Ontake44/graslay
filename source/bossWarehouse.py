@@ -250,10 +250,10 @@ class BossWarehouse(enemy.EnemyBase):
 			drawing.Drawing.setRotateImage(200, 192, 2, self.work, self.image, -self.gunRad, 3)
 			pyxel.blt(self.x + 20.0 -self.gunWidth/2, self.y -self.gunHeight/2, 2, 200, 192, self.gunWidth, self.gunHeight, 3)
 			#for polygons in self.xpolygonsList:
-			#	gcommon.drawPolygons(polygons)
+			#	Drawing.drawPolygons(polygons)
 
 			#for polygons in self.xpolygons4shotList:
-			#	gcommon.drawPolygons(polygons)
+			#	Drawing.drawPolygons(polygons)
 
 			#pos = gcommon.getAngle(-12, -12, self.gunRad)
 			#pyxel.blt(self.gun_cx -3.5 +pos[0], self.gun_cy -3.5 + pos[1], 2, 176, 104, 8, 8, 3)

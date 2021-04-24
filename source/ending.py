@@ -4,6 +4,7 @@ import random
 import enemy
 import gcommon
 from audio import BGM
+from drawing import Drawing
 
 class Star:
 	def __init__(self, x, y, dx, dy, cnt):
@@ -38,7 +39,7 @@ class EndingScene0:
 	def update(self):
 		if self.state == 0:
 			if self.cnt > 120:
-				for i in range(0,800):
+				for dummy in range(0,800):
 					r = random.random() * 2 * math.pi
 					speed = random.random() * 6
 					self.addStar(128, 100, speed * math.cos(r), speed * math.sin(r), random.randrange(50, 2000))
@@ -259,7 +260,7 @@ class EndingScene2:
 		
 		pyxel.blt(128 -56/2, 40, 2, 128, 48, 56, 56, 2)
 		if self.state == 0:
-			gcommon.stretchBlt(self.px - self.sx * self.size/2, self.py - self.sy * self.size/2, 	\
+			Drawing.stretchBlt(self.px - self.sx * self.size/2, self.py - self.sy * self.size/2, 	\
 				self.sx * self.size, self.sy * self.size,	\
 				1, 0, 0, self.sx, self.sy)
 		elif self.state == 2:
@@ -277,7 +278,7 @@ class EndingScene2:
 				sl = len(self.message)
 				if l > sl:
 					l = sl
-				gcommon.showText(128 -sl*4, 120, self.message[:l])
+				Drawing.showText(128 -sl*4, 120, self.message[:l])
 
 		for obj in self.objs:
 			if obj.removeFlag == False:
@@ -293,7 +294,7 @@ class EndingScene:
 		pyxel.image(1).load(0,0,"assets/Ending1.png")
 		
 		EndingScene.star_ary = []
-		for i in range(0,96):
+		for dummy in range(0,96):
 			o = [int(random.randrange(0,256)), int(random.randrange(0,2)+5)]
 			EndingScene.star_ary.append(o)		
 		self.scene = EndingScene0(self)

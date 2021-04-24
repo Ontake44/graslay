@@ -6,6 +6,7 @@ import enemy
 from settings import Settings
 from audio import BGM
 from mouseManager import MouseManager
+from drawing import Drawing
 
 TITLEMENU_START = 0
 TITLEMENU_CUSTOMSTART = 1
@@ -321,7 +322,7 @@ class TitleScene:
 		pyxel.blt(10, 186, 0, 88, 120, 8, 8, 0)
 		pyxel.text(20, 188, "2021 ONTAKE44", 7)
 
-		gcommon.showTextHCentor2(188, "VER " + gcommon.VERSION , 7)
+		Drawing.showTextHCentor2(188, "VER " + gcommon.VERSION , 7)
 
 		pyxel.pal()
 		if self.mouseManager.visible:
@@ -333,7 +334,7 @@ class TitleScene:
 		for c in range(1, 15):
 			pyxel.pal(c, 7)
 		#pyxel.blt(self.subCnt*8, 24, 4, self.subCnt*8, 24, 40, 80, 0)
-		gcommon.drawPolygonSystemImage(gcommon.getShitPoints([x, y], TitleScene.polyPoints))
+		Drawing.drawPolygonSystemImage(gcommon.getShitPoints([x, y], TitleScene.polyPoints))
 		pyxel.pal()
 
 	def drawMenu(self, startFlag, rate):
@@ -348,27 +349,26 @@ class TitleScene:
 			else:
 				gcommon.setMenuColor(0, self.menuPos)
 		text = gcommon.difficultyText[self.difficulty] + " START"
-		gcommon.showTextRateHCenter(y, text, rate)
+		Drawing.showTextRateHCenter(y, text, rate)
 		if rate == 1.0 and self.menuPos == 0:
-			gcommon.drawLeftMarker(128 -8 -48 -4, y, self.difficulty > 0)
-			gcommon.drawRightMarker(128 +48 + 4, y, self.difficulty < 2)
+			Drawing.drawLeftMarker(128 -8 -48 -4, y, self.difficulty > 0)
+			Drawing.drawRightMarker(128 +48 + 4, y, self.difficulty < 2)
 		pyxel.pal()
 
 		y += 15
 		gcommon.setMenuColor(1, self.menuPos)
-		gcommon.showTextRateHCenter(y, "CUSTOM START", rate)
+		Drawing.showTextRateHCenter(y, "CUSTOM START", rate)
 
 		y += 15
 		gcommon.setMenuColor(2, self.menuPos)
-		gcommon.showTextRateHCenter(y, "OPTION", rate)
+		Drawing.showTextRateHCenter(y, "OPTION", rate)
 
 		y += 15
 		gcommon.setMenuColor(3, self.menuPos)
-		gcommon.showTextRateHCenter(y, "EXIT", rate)
+		Drawing.showTextRateHCenter(y, "EXIT", rate)
 
 		if rate == 1.0:
-			gcommon.setBrightness1()
+			Drawing.setBrightness1()
 			pyxel.blt(48, 118 + self.menuPos * 15, 4, 48, 118 + self.menuPos * 15, 160, 12)
 			pyxel.pal()
 
-		#gcommon.drawRectbs(self.difficultyRects, 8)

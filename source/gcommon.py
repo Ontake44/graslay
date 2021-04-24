@@ -359,7 +359,7 @@ class Polygons:
 
 def initStar():
 	global star_ary
-	for i in range(0,96):
+	for dummy in range(0,96):
 		o = [int(random.randrange(0,256)), int(random.randrange(0,2)+5)]
 		star_ary.append(o)
 
@@ -378,7 +378,7 @@ def resource_path(relative_path):
 def init_atan_table():
 	r = 0.0
 	rr =  math.pi*2/64		#1/128
-	for i in range(0,64):	#   i=0,63 do
+	for dummy in range(0,64):	#   i=0,63 do
 		atan_table.append(r)
 		cos_table.append(math.cos(r))
 		sin_table.append(math.sin(r))
@@ -815,128 +815,6 @@ def mapPosToScreenPos(mx, my):
 def mapYToScreenY(y):
 	return y - map_y
 
-def showTextHCenter(y, s):
-	l = len(s)
-	showText((SCREEN_WIDTH -l*8)/2, y, s)
-
-def showTextRateHCenter(y, s, rate):
-	l = len(s)
-	showTextRate((SCREEN_WIDTH -l*8)/2, y, s, rate)
-
-# BOLD
-def showText(x, y, s):
-	for c in s:
-		code = ord(c)
-		if code >= 65 and code <= 90:
-			pyxel.blt(x, y, 0, (code-65)*8, 128, 8, 8, TP_COLOR)
-		elif code >= 0x30 and code <= 0x39:
-			# 数字
-			pyxel.blt(x, y, 0, (code-48)*8, 136, 8, 8, TP_COLOR)
-		elif code >= 0x3A and code <= 0x3F:
-			# :;<=>?
-			pyxel.blt(x, y, 0, 208 + (code-0x3A)*8, 128, 8, 8, TP_COLOR)
-		elif code >= 0x20 and code <= 0x2F:
-			# スペース - /
-			pyxel.blt(x, y, 0, 80 + (code-0x20)*8, 136, 8, 8, TP_COLOR)
-		x += 8
-
-# rateは 0 - 1
-def showTextRate(x, y, s, rate):
-	p = int(8 * rate)
-	if p == 0:
-		return
-	for c in s:
-		code = ord(c)
-		if code >= 65 and code <= 90:
-			pyxel.blt(x, y+8-p, 0, (code-65)*8, 128, 8, p, TP_COLOR)
-		elif code >= 48 and code <= 57:
-			pyxel.blt(x, y+8-p, 0, (code-48)*8, 136, 8, p, TP_COLOR)
-		x += 8
-
-def showText2(x, y, s):
-	if x == -999:
-		x = 127 - len(s)/2 *6
-	if y == -999:
-		y = 192/2 - 8/2
-	for c in s:
-		code = ord(c)
-		if code >= 65 and code <= 90:
-			pyxel.blt(x, y, 0, (code-65)*8, 112, 6, 8, TP_COLOR)
-		elif code >= 48 and code <= 57:
-			pyxel.blt(x, y, 0, (code-48)*8, 120, 6, 8, TP_COLOR)
-		x += 6
-
-def showTextHCentor2(y, s, clr):
-	pyxel.text(128 -len(s)*2, y, s, clr)
-
-# ただの４角形（長方形とは限らない）
-#  points = [[0,0],[1,0], [1,1],[0,1]]
-def drawQuadrangle(points, clr):
-		pyxel.tri(points[0][0], points[0][1],
-		 points[1][0], points[1][1],
-		 points[2][0], points[2][1], clr)
-		pyxel.tri(
-		 points[0][0], points[0][1],
-		 points[2][0], points[2][1],
-		 points[3][0], points[3][1], clr)
-
-# ただの４角形（長方形とは限らない）ワイヤーフレーム
-#  points = [[0,0],[1,0], [1,1],[0,1]]
-def drawQuadrangleB(points, clr):
-		pyxel.line(points[0][0], points[0][1], points[1][0], points[1][1], clr)
-		pyxel.line(points[1][0], points[1][1], points[2][0], points[2][1], clr)
-		pyxel.line(points[2][0], points[2][1], points[3][0], points[3][1], clr)
-		pyxel.line(points[3][0], points[3][1], points[0][0], points[0][1], clr)
-
-# 頂点配列、色でポリゴンを描く
-def drawPolygon(poly, clr):
-	sx = poly[0][0]
-	sy = poly[0][1]
-	for i in range(len(poly)-2):
-		pyxel.tri(sx, sy, 
-			poly[i+1][0], poly[i+1][1],
-			poly[i+2][0], poly[i+2][1], clr)	
-
-# 頂点配列、色でポリゴンを描く（外枠あり）
-def drawPolygon2(poly, clr1, clr2):
-	drawPolygon(poly, clr1)
-	last = len(poly) -1
-	for i in range(last):
-		pyxel.line(poly[i][0], poly[i][1], poly[i+1][0], poly[i+1][1], clr2)
-	pyxel.line(poly[last][0], poly[last][1], poly[0][0], poly[0][1], clr2)
-
-# 頂点配列、色でLINEを描く
-# poly[n] - poly[n+1]でLINEを描く
-def drawLines(points, clr):
-	for i in range(0, len(points), 2):
-		pyxel.line(points[i][0], points[i][1], points[i+1][0], points[i+1][1], clr)
-
-def drawConnectedLines(points, clr):
-	for i in range(len(points)-1):
-		pyxel.line(points[i][0], points[i][1], points[i+1][0], points[i+1][1], clr)
-
-# Polygonクラス指定で描く
-def drawPolygon3(polygon):
-	points = polygon.points
-	if polygon.fill:
-		sx = points[0][0]
-		sy = points[0][1]
-		for i in range(len(points)-2):
-			pyxel.tri(sx, sy, 
-				points[i+1][0], points[i+1][1],
-				points[i+2][0], points[i+2][1], polygon.clr)
-	else:
-		# ワイヤーフレーム
-		endIndex = len(points) -1
-		if endIndex > 1:
-			for i in range(endIndex):
-				pyxel.line(points[i][0], points[i][1], points[i+1][0], points[i+1][1], polygon.clr)
-		pyxel.line(points[endIndex][0], points[endIndex][1], points[0][0], points[0][1], polygon.clr)
-
-# Ploygonsクラス指定で描く
-def drawPolygons(polys):
-	for p in polys.polygons:
-		drawPolygon3(p)
 
 # destPos   [x,y]
 # points    [[x0,y0],[x1,y1],...]
@@ -1023,204 +901,6 @@ def easeOutBack(x):
 	c3 = c1 + 1
 	return 1 + c3 * math.pow(x - 1, 3) + c1 * math.pow(x - 1, 2)
 
-color_table = [
-0,1,2,8,4,5,3,9,12,13,14,11,6,10,15,7
-]
-
-# 明るさを設定する（-15～+15）
-def setBrightness(level):
-	global color_table
-	for c in range(16):
-		if c + level > 15:
-			pyxel.pal(color_table[c], 7)
-		elif c + level < 0:
-			pyxel.pal(color_table[c], 0)
-		else:
-			pyxel.pal(color_table[c], color_table[c +level])
-
-def setBrightnessWithoutBlack(level):
-	global color_table
-	for c in range(1, 15):
-		if c + level > 15:
-			pyxel.pal(color_table[c], 7)
-		elif c + level < 0:
-			pyxel.pal(color_table[c], 0)
-		else:
-			pyxel.pal(color_table[c], color_table[c +level])
-
-def setBrightness1():
-	pyxel.pal(0, 1)
-	pyxel.pal(1, 5)
-	pyxel.pal(2, 4)
-	pyxel.pal(3, 11)
-	pyxel.pal(4, 8)
-	pyxel.pal(5, 12)
-	pyxel.pal(6, 7)
-	pyxel.pal(7, 7)
-	pyxel.pal(8, 14)
-	pyxel.pal(9, 10)
-	pyxel.pal(10, 7)
-	pyxel.pal(11, 6)
-	pyxel.pal(12, 6)
-	pyxel.pal(13, 15)
-	pyxel.pal(14, 15)
-	pyxel.pal(15, 7)
-
-def setBrightnessMinus1():
-	pyxel.pal(1, 0)
-	pyxel.pal(2, 1)
-	pyxel.pal(3, 1)
-	pyxel.pal(4, 2)
-	pyxel.pal(5, 1)
-	pyxel.pal(6, 12)
-	pyxel.pal(7, 13)
-	pyxel.pal(8, 2)
-	pyxel.pal(9, 8)
-	pyxel.pal(10, 9)
-	pyxel.pal(11, 3)
-	pyxel.pal(12, 5)
-	pyxel.pal(13, 5)
-	pyxel.pal(14, 8)
-	pyxel.pal(15, 10)
-
-
-def clipLine(ip1, ip2, points):
-
-	# 描画領域と端点との Y 方向の距離を求める
-	if ip2[1] < SCREEN_MIN_Y:
-		dy = SCREEN_MIN_Y - ip1[1]
-	else:
-		dy = SCREEN_MAX_Y - ip1[1]
-	
-	# X 方向の距離に変換した上で、描画領域の端と線分の交点の X 座標を求める
-	x = ( ip2[0] - ip1[0]) * dy / ( ip2[1] - ip1[1]) + ip1[0]
-	# 描画領域の端と線分の交点の Y 座標
-	if ip2[1] < SCREEN_MIN_Y:
-		y = SCREEN_MIN_Y
-	else:
-		y = SCREEN_MAX_Y
-
-	points.append([x, y])
-	return points
-
-def clipPolygon(vertex):
-	clippedVertex = []
-	vertexCnt = len(vertex)		# 頂点の数	
-	i = 1
-	while i<= vertexCnt:
-		c0 = vertex[i-1]		# 始点
-		c1 = vertex[i % vertexCnt]		# 終点
-		if  c0[0] == c1[0] and c0[1] == c1[1]:
-			continue
-		# 始点がエリア外
-		if ( ( c0[1] <SCREEN_MIN_Y) or ( c0[1] > SCREEN_MAX_Y ) ):
-			# 終点はエリア内
-			if ( ( c1[1] >= SCREEN_MIN_Y) and ( c1[1] <= SCREEN_MAX_Y) ):
-				clippedVertex = clipLine(c1, c0, clippedVertex)
-			# 終点もエリア外(クリッピング・エリアの上下境界をまたぐ)
-			elif ( ( ( c0[1] < SCREEN_MIN_Y) and ( c1[1] > SCREEN_MAX_Y ) ) or
-			          ( ( c1[1] < SCREEN_MIN_Y ) and ( c0[1] > SCREEN_MAX_Y) ) ):
-				clippedVertex = clipLine( c1, c0, clippedVertex)
-				clippedVertex = clipLine( c0, c1, clippedVertex)
-			
-		# 始点がエリア内
-		else:
-			clippedVertex.append( c0 )
-			# 終点がエリア外ならクリッピングして頂点を追加
-			if ( ( c1[1] < SCREEN_MIN_Y ) or ( c1[1] > SCREEN_MAX_Y ) ):
-			    clippedVertex = clipLine( c0, c1, clippedVertex)
-		i += 1
-	return clippedVertex
-
-def setPolyPoints(points, start, end, includeStart):
-	dx = end[0] - start[0]
-	dy = end[1] - start[1]
-	if dy == 0:
-		points[start[1]].append(start[0])
-		points[start[1]].append(end[0])
-	else:
-		reverse = False
-		if end[1] > start[1]:
-			sx = start[0]
-			sy = int(start[1])
-			ex = end[0]
-			ey = int(end[1])
-		else:
-			reverse = True
-			sx = end[0]
-			sy = int(end[1])
-			ex = start[0]
-			ey = int(start[1])
-		# 逆傾きa
-		a = (ex - sx)/(ey - sy)
-		if includeStart:
-			yy = sy
-			while yy <= ey:
-				xx = sx + a * (yy -sy)
-				nx = int(xx)
-				points[yy].append(nx)
-				yy += 1
-		else:
-			if reverse:
-				yy = sy
-				while yy < ey:
-					xx = sx + a * (yy -sy)
-					nx = int(xx)
-					points[yy].append(nx)
-					yy += 1
-			else:
-				yy = sy +1
-				while yy <= ey:
-					xx = sx + a * (yy -sy)
-					nx = int(xx)
-					points[yy].append(nx)
-					yy += 1
-
-# ソリッド・エリア・スキャン・コンバージョン？でポリゴンを描く
-# バンク４に描く
-# poly [x,y]配列
-def drawPolygonSystemImage(poly):
-	points = []
-	for i in range(200):
-		points.append([])
-	
-	length = len(poly)
-	prev = poly[length -2]
-	current = poly[length -1]
-	next = poly[0]
-	for i in range(length):
-		
-		if (int(next[1])-int(current[1]))==0:
-			pass
-		else:
-			includeStart = True
-			if (int(current[1]) - int(prev[1]))== 0:
-				pass
-			elif (current[1] - prev[1])*(next[1] - current[1]) > 0:
-				#print(str(current[0]) + " " + str(current[1]))
-				includeStart = False
-			
-			setPolyPoints(points, current, next, includeStart)
-			
-		prev = current
-		current = next
-		if i == length -1:
-			next =  poly[0]
-		else:
-			next = poly[i+1]
-	
-	y = 0
-	for p in points:
-		l = len(p)
-		for i in range(0,l,2):
-			if l & 1 == 0:
-				for i in range(0,l,2):
-					#pyxel.line(p[i], y, p[i+1], y, clr)
-					if p[i] < p[i+1]:
-						pyxel.blt(p[i], y, 4, p[i], y, p[i+1] -p[i]+1, 1)
-					else:
-						pyxel.blt(p[i+1], y, 4, p[i+1], y, p[i] -p[i+1]+1, 1)
-		y += 1
 
 
 def setMenuColor(index, menuPos):
@@ -1228,22 +908,6 @@ def setMenuColor(index, menuPos):
 		pyxel.pal()
 	else:
 		pyxel.pal(7, 12)
-
-def drawUpDownMarker(x, y):
-	pyxel.blt(x, y, 0, 0, 32, -8, 8, TP_COLOR)
-	pyxel.blt(x +26, y, 0, 0, 32, 8, 8, TP_COLOR)
-
-def drawUpDownMarker2(x, y, min, max, value):
-	drawLeftMarker(x, y, min < value)
-	drawRightMarker(x +26, y, value < max)
-	#pyxel.blt(x, y, 0, 0, 32, -8, 8, TP_COLOR)
-	#pyxel.blt(x +26, y, 0, 0, 32, 8, 8, TP_COLOR)
-
-def drawLeftMarker(x, y, enabled):
-	pyxel.blt(x, y, 0, 0 if enabled else 16, 32, -8, 8, TP_COLOR)
-
-def drawRightMarker(x, y, enabled):
-	pyxel.blt(x, y, 0, 0 if enabled else 16, 32, 8, 8, TP_COLOR)
 
 
 
@@ -1253,22 +917,6 @@ def getMirrorDr64(dr64):
 		return 32 -dr
 	else:
 		return 96 -dr
-
-def stretchBlt(dx, dy, dwidth, dheight, img, sx, sy, swidth, sheight):
-	wx = 0
-	wy = 128
-	# 
-	a = sheight/dheight
-	py = sy
-	for y in range(int(dheight)):
-		pyxel.image(img).copy(wx, wy+y, img, sx, py, swidth, 1)
-		py += a
-	a = swidth/dwidth
-	px = wx
-	pyxel.pal()
-	for x in range(int(dwidth)):
-		pyxel.blt(dx +x, dy, img, px, wy, 1, dheight, 0)
-		px += a
 
 def inScreen(x, y):
 	return x >= SCREEN_MIN_X and x <= SCREEN_MAX_X and y >= SCREEN_MIN_Y and y <= SCREEN_MAX_Y
@@ -1282,10 +930,6 @@ def checkMouseMenuPos(rects):
 		if rect.contains(pyxel.mouse_x, pyxel.mouse_y):
 			return i
 	return -1
-
-def drawRectbs(rects, clr):
-	for rect in rects:
-		pyxel.rectb(rect.left, rect.top, rect.getWidth(), rect.getHeight(), clr)
 
 # 符号付整数化
 # sint(-1.5) -> -2

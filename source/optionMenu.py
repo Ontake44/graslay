@@ -3,6 +3,7 @@ import gcommon
 from mouseManager import MouseManager
 from audio import BGM
 from settings import Settings 
+from drawing import Drawing
 
 OPTIONMENU_BGM_VOL = 0
 OPTIONMENU_SOUND_VOL = 1
@@ -115,44 +116,44 @@ class OptionMenuScene:
 		pyxel.pal()
 		x1 = 72
 		x2 = MENU_VALUE_X
-		gcommon.showTextHCenter(8, "OPTION")
+		Drawing.showTextHCenter(8, "OPTION")
 		y = 50
 		gcommon.setMenuColor(OPTIONMENU_BGM_VOL, self.menuPos)
-		gcommon.showText(x1, y, "BGM VOLUME")
-		gcommon.showText(x2, y, str(Settings.bgmVolume).rjust(2))
+		Drawing.showText(x1, y, "BGM VOLUME")
+		Drawing.showText(x2, y, str(Settings.bgmVolume).rjust(2))
 		if OPTIONMENU_BGM_VOL == self.menuPos:
 			#gcommon.drawUpDownMarker(x2 -10, y)
-			gcommon.drawUpDownMarker2(x2 -10, y, 0, 10, Settings.bgmVolume)
+			Drawing.drawUpDownMarker2(x2 -10, y, 0, 10, Settings.bgmVolume)
 		y += 20
 
 		gcommon.setMenuColor(OPTIONMENU_SOUND_VOL, self.menuPos)
-		gcommon.showText(x1, y, "SE VOLUME")
+		Drawing.showText(x1, y, "SE VOLUME")
 		se = "ON " if Settings.soundVolume > 0 else "OFF"
-		gcommon.showText(x2, y, se)
+		Drawing.showText(x2, y, se)
 		if OPTIONMENU_SOUND_VOL == self.menuPos:
 			leftMarker = (Settings.soundVolume > 0)
-			gcommon.drawLeftMarker(x2 -10, y, leftMarker)
-			gcommon.drawRightMarker(x2 +len(se)*8 + 2, y, not leftMarker)
+			Drawing.drawLeftMarker(x2 -10, y, leftMarker)
+			Drawing.drawRightMarker(x2 +len(se)*8 + 2, y, not leftMarker)
 		y += 20
 
 		gcommon.setMenuColor(OPTIONMENU_MOUSE_ENABLED, self.menuPos)
-		gcommon.showText(x1, y, "MOUSE")
+		Drawing.showText(x1, y, "MOUSE")
 		mouseOnOff = "ON " if Settings.mouseEnabled else "OFF"
-		gcommon.showText(x2, y, mouseOnOff)
+		Drawing.showText(x2, y, mouseOnOff)
 		if OPTIONMENU_MOUSE_ENABLED == self.menuPos:
 			leftMarker = (Settings.mouseEnabled == True)
-			gcommon.drawLeftMarker(x2 -10, y, leftMarker)
-			gcommon.drawRightMarker(x2 +len(se)*8 + 2, y, not leftMarker)
+			Drawing.drawLeftMarker(x2 -10, y, leftMarker)
+			Drawing.drawRightMarker(x2 +len(se)*8 + 2, y, not leftMarker)
 		y += 20
 
 		gcommon.setMenuColor(OPTIONMENU_SCORE_RANKIG, self.menuPos)
-		gcommon.showTextHCenter(y, "SCORE RANKING")
+		Drawing.showTextHCenter(y, "SCORE RANKING")
 		y += 20
 
 		gcommon.setMenuColor(OPTIONMENU_EXIT, self.menuPos)
-		gcommon.showTextHCenter(y, "EXIT")
+		Drawing.showTextHCenter(y, "EXIT")
 		
-		gcommon.setBrightness1()
+		Drawing.setBrightness1()
 		pyxel.blt(32, 48 + self.menuPos * 20, 4, 32, 48 + self.menuPos * 20, 192, 12)
 		pyxel.pal()
 

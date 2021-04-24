@@ -9,6 +9,7 @@ from enemyShot import BossFactoryShot2
 from objMgr import ObjMgr
 from gameSession import GameSession
 from audio import BGM
+from drawing import Drawing
 
 class BossFactoryShot1(enemy.EnemyBase):
 	def __init__(self, x, y):
@@ -486,12 +487,8 @@ class BossFactory(enemy.EnemyBase):
 					self.y +39.5 +math.sin(self.rad + math.pi/4 * i) * 32 -7.5, 
 					2, 32, 32, 16, 16, gcommon.TP_COLOR)
 
-		# for p in self.xpoints2:
-		# 	gcommon.drawPolygon(p, 4)
-		# for p in self.xpoints1:
-		# 	gcommon.drawPolygon2(p, 9, 4)
 		for polygons in self.xpolygonsList:
-			gcommon.drawPolygons(polygons)
+			Drawing.drawPolygons(polygons)
 
 	# 自機弾と敵との当たり判定と破壊処理
 	def checkShotCollision(self, shot):

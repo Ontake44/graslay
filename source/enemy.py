@@ -6,6 +6,7 @@ import gcommon
 from objMgr import ObjMgr
 from gameSession import GameSession
 from audio import BGM
+from drawing import Drawing
 
 enemy1_spmap=[	\
 [160,1,1],	\
@@ -832,7 +833,7 @@ class Splash(EnemyBase):
 
 	def update(self):
 		if self.cnt == 0:
-			for i in range(0,self.count):
+			for dummy in range(0,self.count):
 				r = self.direction + random.random() * self.angle - self.angle/2
 				speed = random.random() * 6
 				s = SplashItem(self.x, self.y, speed * math.cos(r), speed * math.sin(r), random.randrange(100, 240))
@@ -946,7 +947,7 @@ class Fan1aGroup(EnemyBase):
 		self.hitCheck = False
 		self.shotHitCheck = False
 		r = 0.0
-		for i in range(self.max):
+		for dummy in range(self.max):
 			if r != 0.0 or GameSession.isHard():
 				ObjMgr.addObj(Fan1a([0, 0, r +math.pi]))
 			r += math.pi * 2.0 /self.max
@@ -1464,7 +1465,7 @@ class Worm1(EnemyBase):
 			pass
 		self.subDr = 0
 		self.cells = []
-		for i in range(0, self.cellCount):
+		for dummy in range(0, self.cellCount):
 			self.cells.append([0,0])
 
 		# 触手セルの当たり判定範囲
@@ -1657,7 +1658,7 @@ class Worm2(EnemyBase):
 						self.subcnt =  self.tbl[self.tblIndex][0]
 	
 	def draw(self):
-		n = int(self.cnt/11) %3
+		#n = int(self.cnt/11) %3
 		pyxel.blt(self.x, self.y, 1, 48, 144, 24, 24, gcommon.TP_COLOR)
 
 
@@ -1751,7 +1752,7 @@ class StageClear(EnemyBase):
 
 	def draw(self):
 		if self.stage != "6":
-			gcommon.showText(self.x, self.y, self.text)
+			Drawing.showText(self.x, self.y, self.text)
 
 class FixedShutter1(EnemyBase):
 	def __init__(self, mx, my, size):
@@ -1990,7 +1991,7 @@ class Particle1(EnemyBase):
 		self.hitCheck = False
 		self.shotHitCheck = False
 		self.speedDown = True		# Falseにするとスピード落ちない
-		for i in range(0, count):
+		for dummy in range(0, count):
 			r = rad + random.random() * math.pi/4 - math.pi/8
 			speed = random.random() * 6
 			s = SplashItem(cx, cy, speed * math.cos(r), speed * math.sin(r), random.randrange(int(life/5), life))
@@ -2061,7 +2062,7 @@ class Particle2(EnemyBase):
 		self.layer = gcommon.C_LAYER_EXP_SKY
 		self.hitCheck = False
 		self.shotHitCheck = False
-		for i in range(0, self.count):
+		for dummy in range(0, self.count):
 			r = random.random() * math.pi * 2
 			speed = random.random() * 6
 			s = SplashItem(cx, cy, speed * math.cos(r), speed * math.sin(r), random.randrange(10, 50))
@@ -2288,9 +2289,9 @@ class Circulator1(EnemyBase):
 
 	def draw(self):
 		for p in self.xpoints1:
-			gcommon.drawQuadrangle(p, 6)
+			Drawing.drawQuadrangle(p, 6)
 		for p in self.xpoints2:
-			gcommon.drawQuadrangle(p, 5)
+			Drawing.drawQuadrangle(p, 5)
 		#pyxel.blt(self.x-20, self.y-20, 1, 128, 56, 40, 40, gcommon.TP_COLOR)
 		pyxel.blt(self.x-12, self.y-12, 2, 24, 0, 24, 24, gcommon.TP_COLOR)
 
@@ -2549,9 +2550,9 @@ class SpotLight(EnemyBase):
 			[x + 300 * math.cos(self.lightRad + math.pi*10/180), y + 300 * math.sin(self.lightRad + math.pi*10/180)],
 			[x + 300 * math.cos(self.lightRad - math.pi*10/180), y + 300 * math.sin(self.lightRad - math.pi*10/180)]
 		]
-		xpoly = gcommon.clipPolygon(poly)
-		gcommon.setBrightness1()
-		gcommon.drawPolygonSystemImage(xpoly)
+		xpoly = Drawing.clipPolygon(poly)
+		Drawing.setBrightness1()
+		Drawing.drawPolygonSystemImage(xpoly)
 		pyxel.pal()
 
 #    P
@@ -2713,14 +2714,14 @@ class Walker1(EnemyBase):
 			polygonList.append(gcommon.Polygon(waker1UpperLeg2, self.colorTable[1][1]))
 			polygonList.append(gcommon.Polygon(waker1UpperLeg3, self.colorTable[1][2]))
 			rad = math.atan2(Q2[1] -self.PPoint[1], Q2[0] -self.PPoint[0])
-			gcommon.drawPolygons(gcommon.getAnglePolygons([self.x +ox +self.PPoint[0], self.y +oy +self.PPoint[1]], polygonList, [6.5,3], rad - math.pi/2))
+			Drawing.drawPolygons(gcommon.getAnglePolygons([self.x +ox +self.PPoint[0], self.y +oy +self.PPoint[1]], polygonList, [6.5,3], rad - math.pi/2))
 
 			polygonList = []
 			polygonList.append(gcommon.Polygon(waker1LowerLeg1, self.colorTable[1][0]))
 			polygonList.append(gcommon.Polygon(waker1LowerLeg2, self.colorTable[1][1]))
 			polygonList.append(gcommon.Polygon(waker1LowerLeg3, self.colorTable[1][2]))
 			rad = math.atan2(R2[1]- Q2[1], R2[0]-Q2[0])
-			gcommon.drawPolygons(gcommon.getAnglePolygons([self.x +ox +Q2[0], self.y +oy +Q2[1]], polygonList, [20,6], rad - math.pi/2 - math.pi/32))
+			Drawing.drawPolygons(gcommon.getAnglePolygons([self.x +ox +Q2[0], self.y +oy +Q2[1]], polygonList, [20,6], rad - math.pi/2 - math.pi/32))
 
 			pyxel.blt(self.x, self.y, 2, 0, 0, 58, 39, gcommon.TP_COLOR)
 			if i == 1:
@@ -2827,7 +2828,7 @@ class Spider1(EnemyBase):
 		self.polygonList3.append(gcommon.Polygon(spider1Leg1b, 9))
 		self.polygonList3.append(gcommon.Polygon(spider1Leg1c, 10))
 		self.legs = []
-		for i in range(6):
+		for dummy in range(6):
 			self.legs.append(Spider1Leg())
 		# くつ？の当たり判定Rect
 		self.upperShoe = gcommon.Rect.create(4, 0, 19, 6)
@@ -3002,20 +3003,20 @@ class Spider1(EnemyBase):
 	# 	#pyxel.line(x1, y1, x2, y2, 7)
 	# 	px = x1 + math.cos(rad) * (length -25)
 	# 	py = y1 - math.sin(rad) * (length -25)
-	# 	gcommon.drawPolygons(gcommon.getAnglePolygons([px, py], self.polygonList1, [2.5,0], -rad - math.pi/2))
+	# 	Drawing.drawPolygons(gcommon.getAnglePolygons([px, py], self.polygonList1, [2.5,0], -rad - math.pi/2))
 	# 	px = x1 + math.cos(rad) * (length -25)/2
 	# 	py = y1 - math.sin(rad) * (length -25)/2
-	# 	gcommon.drawPolygons(gcommon.getAnglePolygons([px, py], self.polygonList2, [4.5,0], -rad - math.pi/2))
-	# 	gcommon.drawPolygons(gcommon.getAnglePolygons([x1, y1], self.polygonList3, [5.5,0], -rad - math.pi/2))
+	# 	Drawing.drawPolygons(gcommon.getAnglePolygons([px, py], self.polygonList2, [4.5,0], -rad - math.pi/2))
+	# 	Drawing.drawPolygons(gcommon.getAnglePolygons([x1, y1], self.polygonList3, [5.5,0], -rad - math.pi/2))
 	# 	# 付け根の丸いやつ
 	# 	pyxel.blt(x -7.5, y -7.5, 2, 96, 128, 16, 16, gcommon.TP_COLOR)
 	# 	# かかとを描く
 	# 	pyxel.blt(x2 - 11.5, y2 -8, 2, 80, 64, 24, 16 * isLower, gcommon.TP_COLOR)
 
 	def drawLeg2(self, leg, x, y, isLower):
-		gcommon.drawPolygons(leg.xpolygonList1)
-		gcommon.drawPolygons(leg.xpolygonList2)
-		gcommon.drawPolygons(leg.xpolygonList3)
+		Drawing.drawPolygons(leg.xpolygonList1)
+		Drawing.drawPolygons(leg.xpolygonList2)
+		Drawing.drawPolygons(leg.xpolygonList3)
 		# 付け根の丸いやつ
 		pyxel.blt(x -7.5, y -7.5, 2, 104, 64, 16, 16, gcommon.TP_COLOR)
 		# かかとを描く
@@ -3067,9 +3068,9 @@ class Shutter2(EnemyBase):
 
 	def draw(self):
 		if self.isUpper:
-			gcommon.drawPolygons(self.xpolygonList1)
+			Drawing.drawPolygons(self.xpolygonList1)
 		else:
-			gcommon.drawPolygons(self.xpolygonList1)
+			Drawing.drawPolygons(self.xpolygonList1)
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
