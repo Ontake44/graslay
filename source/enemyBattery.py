@@ -5,8 +5,10 @@ import math
 import random
 import gcommon
 import enemy
+from objMgr import ObjMgr
 from enemy import EnemyBase
 from enemy import CountMover
+from gameSession import GameSession
 
 # 倉庫内移動砲台
 # x, yは中心座標 t[2], t[3]はマップ座標
@@ -26,7 +28,7 @@ class MovableBattery1(EnemyBase):
 		if self.x <= -96 or self.x >= gcommon.SCREEN_MAX_X+96 or self.y <= -96 or self.y >= gcommon.SCREEN_MAX_Y+96:
 			gcommon.debugPrint("MovableBattery1 is ng start point (" +  str(self.mx) + ","+ str(self.my) +") (" + str(self.x) + "," + str(self.y)+"")
 		else:
-			gcommon.ObjMgr.addObj(MovableBattery1p(self.x, self.y, self.firstShot, self.moveTable))
+			ObjMgr.addObj(MovableBattery1p(self.x, self.y, self.firstShot, self.moveTable))
 		self.remove()
 
 	def update(self):
@@ -51,7 +53,7 @@ class MovableBattery1p(EnemyBase):
 		self.hitcolor1 = 13
 		self.hitcolor2 = 15
 		self.hp = 80
-		self.shotInterval = int(120 / gcommon.GameSession.enemy_shot_rate)
+		self.shotInterval = int(120 / GameSession.enemy_shot_rate)
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
@@ -159,8 +161,8 @@ class Tractor1(EnemyBase):
 		self.ground = True
 		self.score = 100
 		obj = Freight1(self, 0, 36)
-		gcommon.ObjMgr.addObj(obj)
-		gcommon.ObjMgr.addObj(Freight1(obj, 0, 48))
+		ObjMgr.addObj(obj)
+		ObjMgr.addObj(Freight1(obj, 0, 48))
 
 	def update(self):
 		self.mover.update()
@@ -226,7 +228,7 @@ class Ducker1(EnemyBase):
 		self.bottom = 11
 		self.layer = gcommon.C_LAYER_GRD
 		self.hp = 100
-		self.shotInterval = int(120 / gcommon.GameSession.enemy_shot_rate)
+		self.shotInterval = int(120 / GameSession.enemy_shot_rate)
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = False

@@ -3,8 +3,9 @@ import pyxel
 import math
 import random
 import gcommon
-
-
+from objMgr import ObjMgr
+from gameSession import GameSession
+from audio import BGM
 
 enemy1_spmap=[	\
 [160,1,1],	\
@@ -22,36 +23,36 @@ tank1_spmap=[64,0,0,0,32,0,0,0]
 
 
 def enemy_shot(x, y, speed, shotType):
-	gcommon.ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, 0))
-	#gcommon.ObjMgr.objs.append(EnemyShot(x, y, speed, shotType, -1, 0))
+	ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, 0))
+	#ObjMgr.objs.append(EnemyShot(x, y, speed, shotType, -1, 0))
 
 def enemy_shot_offset(x, y, speed, shotType, offsetDr):
-	gcommon.ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, offsetDr))
+	ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, offsetDr))
 
 def enemy_shot_multi(x, y, speed, shotType, count, angleDr):
 	for i in range(count):
-		gcommon.ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, int(angleDr * (count/2 -i))))
+		ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, int(angleDr * (count/2 -i))))
 
 def enemy_shot_dr(x, y, speed, shotType, dr):
-	gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr))
+	ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr))
 
 def enemy_shot_rad(x, y, speed, shotType, rad):
-	gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedRad(x, y, speed, shotType, rad))
+	ObjMgr.objs.append(EnemyShot.createSpecifiedRad(x, y, speed, shotType, rad))
 
 def enemy_shot_dr_multi(x, y, speed, shotType, dr, count, angleDr):
 	if count & 1 == 1:
-		gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr))
+		ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr))
 		for i in range(count>>1):
-			gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr + angleDr * i))
-			gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr - angleDr * i))
+			ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr + angleDr * i))
+			ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr - angleDr * i))
 	else:
 		for i in range(count>>1):
-			gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr + int(angleDr/2 + angleDr * i)))
-			gcommon.ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr - int(angleDr/2 + angleDr * i)))
+			ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr + int(angleDr/2 + angleDr * i)))
+			ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr - int(angleDr/2 + angleDr * i)))
 
 
 def remove_all_battery():
-	for obj in gcommon.ObjMgr.objs:
+	for obj in ObjMgr.objs:
 		if obj.t==gcommon.T_BATTERY1:
 			obj.removeFlag = True
 
@@ -121,9 +122,9 @@ class EnemyBase:
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
 		if self.collisionRects != None:
-			return gcommon.check_collision_list(self.x, self.y, self.collisionRects, gcommon.ObjMgr.myShip)
+			return gcommon.check_collision_list(self.x, self.y, self.collisionRects, ObjMgr.myShip)
 		else:
-			return gcommon.check_collision(self, gcommon.ObjMgr.myShip)
+			return gcommon.check_collision(self, ObjMgr.myShip)
 
 	def drawLayer(self, layer):
 		self.draw()
@@ -144,7 +145,7 @@ class EnemyBase:
 		if self.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD):
 			layer = gcommon.C_LAYER_GRD
 		
-		gcommon.GameSession.addScore(self.score)
+		GameSession.addScore(self.score)
 		
 		create_explosion2(self.x+(self.right+self.left+1)/2, self.y+(self.bottom+self.top+1)/2, layer, self.exptype, self.expsound)
 		self.remove()
@@ -250,7 +251,7 @@ class WhereAppear(EnemyBase):
 			table.insert(0, 0)
 			table.insert(0, 0)
 			obj = className(table)
-			gcommon.ObjMgr.objs.append(obj)
+			ObjMgr.objs.append(obj)
 			obj.appended()
 
 	def update(self):
@@ -262,26 +263,26 @@ class WhereAppear(EnemyBase):
 # exlayer explosion layer
 def create_explosion(cx, cy, exlayer, exptype):
 	if exptype==gcommon.C_EXPTYPE_SKY_S or exptype==gcommon.C_EXPTYPE_GRD_S:
-		gcommon.sound(gcommon.SOUND_SMALL_EXP)
+		BGM.sound(gcommon.SOUND_SMALL_EXP)
 	else:
-		gcommon.sound(gcommon.SOUND_MID_EXP)
-	gcommon.ObjMgr.objs.append(Explosion(cx,cy,exlayer,exptype))
+		BGM.sound(gcommon.SOUND_MID_EXP)
+	ObjMgr.objs.append(Explosion(cx,cy,exlayer,exptype))
 
 def create_explosion2(cx, cy, exlayer, exptype, expsound):
 	if expsound != -1:
-		gcommon.sound(expsound)
+		BGM.sound(expsound)
 	else:
 		if exptype==gcommon.C_EXPTYPE_SKY_S or exptype==gcommon.C_EXPTYPE_GRD_S:
-			gcommon.sound(gcommon.SOUND_SMALL_EXP)
+			BGM.sound(gcommon.SOUND_SMALL_EXP)
 		else:
-			gcommon.sound(gcommon.SOUND_MID_EXP)
-	gcommon.ObjMgr.objs.append(Explosion(cx,cy,exlayer,exptype))
+			BGM.sound(gcommon.SOUND_MID_EXP)
+	ObjMgr.objs.append(Explosion(cx,cy,exlayer,exptype))
 
 #
 # アイテム生成
 def create_item(cx, cy, itype):
 	if itype == gcommon.C_ITEM_PWUP:
-		gcommon.ObjMgr.objs.append(PowerUp(cx,cy))
+		ObjMgr.objs.append(PowerUp(cx,cy))
 
 
 
@@ -332,23 +333,23 @@ class EnemyShot(EnemyBase):
 	def createToMyShip(cls, x, y, speed, shotType, offsetDr):
 		shot = EnemyShot(x, y, speed, shotType)
 		r = gcommon.get_atan_to_ship2(x,y,offsetDr)
-		shot.dx = math.cos(r) * speed * gcommon.GameSession.enemy_shot_rate
-		shot.dy = math.sin(r) * speed * gcommon.GameSession.enemy_shot_rate
+		shot.dx = math.cos(r) * speed * GameSession.enemy_shot_rate
+		shot.dy = math.sin(r) * speed * GameSession.enemy_shot_rate
 		return shot
 	
 	@classmethod
 	def createSpecifiedDirection(cls, x, y, speed, shotType, dr):
 		shot = EnemyShot(x, y, speed, shotType)
 		r = dr & 63
-		shot.dx = math.cos(gcommon.atan_table[r]) * speed * gcommon.GameSession.enemy_shot_rate
-		shot.dy = math.sin(gcommon.atan_table[r]) * speed * gcommon.GameSession.enemy_shot_rate
+		shot.dx = math.cos(gcommon.atan_table[r]) * speed * GameSession.enemy_shot_rate
+		shot.dy = math.sin(gcommon.atan_table[r]) * speed * GameSession.enemy_shot_rate
 		return shot
 
 	@classmethod
 	def createSpecifiedRad(cls, x, y, speed, shotType, rad):
 		shot = EnemyShot(x, y, speed, shotType)
-		shot.dx = math.cos(rad) * speed * gcommon.GameSession.enemy_shot_rate
-		shot.dy = math.sin(rad) * speed * gcommon.GameSession.enemy_shot_rate
+		shot.dx = math.cos(rad) * speed * GameSession.enemy_shot_rate
+		shot.dy = math.sin(rad) * speed * GameSession.enemy_shot_rate
 		return shot
 
 	def update(self):
@@ -565,7 +566,7 @@ class Jumper1(EnemyBase):
 				self.dy = -self.dy
 		#elif gcommon.isMapFreePos(self.x + 8, self.y -4) == False:
 		#	self.dy = -self.dy
-		if self.cnt == 30 and gcommon.GameSession.isHard():
+		if self.cnt == 30 and GameSession.isHard():
 			enemy_shot(self.x +8, self.y +8, 2, 0)
 
 	def draw(self):
@@ -608,7 +609,7 @@ class Jumper2(EnemyBase):
 				self.dx = -self.dx
 		#elif gcommon.isMapFreePos(self.x + 8, self.y -4) == False:
 		#	self.dy = -self.dy
-		if self.cnt == 30 and gcommon.GameSession.isHard():
+		if self.cnt == 30 and GameSession.isHard():
 			enemy_shot(self.x +8, self.y +8, 2, 0)
 
 	def draw(self):
@@ -658,7 +659,7 @@ class RollingFighter1Group(EnemyBase):
 
 	def update(self):
 		if self.cnt % self.interval == 0:
-			gcommon.ObjMgr.addObj(RollingFighter1([0, 0, self.y, self.cnt2==0 or gcommon.GameSession.isHard()]))
+			ObjMgr.addObj(RollingFighter1([0, 0, self.y, self.cnt2==0 or GameSession.isHard()]))
 			self.cnt2 += 1
 			if self.cnt2 >= self.max:
 				self.remove()
@@ -692,8 +693,8 @@ class Battery1(EnemyBase):
 		self.hitcolor1 = 8
 		self.hitcolor2 = 14
 		self.exptype = gcommon.C_EXPTYPE_GRD_S
-		self.interval = int(120 / gcommon.GameSession.enemy_shot_rate)
-		self.first = int(120 / gcommon.GameSession.enemy_shot_rate)
+		self.interval = int(120 / GameSession.enemy_shot_rate)
+		self.first = int(120 / GameSession.enemy_shot_rate)
 		self.shot_speed = 2
 		self.remove_min_x = -16
 
@@ -813,13 +814,13 @@ class Splash(EnemyBase):
 
 	@classmethod
 	def append(cls, x, y, layer):
-		gcommon.ObjMgr.addObj(Splash(x, y, layer))
+		ObjMgr.addObj(Splash(x, y, layer))
 
 	@classmethod
 	def append2(cls, x, y, layer, count):
 		obj = Splash(x, y, layer)
 		obj.count = count
-		gcommon.ObjMgr.addObj(obj)
+		ObjMgr.addObj(obj)
 
 	@classmethod
 	def appendDr(cls, x, y, layer, dr, angle, count):
@@ -827,7 +828,7 @@ class Splash(EnemyBase):
 		obj.direction = dr
 		obj.angle = angle
 		obj.count = count
-		gcommon.ObjMgr.addObj(obj)
+		ObjMgr.addObj(obj)
 
 	def update(self):
 		if self.cnt == 0:
@@ -879,7 +880,7 @@ class EnemyGroup(EnemyBase):
 
 	def update(self):
 		if self.cnt % self.interval == 0:
-			gcommon.ObjMgr.addObj(self.cls(self.params))
+			ObjMgr.addObj(self.cls(self.params))
 			self.cnt2 += 1
 			if self.cnt2 >= self.max:
 				self.remove()
@@ -946,8 +947,8 @@ class Fan1aGroup(EnemyBase):
 		self.shotHitCheck = False
 		r = 0.0
 		for i in range(self.max):
-			if r != 0.0 or gcommon.GameSession.isHard():
-				gcommon.ObjMgr.addObj(Fan1a([0, 0, r +math.pi]))
+			if r != 0.0 or GameSession.isHard():
+				ObjMgr.addObj(Fan1a([0, 0, r +math.pi]))
 			r += math.pi * 2.0 /self.max
 		self.remove()
 
@@ -970,7 +971,7 @@ class Fan1Group(EnemyBase):
 
 	def update(self):
 		if self.cnt % self.interval == 0:
-			gcommon.ObjMgr.addObj(Fan1([0, 0, 256, self.y, self.shotFlag]))
+			ObjMgr.addObj(Fan1([0, 0, 256, self.y, self.shotFlag]))
 			self.cnt2 += 1
 			if self.cnt2 >= self.max:
 				self.remove()
@@ -1009,14 +1010,14 @@ class Fan1(EnemyBase):
 			self.x -= 3
 
 		if self.state in (1, 2):
-			if gcommon.ObjMgr.myShip.y < self.y +2:
+			if ObjMgr.myShip.y < self.y +2:
 				self.y -= 1.5
-			elif gcommon.ObjMgr.myShip.y > self.y -2:
+			elif ObjMgr.myShip.y > self.y -2:
 				self.y += 1.5
 		if self.x <= -16:
 			self.remove()
 			return
-		if self.shotFlag and self.frameCount == 60 and gcommon.GameSession.isHard():
+		if self.shotFlag and self.frameCount == 60 and GameSession.isHard():
 			enemy_shot(self.x +8, self.y +8, 2, 0)
 
 	def draw(self):
@@ -1048,7 +1049,7 @@ class Fan1b(EnemyBase):
 			self.remove()
 			return
 
-		if self.frameCount == 30 and gcommon.GameSession.isHard():
+		if self.frameCount == 30 and GameSession.isHard():
 			enemy_shot(self.x +8, self.y +8, 2, 0)
 
 	def draw(self):
@@ -1073,7 +1074,7 @@ class Fan1bLauncher(EnemyBase):
 			self.remove()
 			return
 		if self.cnt % self.interval == 0:
-			gcommon.ObjMgr.addObj(Fan1b(self.x, self.y, self.dr64))
+			ObjMgr.addObj(Fan1b(self.x, self.y, self.dr64))
 
 	def draw(self):
 		pass
@@ -1109,8 +1110,8 @@ class MissileShip(EnemyBase):
 				# ミサイル発射
 				self.dx = 0.1
 				self.nextState()
-				gcommon.ObjMgr.addObj(Missile1(self.x -8, self.y -5, -1))
-				gcommon.ObjMgr.addObj(Missile1(self.x -8, self.y +14, 1))
+				ObjMgr.addObj(Missile1(self.x -8, self.y -5, -1))
+				ObjMgr.addObj(Missile1(self.x -8, self.y +14, 1))
 		elif self.state == 2:
 			self.x += self.dx
 			self.dx += 0.1
@@ -1324,35 +1325,35 @@ class Cell1Group1(EnemyBase):
 	def update(self):
 		if self.hv == 0:
 			if self.cnt == 0:
-				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY]))
-				obj.shotFlag = gcommon.GameSession.isHard()
+				obj = ObjMgr.addObj(Cell1([0,0, self.startX, self.startY]))
+				obj.shotFlag = GameSession.isHard()
 			elif self.cnt == 20:
-				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 50]))
-				obj.shotFlag = gcommon.GameSession.isHard()
+				obj = ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 50]))
+				obj.shotFlag = GameSession.isHard()
 			elif self.cnt == 40:
-				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 20]))
+				obj = ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 20]))
 			elif self.cnt == 60:
-				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 70]))
-				obj.shotFlag = gcommon.GameSession.isHard()
+				obj = ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 70]))
+				obj.shotFlag = GameSession.isHard()
 			elif self.cnt == 80:
-				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 30]))
-				obj.shotFlag = gcommon.GameSession.isHard()
+				obj = ObjMgr.addObj(Cell1([0,0, self.startX, self.startY + 30]))
+				obj.shotFlag = GameSession.isHard()
 				self.remove()
 		else:
 			if self.cnt == 0:
-				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX, self.startY]))
-				obj.shotFlag = gcommon.GameSession.isHard()
+				obj = ObjMgr.addObj(Cell1([0,0, self.startX, self.startY]))
+				obj.shotFlag = GameSession.isHard()
 			elif self.cnt == 20:
-				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +50, self.startY]))
-				obj.shotFlag = gcommon.GameSession.isHard()
+				obj = ObjMgr.addObj(Cell1([0,0, self.startX +50, self.startY]))
+				obj.shotFlag = GameSession.isHard()
 			elif self.cnt == 40:
-				gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +20, self.startY]))
+				ObjMgr.addObj(Cell1([0,0, self.startX +20, self.startY]))
 			elif self.cnt == 60:
-				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +70, self.startY]))
-				obj.shotFlag = gcommon.GameSession.isHard()
+				obj = ObjMgr.addObj(Cell1([0,0, self.startX +70, self.startY]))
+				obj.shotFlag = GameSession.isHard()
 			elif self.cnt == 80:
-				obj = gcommon.ObjMgr.addObj(Cell1([0,0, self.startX +30, self.startY]))
-				obj.shotFlag = gcommon.GameSession.isHard()
+				obj = ObjMgr.addObj(Cell1([0,0, self.startX +30, self.startY]))
+				obj.shotFlag = GameSession.isHard()
 				self.remove()
 
 	def draw(self):
@@ -1426,7 +1427,7 @@ class Worm1(EnemyBase):
 		self.dr = 48
 		self.offsetX = 4
 		self.offsetY = 0
-		if gcommon.GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
+		if GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
 			self.shotCycle  = 63
 		else:
 			self.shotCycle  = 31
@@ -1596,19 +1597,19 @@ class Worm1(EnemyBase):
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
-		if gcommon.check_collision(self, gcommon.ObjMgr.myShip):
+		if gcommon.check_collision(self, ObjMgr.myShip):
 			return True
 		else:
 			# 触手部の当たり判定
 			for pos in self.cells:
 				x = self.x +self.offsetX +pos[0]
 				y = self.y +self.offsetY +pos[1]
-				if gcommon.check_collision2(x, y, self.cellRect, gcommon.ObjMgr.myShip):
+				if gcommon.check_collision2(x, y, self.cellRect, ObjMgr.myShip):
 					return True
 			return False
 
 	def broken(self):
-		gcommon.GameSession.addScore(self.score)
+		GameSession.addScore(self.score)
 		self.setState(100)
 		self.cnt = 0
 		self.shotHitCheck = False
@@ -1698,7 +1699,7 @@ class Worm2Group(EnemyBase):
 
 	def update(self):
 		if self.cnt % 15 == 0:
-			gcommon.ObjMgr.addObj(Worm2([0, 0, self.x, self.y, self.dr, self.tbl]))
+			ObjMgr.addObj(Worm2([0, 0, self.x, self.y, self.dr, self.tbl]))
 			self.cellCount -= 1
 			if self.cellCount == 0:
 				self.remove()
@@ -1718,7 +1719,7 @@ class Delay(EnemyBase):
 
 	def update(self):
 		if self.cnt == self.delayTime:
-			gcommon.ObjMgr.addObj(self.cls(self.t))
+			ObjMgr.addObj(self.cls(self.t))
 			self.remove()
 
 	def draw(self):
@@ -1735,8 +1736,8 @@ class StageClear(EnemyBase):
 		self.shotHitCheck = False
 		self.stage = t[2]
 		self.text = "STAGE " + self.stage + " CLEAR"
-		gcommon.BGM.playOnce(gcommon.BGM.STAGE_CLEAR)
-		gcommon.ObjMgr.myShip.setSubScene(5)
+		BGM.playOnce(BGM.STAGE_CLEAR)
+		ObjMgr.myShip.setSubScene(5)
 
 	def update(self):
 		if self.state == 0:
@@ -1955,7 +1956,7 @@ class Battery2(FallingObject):
 		super(Battery2, self).__init__(mx, my, direction, 2, 2, False)
 		self.left = 2
 		self.right = 13
-		self.interval = int(63 / gcommon.GameSession.enemy_shot_rate)
+		self.interval = int(63 / GameSession.enemy_shot_rate)
 		if self.direction == 1:
 			self.top = 5
 			self.bottom = 15
@@ -1997,28 +1998,28 @@ class Particle1(EnemyBase):
 
 	@classmethod
 	def append(cls, x, y, rad):
-		return gcommon.ObjMgr.addObj(Particle1(x, y, rad, 8, 50))
+		return ObjMgr.addObj(Particle1(x, y, rad, 8, 50))
 
 	@classmethod
 	def appendPos(cls, pos, rad):
-		return gcommon.ObjMgr.addObj(Particle1(pos[0], pos[1], rad, 8, 50))
+		return ObjMgr.addObj(Particle1(pos[0], pos[1], rad, 8, 50))
 
 	@classmethod
 	def appendCenter(cls, obj, rad):
 		pos = gcommon.getCenterPos(obj)
-		return gcommon.ObjMgr.addObj(Particle1(pos[0], pos[1], rad, 8, 50))
+		return ObjMgr.addObj(Particle1(pos[0], pos[1], rad, 8, 50))
 
 	@classmethod
 	def appendShotCenter(cls, obj):
 		rad = math.atan2(obj.dy, obj.dx)
 		pos = gcommon.getCenterPos(obj)
-		return gcommon.ObjMgr.addObj(Particle1(pos[0], pos[1], rad, 8, 50))
+		return ObjMgr.addObj(Particle1(pos[0], pos[1], rad, 8, 50))
 
 	@classmethod
 	def appendShotCenterReverse(cls, obj):
 		rad = math.atan2(-obj.dy, -obj.dx)
 		pos = gcommon.getCenterPos(obj)
-		return gcommon.ObjMgr.addObj(Particle1(pos[0], pos[1], rad, 2, 10))
+		return ObjMgr.addObj(Particle1(pos[0], pos[1], rad, 2, 10))
 
 	def update(self):
 		newTbl = []
@@ -2068,16 +2069,16 @@ class Particle2(EnemyBase):
 
 	@classmethod
 	def append(cls, x, y, count):
-		gcommon.ObjMgr.objs.append(Particle2(x, y, count))
+		ObjMgr.objs.append(Particle2(x, y, count))
 
 	@classmethod
 	def appendPos(cls, pos, count):
-		gcommon.ObjMgr.objs.append(Particle2(pos[0], pos[1], count))
+		ObjMgr.objs.append(Particle2(pos[0], pos[1], count))
 
 	@classmethod
 	def appendCenter(cls, obj, count):
 		pos = gcommon.getCenterPos(obj)
-		gcommon.ObjMgr.objs.append(Particle2(pos[0], pos[1], count))
+		ObjMgr.objs.append(Particle2(pos[0], pos[1], count))
 
 	def update(self):
 		newTbl = []
@@ -2221,20 +2222,20 @@ class Wind1(EnemyBase):
 	# 自機と敵との当たり判定
 	# ここで自機が動かされる
 	def checkMyShipCollision(self):
-		if gcommon.check_collision(self, gcommon.ObjMgr.myShip):
+		if gcommon.check_collision(self, ObjMgr.myShip):
 			#gcommon.cur_map_dy = self.direction/2
-			gcommon.ObjMgr.myShip.x += gcommon.direction_map[self.direction][0]/2
-			gcommon.ObjMgr.myShip.moveActionFlag = True
-			if gcommon.ObjMgr.myShip.x < 0:
-				gcommon.ObjMgr.myShip.x = 0
-			elif gcommon.ObjMgr.myShip.x > 240:
-				gcommon.ObjMgr.myShip.x = 240
-			gcommon.ObjMgr.myShip.y += gcommon.direction_map[self.direction][1]/2
-			gcommon.ObjMgr.myShip.moveActionFlag = True
-			if gcommon.ObjMgr.myShip.y < 2:
-				gcommon.ObjMgr.myShip.y = 2
-			elif gcommon.ObjMgr.myShip.y > 176:
-				gcommon.ObjMgr.myShip.y = 176
+			ObjMgr.myShip.x += gcommon.direction_map[self.direction][0]/2
+			ObjMgr.myShip.moveActionFlag = True
+			if ObjMgr.myShip.x < 0:
+				ObjMgr.myShip.x = 0
+			elif ObjMgr.myShip.x > 240:
+				ObjMgr.myShip.x = 240
+			ObjMgr.myShip.y += gcommon.direction_map[self.direction][1]/2
+			ObjMgr.myShip.moveActionFlag = True
+			if ObjMgr.myShip.y < 2:
+				ObjMgr.myShip.y = 2
+			elif ObjMgr.myShip.y > 176:
+				ObjMgr.myShip.y = 176
 		return False		
 
 circulatorBladePoints1 = [
@@ -2295,7 +2296,7 @@ class Circulator1(EnemyBase):
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
-		pos = gcommon.getCenterPos(gcommon.ObjMgr.myShip)
+		pos = gcommon.getCenterPos(ObjMgr.myShip)
 		for p in self.xpoints1:
 			if gcommon.checkCollisionPointAndPolygon(pos, p):
 				return True
@@ -2399,7 +2400,7 @@ class LiftAppear1(EnemyBase):
 		self.hitCheck = False
 		self.shotHitCheck = False
 		self.enemyShotCollision = False
-		self.interval = 240 if gcommon.GameSession.isEasy() else 180
+		self.interval = 240 if GameSession.isEasy() else 180
 
 
 	def update(self):
@@ -2414,12 +2415,12 @@ class LiftAppear1(EnemyBase):
 	def createLift(self):
 		if self.direction == 1:
 			# 下
-			gcommon.ObjMgr.addObj(Lift1(self.x, -16, self.direction))
-			gcommon.ObjMgr.addObj(Battery3(self.x +16, -32, self.direction))
+			ObjMgr.addObj(Lift1(self.x, -16, self.direction))
+			ObjMgr.addObj(Battery3(self.x +16, -32, self.direction))
 		else:
 			# 上
-			gcommon.ObjMgr.addObj(Lift1(self.x, gcommon.SCREEN_MAX_Y+1+16, self.direction))
-			gcommon.ObjMgr.addObj(Battery3(self.x +16, gcommon.SCREEN_MAX_Y+1, self.direction))
+			ObjMgr.addObj(Lift1(self.x, gcommon.SCREEN_MAX_Y+1+16, self.direction))
+			ObjMgr.addObj(Battery3(self.x +16, gcommon.SCREEN_MAX_Y+1, self.direction))
 
 # 脚下側左
 waker1LowerLeg1 = [
@@ -2538,7 +2539,7 @@ class SpotLight(EnemyBase):
 	def update(self):
 		self.x = self.parent.x + 11
 		self.y = self.parent.y + 31
-		self.lightRad = math.atan2(gcommon.ObjMgr.myShip.y - self.y, gcommon.ObjMgr.myShip.x - self.x)
+		self.lightRad = math.atan2(ObjMgr.myShip.y - self.y, ObjMgr.myShip.x - self.x)
 
 	def draw(self):
 		# ライト
@@ -2623,7 +2624,7 @@ class Walker1(EnemyBase):
 
 		# スポットライト
 		self.spotLight = SpotLight(self)
-		gcommon.ObjMgr.addObj(self.spotLight)
+		ObjMgr.addObj(self.spotLight)
 
 	def update(self):
 		if self.x < -60:
@@ -2653,7 +2654,7 @@ class Walker1(EnemyBase):
 				self.stateCycle += 1
 				self.setMode(0)
 		if self.cnt > 120 and self.cnt & 31 ==0:
-			gcommon.ObjMgr.addObj(HomingMissile1(self.x + 20, self.y +10, 32))
+			ObjMgr.addObj(HomingMissile1(self.x + 20, self.y +10, 32))
 			enemy_shot(self.x +35, self.y +31, 2, 0)
 		if self.mode in (0, 1,2,3):
 			self.RountLight()
@@ -2926,7 +2927,7 @@ class Spider1(EnemyBase):
 	def checkMyShipCollision(self):
 		if super(Spider1, self).checkMyShipCollision():
 			return True
-		return self.checkLegCollision(gcommon.ObjMgr.myShip)
+		return self.checkLegCollision(ObjMgr.myShip)
 		
 	def checkShotCollision(self, shot):
 		if super(Spider1, self).checkShotCollision(shot):
@@ -3072,7 +3073,7 @@ class Shutter2(EnemyBase):
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
-		pos = gcommon.getCenterPos(gcommon.ObjMgr.myShip)
+		pos = gcommon.getCenterPos(ObjMgr.myShip)
 		if gcommon.checkCollisionPointAndPolygon(pos, self.xpolygonList1.polygons[0].points):
 			return True
 		return False
@@ -3242,8 +3243,8 @@ class Fighter2(EnemyBase):
 		elif self.state == 1:
 			self.y += self.direction * 0.5
 			if self.cnt % 20 == 0:
-				gcommon.ObjMgr.addObj(Laser1(self.x, self.y +4))
-				gcommon.ObjMgr.addObj(Laser1(self.x, self.y +26))
+				ObjMgr.addObj(Laser1(self.x, self.y +4))
+				ObjMgr.addObj(Laser1(self.x, self.y +26))
 			if self.cnt > 120:
 				self.dx = 0.0
 				self.nextState()
@@ -3279,9 +3280,9 @@ class MissileBattery1(EnemyBase):
 	def update(self):
 		if self.cnt == self.first or (self.cnt != 0 and (self.cnt % self.interval == 0)):
 			if self.mirror:
-				gcommon.ObjMgr.addObj(HomingMissile1(self.x + 7.5, self.y +12, 16))
+				ObjMgr.addObj(HomingMissile1(self.x + 7.5, self.y +12, 16))
 			else:
-				gcommon.ObjMgr.addObj(HomingMissile1(self.x + 7.5, self.y +4, 48))
+				ObjMgr.addObj(HomingMissile1(self.x + 7.5, self.y +4, 48))
 
 	def draw(self):
 		if self.mirror:
@@ -3311,10 +3312,10 @@ class Fan2(EnemyBase):
 			self.x += gcommon.direction_map[self.direction][0]
 			self.y += dy
 			if dy > 0:
-				if self.y > gcommon.ObjMgr.myShip.y:
+				if self.y > ObjMgr.myShip.y:
 					self.nextState()
 			else:
-				if self.y < gcommon.ObjMgr.myShip.y:
+				if self.y < ObjMgr.myShip.y:
 					self.nextState()
 		else:
 			self.x -= 2
@@ -3359,7 +3360,7 @@ class Fan2Group(EnemyBase):
 				elif self.direction == 5:
 					offsetX = 16
 					offsetY = -24
-				gcommon.ObjMgr.addObj(Fan2(self.x + offsetX, self.y +offsetY, self.direction))
+				ObjMgr.addObj(Fan2(self.x + offsetX, self.y +offsetY, self.direction))
 				self.cnt2 += 1
 				if self.cnt2 >= self.max:
 					self.remove()
@@ -3441,7 +3442,7 @@ class ContinuousShot(EnemyBase):
 
 	@classmethod
 	def create(cls, x, y, shotType, shotCount, shotInterval, speed):
-		gcommon.ObjMgr.addObj(ContinuousShot(x, y, shotType, shotCount, shotInterval, speed))
+		ObjMgr.addObj(ContinuousShot(x, y, shotType, shotCount, shotInterval, speed))
 
 	def update(self):
 		if self.cnt % self.shotInterval == 0:
@@ -3457,12 +3458,12 @@ class ContinuousShot(EnemyBase):
 # 画面の敵弾を消去する
 def removeEnemyShot():
 	newObjs = []
-	for obj in gcommon.ObjMgr.objs:
+	for obj in ObjMgr.objs:
 		if obj.removeFlag == False and obj.layer == gcommon.C_LAYER_E_SHOT:
 			obj.remove()
 		else:
 			newObjs.append(obj)
-	gcommon.ObjMgr.objs = newObjs
+	ObjMgr.objs = newObjs
 
 class BattleShip1(EnemyBase):
 	def __init__(self, t):
@@ -3491,11 +3492,11 @@ class BattleShip1(EnemyBase):
 		self.appendGun(BattleShip1Gun(self, 366, 1, True, self.isRed, 60))
 		self.appendGun(BattleShip1Gun(self, 150, 79, False, self.isRed, 60))
 		self.appendGun(BattleShip1Gun(self, 388, 82, False, self.isRed, 60))
-		self.bridge = gcommon.ObjMgr.addObj(BattleShip1Bridge(self.x +272, self.y -48, self.isRed))
+		self.bridge = ObjMgr.addObj(BattleShip1Bridge(self.x +272, self.y -48, self.isRed))
 
 	def appendGun(self, obj):
 		self.guns.append(obj)
-		gcommon.ObjMgr.addObj(obj)
+		ObjMgr.addObj(obj)
 
 	def update(self):
 		self.bridge.x = self.x +272
@@ -3508,7 +3509,7 @@ class BattleShip1(EnemyBase):
 		elif self.state == 1:
 			# 戦闘機射出
 			if self.cnt % 15 == 0:
-				gcommon.ObjMgr.addObj(Fighter3([0, None, self.x +288, self.y +80,
+				ObjMgr.addObj(Fighter3([0, None, self.x +288, self.y +80,
 					[
 						[1, 1, gcommon.C_LAYER_GRD],
 						[30, 0, -1.0, 2.0],[30, 0, -3.0, 0.5],[600, 0, -3.0,0.0]
@@ -3517,7 +3518,7 @@ class BattleShip1(EnemyBase):
 				self.nextState()
 		if self.cnt2 == self.laserTime:
 			self.laser = BattleShip1Laser(self.x, self.y +41)
-			gcommon.ObjMgr.addObj(self.laser)
+			ObjMgr.addObj(self.laser)
 		if self.laser != None:
 			self.laser.x = self.x
 			self.laser.y = self.y +41
@@ -3612,7 +3613,7 @@ class BattleShip1Bridge(EnemyBase):
 	# 破壊されたとき
 	def broken(self):
 		self.state = 100
-		gcommon.GameSession.addScore(self.score)
+		GameSession.addScore(self.score)
 		self.hitCheck = False
 		self.shotHitCheck = False
 		create_explosion2(self.x+36, self.y+34, gcommon.C_LAYER_EXP_SKY, gcommon.C_EXPTYPE_SKY_M, gcommon.SOUND_MID_EXP)
@@ -3707,7 +3708,7 @@ class BattleShip1Gun(EnemyBase):
 			self.remove()
 			return
 		if self.shotFirst == self.cnt or ((self.cnt -self.shotFirst) % self.shotInterval) ==0:
-			if (self.isUpper and self.y > gcommon.ObjMgr.myShip.y) or (self.isUpper == False and self.y < gcommon.ObjMgr.myShip.y):
+			if (self.isUpper and self.y > ObjMgr.myShip.y) or (self.isUpper == False and self.y < ObjMgr.myShip.y):
 				self.shotCount = 3
 				self.shotTime = 0
 				self.shotDr64 = gcommon.get_atan_no_to_ship(self.x+13, self.y+3)

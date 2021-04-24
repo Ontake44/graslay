@@ -3,6 +3,7 @@ import math
 import random
 import enemy
 import gcommon
+from audio import BGM
 
 class Star:
 	def __init__(self, x, y, dx, dy, cnt):
@@ -219,7 +220,7 @@ class EndingScene2:
 		self.cnt = 0
 		self.message = "THE END"
 		self.objs = []
-		gcommon.BGM.playOnce(gcommon.BGM.ENDING)
+		BGM.playOnce(BGM.ENDING)
 
 	def update(self):
 		if self.state == 0:

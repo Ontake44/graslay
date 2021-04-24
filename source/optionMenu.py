@@ -1,5 +1,8 @@
 import pyxel
 import gcommon
+from mouseManager import MouseManager
+from audio import BGM
+from settings import Settings 
 
 OPTIONMENU_BGM_VOL = 0
 OPTIONMENU_SOUND_VOL = 1
@@ -13,7 +16,7 @@ class OptionMenuScene:
 	def __init__(self):
 		self.star_pos = 0
 		self.menuPos = 0
-		self.mouseManager = gcommon.MouseManager()
+		self.mouseManager = MouseManager()
 		self.menuRects = []
 		for i in range(5):
 			self.menuRects.append(gcommon.Rect.createWH(
@@ -43,12 +46,12 @@ class OptionMenuScene:
 			self.star_pos += 200
 		self.mouseManager.update()
 		if gcommon.checkUpP():
-			gcommon.sound(gcommon.SOUND_MENUMOVE)
+			BGM.sound(gcommon.SOUND_MENUMOVE)
 			self.menuPos -= 1
 			if self.menuPos < 0:
 				self.menuPos = 4
 		if gcommon.checkDownP():
-			gcommon.sound(gcommon.SOUND_MENUMOVE)
+			BGM.sound(gcommon.SOUND_MENUMOVE)
 			self.menuPos += 1
 			if self.menuPos > 4:
 				self.menuPos = 0
@@ -63,46 +66,46 @@ class OptionMenuScene:
 			if self.mouseManager.visible:
 				n = gcommon.checkMouseMenuPos(self.bgmUpDownRects)
 			if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
-				gcommon.Settings.bgmVolume += 1
-				if gcommon.Settings.bgmVolume > 10:
-					gcommon.Settings.bgmVolume = 10
+				BGM.sound(gcommon.SOUND_MENUMOVE)
+				Settings.bgmVolume += 1
+				if Settings.bgmVolume > 10:
+					Settings.bgmVolume = 10
 			elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
-				gcommon.Settings.bgmVolume -= 1
-				if gcommon.Settings.bgmVolume < 0:
-					gcommon.Settings.bgmVolume = 0
+				BGM.sound(gcommon.SOUND_MENUMOVE)
+				Settings.bgmVolume -= 1
+				if Settings.bgmVolume < 0:
+					Settings.bgmVolume = 0
 		elif self.menuPos == OPTIONMENU_SOUND_VOL:
 			n = -1
 			if self.mouseManager.visible:
 				n = gcommon.checkMouseMenuPos(self.seUpDownRects)
 			if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
-				gcommon.Settings.soundVolume = 10
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
+				Settings.soundVolume = 10
+				BGM.sound(gcommon.SOUND_MENUMOVE)
 			elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
-				gcommon.Settings.soundVolume = 0
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
+				Settings.soundVolume = 0
+				BGM.sound(gcommon.SOUND_MENUMOVE)
 
 		elif self.menuPos == OPTIONMENU_MOUSE_ENABLED:
 			n = -1
 			if self.mouseManager.visible:
 				n = gcommon.checkMouseMenuPos(self.mouseOnOffRects)
 			if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
-				gcommon.Settings.mouseEnabled = True
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
+				Settings.mouseEnabled = True
+				BGM.sound(gcommon.SOUND_MENUMOVE)
 			elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
-				gcommon.Settings.mouseEnabled = False
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
+				Settings.mouseEnabled = False
+				BGM.sound(gcommon.SOUND_MENUMOVE)
 
 		elif self.menuPos == OPTIONMENU_SCORE_RANKIG and gcommon.checkShotKeyRectP(self.menuRects[OPTIONMENU_SCORE_RANKIG]):
-			gcommon.sound(gcommon.SOUND_MENUMOVE)
-			gcommon.saveSettings()
+			BGM.sound(gcommon.SOUND_MENUMOVE)
+			Settings.saveSettings()
 			gcommon.app.startScoreRanking(1)
 			#gcommon.app.startEnterPlayerNameScene()
 
 		elif self.menuPos == OPTIONMENU_EXIT and gcommon.checkShotKeyRectP(self.menuRects[OPTIONMENU_EXIT]):
-			gcommon.sound(gcommon.SOUND_MENUMOVE)
-			gcommon.saveSettings()
+			BGM.sound(gcommon.SOUND_MENUMOVE)
+			Settings.saveSettings()
 			gcommon.app.startTitle()
 
 	def draw(self):
@@ -116,28 +119,28 @@ class OptionMenuScene:
 		y = 50
 		gcommon.setMenuColor(OPTIONMENU_BGM_VOL, self.menuPos)
 		gcommon.showText(x1, y, "BGM VOLUME")
-		gcommon.showText(x2, y, str(gcommon.Settings.bgmVolume).rjust(2))
+		gcommon.showText(x2, y, str(Settings.bgmVolume).rjust(2))
 		if OPTIONMENU_BGM_VOL == self.menuPos:
 			#gcommon.drawUpDownMarker(x2 -10, y)
-			gcommon.drawUpDownMarker2(x2 -10, y, 0, 10, gcommon.Settings.bgmVolume)
+			gcommon.drawUpDownMarker2(x2 -10, y, 0, 10, Settings.bgmVolume)
 		y += 20
 
 		gcommon.setMenuColor(OPTIONMENU_SOUND_VOL, self.menuPos)
 		gcommon.showText(x1, y, "SE VOLUME")
-		se = "ON " if gcommon.Settings.soundVolume > 0 else "OFF"
+		se = "ON " if Settings.soundVolume > 0 else "OFF"
 		gcommon.showText(x2, y, se)
 		if OPTIONMENU_SOUND_VOL == self.menuPos:
-			leftMarker = (gcommon.Settings.soundVolume > 0)
+			leftMarker = (Settings.soundVolume > 0)
 			gcommon.drawLeftMarker(x2 -10, y, leftMarker)
 			gcommon.drawRightMarker(x2 +len(se)*8 + 2, y, not leftMarker)
 		y += 20
 
 		gcommon.setMenuColor(OPTIONMENU_MOUSE_ENABLED, self.menuPos)
 		gcommon.showText(x1, y, "MOUSE")
-		mouseOnOff = "ON " if gcommon.Settings.mouseEnabled else "OFF"
+		mouseOnOff = "ON " if Settings.mouseEnabled else "OFF"
 		gcommon.showText(x2, y, mouseOnOff)
 		if OPTIONMENU_MOUSE_ENABLED == self.menuPos:
-			leftMarker = (gcommon.Settings.mouseEnabled == True)
+			leftMarker = (Settings.mouseEnabled == True)
 			gcommon.drawLeftMarker(x2 -10, y, leftMarker)
 			gcommon.drawRightMarker(x2 +len(se)*8 + 2, y, not leftMarker)
 		y += 20
@@ -154,7 +157,7 @@ class OptionMenuScene:
 		pyxel.pal()
 
 		if self.mouseManager.visible:
-			gcommon.drawMenuCursor()
+			self.mouseManager.drawMenuCursor()
 
 	def drawStar(self):
 		for i in range(0,96):

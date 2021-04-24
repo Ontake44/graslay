@@ -3,7 +3,8 @@ import math
 import random
 import gcommon
 import enemy
-
+from objMgr import ObjMgr
+from audio import BGM
 
 # ボス処理
 
@@ -19,7 +20,7 @@ BOSS_LAST_CORE_HP = 1200
 BOSS_WAREHOUSE_HP = 7000
 
 # def remove_all_battery():
-# 	for obj in gcommon.ObjMgr.objs:
+# 	for obj in ObjMgr.objs:
 # 		if obj.t == gcommon.T_BATTERY1:
 # 			obj.removeFlag = True
 
@@ -59,7 +60,7 @@ class BossExplosion(enemy.EnemyBase):
 	def update(self):
 		if self.state == 0:
 			if self.cnt == 0:
-				gcommon.sound(gcommon.SOUND_BOSS_EXP)
+				BGM.sound(gcommon.SOUND_BOSS_EXP)
 			elif self.cnt>120:
 				#self.nextState()
 				self.remove()
@@ -213,12 +214,12 @@ class MiddleBoss1(enemy.EnemyBase):
 				self.dx -= 0.05
 
 	def shotAll(self):
-		gcommon.ObjMgr.addObj(MiddleBoss1Laser(self.x +39, self.y +7))
-		gcommon.ObjMgr.addObj(MiddleBoss1Laser(self.x +24, self.y +20))
-		gcommon.ObjMgr.addObj(MiddleBoss1Laser(self.x, self.y +33))
-		gcommon.ObjMgr.addObj(MiddleBoss1Laser(self.x, self.y +62))
-		gcommon.ObjMgr.addObj(MiddleBoss1Laser(self.x +24, self.y +75))
-		gcommon.ObjMgr.addObj(MiddleBoss1Laser(self.x +39, self.y +88))
+		ObjMgr.addObj(MiddleBoss1Laser(self.x +39, self.y +7))
+		ObjMgr.addObj(MiddleBoss1Laser(self.x +24, self.y +20))
+		ObjMgr.addObj(MiddleBoss1Laser(self.x, self.y +33))
+		ObjMgr.addObj(MiddleBoss1Laser(self.x, self.y +62))
+		ObjMgr.addObj(MiddleBoss1Laser(self.x +24, self.y +75))
+		ObjMgr.addObj(MiddleBoss1Laser(self.x +39, self.y +88))
 
 	def draw(self):
 		pyxel.blt(self.x,self.y, 2, 0, 80, 88, 96, 3)

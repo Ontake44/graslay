@@ -4,6 +4,9 @@ import random
 import gcommon
 import enemy
 import boss
+from objMgr import ObjMgr
+from gameSession import GameSession
+from audio import BGM
 
 missileTable = [
 	[0, 0, 0],
@@ -82,7 +85,7 @@ class Boss4(enemy.EnemyBase):
 
 	def shotMissle(self):
 		if self.subState == 0:
-			cy = gcommon.getCenterY(gcommon.ObjMgr.myShip)
+			cy = gcommon.getCenterY(ObjMgr.myShip)
 			if cy > self.y+30:
 				self.y += 1
 				if self.y > 140:
@@ -121,7 +124,7 @@ class Boss4(enemy.EnemyBase):
 				m.x = self.x
 				m.y = self.y +16 +self.missileState*8
 				m.layer = gcommon.C_LAYER_GRD
-				gcommon.ObjMgr.addObj(m)
+				ObjMgr.addObj(m)
 				# インクリメント
 				self.missileState += 1
 				if self.missileState == 3:
@@ -149,17 +152,17 @@ class Boss4(enemy.EnemyBase):
 			enemy.enemy_shot_dr(self.x +48, self.y +42, speed, 0, 33)
 			enemy.enemy_shot_dr(self.x +52, self.y +48, speed, 0, 27)
 			
-			if gcommon.GameSession.isHard():
+			if GameSession.isHard():
 				enemy.enemy_shot_dr(self.x +52, self.y +16, speed, 0, 37)
 				enemy.enemy_shot_dr(self.x +52, self.y +48, speed, 0, 29)
 		else:
 			speed = 1.5
 			enemy.enemy_shot_dr(self.x +52, self.y +16, speed, 1, 36)
 			enemy.enemy_shot_dr(self.x +52, self.y +48, speed, 1, 28)
-			if gcommon.GameSession.isHard():
+			if GameSession.isHard():
 				enemy.enemy_shot_dr(self.x +48, self.y +22, speed, 1, 34)
 				enemy.enemy_shot_dr(self.x +48, self.y +42, speed, 1, 30)
-		gcommon.sound(gcommon.SOUND_SHOT2)
+		BGM.sound(gcommon.SOUND_SHOT2)
 
 
 	def nextSubState(self):
@@ -202,9 +205,9 @@ class Boss4(enemy.EnemyBase):
 	def broken(self):
 		self.remove()
 		enemy.removeEnemyShot()
-		gcommon.ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
-		gcommon.GameSession.addScore(self.score)
-		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+		ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
+		GameSession.addScore(self.score)
+		BGM.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"4A"], 240))
+		ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"4A"], 240))
 

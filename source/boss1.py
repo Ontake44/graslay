@@ -4,6 +4,9 @@ import random
 import gcommon
 import enemy
 import boss
+from objMgr import ObjMgr
+from gameSession import GameSession
+from audio import BGM
 
 class Boss1Base(enemy.EnemyBase):
 	def __init__(self, t):
@@ -57,15 +60,15 @@ class Boss1(enemy.EnemyBase):
 		self.beam = 0
 		self.subState = 0
 		self.isLeft = True
-		self.beamTime = __class__.beamTimes[gcommon.GameSession.difficulty]
+		self.beamTime = __class__.beamTimes[GameSession.difficulty]
 		gcommon.debugPrint("beam Time = " + str(self.beamTime))
 		self.tbl = []
 		self.beamObj = Boss1Beam(self)
-		gcommon.ObjMgr.addObj(self.beamObj)
+		ObjMgr.addObj(self.beamObj)
 
 	def update(self):
 		# 向き
-		self.isLeft = (self.x + 52) > gcommon.ObjMgr.myShip.x
+		self.isLeft = (self.x + 52) > ObjMgr.myShip.x
 		self.beam = 0
 		if self.state == 0:
 			self.x -= gcommon.cur_scroll_x
@@ -99,7 +102,7 @@ class Boss1(enemy.EnemyBase):
 				if self.y > 150:
 					self.y = 150
 			if self.cnt & 15 == 15:
-				if gcommon.GameSession.isNormalOrLess():
+				if GameSession.isNormalOrLess():
 					self.shotFix4()
 				else:
 					self.shotFix8()
@@ -108,7 +111,7 @@ class Boss1(enemy.EnemyBase):
 				#else:
 			if self.cnt > 120:
 				self.nextState()
-				gcommon.sound(gcommon.SOUND_BOSS1PREBEAM)
+				BGM.sound(gcommon.SOUND_BOSS1PREBEAM)
 				if self.subState == 0:
 					self.subState = 1
 				else:
@@ -132,7 +135,7 @@ class Boss1(enemy.EnemyBase):
 
 			if self.cnt > self.beamTime:
 				self.nextState()
-				gcommon.sound(gcommon.SOUND_BOSS1BEAM)
+				BGM.sound(gcommon.SOUND_BOSS1BEAM)
 		elif self.state == 5:
 			# ビーム発射開始（移動なし）
 			self.beam = int(self.cnt/3) +1
@@ -147,7 +150,7 @@ class Boss1(enemy.EnemyBase):
 		elif self.state == 7:
 			# ビーム発射中（移動あり）
 			self.beam = 6
-			zy = abs(self.y +30 - gcommon.ObjMgr.myShip.y)
+			zy = abs(self.y +30 - ObjMgr.myShip.y)
 			if zy > 80:
 				dy = 3
 			elif zy > 50:
@@ -156,7 +159,7 @@ class Boss1(enemy.EnemyBase):
 				dy = 1
 			else:
 				dy = 0.25
-			if self.y +30 > gcommon.ObjMgr.myShip.y:
+			if self.y +30 > ObjMgr.myShip.y:
 				dy = -dy
 			self.y += dy
 			if self.cnt > self.beamTime:
@@ -207,7 +210,7 @@ class Boss1(enemy.EnemyBase):
 		enemy.enemy_shot_dr(self.x +52 +ox, self.y +16, 4, 1, self.getDirection(37))
 		enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +42, 4, 1, self.getDirection(31))
 		enemy.enemy_shot_dr(self.x +52 +ox, self.y +48, 4, 1, self.getDirection(27))
-		gcommon.sound(gcommon.SOUND_SHOT2)
+		BGM.sound(gcommon.SOUND_SHOT2)
 
 	def shotFix8(self):
 		ox = 0 if self.isLeft else 8
@@ -222,19 +225,19 @@ class Boss1(enemy.EnemyBase):
 		
 		enemy.enemy_shot_dr(self.x +52 +ox, self.y +48, 2, 0, self.getDirection(27))
 		enemy.enemy_shot_dr(self.x +52 +ox, self.y +48, 2, 0, self.getDirection(29))
-		gcommon.sound(gcommon.SOUND_SHOT2)
+		BGM.sound(gcommon.SOUND_SHOT2)
 
 	def broken(self):
 		self.setState(100)
 		self.shotHitCheck = False
 		self.beamObj.remove()
 		enemy.removeEnemyShot()
-		gcommon.ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
-		gcommon.GameSession.addScore(self.score)
+		ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
+		GameSession.addScore(self.score)
 		self.remove()
-		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+		BGM.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"1"], 240))
+		ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"1"], 240))
 
 
 # 波動砲発射前の、あの吸い込むようなやつ

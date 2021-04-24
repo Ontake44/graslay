@@ -6,6 +6,9 @@ import os
 import gcommon
 import enemy
 from gcommon import Pos
+from objMgr import ObjMgr
+from gameSession import GameSession
+from audio import BGM
 
 # 自機
 class MyShipBase:
@@ -34,7 +37,7 @@ class MyShipBase:
 		self.dx = 0
 		self.setStartPosition()
 		self.mouseManager = parent.mouseManager
-		self.setWeapon(gcommon.GameSession.weaponSave)
+		self.setWeapon(GameSession.weaponSave)
 
 	def update(self):
 		if gcommon.sync_map_y != 0:
@@ -46,7 +49,7 @@ class MyShipBase:
 			# 爆発中
 			if self.cnt > 90:
 				# 爆発中を終了
-				if gcommon.GameSession.playerStock == 0:
+				if GameSession.playerStock == 0:
 					#self.sub_scene = 10
 					self.setSubScene(10)
 					self.cnt = 0
@@ -54,7 +57,7 @@ class MyShipBase:
 					self.x = -16
 					self.parent.OnPlayerStockOver()
 				else:
-					gcommon.GameSession.playerStock -= 1
+					GameSession.playerStock -= 1
 					#--restart_game()
 					#self.sub_scene=3
 					self.setSubScene(3)
@@ -78,7 +81,7 @@ class MyShipBase:
 		elif self.sub_scene == 5:	# scene == 5
 			# クリア時
 			if self.cnt == 0:
-				gcommon.sound(gcommon.SOUND_AFTER_BURNER)
+				BGM.sound(gcommon.SOUND_AFTER_BURNER)
 			if self.x < 256 + 32:
 				if self.dx < 8:
 					self.dx += 0.25
@@ -157,7 +160,7 @@ class MyShipBase:
 		if gcommon.game_timer > 30:
 			self.executeShot()
 			if gcommon.checkOpionKey():
-				if gcommon.GameSession.weaponType == gcommon.WeaponType.TYPE_A:
+				if GameSession.weaponType == gcommon.WeaponType.TYPE_A:
 					self.setWeapon((self.weapon + 1) % 3)
 				else:
 					self.setWeapon((self.weapon + 1) % 4)
@@ -166,7 +169,7 @@ class MyShipBase:
 		pass
 
 	def appendShot(self, shotGroup, shot):
-		gcommon.ObjMgr.shots.append(shotGroup.append(shot))
+		ObjMgr.shots.append(shotGroup.append(shot))
 
 	def setSubScene(self, sub_scene):
 		self.sub_scene = sub_scene
@@ -174,7 +177,7 @@ class MyShipBase:
 
 	def setWeapon(self, weapon):
 		self.weapon = weapon
-		gcommon.GameSession.weaponSave = weapon
+		GameSession.weaponSave = weapon
 
 	def draw0(self):
 		pass
@@ -285,52 +288,52 @@ class MyShipA(MyShipBase):
 
 	# 自機弾発射
 	def shot(self):
-		if len(gcommon.ObjMgr.shotGroups) < self.shotMax:
-			shotGroup = MyShotGroup(gcommon.ObjMgr.shotGroups)
+		if len(ObjMgr.shotGroups) < self.shotMax:
+			shotGroup = MyShotGroup(ObjMgr.shotGroups)
 			if self.weapon == 0:
 				self.shotMax = 6
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 8, 0, 0)))
+				ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 8, 0, 0)))
 			elif self.weapon == 1:
 				self.shotMax = 5
 				dx = 8 * math.cos(math.pi - math.pi/64 * self.roundAngle)
 				dy = 8 * math.sin(math.pi - math.pi/64 * self.roundAngle)
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+6, self.y +4, dx, dy, 1)))
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+6, self.y +4, dx, -dy, 1)))
+				ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+6, self.y +4, dx, dy, 1)))
+				ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+6, self.y +4, dx, -dy, 1)))
 			else:
 				self.shotMax = 2
 				# 前
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 6, 0, 2)))
+				ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 6, 0, 2)))
 				
 				# やや斜め前
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 5.5, 2.3, -3)))
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 5.5, -2.3, 3)))
+				ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 5.5, 2.3, -3)))
+				ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 5.5, -2.3, 3)))
 				
 				# 斜め前
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 4.2, 4.2, -4)))
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 4.2, -4.2, 4)))
+				ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 4.2, 4.2, -4)))
+				ObjMgr.shots.append(shotGroup.append(self.createShot(self.x+12, self.y +4, 4.2, -4.2, 4)))
 
 				# 斜め後
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x-2, self.y +4, -4.2, 4.2, 4)))
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x-2, self.y +4, -4.2, -4.2, -4)))
+				ObjMgr.shots.append(shotGroup.append(self.createShot(self.x-2, self.y +4, -4.2, 4.2, 4)))
+				ObjMgr.shots.append(shotGroup.append(self.createShot(self.x-2, self.y +4, -4.2, -4.2, -4)))
 
 				# 後ろ
-				gcommon.ObjMgr.shots.append(shotGroup.append(self.createShot(self.x-2, self.y +4, -6, 0, 2)))
+				ObjMgr.shots.append(shotGroup.append(self.createShot(self.x-2, self.y +4, -6, 0, 2)))
 
-			gcommon.sound(gcommon.SOUND_SHOT)
-			gcommon.ObjMgr.shotGroups.append(shotGroup)
+			BGM.sound(gcommon.SOUND_SHOT)
+			ObjMgr.shotGroups.append(shotGroup)
 	
 	# ミサイル発射
 	def missile(self):
-		if len(gcommon.ObjMgr.missleGroups) < self.missleMax:
-			shotGroup = MyShotGroup(gcommon.ObjMgr.missleGroups)
+		if len(ObjMgr.missleGroups) < self.missleMax:
+			shotGroup = MyShotGroup(ObjMgr.missleGroups)
 			if self.weapon == 0:
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile0(self.x+14, self.y +4, True)))
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile0(self.x+14, self.y +12, False)))
+				ObjMgr.shots.append(shotGroup.append(MyMissile0(self.x+14, self.y +4, True)))
+				ObjMgr.shots.append(shotGroup.append(MyMissile0(self.x+14, self.y +12, False)))
 			elif self.weapon ==1:
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile1(self.x+6, self.y +12)))
+				ObjMgr.shots.append(shotGroup.append(MyMissile1(self.x+6, self.y +12)))
 			else:
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile2(self.x+2, self.y +8, 1)))
-			gcommon.ObjMgr.missleGroups.append(shotGroup)
+				ObjMgr.shots.append(shotGroup.append(MyMissile2(self.x+2, self.y +8, 1)))
+			ObjMgr.missleGroups.append(shotGroup)
 
 
 	def createShot(self, x, y, dx, dy, sprite):
@@ -343,7 +346,7 @@ class MyShipB(MyShipBase):
 	def __init__(self, parent):
 		self.posLate = 12
 		self.posList = []
-		for i in range(gcommon.GameSession.multipleCount * self.posLate):
+		for i in range(GameSession.multipleCount * self.posLate):
 			self.posList.append(Pos.create(0 ,0))
 		super(MyShipB, self).__init__(parent)
 		# 1:ゲーム中 2:爆発中 3:復活中
@@ -376,12 +379,12 @@ class MyShipB(MyShipBase):
 
 	# 自機弾発射
 	def shot(self):
-		self.doShot(gcommon.ObjMgr.shotGroups, self.x, self.y, -1)
+		self.doShot(ObjMgr.shotGroups, self.x, self.y, -1)
 		index = self.posLate-1
-		for i in range(gcommon.GameSession.multipleCount):
+		for i in range(GameSession.multipleCount):
 			x = self.posList[index].x
 			y = self.posList[index].y
-			self.doShot(gcommon.ObjMgr.mshotGroupsList[i], x, y, i)
+			self.doShot(ObjMgr.mshotGroupsList[i], x, y, i)
 			index += self.posLate
 	
 	def doShot(self, shotGroups, x, y, n):
@@ -395,33 +398,33 @@ class MyShipB(MyShipBase):
 				self.appendShot(shotGroup, MyShotBDouble(x +14, y+7.5, 0))
 				self.appendShot(shotGroup, MyShotBDouble(x +10, y+4, 1))
 				if n == -1:
-					gcommon.sound(gcommon.SOUND_SHOT)
+					BGM.sound(gcommon.SOUND_SHOT)
 			elif self.weapon == 1:
 				self.shotMax = 2
 				self.appendShot(shotGroup, MyShotBDouble(x +14, y+7.5, 0))
 				self.appendShot(shotGroup, MyShotBDouble(x, y+7.5, 2))
 				if n == -1:
-					gcommon.sound(gcommon.SOUND_SHOT)
+					BGM.sound(gcommon.SOUND_SHOT)
 			elif self.weapon == 2:
 				self.shotMax = 1
 				self.appendShot(shotGroup, MyShotBLaser(self.posList, self.posLate, n))
 				if n == -1:
-					gcommon.sound(gcommon.SOUND_SHOT)
+					BGM.sound(gcommon.SOUND_SHOT)
 			else:
 				self.shotMax = 2
 				self.appendShot(shotGroup, MyShotBRipple(x +16, y+7))
 				if n == -1:
-					gcommon.sound(gcommon.SOUND_SHOT)
+					BGM.sound(gcommon.SOUND_SHOT)
 			shotGroups.append(shotGroup)
 	
 
 	def missile(self):
-		self.doMissile(gcommon.ObjMgr.missleGroups, self.x, self.y)
+		self.doMissile(ObjMgr.missleGroups, self.x, self.y)
 		index = self.posLate-1
-		for i in range(gcommon.GameSession.multipleCount):
+		for i in range(GameSession.multipleCount):
 			x = self.posList[index].x
 			y = self.posList[index].y
-			self.doMissile(gcommon.ObjMgr.mmissileGroupsList[i], x, y)
+			self.doMissile(ObjMgr.mmissileGroupsList[i], x, y)
 			index += self.posLate
 
 	# ミサイル発射
@@ -430,20 +433,20 @@ class MyShipB(MyShipBase):
 			shotGroup = MyShotGroup(missleGroups)
 			if self.weapon == gcommon.B_WEAPON_DOUBLE:
 				self.missleMax = 1
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissileB0(x+14, y +12)))
+				ObjMgr.shots.append(shotGroup.append(MyMissileB0(x+14, y +12)))
 			elif self.weapon == gcommon.B_WEAPON_TAILGUN:
 				self.missleMax = 1
-				#gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile2(x+12, y +8, 0)))
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissileB1(x+14, y +4, True)))
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissileB1(x+14, y +12, False)))
+				#ObjMgr.shots.append(shotGroup.append(MyMissile2(x+12, y +8, 0)))
+				ObjMgr.shots.append(shotGroup.append(MyMissileB1(x+14, y +4, True)))
+				ObjMgr.shots.append(shotGroup.append(MyMissileB1(x+14, y +12, False)))
 			elif self.weapon == gcommon.B_WEAPON_LASER:
 				self.missleMax = 1
-				#gcommon.ObjMgr.shots.append(shotGroup.append(MyMissile0(x+14, y +4, True)))
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissileB0(x+14, y +12)))
+				#ObjMgr.shots.append(shotGroup.append(MyMissile0(x+14, y +4, True)))
+				ObjMgr.shots.append(shotGroup.append(MyMissileB0(x+14, y +12)))
 			else:
 				self.missleMax = 1
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissileB1(x+14, y +4, True)))
-				gcommon.ObjMgr.shots.append(shotGroup.append(MyMissileB1(x+14, y +12, False)))
+				ObjMgr.shots.append(shotGroup.append(MyMissileB1(x+14, y +4, True)))
+				ObjMgr.shots.append(shotGroup.append(MyMissileB1(x+14, y +12, False)))
 			missleGroups.append(shotGroup)
 
 
@@ -548,7 +551,7 @@ class MyShotBase:
 		# 跳弾表示
 		enemy.Particle1.appendShotCenter(self)
 		if effectSound:
-			gcommon.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
+			BGM.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
 
 
 class MyShot(MyShotBase):
@@ -561,7 +564,7 @@ class MyShot(MyShotBase):
 		self.dx = dx
 		self.dy = dy
 		self.weapon = weapon
-		self.shotPower = gcommon.SHOT_POWERS[self.weapon] * gcommon.GameSession.powerRate
+		self.shotPower = gcommon.SHOT_POWERS[self.weapon] * GameSession.powerRate
 		self.sprite = sprite
 
 	def update(self):
@@ -618,7 +621,7 @@ class MyShotBDouble(MyShotBase):
 			self.bottom = 3.5
 			self.dx = -6
 			self.dy = 0
-		self.shotPower = gcommon.B_SHOT0_POWER * gcommon.GameSession.powerRate
+		self.shotPower = gcommon.B_SHOT0_POWER * GameSession.powerRate
 
 	def update(self):
 		self.x = self.x + self.dx
@@ -655,18 +658,18 @@ class MyShotBLaser(MyShotBase):
 		self.laserCount = 1
 		# ショットキーを離すとFalse
 		self.laserFlag = True
-		self.shotPower = gcommon.B_SHOT2_POWER * gcommon.GameSession.powerRate
+		self.shotPower = gcommon.B_SHOT2_POWER * GameSession.powerRate
 		self.effect = True
 		self.y = 0
 		if self.mulipleNumber == -1:
-			self.x = gcommon.ObjMgr.myShip.x + 18
+			self.x = ObjMgr.myShip.x + 18
 		else:
 			self.x = self.posList[self.posLate-1 + self.mulipleNumber * self.posLate].x +18
 
 	def update(self):
 		if self.laserFlag:
 			if self.mulipleNumber == -1:
-				self.y = gcommon.ObjMgr.myShip.y + 7
+				self.y = ObjMgr.myShip.y + 7
 			else:
 				self.y = self.posList[self.posLate-1 + self.mulipleNumber * self.posLate].y +7
 	
@@ -676,7 +679,7 @@ class MyShotBLaser(MyShotBase):
 			# 伸びる
 			self.laserCount += 1
 			if self.mulipleNumber == -1:
-			 	self.x = gcommon.ObjMgr.myShip.x + 18
+			 	self.x = ObjMgr.myShip.x + 18
 			else:
 			 	self.x = self.posList[self.posLate-1 + self.mulipleNumber * self.posLate].x +18
 			self.right += 8
@@ -714,9 +717,9 @@ class MyShotBLaser(MyShotBase):
 
 	def doEffect(self, effectSound):
 		# 跳弾表示
-		gcommon.ObjMgr.addObj(enemy.Particle1(self.x +self.right, self.y, 0.0, 4, 50))
+		ObjMgr.addObj(enemy.Particle1(self.x +self.right, self.y, 0.0, 4, 50))
 		if effectSound:
-			gcommon.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
+			BGM.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
 
 # リップル
 class MyShotBRipple(MyShotBase):
@@ -729,7 +732,7 @@ class MyShotBRipple(MyShotBase):
 		self.y = y
 		self.dx = 6
 		self.dy = 0
-		self.shotPower = gcommon.B_SHOT0_POWER * gcommon.GameSession.powerRate
+		self.shotPower = gcommon.B_SHOT0_POWER * GameSession.powerRate
 		self.sizeIndex = 0
 		self.setRect()
 
@@ -775,7 +778,7 @@ class MyMissile0(MyShotBase):
 		self.bottom = 3.5
 		self.dx = 2
 		self.dy = -2.0 if isUpper else 2
-		self.shotPower = gcommon.MISSILE0_POWER * gcommon.GameSession.powerRate
+		self.shotPower = gcommon.MISSILE0_POWER * GameSession.powerRate
 		self.state = 0
 		self.cnt = 0
 		self.effect = False
@@ -840,7 +843,7 @@ class MyMissile1(MyShotBase):
 		self.bottom = 3.5
 		self.dx = 2
 		self.dy = 0
-		self.shotPower = gcommon.MISSILE1_POWER * gcommon.GameSession.powerRate
+		self.shotPower = gcommon.MISSILE1_POWER * GameSession.powerRate
 		self.state = 0
 		self.cnt = 0
 		self.effect = False
@@ -913,7 +916,7 @@ class MyMissile2(MyShotBase):
 		else:
 			self.dx = -1.5
 		self.dy = 2
-		self.shotPower = gcommon.MISSILE2_POWER * gcommon.GameSession.powerRate
+		self.shotPower = gcommon.MISSILE2_POWER * GameSession.powerRate
 		self.state = 0
 		self.cnt = 0
 		self.effect = False
@@ -985,7 +988,7 @@ class MyMissileB0(MyShotBase):
 		self.bottom = 3.5
 		self.dx = 2
 		self.dy = 2
-		self.shotPower = gcommon.B_MISSILE0_POWER * gcommon.GameSession.powerRate
+		self.shotPower = gcommon.B_MISSILE0_POWER * GameSession.powerRate
 		self.state = 0
 		self.cnt = 0
 		self.effect = False
@@ -1033,7 +1036,7 @@ class MyMissileB1(MyShotBase):
 		self.bottom = 3.5
 		self.dx = 2
 		self.dy = -2.0 if isUpper else 2
-		self.shotPower = gcommon.B_MISSILE1_POWER * gcommon.GameSession.powerRate
+		self.shotPower = gcommon.B_MISSILE1_POWER * GameSession.powerRate
 		self.cnt = 0
 		self.effect = False
 

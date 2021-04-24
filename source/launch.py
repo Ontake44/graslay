@@ -3,6 +3,7 @@ import math
 import random
 import gcommon
 import enemy
+from audio import BGM
 
 # 発艦シーン
 class LaunchScene:
@@ -25,7 +26,7 @@ class LaunchScene:
 	def init(self):
 		pyxel.image(1).load(0,0,"assets/launch1.png")
 		pyxel.image(2).load(0,0,"assets/launch2.png")
-		gcommon.BGM.play(gcommon.BGM.LAUNCH)
+		BGM.play(BGM.LAUNCH)
 
 	def update(self):
 		gcommon.star_pos -= 0.2
@@ -57,7 +58,7 @@ class LaunchScene:
 				self.y2 += 0.25
 			if self.cnt > 60 and self.cnt < 90:
 				self.afterBurner = 1
-				gcommon.sound(gcommon.SOUND_AFTER_BURNER)
+				BGM.sound(gcommon.SOUND_AFTER_BURNER)
 			elif self.cnt >= 90:
 				self.nextState()
 				self.mdx = 1

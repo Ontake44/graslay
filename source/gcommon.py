@@ -1,14 +1,11 @@
 
 import pyxel
 import math
-import json
-import os.path
 import sys
 import os
 import random
-import pygame.mixer
-import item
 from enum import Enum
+from objMgr import ObjMgr
 
 VERSION = "1.10"
 START_GAME_TIMER= 0		# 3600 :3		#2700 :2
@@ -17,25 +14,13 @@ DIFFICULTY_EASY = 0
 DIFFICULTY_NORMAL = 1
 DIFFICULTY_HARD = 2
 
+difficultyText = (" EASY ", "NORMAL", " HARD ")
+
 # 機体種別
 class WeaponType:
 	TYPE_A = 0		# Axelay
 	TYPE_B = 1		# Bic Viper
 
-
-difficultyText = (" EASY ", "NORMAL", " HARD ")
-
-class Defaults:
-	INIT_START_STAGE = "1"
-	INIT_WEAPON_TYPE = WeaponType.TYPE_A
-	# 残機
-	INIT_PLAYER_STOCK = 3
-	INIT_BGM_VOL = 7
-	INIT_SOUND_VOL = 10
-	INIT_DIFFICULTY = DIFFICULTY_NORMAL
-	INIT_CREDITS = 3
-	INIT_MULTIPLE_COUNT = 4
-	INIT_MOUSE_ENABLED = True
 
 WEAPON_STRAIGHT = 0
 WEAPON_ROUND = 1
@@ -142,9 +127,6 @@ SOUND_RIPPLE = 26
 SOUND_CH0 = 0
 SOUND_CH1 = 1
 SOUND_CH2 = 2
-
-#                 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26
-sound_priority = [0,2,1,4,5,3,6,8,8,1, 0, 6, 6, 1, 6, 6, 6, 1, 0, 5, 0, 0, 0, 0, 0, 0, 0]
 
 KEY_HOLD = 20
 KEY_PERIOD = 5
@@ -270,217 +252,9 @@ star_ary = []
 mapAttribute = []
 
 
-class GameSession:
-	difficulty = DIFFICULTY_NORMAL
-	difficutlyRate = 1.0
-	playerStock = 0
-	stage = 0
-	score = 0
-	scoreCheck = 0
-	weaponType = WeaponType.TYPE_A
-	scoreFirstExtend = False
-	credits = 0
-	gameMode = GAMEMODE_NORMAL
-	weaponSave = WEAPON_STRAIGHT
-	enemy_shot_rate = ENEMY_SHOT_RATE_NORMAL
-	powerRate = POWER_RATE_NORMAL
-	multipleCount = Defaults.INIT_MULTIPLE_COUNT
-
-	@classmethod
-	def initNormal(cls, difficulty):
-		__class__.init(difficulty, Defaults.INIT_PLAYER_STOCK, GAMEMODE_NORMAL, "1", Settings.credits)
-
-	@classmethod
-	def init(cls, difficulty, playerStock, gameMode, stage, credits):
-		cls.difficulty = difficulty
-		__class__.playerStock = playerStock
-		__class__.score = 0
-		__class__.scoreCheck = 0
-		__class__.scoreFirstExtend = False
-		__class__.stage = stage
-
-		__class__.gameMode = gameMode
-		__class__.credits = credits
-		__class__.weaponSave = WEAPON_STRAIGHT
-		if __class__.difficulty == DIFFICULTY_EASY:
-			# Easy
-			__class__.powerRate = POWER_RATE_EASY
-			__class__.enemy_shot_rate = ENEMY_SHOT_RATE_EASY
-			__class__.difficutlyRate = DIFFICULTY_RATE_EASY
-		elif __class__.difficulty == DIFFICULTY_NORMAL:
-			# Normal
-			__class__.powerRate = POWER_RATE_NORMAL
-			__class__.enemy_shot_rate = ENEMY_SHOT_RATE_NORMAL
-			__class__.difficutlyRate = DIFFICULTY_RATE_NORMAL
-		else:
-			# Hard
-			__class__.powerRate = POWER_RATE_HARD
-			__class__.enemy_shot_rate = ENEMY_SHOT_RATE_HARD
-			__class__.difficutlyRate = DIFFICULTY_RATE_HARD
-
-	@classmethod
-	def isEasy(cls):
-		return __class__.difficulty == DIFFICULTY_EASY
-
-	@classmethod
-	def isNormal(cls):
-		return __class__.difficulty == DIFFICULTY_NORMAL
-
-	@classmethod
-	def isNormalOrMore(cls):
-		return __class__.difficulty >= DIFFICULTY_NORMAL
-
-	# ノーマル以下
-	@classmethod
-	def isNormalOrLess(cls):
-		return __class__.difficulty <= DIFFICULTY_NORMAL
-
-	@classmethod
-	def isHard(cls):
-		return __class__.difficulty == DIFFICULTY_HARD
-	
-	@classmethod
-	def addScore(cls, score):
-		__class__.score += score
-		__class__.scoreCheck += score
-		if __class__.scoreFirstExtend == False and __class__.scoreCheck >= 20000:
-			__class__.playerStock += 1
-			__class__.scoreFirstExtend = True
-			sound(SOUND_EXTENDED, SOUND_CH1)
-			debugPrint("First Extended")
-		elif __class__.scoreCheck >= 50000:
-			__class__.playerStock += 1
-			__class__.scoreCheck = 0
-			sound(SOUND_EXTENDED, SOUND_CH1)
-			debugPrint("Extended by 50000")
-
-	@classmethod
-	def addPlayerStock(cls):
-		__class__.playerStock += 1
-		sound(SOUND_EXTENDED, SOUND_CH1)
-
-	# 
-	@classmethod
-	def execContinue(cls):
-		__class__.credits -= 1
-		__class__.playerStock = Defaults.INIT_PLAYER_STOCK -1
-		__class__.score = 0
-		__class__.scoreCheck = 0
-		__class__.scoreFirstExtend = False
-
 # ====================================================================
 
-SETTINGS_FILE = ".graslay"
 
-class Settings:
-	playerStock = Defaults.INIT_PLAYER_STOCK
-	weaponType = Defaults.INIT_WEAPON_TYPE
-	multipleCount = Defaults.INIT_MULTIPLE_COUNT
-	startStage = Defaults.INIT_START_STAGE
-	bgmVolume = Defaults.INIT_BGM_VOL
-	soundVolume = Defaults.INIT_SOUND_VOL
-	difficulty = Defaults.INIT_DIFFICULTY
-	credits = Defaults.INIT_CREDITS
-	normalRanking = None
-	easyRanking = None
-	mouseEnabled = Defaults.INIT_MOUSE_ENABLED
-
-class BGM:
-	bgmList = [
-		# volume rate, filename
-		[0.5, "Dream_Fantasy.mp3"],
-		[1.0, "game_maoudamashii_6_dangeon22.mp3"],
-		[1.0, "Spear.mp3"],
-		[1.0, "game_maoudamashii_6_dangeon15.mp3"],
-		[1.0, "Abstract.mp3"],
-		[1.0, "Break_the_Wedge.mp3"],
-		[1.0, "Fantasma.mp3"],
-		[1.0, "In_Dark_Down.mp3"],
-		[1.0, "Grenade.mp3"],
-		[1.0, "Blaze.mp3"],
-		[1.0, "game_maoudamashii_9_jingle02.mp3"],
-		[1.0, "game_maoudamashii_9_jingle07.mp3"],
-		[1.0, "idola_cell.mp3"],
-		[0.6, "Fireworks.mp3"],
-		[0.5, "Dream_Fantasy.mp3"],		#"Runners_High.mp3"
-		[1.0, "with_silence.mp3"],
-		[0.6, "Runners_High.mp3"]
-	] 
-
-	STAGE1 = 0		#"Dream_Fantasy.mp3"
-	STAGE2 = 1		#"game_maoudamashii_6_dangeon22.mp3"
-	STAGE3 = 2		#"Spear.mp3"
-	STAGE4 = 3		#"game_maoudamashii_6_dangeon15.mp3"
-	STAGE5 = 4		#"Abstract.mp3"
-	STAGE6_1 = 5	#"Break_the_Wedge.mp3"
-	STAGE6_2 = 6	#"Fantasma.mp3"
-	STAGE6_3 = 7	#"In_Dark_Down.mp3"
-	BOSS  = 8		#"Grenade.mp3"
-	BOSS_LAST = 9	#"Blaze.mp3"
-	STAGE_CLEAR = 10	#"game_maoudamashii_9_jingle02.mp3"
-	GAME_OVER = 11		#"game_maoudamashii_9_jingle07.mp3"
-	#TITLE = "Underground_Worship.mp3"
-	TITLE = 12		#"idola_cell.mp3"
-	ENDING = 13
-	LAUNCH = 14
-	RANKING = 15
-	STAGE_SELECT = 16
-
-	@classmethod
-	def getBgm(cls, no):
-		return BGM.bgmList[no]
-
-	@classmethod
-	def play(cls, no):
-		bgm = BGM.getBgm(no)
-		pygame.mixer.music.load(resource_path("assets/music/" + bgm[1]))
-		pygame.mixer.music.set_volume(0.5 * Settings.bgmVolume * bgm[0]/10.0)
-		pygame.mixer.music.play(-1)
-		
-	@classmethod
-	def playOnce(cls, no):
-		bgm = BGM.getBgm(no)
-		pygame.mixer.music.load(resource_path("assets/music/" + bgm[1]))
-		pygame.mixer.music.set_volume(0.5 * Settings.bgmVolume * bgm[0]/10.0)
-		pygame.mixer.music.play(1)
-
-	@classmethod
-	def stop(cls):
-		pygame.mixer.music.stop()
-
-
-class MouseManager:
-	def __init__(self):
-		self.prevMouseX = pyxel.mouse_x
-		self.prevMouseY = pyxel.mouse_y
-		self.mouseCounter = 0
-		self.visible = False
-
-	def isOutOfScreen(self):
-		return pyxel.mouse_x < 0 or pyxel.mouse_y < 0 or pyxel.mouse_x >= pyxel.width or pyxel.mouse_y >= pyxel.height
-
-	def update(self):
-		if Settings.mouseEnabled == False:
-			self.visible = False
-			return
-		
-		# 5秒マウス触らなかったらカーソル消える
-		if (self.prevMouseX != pyxel.mouse_x or self.prevMouseY != pyxel.mouse_y) and self.isOutOfScreen() == False:
-			self.mouseCounter = 0
-			self.visible = True
-			self.prevMouseX = pyxel.mouse_x
-			self.prevMouseY = pyxel.mouse_y
-		else:
-			self.prevMouseX = pyxel.mouse_x
-			self.prevMouseY = pyxel.mouse_y
-			self.mouseCounter += 1
-			if self.mouseCounter > 180:
-				self.visible = False
-	
-	def draw(self):
-		# マウスカーソル
-		if self.visible:
-			drawMenuCursor()
 
 class ClassicRand:
 	def __init__(self):
@@ -600,89 +374,6 @@ def resource_path(relative_path):
         base_path = os.path.dirname(__file__)
     return os.path.join(base_path, relative_path)
 
-def loadSettings():
-	json_file = None
-	try:
-		settingsPath = os.path.join(os.path.expanduser("~"), SETTINGS_FILE)
-
-		playerStock = 3
-		startStage = "1"
-		bgmVol = 6
-		soundVol = 10
-		mouseEnabled = "1"
-		difficulty = Defaults.INIT_DIFFICULTY
-		credits = Defaults.INIT_CREDITS
-		weaponType = Defaults.INIT_WEAPON_TYPE
-		multipleCount = Defaults.INIT_MULTIPLE_COUNT
-		json_file = open(settingsPath, "r")
-		json_data = json.load(json_file)
-		if "playerStock" in json_data:
-			playerStock = int(json_data["playerStock"])
-		if "startStage" in json_data:
-			startStage = int(json_data["startStage"])
-		if "bgmVol" in json_data:
-			bgmVol = int(json_data["bgmVol"])
-		if "soundVol" in json_data:
-			soundVol = int(json_data["soundVol"])
-		if "mouseEnabled" in json_data:
-			mouseEnabled = int(json_data["mouseEnabled"])
-		if "difficulty" in json_data:
-			difficulty = int(json_data["difficulty"])
-		if "credits" in json_data:
-			credits = int(json_data["credits"])
-		if "weaponType" in json_data:
-			weaponType = int(json_data["weaponType"])
-		if "multipleCount" in json_data:
-			multipleCount = int(json_data["multipleCount"])
-
-		if playerStock >= 1 and playerStock <= 99:
-			Settings.playerStock = playerStock
-		if startStage >= 1 and startStage <= 6:
-			Settings.startStage = startStage
-		if bgmVol >= 0 and bgmVol <= 10:
-			Settings.bgmVolume = bgmVol
-		if soundVol >= 0 and soundVol <= 10:
-			Settings.soundVolume = soundVol
-		Settings.mouseEnabled = True if mouseEnabled == "1" else False
-		if difficulty in (DIFFICULTY_EASY, DIFFICULTY_NORMAL, DIFFICULTY_HARD):
-			Settings.difficulty = difficulty
-		if credits > 0 and credits < 100:
-			Settings.credits = credits
-		if weaponType == WeaponType.TYPE_A or weaponType == WeaponType.TYPE_B:
-			Settings.weaponType = weaponType
-		if multipleCount >= 0 and multipleCount <= 20:
-			Settings.multipleCount = multipleCount
-	except:
-		pass
-	finally:
-		if json_file != None:
-			try:
-				json_file.close()
-			except:
-				pass
-
-
-def saveSettings():
-	json_data = { "playerStock": Settings.playerStock, \
-		"startStage": Settings.startStage, \
-		"bgmVol": Settings.bgmVolume, \
-		"soundVol" : Settings.soundVolume, \
-		"mouseEnabled" : "1" if Settings.mouseEnabled else "0",	\
-		"difficulty" : 	Settings.difficulty,	\
-		"credits" : Settings.credits,	\
-		"weaponType" : Settings.weaponType,		\
-		"multipleCount" : Settings.multipleCount		\
-	}
-
-	try:
-		settingsPath = os.path.join(os.path.expanduser("~"), SETTINGS_FILE)
-
-		json_file = open(settingsPath, "w")
-		json.dump(json_data, json_file)
-		json_file.close()
-
-	except:
-		pass
 
 def init_atan_table():
 	r = 0.0
@@ -890,23 +581,6 @@ def draw_splash2(o, offset):
 		#- kore ha tekito
 		r += 0.11 + i*0.04
 
-def sound(snd,ch=0):
-	if Settings.soundVolume > 0:
-		n = pyxel.play_pos(ch)
-		if n >=0:
-			pass
-			#print("snd=" + hex(n))
-		if (n == -1):
-			pyxel.play(ch, snd)
-		else:
-			sn = int(n/100)
-			if sn < len(sound_priority):
-				if sound_priority[sn]<sound_priority[snd]:
-					pyxel.stop(ch)
-					pyxel.play(ch, snd)
-			else:
-				print("Illegal sound number! " + str(sn))
-
 
 def getCenterX(obj):
 	return obj.x + obj.left + (obj.right -obj.left+1)/2
@@ -920,85 +594,6 @@ def getCenterPos(obj):
 def getSize(obj):
 	return [obj.right -obj.left+1, obj.bottom -obj.top+1]
 
-class ObjMgr:
-	myShip = None
-	# 自機弾
-	shots = []
-	shotGroups = []
-	missleGroups = []
-	# マルチプル用
-	mshotGroupsList = []
-	mmissileGroupsList = []
-
-	# 敵
-	objs = []
-
-	nextDrawMap = None
-	drawMap = None
-
-
-	@classmethod
-	def init(cls):
-		cls.myShip = None
-		cls.shots.clear()
-		cls.shotGroups.clear()
-		cls.missleGroups.clear()
-		cls.mshotGroupsList.clear()
-		cls.mmissileGroupsList.clear()
-		for i in range(GameSession.multipleCount):
-			cls.mshotGroupsList.append([])
-			cls.mmissileGroupsList.append([])
-		
-		cls.objs.clear()
-		cls.nextDrawMap = None
-		cls.drawMap = None
-
-	@classmethod
-	def addObj(cls, obj):
-		cls.objs.append(obj)
-		return obj
-
-	@classmethod
-	def setDrawMap(cls, obj):
-		cls.nextDrawMap = obj
-
-	@classmethod
-	def removeDrawMap(cls):
-		cls.drawMap = None
-
-	@classmethod
-	def updateDrawMap0(cls, skip):
-		if cls.nextDrawMap != None:
-			cls.nextDrawMap.init()
-			cls.drawMap = cls.nextDrawMap
-			cls.nextDrawMap = None
-		if cls.drawMap != None:
-			cls.drawMap.update0(skip)
-
-	@classmethod
-	def updateDrawMap(cls, skip):
-		if cls.drawMap != None:
-			cls.drawMap.update(skip)
-
-	@classmethod
-	def drawDrawMapBackground(cls):
-		if cls.drawMap != None:
-			cls.drawMap.drawBackground()
-
-	@classmethod
-	def drawDrawMap(cls):
-		if cls.drawMap != None:
-			cls.drawMap.draw()
-
-	@classmethod
-	def drawDrawMap2(cls):
-		if cls.drawMap != None:
-			cls.drawMap.draw2()
-
-	@classmethod
-	def debugListObj(cls):
-		for obj in cls.objs:
-			print(obj)
 
 def bltStripe(x, y, img, u, v, w, h, col, p):
 	for yy in range(p, h, 2):
@@ -1688,12 +1283,6 @@ def checkMouseMenuPos(rects):
 			return i
 	return -1
 
-def drawMenuCursor():
-	if pyxel.frame_count & 32 == 0:
-		pyxel.pal(6, 7)
-	pyxel.blt(pyxel.mouse_x -7, pyxel.mouse_y -7, 0, 40, 32, 16, 16, TP_COLOR)
-	pyxel.pal()
-
 def drawRectbs(rects, clr):
 	for rect in rects:
 		pyxel.rectb(rect.left, rect.top, rect.getWidth(), rect.getHeight(), clr)
@@ -1709,17 +1298,4 @@ def sint(n):
 def debugPrint(s):
 	if DebugMode:
 		print(s)
-
-
-def doMapCharacter(n, mx, my):
-	if n in (426, 427):
-		setMapDataByMapPos(mx, my, 0)
-		ObjMgr.addObj(item.ScoreItem1(mx, my, (n==427)))
-		return True
-	elif n in (428, 429):
-		setMapDataByMapPos(mx, my, 0)
-		ObjMgr.addObj(item.OneUpItem1(mx, my, (n==429)))
-		return True
-	else:
-		return False
 

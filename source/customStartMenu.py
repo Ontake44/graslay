@@ -1,5 +1,8 @@
 import pyxel
 import gcommon
+from mouseManager import MouseManager
+from audio import BGM
+from settings import Settings 
 
 MENU_PLAYER_STOCK = 0
 MENU_WEAPON_TYPE = 1
@@ -21,8 +24,8 @@ class CustomStartMenuScene:
 		self.menuPos = 0
 		self.state = 0
 		self.cnt = 0
-		self.mouseManager = gcommon.MouseManager()
-		self.difficulty = gcommon.Settings.difficulty
+		self.mouseManager = MouseManager()
+		self.difficulty = Settings.difficulty
 		self.stageIndex = 0
 		self.menuRects = []
 		for y in self.menuYList:
@@ -61,16 +64,16 @@ class CustomStartMenuScene:
 			self.cnt = 0
 		if self.state == 0:
 			if gcommon.checkUpP():
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
+				BGM.sound(gcommon.SOUND_MENUMOVE)
 				self.menuPos -= 1
-				if self.menuPos == MENU_WEAPON_OPTION and gcommon.Settings.weaponType == gcommon.WeaponType.TYPE_A:
+				if self.menuPos == MENU_WEAPON_OPTION and Settings.weaponType == gcommon.WeaponType.TYPE_A:
 					self.menuPos = MENU_WEAPON_TYPE
 				if self.menuPos < 0:
 					self.menuPos = 5
 			if gcommon.checkDownP():
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
+				BGM.sound(gcommon.SOUND_MENUMOVE)
 				self.menuPos += 1
-				if self.menuPos == MENU_WEAPON_OPTION and gcommon.Settings.weaponType == gcommon.WeaponType.TYPE_A:
+				if self.menuPos == MENU_WEAPON_OPTION and Settings.weaponType == gcommon.WeaponType.TYPE_A:
 					self.menuPos = MENU_START_STAGE
 				if self.menuPos > 5:
 					self.menuPos = 0
@@ -85,27 +88,27 @@ class CustomStartMenuScene:
 				if self.mouseManager.visible:
 					n = gcommon.checkMouseMenuPos(self.playerStockRects)
 				if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
-					gcommon.Settings.playerStock += 1
-					if gcommon.Settings.playerStock > 99:
-						gcommon.Settings.playerStock = 99
+					BGM.sound(gcommon.SOUND_MENUMOVE)
+					Settings.playerStock += 1
+					if Settings.playerStock > 99:
+						Settings.playerStock = 99
 				elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
-					gcommon.Settings.playerStock -= 1
-					if gcommon.Settings.playerStock < 1:
-						gcommon.Settings.playerStock = 1
+					BGM.sound(gcommon.SOUND_MENUMOVE)
+					Settings.playerStock -= 1
+					if Settings.playerStock < 1:
+						Settings.playerStock = 1
 
 			elif self.menuPos == MENU_START_STAGE:
 				n = -1
 				if self.mouseManager.visible:
 					n = gcommon.checkMouseMenuPos(self.startStageRects)
 				if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
+					BGM.sound(gcommon.SOUND_MENUMOVE)
 					self.stageIndex += 1
 					if self.stageIndex >= len(__class__.stageList):
 						self.stageIndex = len(__class__.stageList) -1
 				elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
+					BGM.sound(gcommon.SOUND_MENUMOVE)
 					self.stageIndex -= 1
 					if self.stageIndex < 0:
 						self.stageIndex = 0
@@ -115,26 +118,26 @@ class CustomStartMenuScene:
 				if self.mouseManager.visible:
 					n = gcommon.checkMouseMenuPos(self.weaponTypeRects)
 				if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
-					gcommon.Settings.weaponType = gcommon.WeaponType.TYPE_B
+					BGM.sound(gcommon.SOUND_MENUMOVE)
+					Settings.weaponType = gcommon.WeaponType.TYPE_B
 				elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
-					gcommon.Settings.weaponType = gcommon.WeaponType.TYPE_A
+					BGM.sound(gcommon.SOUND_MENUMOVE)
+					Settings.weaponType = gcommon.WeaponType.TYPE_A
 
 			elif self.menuPos == MENU_WEAPON_OPTION:
 				n = -1
 				if self.mouseManager.visible:
 					n = gcommon.checkMouseMenuPos(self.multipleRects)
 				if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
-					gcommon.Settings.multipleCount += 1
-					if gcommon.Settings.multipleCount > 20:
-						gcommon.Settings.multipleCount = 20
+					BGM.sound(gcommon.SOUND_MENUMOVE)
+					Settings.multipleCount += 1
+					if Settings.multipleCount > 20:
+						Settings.multipleCount = 20
 				elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
-					gcommon.Settings.multipleCount -= 1
-					if gcommon.Settings.multipleCount < 0:
-						gcommon.Settings.multipleCount = 0
+					BGM.sound(gcommon.SOUND_MENUMOVE)
+					Settings.multipleCount -= 1
+					if Settings.multipleCount < 0:
+						Settings.multipleCount = 0
 
 			elif self.menuPos == MENU_GAME_START:
 				n = -1
@@ -142,28 +145,28 @@ class CustomStartMenuScene:
 					n = gcommon.checkMouseMenuPos(self.difficultyRects)
 				if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
 					if self.difficulty < 2:
-						gcommon.sound(gcommon.SOUND_MENUMOVE)
+						BGM.sound(gcommon.SOUND_MENUMOVE)
 						self.difficulty += 1
 				elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
 					if self.difficulty > 0:
-						gcommon.sound(gcommon.SOUND_MENUMOVE)
+						BGM.sound(gcommon.SOUND_MENUMOVE)
 						self.difficulty -= 1
 				elif gcommon.checkShotKeyP():
-					gcommon.Settings.difficulty = self.difficulty
-					gcommon.saveSettings()
-					gcommon.sound(gcommon.SOUND_GAMESTART)
+					Settings.difficulty = self.difficulty
+					Settings.saveSettings()
+					BGM.sound(gcommon.SOUND_GAMESTART)
 					self.state = 1
 					self.cnt = 0
 			
 			elif self.menuPos == MENU_EXIT:
 				if gcommon.checkShotKeyRectP(self.menuRects[MENU_EXIT]):
-					gcommon.saveSettings()
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
+					Settings.saveSettings()
+					BGM.sound(gcommon.SOUND_MENUMOVE)
 					gcommon.app.startTitle()
 		else:
 			# GAME START
 			if self.cnt > 40:
-				gcommon.Settings.startStage = __class__.stageList[self.stageIndex]
+				Settings.startStage = __class__.stageList[self.stageIndex]
 				gcommon.app.startCustomGame()
 		self.cnt += 1
 
@@ -179,28 +182,28 @@ class CustomStartMenuScene:
 		idx = 0
 		self.setOptionColor(MENU_PLAYER_STOCK)
 		gcommon.showText(x1, self.menuYList[MENU_PLAYER_STOCK], "PLAYER STOCK")
-		gcommon.showText(x2, self.menuYList[MENU_PLAYER_STOCK], str(gcommon.Settings.playerStock).rjust(2))
+		gcommon.showText(x2, self.menuYList[MENU_PLAYER_STOCK], str(Settings.playerStock).rjust(2))
 		if MENU_PLAYER_STOCK == self.menuPos:
-			gcommon.drawUpDownMarker2(x2 -10, self.menuYList[idx], 1, 99, gcommon.Settings.playerStock)
+			gcommon.drawUpDownMarker2(x2 -10, self.menuYList[idx], 1, 99, Settings.playerStock)
 
 		idx += 1
 		self.setOptionColor(MENU_WEAPON_TYPE)
 		gcommon.showText(x1, self.menuYList[MENU_WEAPON_TYPE], "WEAPON")
-		if gcommon.Settings.weaponType == gcommon.WeaponType.TYPE_A:
+		if Settings.weaponType == gcommon.WeaponType.TYPE_A:
 			gcommon.showText(x2, self.menuYList[MENU_WEAPON_TYPE], "TYPE A")
 		else:
 			gcommon.showText(x2, self.menuYList[MENU_WEAPON_TYPE], "TYPE B")
 		if MENU_WEAPON_TYPE == self.menuPos:
-			typeA = (gcommon.Settings.weaponType == gcommon.WeaponType.TYPE_A)
+			typeA = (Settings.weaponType == gcommon.WeaponType.TYPE_A)
 			gcommon.drawLeftMarker(x2 -10, self.menuYList[MENU_WEAPON_TYPE], not typeA)
 			gcommon.drawRightMarker(x2 +6*8 +2, self.menuYList[MENU_WEAPON_TYPE], typeA)
 
-		if gcommon.Settings.weaponType == gcommon.WeaponType.TYPE_B:
+		if Settings.weaponType == gcommon.WeaponType.TYPE_B:
 			self.setOptionColor(MENU_WEAPON_OPTION)
 			gcommon.showText(x1, self.menuYList[MENU_WEAPON_OPTION], " MULTIPLE")
-			gcommon.showText(x2, self.menuYList[MENU_WEAPON_OPTION], str(gcommon.Settings.multipleCount).rjust(2))
+			gcommon.showText(x2, self.menuYList[MENU_WEAPON_OPTION], str(Settings.multipleCount).rjust(2))
 			if MENU_WEAPON_OPTION == self.menuPos:
-				gcommon.drawUpDownMarker2(x2 -10, self.menuYList[MENU_WEAPON_OPTION], 0, 99, gcommon.Settings.multipleCount)
+				gcommon.drawUpDownMarker2(x2 -10, self.menuYList[MENU_WEAPON_OPTION], 0, 99, Settings.multipleCount)
 
 		idx += 1
 		self.setOptionColor(MENU_START_STAGE)
@@ -247,7 +250,7 @@ class CustomStartMenuScene:
 		pyxel.blt(16, y, 4, 16, y, 224, 12)
 		pyxel.pal()
 		if self.mouseManager.visible:
-			gcommon.drawMenuCursor()
+			self.mouseManager.drawMenuCursor()
 
 	def setOptionColor(self, index):
 		if index == self.menuPos:

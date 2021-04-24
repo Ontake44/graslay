@@ -4,6 +4,9 @@ import random
 import gcommon
 import enemy
 import boss
+from objMgr import ObjMgr
+from gameSession import GameSession
+from audio import BGM
 
 class Boss3Body:
 	def __init__(self):
@@ -62,7 +65,7 @@ class Boss3(enemy.EnemyBase):
 		self.body_min_y = 16
 		self.body_max_y = 128
 		self.cycleCount = 0
-		self.shotCycle = __class__.shotCycles[gcommon.GameSession.difficulty]
+		self.shotCycle = __class__.shotCycles[GameSession.difficulty]
 
 	def nextState(self):
 		self.state += 1
@@ -121,15 +124,15 @@ class Boss3(enemy.EnemyBase):
 				self.body.y = self.body_min_y
 				self.nextState()
 			elif self.cnt % self.shotCycle == 0:
-				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
-				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
-				gcommon.sound(gcommon.SOUND_SHOT3)
+				ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
+				ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
+				BGM.sound(gcommon.SOUND_SHOT3)
 				if self.cnt % int(self.shotCycle*2.5) == 0 and self.cycleCount & 1 == 1:
 					enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, -4)
 					enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, 4)
 			self.setBodyAnchorPos()
 		elif self.state == 4:
-			cy = gcommon.getCenterY(gcommon.ObjMgr.myShip)
+			cy = gcommon.getCenterY(ObjMgr.myShip)
 			if cy > self.body.y+25:
 				self.body.y += 1
 				if self.body.y > self.body_max_y:
@@ -143,14 +146,14 @@ class Boss3(enemy.EnemyBase):
 			if self.cnt % self.shotCycle == 0:
 				enemy.enemy_shot(self.x+20, self.y+27, 4, 0)
 				enemy.enemy_shot(self.x+20, self.y+160-27, 4, 0)
-				gcommon.sound(gcommon.SOUND_SHOT2)
+				BGM.sound(gcommon.SOUND_SHOT2)
 			if self.cnt > 180:
 				self.nextState()
 		elif self.state == 5:
 			if self.mode == 0:
 				# アンカーが伸びる
 				if self.modeCnt == 0:
-					gcommon.sound(gcommon.SOUND_BOSS3_ANCHOR)
+					BGM.sound(gcommon.SOUND_BOSS3_ANCHOR)
 				self.anchor.x -= 8
 				if self.anchor.x <= 0:
 					self.anchor.x = 0
@@ -186,9 +189,9 @@ class Boss3(enemy.EnemyBase):
 				self.body.y = self.body_max_y
 				self.nextState()
 			elif self.cnt % self.shotCycle == 0:
-				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
-				gcommon.ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
-				gcommon.sound(gcommon.SOUND_SHOT2)
+				ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
+				ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
+				BGM.sound(gcommon.SOUND_SHOT2)
 				if self.cnt % (self.shotCycle*2) == 0 and self.cycleCount & 1 == 1:
 					enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, -4)
 					enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, 4)
@@ -266,29 +269,29 @@ class Boss3(enemy.EnemyBase):
 	
 		# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
-		if gcommon.check_collision(self.body, gcommon.ObjMgr.myShip):
+		if gcommon.check_collision(self.body, ObjMgr.myShip):
 			return True
-		if gcommon.check_collision(self.anchor, gcommon.ObjMgr.myShip):
+		if gcommon.check_collision(self.anchor, ObjMgr.myShip):
 			return True
-		if gcommon.check_collision2(self.x, self.y, self.upperARect, gcommon.ObjMgr.myShip):
+		if gcommon.check_collision2(self.x, self.y, self.upperARect, ObjMgr.myShip):
 			return True
-		if gcommon.check_collision2(self.x, self.y, self.upperBRect, gcommon.ObjMgr.myShip):
+		if gcommon.check_collision2(self.x, self.y, self.upperBRect, ObjMgr.myShip):
 			return True
-		if gcommon.check_collision2(self.x, self.y, self.shaftRect, gcommon.ObjMgr.myShip):
+		if gcommon.check_collision2(self.x, self.y, self.shaftRect, ObjMgr.myShip):
 			return True
-		if gcommon.check_collision2(self.x, self.y, self.lowerBRect, gcommon.ObjMgr.myShip):
+		if gcommon.check_collision2(self.x, self.y, self.lowerBRect, ObjMgr.myShip):
 			return True
-		if gcommon.check_collision2(self.x, self.y, self.lowerARect, gcommon.ObjMgr.myShip):
+		if gcommon.check_collision2(self.x, self.y, self.lowerARect, ObjMgr.myShip):
 			return True
 		return False
 
 	def broken(self):
 		self.remove()
 		enemy.removeEnemyShot()
-		gcommon.ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self.body), gcommon.getCenterY(self.body), gcommon.C_LAYER_EXP_SKY))
-		gcommon.GameSession.addScore(self.score)
-		gcommon.sound(gcommon.SOUND_LARGE_EXP)
-		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"3A"], 240))
+		ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self.body), gcommon.getCenterY(self.body), gcommon.C_LAYER_EXP_SKY))
+		GameSession.addScore(self.score)
+		BGM.sound(gcommon.SOUND_LARGE_EXP)
+		ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"3A"], 240))
 
 class Boss3Shot(enemy.EnemyBase):
 	# x,y 弾の中心を指定

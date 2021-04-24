@@ -2,7 +2,7 @@
 import pyxel
 import stage
 import gcommon
-
+from audio import BGM
 
 class StageSelectScene:
     imageColorTable = [
@@ -43,21 +43,21 @@ class StageSelectScene:
 
         if self.state == 0:
             if self.cnt == 20:
-                gcommon.BGM.play(gcommon.BGM.STAGE_SELECT)
+                BGM.play(BGM.STAGE_SELECT)
             if self.cnt > 20:
                 if gcommon.checkUpP():
-                    gcommon.sound(gcommon.SOUND_MENUMOVE)
+                    BGM.sound(gcommon.SOUND_MENUMOVE)
                     self.currentIndex -= 1
                     if self.currentIndex < 0:
                         self.currentIndex = len(self.nextStageList) -1
                 if gcommon.checkDownP():
-                    gcommon.sound(gcommon.SOUND_MENUMOVE)
+                    BGM.sound(gcommon.SOUND_MENUMOVE)
                     self.currentIndex += 1
                     if self.currentIndex >= len(self.nextStageList):
                         self.currentIndex = 0
                 if gcommon.checkShotKeyP():
-                    gcommon.BGM.stop()
-                    gcommon.sound(gcommon.SOUND_GAMESTART)
+                    BGM.stop()
+                    BGM.sound(gcommon.SOUND_GAMESTART)
                     self.state = 1
                     self.cnt = 0
         else:

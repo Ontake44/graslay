@@ -7,6 +7,9 @@ import os
 import json
 import ranking
 from operator import itemgetter
+from gameSession import GameSession
+from audio import BGM
+from mouseManager import MouseManager
 
 # ランキング表示
 class RankingDispScene:
@@ -21,8 +24,8 @@ class RankingDispScene:
 		self.exitTo	= exitTo	# 0:タイトル 1:option
 		self.star_pos = 0
 		self.menuPos = 0
-		self.difficulty = gcommon.GameSession.difficulty
-		self.mouseManager = gcommon.MouseManager()
+		self.difficulty = GameSession.difficulty
+		self.mouseManager = MouseManager()
 		self.markerRects = [
 			gcommon.Rect.createWH(__class__.LEFT_MARKER_X, __class__.MARKER_Y, 8, 8),
 			gcommon.Rect.createWH(__class__.RIGHT_MARKER_X, __class__.MARKER_Y, 8, 8)
@@ -47,10 +50,10 @@ class RankingDispScene:
 		self.mouseManager.update()
 
 		if gcommon.checkUpP():
-			gcommon.sound(gcommon.SOUND_MENUMOVE)
+			BGM.sound(gcommon.SOUND_MENUMOVE)
 			self.menuPos = 0
 		if gcommon.checkDownP():
-			gcommon.sound(gcommon.SOUND_MENUMOVE)
+			BGM.sound(gcommon.SOUND_MENUMOVE)
 			self.menuPos = 1
 		
 		if self.mouseManager.visible:
@@ -63,16 +66,16 @@ class RankingDispScene:
 				n = gcommon.checkMouseMenuPos(self.markerRects)
 			if gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
 				if self.difficulty > 0:
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
+					BGM.sound(gcommon.SOUND_MENUMOVE)
 					self.difficulty -= 1
 			elif gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
 				if self.difficulty < 2:
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
+					BGM.sound(gcommon.SOUND_MENUMOVE)
 					self.difficulty += 1
 
 		elif self.menuPos == 1:	# EXIT
 			if gcommon.checkShotKeyRectP(self.menuRects[1]):
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
+				BGM.sound(gcommon.SOUND_MENUMOVE)
 				if self.exitTo == 0:
 					gcommon.app.startTitle()
 				else:
@@ -133,7 +136,7 @@ class RankingDispScene:
 
 		# マウスカーソル
 		if self.mouseManager.visible:
-			gcommon.drawMenuCursor()
+			self.mouseManager.drawMenuCursor()
 
 	def setOptionColor(self, index):
 		if index == self.menuPos:
@@ -160,7 +163,7 @@ class EnterPlayerNameScene:
 	ALPHA_Y = 112
 	def __init__(self):
 		self.bgStarV = gcommon.BGStarV()
-		self.mouseManager = gcommon.MouseManager()
+		self.mouseManager = MouseManager()
 		self.markerRects = []
 		for y, chars in enumerate(__class__.allCharsList):
 			for i in range(len(chars)):
@@ -176,7 +179,7 @@ class EnterPlayerNameScene:
 		self.name = ""
 
 	def init(self):
-		gcommon.BGM.playOnce(gcommon.BGM.RANKING)
+		BGM.playOnce(BGM.RANKING)
 
 	def update(self):
 		self.bgStarV.update()
@@ -187,17 +190,17 @@ class EnterPlayerNameScene:
 				self.rectIndex = n
 		else:
 			if gcommon.checkLeftP():
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
+				BGM.sound(gcommon.SOUND_MENUMOVE)
 				self.rectIndex -= 1
 				if self.rectIndex < 0:
 					self.rectIndex = self.endIndex
 			elif gcommon.checkRightP():
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
+				BGM.sound(gcommon.SOUND_MENUMOVE)
 				self.rectIndex += 1
 				if self.rectIndex > self.endIndex:
 					self.rectIndex = 0
 			elif gcommon.checkUpP():
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
+				BGM.sound(gcommon.SOUND_MENUMOVE)
 				if self.rectIndex < 7:
 					self.rectIndex = 26 + 10 + self.rectIndex
 				elif self.rectIndex >= 7 and self.rectIndex < 13:
@@ -207,7 +210,7 @@ class EnterPlayerNameScene:
 				elif self.rectIndex >= (26+10) and self.rectIndex < (26+10+7):	# 記号+BS+End
 					self.rectIndex -= 10
 			elif gcommon.checkDownP():
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
+				BGM.sound(gcommon.SOUND_MENUMOVE)
 				if self.rectIndex >= 0 and self.rectIndex < 13:		# アルファベット１段目
 					self.rectIndex += 13
 				elif self.rectIndex >= 13 and self.rectIndex < (13+10):	# アルファベット２段目の途中
@@ -222,7 +225,7 @@ class EnterPlayerNameScene:
 					self.rectIndex -= 26 + 10
 			
 		if gcommon.checkShotKeyP():
-			gcommon.sound(gcommon.SOUND_MENUMOVE)
+			BGM.sound(gcommon.SOUND_MENUMOVE)
 			if self.cursorPos < 3 and self.rectIndex < self.backSpaceIndex:
 				self.name += self.allChars[self.rectIndex]
 				self.cursorPos += 1
@@ -237,7 +240,7 @@ class EnterPlayerNameScene:
 	def addRecord(self):
 		rakingManager = ranking.RankingManager()
 		rakingManager.load()
-		rakingManager.addRecord(gcommon.GameSession.difficulty, self.name, gcommon.GameSession.score, gcommon.GameSession.stage)
+		rakingManager.addRecord(GameSession.difficulty, self.name, GameSession.score, GameSession.stage)
 		rakingManager.save()
 
 	def setOptionColor(self, index):
@@ -254,21 +257,21 @@ class EnterPlayerNameScene:
 		gcommon.showTextHCenter(ty, "ENTER YOUR NAME")
 		ty += 16
 
-		gcommon.showTextHCenter(ty, "= " + gcommon.difficultyText[gcommon.GameSession.difficulty] + " =")
+		gcommon.showTextHCenter(ty, "= " + gcommon.difficultyText[GameSession.difficulty] + " =")
 
 		x0 = 32
 		x1 = 128
 		ty += 24
 		gcommon.showText(x0, ty, "SCORE")
-		gcommon.showText(x1, ty, str(gcommon.GameSession.score).rjust(8, "0"))
+		gcommon.showText(x1, ty, str(GameSession.score).rjust(8, "0"))
 		ty += 16
 
 		gcommon.showText(x0, ty, "STAGE")
 		stage = ""
-		if gcommon.GameSession.stage == -1:
+		if GameSession.stage == -1:
 			stage = "CLEAR"
 		else:
-			stage = "  " + str(gcommon.GameSession.stage)
+			stage = "  " + str(GameSession.stage)
 		gcommon.showText(x1, ty, stage)
 		ty += 16
 
@@ -381,7 +384,7 @@ class RankingManager:
 
 	def addContinueRecord(self):
 		self.load()
-		self.addRecord(gcommon.GameSession.difficulty, "=C=", gcommon.GameSession.score, gcommon.GameSession.stage)
+		self.addRecord(GameSession.difficulty, "=C=", GameSession.score, GameSession.stage)
 		self.save()
 
 	def addRecord(self, difficulty, name, score, stage):

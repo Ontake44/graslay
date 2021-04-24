@@ -4,6 +4,9 @@ import random
 import gcommon
 import enemy
 import boss
+from objMgr import ObjMgr
+from gameSession import GameSession
+from audio import BGM
 
 # レーザー移動砲台発射口
 class BossLast1Launcher(enemy.EnemyBase):
@@ -76,8 +79,8 @@ class BossLast1(enemy.EnemyBase):
 		self.random = gcommon.ClassicRand()
 		pyxel.image(2).load(0,0,"assets/graslay_last-3.png")
 		# 移動ビーム砲台発射口
-		gcommon.ObjMgr.addObj(BossLast1Launcher(self.x, self.y, -1))
-		gcommon.ObjMgr.addObj(BossLast1Launcher(self.x, self.y +176, 1))
+		ObjMgr.addObj(BossLast1Launcher(self.x, self.y, -1))
+		ObjMgr.addObj(BossLast1Launcher(self.x, self.y +176, 1))
 
 	def nextState(self):
 		self.state += 1
@@ -130,7 +133,7 @@ class BossLast1(enemy.EnemyBase):
 					enemy.ContinuousShot.create(self.x + 66, self.y +49, self.shotType, count, 5, 4)
 				elif n == 3:
 					enemy.ContinuousShot.create(self.x + 38, self.y +128+40, self.shotType, count, 5, 4)
-				if gcommon.GameSession.isHard():
+				if GameSession.isHard():
 					self.shotType = 1 + (self.shotType + 1) % 3
 			if self.cnt> 100:
 				self.nextState()
@@ -142,7 +145,7 @@ class BossLast1(enemy.EnemyBase):
 					start = BossLast1.launcherTable[i]
 					pos = BossLast1.beamTable[self.beamIndex][i]
 					self.beam1List[i] = BossLastBeam1(self.x + start[0], self.y +start[1], pos[0], pos[1])
-					gcommon.ObjMgr.addObj(self.beam1List[i])
+					ObjMgr.addObj(self.beam1List[i])
 				self.beamIndex += 1
 				if self.beamIndex >=len(BossLast1.beamTable):
 					self.beamIndex = 0
@@ -161,7 +164,7 @@ class BossLast1(enemy.EnemyBase):
 			# 本体ビーム
 			if self.cnt == 1:
 				self.beam2 = BossLastBeam2(180, 96, (self.cycleCount2 & 1 != 0))
-				gcommon.ObjMgr.addObj(self.beam2)
+				ObjMgr.addObj(self.beam2)
 				self.cycleCount2 += 1
 			else:
 				if self.beam2.removeFlag:
@@ -172,16 +175,16 @@ class BossLast1(enemy.EnemyBase):
 
 		elif self.state == 6:
 			# レーザー砲台射出
-			if gcommon.GameSession.difficulty == gcommon.DIFFICULTY_EASY:
+			if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
 				rate = 80
-			elif gcommon.GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
+			elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
 				rate = 60
 			else:
 				rate = 40
 			if self.cnt % rate == 1:
-				gcommon.ObjMgr.objs.append(BossLastBattery1(156, 192, -1))
+				ObjMgr.objs.append(BossLastBattery1(156, 192, -1))
 			elif self.cnt % rate == int(rate/2)+1:
-				gcommon.ObjMgr.objs.append(BossLastBattery1(156, -16, 1))
+				ObjMgr.objs.append(BossLastBattery1(156, -16, 1))
 			if self.cnt > 200:				
 				self.setState(2)	
 		self.rad = (self.rad + math.pi/60) % (math.pi * 2)
@@ -199,16 +202,16 @@ class BossLast1(enemy.EnemyBase):
 				self.nextState()
 		elif self.state == 2:
 			# ダイアモンドショットホーミング射出
-			if gcommon.GameSession.difficulty == gcommon.DIFFICULTY_EASY:
+			if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
 				count = 20
-			elif gcommon.GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
+			elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
 				count = 15
 			else:
 				count = 8
 			if self.cnt % count == 0:
 				n = BossLast1.table8[int(self.cnt /8) & 7]
-				gcommon.ObjMgr.addObj(BossLastDiamondShot(self.x +32+16+32, self.y +64+16+16+8, 24 -n*2))
-				gcommon.ObjMgr.addObj(BossLastDiamondShot(self.x +32+16+32, self.y +64+16+16-8, 40 +n*2))
+				ObjMgr.addObj(BossLastDiamondShot(self.x +32+16+32, self.y +64+16+16+8, 24 -n*2))
+				ObjMgr.addObj(BossLastDiamondShot(self.x +32+16+32, self.y +64+16+16-8, 40 +n*2))
 			if self.cnt > 300:
 				self.nextState()
 		elif self.state == 3:
@@ -218,16 +221,16 @@ class BossLast1(enemy.EnemyBase):
 			# # 矢型の弾
 			# if self.cnt & 3 == 0:
 			# 	self.arrowRad = math.pi + math.pi * (self.random.rand() % 100 -50)/120
-			# 	gcommon.ObjMgr.addObj(BossLastArrowShot(self.x +32+16+32, self.y +64+16+16, self.arrowRad))
+			# 	ObjMgr.addObj(BossLastArrowShot(self.x +32+16+32, self.y +64+16+16, self.arrowRad))
 			# ひし形弾
-			if gcommon.GameSession.difficulty == gcommon.DIFFICULTY_EASY:
+			if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
 				count = 12
-			elif gcommon.GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
+			elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
 				count = 8
 			else:
 				count = 5
 			if self.cnt % count == 0:
-				gcommon.ObjMgr.addObj(BossLastFallShotGroup(self.x +32+16+32, self.y +64+16+16,
+				ObjMgr.addObj(BossLastFallShotGroup(self.x +32+16+32, self.y +64+16+16,
 					math.pi + math.pi * (self.random.rand() % 100 -50)/120, 
 					(self.random.rand() % 120 -60)/800, 5))
 			if self.cnt > 240:
@@ -235,7 +238,7 @@ class BossLast1(enemy.EnemyBase):
 		elif self.state == 5:
 			if self.cnt == 1:
 				self.roundBeam = BossLastRoundBeam(self.x +32+16+32, self.y +64+16+16)
-				gcommon.ObjMgr.addObj(self.roundBeam)
+				ObjMgr.addObj(self.roundBeam)
 			if self.roundBeam != None and self.roundBeam.removeFlag:
 				self.setState(2)
 
@@ -256,9 +259,9 @@ class BossLast1(enemy.EnemyBase):
 			if self.cnt == 120:
 				gcommon.scroll_flag = True
 				# ボスコアを生成
-				gcommon.ObjMgr.addObj(BossLast1Core(self.coreX, self.coreY))
-				gcommon.ObjMgr.addObj(enemy.Delay(BossLastBaseExplosion, [], 240))
-				gcommon.BGM.play(gcommon.BGM.BOSS_LAST)
+				ObjMgr.addObj(BossLast1Core(self.coreX, self.coreY))
+				ObjMgr.addObj(enemy.Delay(BossLastBaseExplosion, [], 240))
+				BGM.play(BGM.BOSS_LAST)
 		if self.x <= -160:
 			self.remove()
 
@@ -301,7 +304,7 @@ class BossLast1(enemy.EnemyBase):
 				# 初期状態⇒先端が欠けた状態
 				self.brokenState = 1
 				enemy.create_explosion(self.x +32+32, self.y +64+16+16, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M)
-				gcommon.GameSession.addScore(1000)
+				GameSession.addScore(1000)
 			elif self.brokenState == 1 and self.hp < BossLast1.hp3:
 				# 先端が欠けた状態⇒コアむき出し状態
 				self.brokenState = 2
@@ -310,7 +313,7 @@ class BossLast1(enemy.EnemyBase):
 				self.removeAllShot()
 				enemy.create_explosion(self.x +32+32, self.y +64+16+16, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M)
 				enemy.Splash.append(self.x +32+32+24, self.y +64+16+16, gcommon.C_LAYER_EXP_SKY)
-				gcommon.GameSession.addScore(3000)
+				GameSession.addScore(3000)
 		return ret
 
 	def broken(self):
@@ -320,9 +323,9 @@ class BossLast1(enemy.EnemyBase):
 		self.shotHitCheck = False
 		self.removeAllShot()
 		enemy.removeEnemyShot()
-		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+		BGM.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		gcommon.GameSession.addScore(self.score)
+		GameSession.addScore(self.score)
 
 	def removeAllShot(self):
 		enemy.removeEnemyShot()
@@ -384,7 +387,7 @@ class BossLastBeam1(enemy.EnemyBase):
 	def checkMyShipCollision(self):
 		if self.xpolygonList1 == None:
 			return False
-		pos = gcommon.getCenterPos(gcommon.ObjMgr.myShip)
+		pos = gcommon.getCenterPos(ObjMgr.myShip)
 		if gcommon.checkCollisionPointAndPolygon(pos, self.xpolygonList1.polygons[0].points):
 			return True
 		return False
@@ -518,7 +521,7 @@ class BossLastBeam2(enemy.EnemyBase):
 	def checkMyShipCollision(self):
 		if self.xpolygonList1 == None:
 			return False
-		pos = gcommon.getCenterPos(gcommon.ObjMgr.myShip)
+		pos = gcommon.getCenterPos(ObjMgr.myShip)
 		if gcommon.checkCollisionPointAndPolygon(pos, self.xpolygonList1.polygons[0].points):
 			return True
 		return False
@@ -567,7 +570,7 @@ class BossLastBattery1(enemy.EnemyBase):
 				self.remove()
 				return
 			if self.cnt % 30 == (15 + self.flag * 5):
-				gcommon.ObjMgr.addObj(BossLastBattery1Beam(self.x, self.y, 4 * self.flag))
+				ObjMgr.addObj(BossLastBattery1Beam(self.x, self.y, 4 * self.flag))
 
 	def draw(self):
 		pyxel.blt(self.x, self.y, 2, 96, 64, 16, -16 *self.flag, 3)
@@ -860,7 +863,7 @@ class BossLastFallShotGroup(enemy.EnemyBase):
 		self.enemyShotCollision = False
 	def update(self):
 		if self.cnt & 3 == 0:
-			gcommon.ObjMgr.addObj(BossLastFallShot(self.x, self.y, self.rad, self.omega))
+			ObjMgr.addObj(BossLastFallShot(self.x, self.y, self.rad, self.omega))
 			self.count -= 1
 			if self.count <= 0:
 				self.remove()
@@ -1000,14 +1003,14 @@ class BossLast1Core(enemy.EnemyBase):
 				self.random = gcommon.ClassicRand()
 			self.y += 4.2 * math.sin(self.radY)
 			self.radY += math.pi/60
-			if gcommon.GameSession.difficulty == gcommon.DIFFICULTY_EASY:
+			if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
 				count = 18
-			elif gcommon.GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
+			elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
 				count = 15
 			else:
 				count = 7
 			if self.cnt % (self.random.rand() % count +3) == 0:
-				gcommon.ObjMgr.addObj(BossLastStraightBeam(self.x -16, self.y))
+				ObjMgr.addObj(BossLastStraightBeam(self.x -16, self.y))
 			if self.cnt > 240:
 				self.nextState()
 		elif self.state == 3:
@@ -1041,15 +1044,15 @@ class BossLast1Core(enemy.EnemyBase):
 					self.setState(2)
 					self.angle = 0.0
 					self.cycleCount += 1
-			if gcommon.GameSession.difficulty == gcommon.DIFFICULTY_EASY:
+			if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
 				count = 15
-			elif gcommon.GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
+			elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
 				count = 10
 			else:
 				count = 5
 			if self.cnt % count == 0:
-				gcommon.ObjMgr.addObj(boss.BossLaserBeam1(self.x +math.cos(workAngle)* 24, self.y +math.sin(workAngle) * 24, workAngle))
-				gcommon.ObjMgr.addObj(boss.BossLaserBeam1(self.x -math.cos(workAngle)* 24, self.y -math.sin(workAngle) * 24, workAngle + math.pi))
+				ObjMgr.addObj(boss.BossLaserBeam1(self.x +math.cos(workAngle)* 24, self.y +math.sin(workAngle) * 24, workAngle))
+				ObjMgr.addObj(boss.BossLaserBeam1(self.x -math.cos(workAngle)* 24, self.y -math.sin(workAngle) * 24, workAngle + math.pi))
 		self.rad = (self.rad + math.pi/30) % (math.pi * 2)
 
 	def draw(self):
@@ -1079,12 +1082,12 @@ class BossLast1Core(enemy.EnemyBase):
 		self.setState(100)
 		self.shotHitCheck = False
 		enemy.removeEnemyShot()
-		gcommon.ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
-		gcommon.GameSession.addScore(self.score)
+		ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
+		GameSession.addScore(self.score)
 		self.remove()
-		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+		BGM.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		gcommon.ObjMgr.addObj(enemy.Delay(enemy.StageClear, [0,0,"6"], 240))
+		ObjMgr.addObj(enemy.Delay(enemy.StageClear, [0,0,"6"], 240))
 
 # ぐるぐる螺旋ビーム
 class BossLastRoundBeam(enemy.EnemyBase):
@@ -1212,7 +1215,7 @@ class BossLastRoundBeam(enemy.EnemyBase):
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
-		myPos : [float] = gcommon.getCenterPos(gcommon.ObjMgr.myShip)
+		myPos : [float] = gcommon.getCenterPos(ObjMgr.myShip)
 		for i in [2,3, 8, 9]:
 			for pos in self.listArray[i]:
 				d = gcommon.get_distance_pos2(myPos, pos)
@@ -1232,8 +1235,8 @@ class BossLastBaseExplosion(enemy.EnemyBase):
 
 	def update(self):
 		if self.cnt % 3 == 0:
-			obj = gcommon.ObjMgr.addObj(enemy.Explosion(32 +random.randrange(64), random.randrange(gcommon.SCREEN_MAX_Y), gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_SKY_M))
+			obj = ObjMgr.addObj(enemy.Explosion(32 +random.randrange(64), random.randrange(gcommon.SCREEN_MAX_Y), gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_SKY_M))
 			obj.particle = False
 			if self.cnt < 120:
 				# 120超えるとサウンドなし
-				gcommon.sound(gcommon.SOUND_MID_EXP)
+				BGM.sound(gcommon.SOUND_MID_EXP)

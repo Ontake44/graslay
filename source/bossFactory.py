@@ -6,6 +6,9 @@ import enemy
 import boss
 import enemyShot
 from enemyShot import BossFactoryShot2
+from objMgr import ObjMgr
+from gameSession import GameSession
+from audio import BGM
 
 class BossFactoryShot1(enemy.EnemyBase):
 	def __init__(self, x, y):
@@ -26,7 +29,7 @@ class BossFactoryShot1(enemy.EnemyBase):
 		self.image = 2
 		self.imageX = 0
 		self.imageY = 96
-		self.maxSpeed = 4 if gcommon.GameSession.isHard() else 3
+		self.maxSpeed = 4 if GameSession.isHard() else 3
 
 	def update(self):
 		if self.cnt & 2 == 0 and self.cnt <= 63:
@@ -197,7 +200,7 @@ class BossFactory(enemy.EnemyBase):
 					self.dy = -self.dy * 0.8
 					for i in range(3):
 						enemy.Particle1.append(self.x +39.5, self.y +88, -math.pi/4 -math.pi/4*i)
-						#gcommon.ObjMgr.objs.append(
+						#ObjMgr.objs.append(
 						#	enemy.Particle1(self.x +39.5, self.y +88, -math.pi/4 -math.pi/4*i))
 				if self.x > 280:
 					self.dx = -self.dx
@@ -213,7 +216,7 @@ class BossFactory(enemy.EnemyBase):
 					# 跳ねる
 					self.dy = -self.dy
 					for i in range(4):
-						gcommon.ObjMgr.objs.append(
+						ObjMgr.objs.append(
 							enemy.Particle1(self.x +39.5, self.y +88, -math.pi/4 -math.pi/4*i, 8, 50))
 				if self.x <= 152:
 					self.omega = -math.pi/64
@@ -254,7 +257,7 @@ class BossFactory(enemy.EnemyBase):
 						if self.subCnt % 15 == 0:
 							for i in range(4):
 								# 破壊可能な自動追尾泡？ショット
-								gcommon.ObjMgr.objs.append(
+								ObjMgr.objs.append(
 										BossFactoryShot1(
 											self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32,
 											self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32))
@@ -282,7 +285,7 @@ class BossFactory(enemy.EnemyBase):
 							for i in range(4):
 								px = self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32
 								py = self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32
-								gcommon.ObjMgr.addObj(BossFactoryShot2(px, py, self.rad + math.pi/4 - math.pi/2 + math.pi/2 * i))
+								ObjMgr.addObj(BossFactoryShot2(px, py, self.rad + math.pi/4 - math.pi/2 + math.pi/2 * i))
 					if self.subCnt >= 150:
 						self.omega = -math.pi/64
 						self.setSubState(3)
@@ -334,7 +337,7 @@ class BossFactory(enemy.EnemyBase):
 					rad = (self.stateCycle & 1) * 2 * math.pi/16
 					for i in range(64):
 						if i & 4 == 0:
-							gcommon.ObjMgr.objs.append(
+							ObjMgr.objs.append(
 								boss.BossLaserBeam1(self.x +39.5, self.y + 39.5, rad))
 						rad += 2 * math.pi/64
 				if self.cnt > 60:
@@ -352,7 +355,7 @@ class BossFactory(enemy.EnemyBase):
 				self.moveDr64 = -1
 			if self.subState == 0:
 				# 追いかける
-				if self.cnt % 4 == 0 and self.cnt <= 30 * gcommon.GameSession.enemy_shot_rate:
+				if self.cnt % 4 == 0 and self.cnt <= 30 * GameSession.enemy_shot_rate:
 					tempDr = gcommon.get_atan_no_to_ship(self.x +39.5, self.y +39.5)
 					# 右左を決める
 					if self.moveDr64 == -1:
@@ -407,10 +410,10 @@ class BossFactory(enemy.EnemyBase):
 						px = self.x +39.5 +math.cos(self.rad + rr +math.pi * i) * 32
 						py = self.y +39.5 +math.sin(self.rad + rr +math.pi * i) * 32
 						dr = gcommon.atan2x(px -(self.x +39.5), py - (self.y +39.5))
-						gcommon.ObjMgr.addObj(enemyShot.HomingBeam1(px, py, dr))
+						ObjMgr.addObj(enemyShot.HomingBeam1(px, py, dr))
 					
 					# rr = 0 if self.finMode == 0 else math.pi/4
-					# n = 5 if gcommon.GameSession.isHard() else 4
+					# n = 5 if GameSession.isHard() else 4
 					# dr = gcommon.get_atan_no_to_ship(self.x +39.5, self.y +39.5)
 					# if self.subCnt & 32 == 0:
 					# 	#print("5")
@@ -500,7 +503,7 @@ class BossFactory(enemy.EnemyBase):
 	# def doShotCollision(self, shot):
 	# 	rad = math.atan2(shot.dy, shot.dx)
 	# 	enemy.Particle1.appendCenter(shot, rad)
-	# 	gcommon.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
+	# 	BGM.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
 	# 	self.hp -= shot.shotPower
 	# 	if self.hp <= 0:
 	# 		self.broken()
@@ -511,15 +514,15 @@ class BossFactory(enemy.EnemyBase):
 
 		# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
-		pos = gcommon.getCenterPos(gcommon.ObjMgr.myShip)
+		pos = gcommon.getCenterPos(ObjMgr.myShip)
 		return math.hypot(self.x+39.5-pos[0], self.y+39.5 -pos[1]) <40
 
 	def broken(self):
 		self.remove()
 		enemy.removeEnemyShot()
-		gcommon.ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
-		gcommon.GameSession.addScore(self.score)
-		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+		ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
+		GameSession.addScore(self.score)
+		BGM.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"5A"], 240))
+		ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"5A"], 240))
 

@@ -4,6 +4,9 @@ import random
 import gcommon
 import enemy
 import boss
+from objMgr import ObjMgr
+from gameSession import GameSession
+from audio import BGM
 
 # ボス２固定台
 class Boss2Base(enemy.EnemyBase):
@@ -156,7 +159,7 @@ class Feeler(enemy.EnemyBase):
 		self.mode = 0
 		self.subDr = 0
 		self.state = 0		# 0:縮小状態 1,2:モードで動作中
-		self.shotCycle = __class__.shotCycles[gcommon.GameSession.difficulty]
+		self.shotCycle = __class__.shotCycles[GameSession.difficulty]
 		for i in range(0, count):
 			self.cells.append([0, 0])
 		# 触手セルの当たり判定範囲
@@ -274,14 +277,14 @@ class Feeler(enemy.EnemyBase):
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
-		if gcommon.check_collision(self, gcommon.ObjMgr.myShip):
+		if gcommon.check_collision(self, ObjMgr.myShip):
 			return True
 		else:
 			# 触手部の当たり判定
 			for pos in self.cells:
 				x = self.x +pos[0]
 				y = self.y +pos[1]
-				if gcommon.check_collision2(x, y, self.cellRect, gcommon.ObjMgr.myShip):
+				if gcommon.check_collision2(x, y, self.cellRect, ObjMgr.myShip):
 					return True
 			return False
 
@@ -404,17 +407,17 @@ class Boss2(enemy.EnemyBase):
 		#self.feelers[1].setMode(1)
 		#self.feelers[2].setMode(1)
 		#self.feelers[3].setMode(1)
-		gcommon.ObjMgr.addObj(self.feelers[0])
-		gcommon.ObjMgr.addObj(self.feelers[1])
-		gcommon.ObjMgr.addObj(self.feelers[2])
-		gcommon.ObjMgr.addObj(self.feelers[3])
+		ObjMgr.addObj(self.feelers[0])
+		ObjMgr.addObj(self.feelers[1])
+		ObjMgr.addObj(self.feelers[2])
+		ObjMgr.addObj(self.feelers[3])
 		self.bossCells = []
 		#self.upperBase = Boss2Base(self,0)
 		#self.lowerBase = Boss2Base(self,1)
-		#gcommon.ObjMgr.addObj(self.upperBase)
-		#gcommon.ObjMgr.addObj(self.lowerBase)
+		#ObjMgr.addObj(self.upperBase)
+		#ObjMgr.addObj(self.lowerBase)
 		self.bossBase = Boss2Base2(self)
-		gcommon.ObjMgr.addObj(self.bossBase)
+		ObjMgr.addObj(self.bossBase)
 
 	def update(self):
 		if self.state == 0:
@@ -523,26 +526,26 @@ class Boss2(enemy.EnemyBase):
 				# 触手伸ばす攻撃
 				if self.cycleCount & 1 == 0:
 					if self.subcnt == 1:
-						self.bossCells.append(gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+29, 24)))
-						gcommon.sound(gcommon.SOUND_FEELER_GROW)
+						self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+29, 24)))
+						BGM.sound(gcommon.SOUND_FEELER_GROW)
 					elif self.subcnt == 20:
-						self.bossCells.append(gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+8, 40)))
+						self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+8, 40)))
 					elif self.subcnt == 40:
-						self.bossCells.append(gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+8, 24)))
+						self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+8, 24)))
 					elif self.subcnt == 60:
-						self.bossCells.append(gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+29, 40)))
+						self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+29, 40)))
 				else:
 					if self.subcnt == 1:
-						self.bossCells.append(gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +14, self.y+16, 32)))
-						gcommon.sound(gcommon.SOUND_FEELER_GROW)
+						self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +14, self.y+16, 32)))
+						BGM.sound(gcommon.SOUND_FEELER_GROW)
 					elif self.subcnt == 15:
-						self.bossCells.append(gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +33, self.y+5, 20)))
+						self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +33, self.y+5, 20)))
 					elif self.subcnt == 30:
-						self.bossCells.append(gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +31, self.y+33, 40)))
+						self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +31, self.y+33, 40)))
 					#elif self.subcnt == 45:
-					#	gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +48, self.y+6, 24))
+					#	ObjMgr.addObj(Boss2Cell(self, self.x +48, self.y+6, 24))
 					#elif self.subcnt == 60:
-					#	gcommon.ObjMgr.addObj(Boss2Cell(self, self.x +48, self.y+33, 38))
+					#	ObjMgr.addObj(Boss2Cell(self, self.x +48, self.y+33, 38))
 			self.subcnt+=1
 
 	def draw(self):
@@ -570,9 +573,9 @@ class Boss2(enemy.EnemyBase):
 				cell.remove()
 		self.remove()
 		enemy.removeEnemyShot()
-		gcommon.ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
-		gcommon.GameSession.addScore(self.score)
-		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+		ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
+		GameSession.addScore(self.score)
+		BGM.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"2A"], 240))
+		ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"2A"], 240))
 

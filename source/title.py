@@ -3,6 +3,9 @@ import math
 import random
 import gcommon
 import enemy
+from settings import Settings
+from audio import BGM
+from mouseManager import MouseManager
 
 TITLEMENU_START = 0
 TITLEMENU_CUSTOMSTART = 1
@@ -44,9 +47,9 @@ class TitleScene:
 		self.ey = 24
 		self.cntLimit = 70
 		self.objs = []
-		self.difficulty = gcommon.Settings.difficulty
-		self.credits = gcommon.Settings.credits
-		self.mouseManager = gcommon.MouseManager()
+		self.difficulty = Settings.difficulty
+		self.credits = Settings.credits
+		self.mouseManager = MouseManager()
 		self.menuRects = []
 		for i in range(4):
 			self.menuRects.append(gcommon.Rect.create(
@@ -58,7 +61,7 @@ class TitleScene:
 
 
 	def init(self):
-		gcommon.BGM.play(gcommon.BGM.TITLE)
+		BGM.play(BGM.TITLE)
 
 	def update(self):
 		self.star_pos -= 0.25
@@ -146,10 +149,10 @@ class TitleScene:
 					self.menuPos = n
 
 			if gcommon.checkUpP():
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
+				BGM.sound(gcommon.SOUND_MENUMOVE)
 				self.menuPos = (self.menuPos -1) % 4
 			elif gcommon.checkDownP():
-				gcommon.sound(gcommon.SOUND_MENUMOVE)
+				BGM.sound(gcommon.SOUND_MENUMOVE)
 				self.menuPos = (self.menuPos +1) % 4
 			
 			if self.menuPos == TITLEMENU_START:
@@ -158,29 +161,29 @@ class TitleScene:
 					n = gcommon.checkMouseMenuPos(self.difficultyRects)
 				if gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
 					if self.difficulty > 0:
-						gcommon.sound(gcommon.SOUND_MENUMOVE)
+						BGM.sound(gcommon.SOUND_MENUMOVE)
 						self.difficulty -= 1
 					return
 				elif gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
 					if self.difficulty < 2:
-						gcommon.sound(gcommon.SOUND_MENUMOVE)
+						BGM.sound(gcommon.SOUND_MENUMOVE)
 						self.difficulty += 1
 					return
 				elif gcommon.checkShotKeyRectP(self.menuRects[TITLEMENU_START]):
-					gcommon.BGM.stop()
-					gcommon.sound(gcommon.SOUND_GAMESTART)
+					BGM.stop()
+					BGM.sound(gcommon.SOUND_GAMESTART)
 					# ここですぐにはゲームスタートしない
 					self.state = 200
 					self.cnt = 0
 					return
 			elif self.menuPos == TITLEMENU_CUSTOMSTART:
 				if gcommon.checkShotKeyRectP(self.menuRects[TITLEMENU_CUSTOMSTART]):
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
+					BGM.sound(gcommon.SOUND_MENUMOVE)
 					gcommon.app.startCustomStartMenu()
 					return
 			elif self.menuPos == TITLEMENU_OPTION:
 				if gcommon.checkShotKeyRectP(self.menuRects[TITLEMENU_OPTION]):
-					gcommon.sound(gcommon.SOUND_MENUMOVE)
+					BGM.sound(gcommon.SOUND_MENUMOVE)
 					gcommon.app.startOption()
 					return
 			elif self.menuPos == TITLEMENU_EXIT:
@@ -322,7 +325,7 @@ class TitleScene:
 
 		pyxel.pal()
 		if self.mouseManager.visible:
-			gcommon.drawMenuCursor()
+			self.mouseManager.drawMenuCursor()
 		#pyxel.blt(78, 120 + self.menuPos * 15, 0, 8, 32, 8, 8, gcommon.TP_COLOR)
 		
 	def drawFlash(self, x, y):

@@ -21,6 +21,7 @@ import ending
 import item
 import ranking
 import story
+from objMgr import ObjMgr
 from optionMenu import OptionMenuScene
 from title import TitleScene
 from mapDraw import MapDraw1
@@ -32,6 +33,11 @@ from mapDraw import MapDrawFactory
 from mapDraw import MapDrawLast
 import stage
 import stageSelect
+from objMgr import ObjMgr
+from gameSession import GameSession
+from audio import BGM
+from mouseManager import MouseManager
+from settings import Settings
 
 #  ゲームオーバー
 #
@@ -41,16 +47,16 @@ class GameOver:
 	
 	def init(self):
 		self.cnt = 0
-		gcommon.BGM.playOnce(gcommon.BGM.GAME_OVER)
+		BGM.playOnce(BGM.GAME_OVER)
 
 	def update(self):
 		self.cnt+=1
 		if self.cnt > 5*60:
-			if gcommon.GameSession.gameMode == gcommon.GAMEMODE_NORMAL:
+			if GameSession.gameMode == gcommon.GAMEMODE_NORMAL:
 				# クレジットが増えるのは、クレジットを使い切ってゲームオーバーしたときだけ
-				if gcommon.GameSession.credits == 0 and gcommon.Settings.credits < 99:
-					gcommon.Settings.credits += 1
-					gcommon.saveSettings()
+				if GameSession.credits == 0 and Settings.credits < 99:
+					Settings.credits += 1
+					Settings.saveSettings()
 				# ランキング入るのはノーマルだけ
 				gcommon.app.startRanking()
 			else:
@@ -109,63 +115,63 @@ class GameClear:
 
 class StartMapDraw1:
 	def __init__(self, t):
-		gcommon.ObjMgr.setDrawMap(MapDraw1())
+		ObjMgr.setDrawMap(MapDraw1())
 
 	def do(self):
 		pass
 
 class StartMapDraw:
 	def __init__(self, t):
-		gcommon.ObjMgr.setDrawMap(t[2]())
+		ObjMgr.setDrawMap(t[2]())
 
 	def do(self):
 		pass
 
 class StartBGM:
 	def __init__(self, t):
-		gcommon.BGM.play(t[2])
+		BGM.play(t[2])
 
 	def do(self):
 		pass
 
 class StartMapDraw2:
 	def __init__(self, t):
-		gcommon.ObjMgr.setDrawMap(MapDraw2())
+		ObjMgr.setDrawMap(MapDraw2())
 
 	def do(self):
 		pass
 
 class StartMapDraw3:
 	def __init__(self, t):
-		gcommon.ObjMgr.setDrawMap(MapDraw3())
+		ObjMgr.setDrawMap(MapDraw3())
 
 	def do(self):
 		pass
 
 class StartMapDraw4:
 	def __init__(self, t):
-		gcommon.ObjMgr.setDrawMap(MapDraw4())
+		ObjMgr.setDrawMap(MapDraw4())
 
 	def do(self):
 		pass
 
 class StartMapDrawFactory:
 	def __init__(self, t):
-		gcommon.ObjMgr.setDrawMap(MapDrawFactory())
+		ObjMgr.setDrawMap(MapDrawFactory())
 
 	def do(self):
 		pass
 
 class StartMapDrawLast:
 	def __init__(self, t):
-		gcommon.ObjMgr.setDrawMap(MapDrawLast())
+		ObjMgr.setDrawMap(MapDrawLast())
 
 	def do(self):
 		pass
 
 class EndMapDraw:
 	def __init__(self, t):
-		gcommon.ObjMgr.removeDrawMap()
+		ObjMgr.removeDrawMap()
 
 	def do(self):
 		pass
@@ -184,12 +190,12 @@ class MainGame:
 		self.restart = restart
 	
 	def init(self):
-		self.mouseManager = gcommon.MouseManager()
-		gcommon.ObjMgr.init()
-		if gcommon.GameSession.weaponType == gcommon.WeaponType.TYPE_A:
-			gcommon.ObjMgr.myShip = MyShipA(self)
+		self.mouseManager = MouseManager()
+		ObjMgr.init(GameSession.multipleCount)
+		if GameSession.weaponType == gcommon.WeaponType.TYPE_A:
+			ObjMgr.myShip = MyShipA(self)
 		else:
-			gcommon.ObjMgr.myShip = MyShipB(self)
+			ObjMgr.myShip = MyShipB(self)
 		gcommon.cur_scroll_x = 0.5
 		gcommon.cur_scroll_y = 0.0
 		gcommon.cur_map_dx = 0.0
@@ -249,9 +255,9 @@ class MainGame:
 			loadMapData(1, "assets/graslay1b.pyxmap")
 			loadMapAttribute("assets/graslay1.mapatr")
 			pyxel.tilemap(1).refimg = 1
-			if self.restart or gcommon.GameSession.gameMode == gcommon.GAMEMODE_CUSTOM:
+			if self.restart or GameSession.gameMode == gcommon.GAMEMODE_CUSTOM:
 				# 初期スタートは発艦時にBGM開始されているので、BGM流すのはリスタート・カスタム時だけ
-				gcommon.BGM.play(gcommon.BGM.STAGE1)
+				BGM.play(BGM.STAGE1)
 		elif self.stage == "2A":
 			#pyxel.load("assets/graslay_dangeon22.pyxres", False, False, True, True)
 			pyxel.image(1).load(0,0,"assets/graslay2.png")
@@ -348,8 +354,8 @@ class MainGame:
 	def skipGameTimer(self):
 		while(gcommon.game_timer < gcommon.START_GAME_TIMER):
 			self.ExecuteEvent()
-			gcommon.ObjMgr.updateDrawMap0(True)
-			gcommon.ObjMgr.updateDrawMap(True)
+			ObjMgr.updateDrawMap0(True)
+			ObjMgr.updateDrawMap(True)
 			
 			gcommon.game_timer = gcommon.game_timer + 1	
 	
@@ -379,9 +385,9 @@ class MainGame:
 				if self.mouseManager.visible:
 					n = gcommon.checkMouseMenuPos(self.pauseMouseOnOffRects)
 				if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
-					gcommon.Settings.mouseEnabled = True
+					Settings.mouseEnabled = True
 				elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
-					gcommon.Settings.mouseEnabled = False
+					Settings.mouseEnabled = False
 			elif self.pauseMenuPos == 2:
 				if gcommon.checkShotKeyRectP(self.pauseMenuRects[self.pauseMenuPos]):
 					# TITLE
@@ -394,8 +400,8 @@ class MainGame:
 
 	# 自機ストックが無くなったとき
 	def OnPlayerStockOver(self):
-		if gcommon.GameSession.gameMode == gcommon.GAMEMODE_NORMAL:
-			if gcommon.GameSession.credits == 0:
+		if GameSession.gameMode == gcommon.GAMEMODE_NORMAL:
+			if GameSession.credits == 0:
 				# クレジットが無くなればゲームオーバー
 				gcommon.app.startGameOver()
 			else:
@@ -426,9 +432,9 @@ class MainGame:
 					rankingManager = ranking.RankingManager()
 					# コンティニー時のランキング追加
 					rankingManager.addContinueRecord()
-					gcommon.GameSession.execContinue()
+					GameSession.execContinue()
 					self.pauseMode = gcommon.PAUSE_NONE
-					gcommon.ObjMgr.myShip.sub_scene = 3
+					ObjMgr.myShip.sub_scene = 3
 					#pygame.mixer.music.unpause()
 					# # コンティニー時はステージ最初に戻される
 					# # gcommon.app.restartStage()
@@ -466,27 +472,27 @@ class MainGame:
 
 		# マップ処理０
 		if gcommon.scroll_flag:
-			gcommon.ObjMgr.updateDrawMap0(False)
+			ObjMgr.updateDrawMap0(False)
 
 		# 自機移動
-		gcommon.ObjMgr.myShip.update()
+		ObjMgr.myShip.update()
 
 		# マップ処理
 		if gcommon.scroll_flag:
-			gcommon.ObjMgr.updateDrawMap(False)
+			ObjMgr.updateDrawMap(False)
 
 		self.ExecuteStory()
 
 		newShots = []
-		for shot in gcommon.ObjMgr.shots:
+		for shot in ObjMgr.shots:
 			if shot.removeFlag == False:
 				shot.update()
 			if shot.removeFlag == False:
 				newShots.append(shot)
-		gcommon.ObjMgr.shots = newShots
+		ObjMgr.shots = newShots
 
 		newObjs = []
-		for obj in gcommon.ObjMgr.objs:
+		for obj in ObjMgr.objs:
 			if obj.removeFlag == False:
 				if gcommon.scroll_flag:
 					if gcommon.eshot_sync_scroll:
@@ -510,7 +516,7 @@ class MainGame:
 				obj.frameCount += 1
 				if obj.removeFlag == False:
 					newObjs.append(obj)
-		gcommon.ObjMgr.objs = newObjs
+		ObjMgr.objs = newObjs
 
 		self.Collision()
 		
@@ -528,9 +534,9 @@ class MainGame:
 		if gcommon.draw_star:
 			gcommon.drawStar(gcommon.star_pos)
 
-		gcommon.ObjMgr.drawDrawMapBackground()
+		ObjMgr.drawDrawMapBackground()
 
-		for obj in gcommon.ObjMgr.objs:
+		for obj in ObjMgr.objs:
 			if (obj.layer & gcommon.C_LAYER_UNDER_GRD) != 0:
 				if obj.hitcolor1 !=0 and obj.hit:
 					pyxel.pal(obj.hitcolor1, obj.hitcolor2)
@@ -538,10 +544,10 @@ class MainGame:
 				if obj.hitcolor1 !=0 and obj.hit:
 					pyxel.pal(obj.hitcolor1, obj.hitcolor1)
 		
-		gcommon.ObjMgr.drawDrawMap()
+		ObjMgr.drawDrawMap()
 		
 		# enemy(ground)
-		for obj in gcommon.ObjMgr.objs:
+		for obj in ObjMgr.objs:
 			if (obj.layer & gcommon.C_LAYER_GRD) != 0:
 				if obj.hitcolor1 !=0 and obj.hit:
 					pyxel.pal(obj.hitcolor1, obj.hitcolor2)
@@ -551,15 +557,15 @@ class MainGame:
 					pyxel.pal(obj.hitcolor1, obj.hitcolor1)
 
 		# my ship
-		gcommon.ObjMgr.myShip.draw0()
+		ObjMgr.myShip.draw0()
 
 		# # item
-		# for obj in gcommon.ObjMgr.objs:
+		# for obj in ObjMgr.objs:
 		# 	if (obj.layer != gcommon.C_LAYER_ITEM) != 0:
 		# 		obj.draw()
 		
 		# enemy(sky)
-		for obj in gcommon.ObjMgr.objs:
+		for obj in ObjMgr.objs:
 			if (obj.layer & gcommon.C_LAYER_SKY) != 0:
 				if obj.hitcolor1 !=0 and obj.hit:
 					pyxel.pal(obj.hitcolor1, obj.hitcolor2)
@@ -569,55 +575,55 @@ class MainGame:
 					pyxel.pal(obj.hitcolor1, obj.hitcolor1)
 
 		# enemy shot and explosion(sky)
-		for obj in gcommon.ObjMgr.objs:
+		for obj in ObjMgr.objs:
 			if (obj.layer & (gcommon.C_LAYER_EXP_SKY | gcommon.C_LAYER_E_SHOT))!= 0:
 				obj.drawLayer(gcommon.C_LAYER_EXP_SKY | gcommon.C_LAYER_E_SHOT)
 
 		# my shot
-		for shot in gcommon.ObjMgr.shots:
+		for shot in ObjMgr.shots:
 		  shot.draw()
 
 		# my ship
-		gcommon.ObjMgr.myShip.draw()
+		ObjMgr.myShip.draw()
 
-		gcommon.ObjMgr.drawDrawMap2()
+		ObjMgr.drawDrawMap2()
 
-		for obj in gcommon.ObjMgr.objs:
+		for obj in ObjMgr.objs:
 			if (obj.layer & gcommon.C_LAYER_UPPER_SKY) != 0:
 				obj.drawLayer(gcommon.C_LAYER_UPPER_SKY)
 
-		for obj in gcommon.ObjMgr.objs:
+		for obj in ObjMgr.objs:
 			if (obj.layer & gcommon.C_LAYER_TEXT) != 0:
 				obj.drawLayer(gcommon.C_LAYER_TEXT)
 		
 		# 当たり判定描画
 		if gcommon.ShowCollision:
-			for shot in gcommon.ObjMgr.shots:
+			for shot in ObjMgr.shots:
 				if shot.removeFlag == False:
 					self.drawObjRect(shot)
-			self.drawObjRect(gcommon.ObjMgr.myShip)
-			for obj in gcommon.ObjMgr.objs:
+			self.drawObjRect(ObjMgr.myShip)
+			for obj in ObjMgr.objs:
 				if obj.removeFlag or (obj.shotHitCheck == False and obj.hitCheck == False):
 					continue
 				self.drawObjRect(obj)
 
 		pyxel.clip()
 		# SCORE表示
-		gcommon.showText(0,192, "SC " + str(gcommon.GameSession.score).rjust(8))
+		gcommon.showText(0,192, "SC " + str(GameSession.score).rjust(8))
 		# 残機
 		pyxel.blt(232, 192, 0, 8, 32, 8, 8, gcommon.TP_COLOR)
-		gcommon.showText(242, 192, str(gcommon.GameSession.playerStock).rjust(2))
+		gcommon.showText(242, 192, str(GameSession.playerStock).rjust(2))
 		
 		# 武器表示
-		if gcommon.GameSession.weaponType == gcommon.WeaponType.TYPE_A:
+		if GameSession.weaponType == gcommon.WeaponType.TYPE_A:
 			for i in range(0,3):
-				if i == gcommon.ObjMgr.myShip.weapon:
+				if i == ObjMgr.myShip.weapon:
 					pyxel.blt(96 + 40*i, 192, 0, 128+ i * 40, 248, 40, 8)
 				else:
 					pyxel.blt(96 + 40*i, 192, 0, 128+ i * 40, 240, 40, 8)
 		else:
 			for i in range(0,4):
-				if i == gcommon.ObjMgr.myShip.weapon:
+				if i == ObjMgr.myShip.weapon:
 					pyxel.blt(96 + 32*i, 192, 0, 128+ i * 32, 232, 40, 8)
 				else:
 					pyxel.blt(96 + 32*i, 192, 0, 128+ i * 32, 224, 40, 8)
@@ -625,10 +631,10 @@ class MainGame:
 		#pyxel.text(120, 184, str(gcommon.back_map_x), 7)
 		if gcommon.DebugMode:
 			pyxel.text(120, 184, str(gcommon.game_timer), 7)
-			pyxel.text(160, 184, str(len(gcommon.ObjMgr.objs)), 7)
-			#pyxel.text(160, 184, str(len(gcommon.ObjMgr.shots)), 7)
+			pyxel.text(160, 184, str(len(ObjMgr.objs)), 7)
+			#pyxel.text(160, 184, str(len(ObjMgr.shots)), 7)
 		#pyxel.text(160, 188, str(self.event_pos),7)
-		#pyxel.text(120, 194, str(gcommon.getMapData(gcommon.ObjMgr.myShip.x, gcommon.ObjMgr.myShip.y)), 7)
+		#pyxel.text(120, 194, str(gcommon.getMapData(ObjMgr.myShip.x, ObjMgr.myShip.y)), 7)
 		# マップ位置表示
 		#pyxel.text(200, 184, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
 
@@ -663,8 +669,8 @@ class MainGame:
 		y = 192/2 -32 +26
 		pyxel.text(127-32 +4, y, "MOUSE", 7)
 
-		leftMarker = (gcommon.Settings.mouseEnabled == True)
-		pyxel.text(127-32 +10 +36, y, "ON " if gcommon.Settings.mouseEnabled else "OFF", 7)
+		leftMarker = (Settings.mouseEnabled == True)
+		pyxel.text(127-32 +10 +36, y, "ON " if Settings.mouseEnabled else "OFF", 7)
 		gcommon.drawLeftMarker(127-32 +10 +26, y -1, leftMarker)
 		gcommon.drawRightMarker(127-32 +10 +48, y -1, not leftMarker)
 
@@ -682,7 +688,7 @@ class MainGame:
 		pyxel.text(127-32 +10, 192/2 -32 +16, "YES", 7)
 		pyxel.text(127-32 +10, 192/2 -32 +26, "NO", 7)
 
-		pyxel.text(127-32 +10, 192/2 -32 +38, "CREDITS " + str(gcommon.GameSession.credits), 7)
+		pyxel.text(127-32 +10, 192/2 -32 +38, "CREDITS " + str(GameSession.credits), 7)
 
 	def ExecuteStory(self):
 		while True:
@@ -697,7 +703,7 @@ class MainGame:
 			else:
 				t = s[1]	# [1]はクラス型
 				obj = t(s)			# ここでインスタンス化
-				gcommon.ObjMgr.objs.append(obj)
+				ObjMgr.objs.append(obj)
 				obj.appended()
 			self.story_pos = self.story_pos + 1
 
@@ -722,13 +728,13 @@ class MainGame:
 	def Collision(self):
 	
 		# 壁との当たり判定
-		if gcommon.ObjMgr.myShip.sub_scene == 1 and \
-			gcommon.isMapFreePos(gcommon.ObjMgr.myShip.x+ 7, gcommon.ObjMgr.myShip.y +7) == False:
+		if ObjMgr.myShip.sub_scene == 1 and \
+			gcommon.isMapFreePos(ObjMgr.myShip.x+ 7, ObjMgr.myShip.y +7) == False:
 			self.my_broken()
 			return
 	
 		# shot & enemy
-		for obj in gcommon.ObjMgr.objs:
+		for obj in ObjMgr.objs:
 			if obj.removeFlag:
 				continue
 			obj.hit = False
@@ -737,19 +743,19 @@ class MainGame:
 			if obj.shotHitCheck == False:
 				continue
 			
-			for shot in gcommon.ObjMgr.shots:
+			for shot in ObjMgr.shots:
 				if obj.checkShotCollision(shot):
 					broken = obj.doShotCollision(shot)
 					shot.hit(obj, broken)
 					if broken or obj.removeFlag:
 						break
 		# enemy shot and wallObj
-		for wallObj in gcommon.ObjMgr.objs:
+		for wallObj in ObjMgr.objs:
 			if wallObj.removeFlag:
 				continue
 			if wallObj.enemyShotCollision == False:
 				continue
-			for obj in gcommon.ObjMgr.objs:
+			for obj in ObjMgr.objs:
 				if obj.removeFlag:
 					continue
 				if obj.layer != gcommon.C_LAYER_E_SHOT:
@@ -759,16 +765,16 @@ class MainGame:
 					break
 
 		# my ship & enemy
-		for obj in gcommon.ObjMgr.objs:
+		for obj in ObjMgr.objs:
 			if obj.removeFlag == False and obj.hitCheck:
-				if obj.checkMyShipCollision() and gcommon.ObjMgr.myShip.sub_scene == 1:
+				if obj.checkMyShipCollision() and ObjMgr.myShip.sub_scene == 1:
 					self.my_broken()
 					break
 
 	def my_broken(self):
-		gcommon.ObjMgr.myShip.sub_scene = 2
-		gcommon.ObjMgr.myShip.cnt = 0
-		gcommon.sound(gcommon.SOUND_LARGE_EXP, gcommon.SOUND_CH1)
+		ObjMgr.myShip.sub_scene = 2
+		ObjMgr.myShip.cnt = 0
+		BGM.sound(gcommon.SOUND_LARGE_EXP, gcommon.SOUND_CH1)
 
 	def initEvent(self):
 		if self.stage == "1":
@@ -788,7 +794,7 @@ class MainGame:
 	
 	def initEvent1(self):
 		self.eventTable =[ \
-			#[0, StartBGM, gcommon.BGM.STAGE1],
+			#[0, StartBGM, BGM.STAGE1],
 			[660,StartMapDraw1],		\
 			[1560,SetMapScroll, 0.25, -0.25],	\
 			[2180,SetMapScroll, 0.5, 0.0],
@@ -796,14 +802,14 @@ class MainGame:
 			[3460,SetMapScroll, 0, 0.5],
 			[3860,SetMapScroll, 0.25, 0.25],
 			[4600,SetMapScroll, 0.5, 0.0],
-			[4800, StartBGM, gcommon.BGM.BOSS],
+			[4800, StartBGM, BGM.BOSS],
 			[6000,EndMapDraw],		\
 		]
 
 	def initEvent2(self):
 		self.eventTable =[ \
 			[0,StartMapDraw2],		\
-			[0, StartBGM, gcommon.BGM.STAGE2],
+			[0, StartBGM, BGM.STAGE2],
 			[736,SetMapScroll, 0.25, 0.25],	\
 			[1104,SetMapScroll, -0.25, 0.25],	\
 			[1856,SetMapScroll, 0.5, 0.0],	\
@@ -815,33 +821,33 @@ class MainGame:
 			[4128,SetMapScroll, 0.5, 0.0],	\
 			[4608,SetMapScroll, 0.25, -0.25],	\
 			[5216,SetMapScroll, 0.50, 0.0],	\
-			[6300, StartBGM, gcommon.BGM.BOSS],
+			[6300, StartBGM, BGM.BOSS],
 		]
 
 	def initEventWarehouse(self):
 		self.eventTable =[ \
-			[0, StartBGM, gcommon.BGM.STAGE5],
+			[0, StartBGM, BGM.STAGE5],
 			[0,StartMapDraw, MapDrawWarehouse],		\
 			[2184,SetMapScroll, 0.0, 0.5],
 			[3384,SetMapScroll, 0.5, 0.0],
 			[4712,SetMapScroll, 0.0, -0.5],
 			[5504,SetMapScroll, 0.5, 0.0],
-			[6800, StartBGM, gcommon.BGM.BOSS],
+			[6800, StartBGM, BGM.BOSS],
 			[7320,SetMapScroll, 0.0, 0.0],
 		]
 
 	def initEvent3(self):
 		self.eventTable =[ \
-			[0, StartBGM, gcommon.BGM.STAGE3],
+			[0, StartBGM, BGM.STAGE3],
 			[100,StartMapDraw3],		\
-			[3500+128,StartBGM, gcommon.BGM.BOSS],
+			[3500+128,StartBGM, BGM.BOSS],
 		]
 
 	def initEvent4(self):
 		self.eventTable =[ \
-			[0, StartBGM, gcommon.BGM.STAGE4],
+			[0, StartBGM, BGM.STAGE4],
 			[100+512,StartMapDraw4],		\
-			[3900+512, StartBGM, gcommon.BGM.BOSS],
+			[3900+512, StartBGM, BGM.BOSS],
 			[4030+512, enemy.Stage4BossAppear1],	\
 			[4120+512, enemy.Stage4BossAppear2],	\
 			[5100+512,EndMapDraw],		\
@@ -849,24 +855,24 @@ class MainGame:
 
 	def initEventFactory(self):
 		self.eventTable =[ \
-			[0, StartBGM, gcommon.BGM.STAGE5],
+			[0, StartBGM, BGM.STAGE5],
 			[100,StartMapDrawFactory],		\
 			[2040,SetMapScroll, 0.25, 0.25],	\
 			[3192,SetMapScroll, 0.5, 0.0],	\
 			[4400,SetMapScroll, 0.25, -0.25],	\
 			[5616,SetMapScroll, 0.5, 0.0],	\
-			[6500,StartBGM, gcommon.BGM.BOSS],	\
+			[6500,StartBGM, BGM.BOSS],	\
 			[7800,EndMapDraw],		\
 		]
 
 	def initEventLast(self):
 		baseOffset = 1200
 		self.eventTable =[ \
-			[0, StartBGM, gcommon.BGM.STAGE6_1],
+			[0, StartBGM, BGM.STAGE6_1],
 			[2100 +baseOffset,StartMapDrawLast],		\
-			[2100 +baseOffset, StartBGM, gcommon.BGM.STAGE6_2],
-			[5800 +baseOffset, StartBGM, gcommon.BGM.STAGE6_3],
-			[8200 +baseOffset, StartBGM, gcommon.BGM.BOSS],
+			[2100 +baseOffset, StartBGM, BGM.STAGE6_2],
+			[5800 +baseOffset, StartBGM, BGM.STAGE6_3],
+			[8200 +baseOffset, StartBGM, BGM.BOSS],
 		]
 
 	def initStory(self):
@@ -925,7 +931,7 @@ class App:
 		pygame.mixer.init()
 		pyxel.init(256, 200, caption="GRASLAY", fps=60, quit_key=pyxel.KEY_Q)
 
-		gcommon.loadSettings()
+		Settings.loadSettings()
 		pyxel.load("assets/graslay.pyxres")
 		pyxel.image(0).load(0,0,"assets/graslay0.png")
 		
@@ -944,7 +950,7 @@ class App:
 
 	def startTitle(self):
 		# クレジット補充
-		gcommon.GameSession.credits = gcommon.Settings.credits
+		GameSession.credits = Settings.credits
 		self.setScene(TitleScene())
 
 	def setScene(self, nextScene):
@@ -953,12 +959,12 @@ class App:
 	def startNormalGame(self, difficulty):
 		self.stage = "1"
 		#print("Difficulty : " + str(difficulty))
-		gcommon.Settings.difficulty = difficulty
-		gcommon.saveSettings()
-		gcommon.GameSession.initNormal(difficulty)
-		gcommon.GameSession.credits -= 1
-		gcommon.GameSession.playerStock -= 1
-		gcommon.GameSession.weaponType = gcommon.WeaponType.TYPE_A
+		Settings.difficulty = difficulty
+		Settings.saveSettings()
+		GameSession.initNormal(difficulty)
+		GameSession.credits -= 1
+		GameSession.playerStock -= 1
+		GameSession.weaponType = gcommon.WeaponType.TYPE_A
 		# 発艦
 		self.setScene(launch.LaunchScene())
 		
@@ -976,19 +982,19 @@ class App:
 		#print("Difficulty : " + str(difficulty))
 		if gcommon.CustomNormal:
 			# カスタムでも通常にしたい場合（デバッグ）
-			gcommon.GameSession.init(gcommon.Settings.difficulty, gcommon.Settings.playerStock, gcommon.GAMEMODE_NORMAL, gcommon.Settings.startStage, 1)
+			GameSession.init(Settings.difficulty, Settings.playerStock, gcommon.GAMEMODE_NORMAL, Settings.startStage, 1)
 		else:
 			# 通常
-			gcommon.GameSession.init(gcommon.Settings.difficulty, gcommon.Settings.playerStock, gcommon.GAMEMODE_CUSTOM, gcommon.Settings.startStage, 1)
-		gcommon.GameSession.playerStock -= 1
-		gcommon.GameSession.weaponType = gcommon.Settings.weaponType
-		gcommon.GameSession.multipleCount = gcommon.Settings.multipleCount
-		self.stage = gcommon.Settings.startStage
+			GameSession.init(Settings.difficulty, Settings.playerStock, gcommon.GAMEMODE_CUSTOM, Settings.startStage, 1)
+		GameSession.playerStock -= 1
+		GameSession.weaponType = Settings.weaponType
+		GameSession.multipleCount = Settings.multipleCount
+		self.stage = Settings.startStage
 		self.setScene(MainGame(self.stage))
 
 	def startStage(self, stage):
 		self.stage = stage
-		gcommon.GameSession.stage = self.stage
+		GameSession.stage = self.stage
 		self.setScene(MainGame(stage))
 
 	def restartStage(self):
@@ -1000,7 +1006,7 @@ class App:
 		stageList = stageManager.findNextStageList(self.stage)
 		if stageList == None:
 			gcommon.debugPrint("next stageList is None")
-			gcommon.GameSession.stage = "-1"
+			GameSession.stage = "-1"
 			self.startEnding()
 		else:
 			#self.startStage(stageList[0].stage)
@@ -1017,16 +1023,16 @@ class App:
 	def startRanking(self):
 		rankingManager = ranking.RankingManager()
 		rankingManager.load()
-		if rankingManager.inTop10(gcommon.GameSession.difficulty, gcommon.GameSession.score):
+		if rankingManager.inTop10(GameSession.difficulty, GameSession.score):
 			self.setScene(ranking.EnterPlayerNameScene())
 		else:
 			self.startTitle()
 
 	def startGameClear(self):
-		if gcommon.GameSession.gameMode == gcommon.GAMEMODE_NORMAL:
+		if GameSession.gameMode == gcommon.GAMEMODE_NORMAL:
 			rankingManager = ranking.RankingManager()
 			rankingManager.load()
-			if rankingManager.inTop10(gcommon.GameSession.difficulty, gcommon.GameSession.score):
+			if rankingManager.inTop10(GameSession.difficulty, GameSession.score):
 				# トップ１０に入るようであればネームエントリー
 				self.setScene(ranking.EnterPlayerNameScene())
 			else:

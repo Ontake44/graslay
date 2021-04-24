@@ -7,6 +7,9 @@ import boss
 import enemyShot
 import enemyBattery
 import drawing
+from objMgr import ObjMgr
+from gameSession import GameSession
+from audio import BGM
 
 # bossWarehouseOutline = [
 # 	#[18,-1],[41, -1], [52, 10], [52, 31], [41, 42], [18, 42], [7, 30], [7, 10]
@@ -205,13 +208,13 @@ class BossWarehouse(enemy.EnemyBase):
 			self.shotMainState()
 		if self.countMover.tableIndex == 1:
 			if self.countMover.cnt % 45 == 0:
-				gcommon.ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[100*8, 0, -1.0, 0.0]]))
+				ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[100*8, 0, -1.0, 0.0]]))
 		elif self.countMover.tableIndex == 5:
 			if self.countMover.cnt % 45 == 0:
-				gcommon.ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[0, 5, 44, self.y, 1.0],[100*8, 0, 0.0, 1.0]]))
+				ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[0, 5, 44, self.y, 1.0],[100*8, 0, 0.0, 1.0]]))
 		elif self.countMover.tableIndex == 9:
 			if self.countMover.cnt % 45 == 0:
-				gcommon.ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[0, 5, 44, self.y, 1.0],[100*8, 0, 0.0, -1.0]]))
+				ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[0, 5, 44, self.y, 1.0],[100*8, 0, 0.0, -1.0]]))
 		# self.xpolygonsList = []
 		# self.xpolygonsList.append(gcommon.getAnglePolygons([self.x + 20.0, self.y],
 		# 	self.polygonList, [27.5, 19.5], self.gunRad))
@@ -265,11 +268,11 @@ class BossWarehouse(enemy.EnemyBase):
 	def broken(self):
 		self.remove()
 		enemy.removeEnemyShot()
-		gcommon.ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
-		gcommon.GameSession.addScore(self.score)
-		gcommon.sound(gcommon.SOUND_LARGE_EXP)
+		ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
+		GameSession.addScore(self.score)
+		BGM.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		gcommon.ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"3B"], 240))
+		ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"3B"], 240))
 
 	def shotMainState(self):
 		if self.countMover.cnt > 30 and self.countMover.cnt < 120 and self.countMover.cnt % 10 == 0:

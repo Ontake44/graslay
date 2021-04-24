@@ -3,6 +3,9 @@ import math
 import random
 import gcommon
 import enemy
+from objMgr import ObjMgr
+from gameSession import GameSession
+from audio import BGM
 
 class ScoreItem1(enemy.EnemyBase):
 	def __init__(self, mx, my, hide=False):
@@ -35,18 +38,18 @@ class ScoreItem1(enemy.EnemyBase):
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
-		if gcommon.check_collision(self, gcommon.ObjMgr.myShip):
+		if gcommon.check_collision(self, ObjMgr.myShip):
 			self.hitCheck = False
 			if self.state == 0:
 				# しばらくすると当たり判定
 				self.setState(1)
 			else:
 				self.setState(3)
-				gcommon.sound(gcommon.SOUND_ITEM_GET, gcommon.SOUND_CH2)
+				BGM.sound(gcommon.SOUND_ITEM_GET, gcommon.SOUND_CH2)
 				if self.hide:
-					gcommon.GameSession.addScore(1000)
+					GameSession.addScore(1000)
 				else:
-					gcommon.GameSession.addScore(500)
+					GameSession.addScore(500)
 		return False
 
 	def update(self):
@@ -105,14 +108,14 @@ class OneUpItem1(enemy.EnemyBase):
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
-		if gcommon.check_collision(self, gcommon.ObjMgr.myShip):
+		if gcommon.check_collision(self, ObjMgr.myShip):
 			self.hitCheck = False
 			if self.state == 0:
 				# しばらくすると当たり判定
 				self.setState(1)
 			else:
 				self.setState(3)
-				gcommon.GameSession.addPlayerStock()
+				GameSession.addPlayerStock()
 		return False
 
 	def update(self):

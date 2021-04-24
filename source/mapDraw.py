@@ -1,6 +1,23 @@
 import pyxel
 import gcommon
 import enemy
+import item
+from objMgr import ObjMgr
+from gameSession import GameSession
+
+
+def doMapCharacter(n, mx, my):
+	if n in (426, 427):
+		gcommon.setMapDataByMapPos(mx, my, 0)
+		ObjMgr.addObj(item.ScoreItem1(mx, my, (n==427)))
+		return True
+	elif n in (428, 429):
+		gcommon.setMapDataByMapPos(mx, my, 0)
+		ObjMgr.addObj(item.OneUpItem1(mx, my, (n==429)))
+		return True
+	else:
+		return False
+
 
 class MapDraw1:
 	def __init__(self):
@@ -24,10 +41,10 @@ class MapDraw1:
 					# 固定シャッター
 					gcommon.setMapDataByMapPos(mx, my, 0)
 					obj = enemy.FixedShutter1(mx, my, 2)
-					gcommon.ObjMgr.addObj(obj)
+					ObjMgr.addObj(obj)
 				else:
 					# 共通のマップキャラクタ処理
-					gcommon.doMapCharacter(n, mx, my)
+					doMapCharacter(n, mx, my)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 
@@ -66,7 +83,7 @@ class MapDraw2:
 				mx = gcommon.screenPosToMapPosX(256)
 				n = gcommon.getMapDataByMapPos(mx, my)
 				# 共通のマップキャラクタ処理
-				gcommon.doMapCharacter(n, mx, my)
+				doMapCharacter(n, mx, my)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 	
@@ -112,14 +129,14 @@ class MapDrawWarehouse:
 					# 砲台
 					gcommon.setMapDataByMapPosPage(2, mx, my, 0)
 					obj = enemy.Battery1([0,0,mx, my, 0])
-					if gcommon.GameSession.isHard():
+					if GameSession.isHard():
 						obj.first = 20
 						obj.shot_speed = 3
 					if n == 391:
 						obj.mirror = 1
-					gcommon.ObjMgr.addObj(obj)
+					ObjMgr.addObj(obj)
 				else:
-					gcommon.doMapCharacter(n, mx, my)
+					doMapCharacter(n, mx, my)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 		gcommon.back_map_x += gcommon.cur_scroll_x/2
@@ -220,12 +237,12 @@ class MapDraw3:
 						# 砲台
 						gcommon.setMapDataByMapPos(mx, my, 0)
 						obj = enemy.Battery1([0,0,mx, my, 0])
-						if gcommon.GameSession.isHard():
+						if GameSession.isHard():
 							obj.first = 20
 							obj.shot_speed = 3
 						if n == 391:
 							obj.mirror = 1
-						gcommon.ObjMgr.addObj(obj)
+						ObjMgr.addObj(obj)
 					elif n in (394,395):
 						# シャッター
 						size = gcommon.getMapDataByMapPos(mx+1, my) -576
@@ -239,7 +256,7 @@ class MapDraw3:
 							obj = enemy.Shutter1(pos[0], pos[1] +16*size, -1, size, 0, speed, param1, param2)
 						else:
 							obj = enemy.Shutter1(pos[0], pos[1] -32*size +8, 1, size, 0, speed, param1, param2)
-						gcommon.ObjMgr.addObj(obj)
+						ObjMgr.addObj(obj)
 					elif n in (396,397):
 						size = gcommon.getMapDataByMapPos(mx+1, my) -576
 						speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
@@ -252,19 +269,19 @@ class MapDraw3:
 							obj = enemy.Shutter1(pos[0], pos[1], 1, size, 0, speed, param1, param2)
 						else:
 							obj = enemy.Shutter1(pos[0], pos[1] -16*size +8, -1, size, 0, speed, param1, param2)
-						gcommon.ObjMgr.addObj(obj)
+						ObjMgr.addObj(obj)
 					elif n == 398:
 						# 固定シャッター
 						size = gcommon.getMapDataByMapPos(mx+1, my) -576
-						if gcommon.GameSession.isEasy():
+						if GameSession.isEasy():
 							gcommon.setMapDataByMapPos2(mx, my, 0, 2, 1)
 							obj = enemy.FixedShutter1(mx, my, size)
-							gcommon.ObjMgr.addObj(obj)
+							ObjMgr.addObj(obj)
 						else:
 							gcommon.setMapDataByMapPos2(mx, my, 11, 2, size *2)
 					else:
 						# 共通のマップキャラクタ処理
-						gcommon.doMapCharacter(n, mx, my)
+						doMapCharacter(n, mx, my)
 			gcommon.map_y += gcommon.cur_map_dy
 			if gcommon.map_y < 0:
 				gcommon.map_y = 128 * 8 + gcommon.map_y
@@ -341,31 +358,31 @@ class MapDraw4:
 					# 柱
 					size = gcommon.getMapDataByMapPos(mx+1, my) -576
 					obj = enemy.RuinPillar1(mx, my, 1, size)
-					gcommon.ObjMgr.addObj(obj)
+					ObjMgr.addObj(obj)
 				elif n == 395:
 					# 床
 					size = gcommon.getMapDataByMapPos(mx+1, my) -576
 					obj = enemy.RuinFloor1(mx, my, 1, size)
-					gcommon.ObjMgr.addObj(obj)
+					ObjMgr.addObj(obj)
 				if n == 396:
 					# 柱
 					size = gcommon.getMapDataByMapPos(mx+1, my) -576
 					obj = enemy.RuinPillar1(mx, my, -1, size)
-					gcommon.ObjMgr.addObj(obj)
+					ObjMgr.addObj(obj)
 				elif n == 397:
 					# 床
 					size = gcommon.getMapDataByMapPos(mx+1, my) -576
 					obj = enemy.RuinFloor1(mx, my, -1, size)
-					gcommon.ObjMgr.addObj(obj)
+					ObjMgr.addObj(obj)
 				elif n in (390, 391):
 					# 砲台
 					obj = enemy.Battery2(mx, my, 1)
 					if n == 391:
 						obj.direction = -1
-					gcommon.ObjMgr.addObj(obj)
+					ObjMgr.addObj(obj)
 				else:
 					# 共通のマップキャラクタ処理
-					gcommon.doMapCharacter(n, mx, my)
+					doMapCharacter(n, mx, my)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 		gcommon.back_map_x += gcommon.cur_scroll_x/2
@@ -435,7 +452,7 @@ class MapDrawFactory:
 						obj.first = 20
 						if n == 391:
 							obj.mirror = 1
-						gcommon.ObjMgr.addObj(obj)
+						ObjMgr.addObj(obj)
 					elif n in (394, 395):
 						# サーキュレーター
 						gcommon.setMapDataByMapPos(mx, my, 0)
@@ -444,7 +461,7 @@ class MapDrawFactory:
 							obj = enemy.Circulator1(pos[0] +85, pos[1] +3, 1)
 						else:
 							obj = enemy.Circulator1(pos[0] +85, pos[1] +3, -1)
-						gcommon.ObjMgr.addObj(obj)
+						ObjMgr.addObj(obj)
 					elif n in (396,397):
 						# シャッター
 						size = gcommon.getMapDataByMapPos(mx+1, my) -576
@@ -458,7 +475,7 @@ class MapDrawFactory:
 							obj = enemy.Shutter1(pos[0], pos[1], 1, size, 0, speed, param1, param2)
 						else:
 							obj = enemy.Shutter1(pos[0], pos[1] -16*size +8, -1, size, 0, speed, param1, param2)
-						gcommon.ObjMgr.addObj(obj)
+						ObjMgr.addObj(obj)
 					elif n in (398, 399, 400, 401):
 						# 排気
 						size = gcommon.getMapDataByMapPos(mx+1, my) -576
@@ -477,16 +494,16 @@ class MapDrawFactory:
 						else:
 							# 左
 							dr = 4
-						gcommon.ObjMgr.addObj(enemy.Wind1.create(mx, my, dr, size))
+						ObjMgr.addObj(enemy.Wind1.create(mx, my, dr, size))
 					elif n == 402:
 						gcommon.setMapDataByMapPos(mx, my, 0)
-						gcommon.ObjMgr.addObj(enemy.LiftAppear1(mx, my, -1))
+						ObjMgr.addObj(enemy.LiftAppear1(mx, my, -1))
 					elif n == 403:
 						gcommon.setMapDataByMapPos(mx, my, 0)
-						gcommon.ObjMgr.addObj(enemy.LiftAppear1(mx, my, 1))
+						ObjMgr.addObj(enemy.LiftAppear1(mx, my, 1))
 					else:
 						# 共通のマップキャラクタ処理
-						gcommon.doMapCharacter(n, mx, my)
+						doMapCharacter(n, mx, my)
 			gcommon.map_x += gcommon.cur_scroll_x
 			gcommon.map_y += gcommon.cur_scroll_y
 			gcommon.map_y += gcommon.cur_map_dy
@@ -566,21 +583,21 @@ class MapDrawLast:
 					gcommon.setMapDataByMapPos(mx, my, 0)
 					pos = gcommon.mapPosToScreenPos(mx, my)
 					obj = enemy.Shutter2(pos[0] +8, pos[1] +28, False, 90)
-					gcommon.ObjMgr.addObj(obj)
+					ObjMgr.addObj(obj)
 					obj = enemy.Shutter2(pos[0] +8, pos[1] -30, True, 180)
-					gcommon.ObjMgr.addObj(obj)
+					ObjMgr.addObj(obj)
 				elif n in (390, 391):
 					# 砲台
 					gcommon.setMapDataByMapPos(mx, my, 0)
 					obj = enemy.Battery2(mx, my, 1)
 					if n == 391:
 						obj.direction = -1
-					gcommon.ObjMgr.addObj(obj)
+					ObjMgr.addObj(obj)
 				elif n in (422, 423):
 					# ミサイル砲台
 					gcommon.setMapDataByMapPos(mx, my, 0)
 					obj = enemy.MissileBattery1(mx, my, (n == 423))
-					gcommon.ObjMgr.addObj(obj)
+					ObjMgr.addObj(obj)
 				elif n in (393, 394, 395, 396):
 					# Fan2発生
 					waitCount = gcommon.getMapDataByMapPos(mx+1, my) -224
@@ -594,7 +611,7 @@ class MapDrawLast:
 						obj = enemy.Fan2Group(mx, my, 5, waitCount * 30)
 					elif n == 396:
 						obj = enemy.Fan2Group(mx, my, 3, waitCount * 30)
-					gcommon.ObjMgr.addObj(obj)
+					ObjMgr.addObj(obj)
 				elif n in (424, 425):
 					waitCount = gcommon.getMapDataByMapPos(mx+1, my) -224
 					gcommon.setMapDataByMapPos(mx, my, 0)
@@ -603,10 +620,10 @@ class MapDrawLast:
 						obj = enemy.Shutter3(mx, my, -1, waitCount* 30)
 					else:
 						obj = enemy.Shutter3(mx, my, 1, waitCount* 30)
-					gcommon.ObjMgr.addObj(obj)
+					ObjMgr.addObj(obj)
 				else:
 					# 共通のマップキャラクタ処理
-					gcommon.doMapCharacter(n, mx, my)
+					doMapCharacter(n, mx, my)
 
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
