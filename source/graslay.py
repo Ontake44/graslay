@@ -26,6 +26,7 @@ from optionMenu import OptionMenuScene
 from title import TitleScene
 from mapDraw import MapDraw1
 from mapDraw import MapDraw2
+from mapDraw import MapDrawCave
 from mapDraw import MapDrawWarehouse
 from mapDraw import MapDraw3
 from mapDraw import MapDraw4
@@ -139,6 +140,13 @@ class StartBGM:
 class StartMapDraw2:
 	def __init__(self, t):
 		ObjMgr.setDrawMap(MapDraw2())
+
+	def do(self):
+		pass
+
+class StartMapDrawCave:
+	def __init__(self, t):
+		ObjMgr.setDrawMap(MapDrawCave())
 
 	def do(self):
 		pass
@@ -665,6 +673,8 @@ class MainGame:
 			self.initEvent1()
 		elif self.stage == "2A":
 			self.initEvent2()
+		elif self.stage == "2B":
+			self.initEventCave()
 		elif self.stage == "3A":
 			self.initEvent3()
 		elif self.stage == "3B":
@@ -706,6 +716,12 @@ class MainGame:
 			[4608,SetMapScroll, 0.25, -0.25],	\
 			[5216,SetMapScroll, 0.50, 0.0],	\
 			[6300, StartBGM, BGM.BOSS],
+		]
+
+	def initEventCave(self):
+		self.eventTable =[
+			[0,StartMapDrawCave],
+			[0, StartBGM, BGM.STAGE2],
 		]
 
 	def initEventWarehouse(self):
@@ -764,6 +780,8 @@ class MainGame:
 			self.story = story.Story.getStory1()
 		elif self.stage == "2A":
 			self.story = story.Story.getStory2()
+		elif self.stage == "2B":
+			self.story = story.Story.getStoryCave()
 		elif self.stage == "3A":
 			self.story = story.Story.getStory3()
 		elif self.stage == "3B":
@@ -923,6 +941,9 @@ class App:
 	def startOption(self):
 		self.setScene(OptionMenuScene())
 		#self.setScene(stageSelect.StageSelectScene(self, "2A", {"1", "2A"}))
+
+	def startStageSelect(self):
+		self.setScene(stageSelect.StageSelectScene(self, "1", {}))
 
 	def startScoreRanking(self, exitTo):
 		self.setScene(ranking.RankingDispScene(exitTo))

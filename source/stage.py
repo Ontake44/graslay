@@ -46,17 +46,20 @@ class StageLinkManager:
         stage3B = StageInfo("3B", 3, True, [stage4A])
 
         stage2A = StageInfo("2A", 2, True, [stage3A, stage3B])
+        stage2B = StageInfo("2B", 2, True, [stage3A, stage3B])
 
-        self.stageRoot = StageInfo("1", 1, True, [stage2A])
+        self.stageRoot = StageInfo("1", 1, True, [stage2A, stage2B])
         self.stageRoot.x = 16
         self.stageRoot.y = 100
         dx = 40
         stage2A.x = self.stageRoot.x +dx 
-        stage2A.y = self.stageRoot.y
+        stage2A.y = self.stageRoot.y -12
+        stage2B.x = self.stageRoot.x +dx 
+        stage2B.y = self.stageRoot.y +12
         stage3A.x = stage2A.x +dx
-        stage3A.y = stage2A.y -12
-        stage3B.x = stage2A.x +dx
-        stage3B.y = stage2A.y +12
+        stage3A.y = stage2A.y
+        stage3B.x = stage2B.x +dx
+        stage3B.y = stage2B.y
         stage4A.x = stage3A.x +dx 
         stage4A.y = self.stageRoot.y
         stage5A.x = stage4A.x +dx 
@@ -130,6 +133,16 @@ class Stage:
             gcommon.eshot_sync_scroll = False
             MapData.loadMapData(0, "assets/graslay2.pyxmap")
             MapData.loadMapAttribute("assets/graslay2.mapatr")
+        elif stage == "2B":
+            pyxel.image(1).load(0,0,"assets/stage_cave.png")
+            gcommon.sync_map_y = 2
+            gcommon.long_map = False
+            gcommon.draw_star = False
+            gcommon.eshot_sync_scroll = False
+            MapData.loadMapData(0, "assets/stage_cave.pyxmap")
+            MapData.loadMapData(1, "assets/stage_caveb.pyxmap")
+            MapData.loadMapAttribute("assets/stage_cave.mapatr")
+            pyxel.tilemap(1).refimg = 1
         elif stage == "3B":
             # 倉庫
             pyxel.image(1).load(0,0,"assets/stage_warehouse.png")

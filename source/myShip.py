@@ -131,6 +131,9 @@ class MyShipBase:
 					self.y -= 2 * (self.y -56)/(88-56)
 				else:
 					self.y -= 2
+			elif gcommon.sync_map_y == 2:
+				gcommon.cur_map_dy = -1
+				self.y -= 1
 			else:
 				if self.y >= (2+2):
 					dy = -2
@@ -150,6 +153,9 @@ class MyShipBase:
 					self.y += 2 * (136 -self.y)/(136-104)
 				else:
 					self.y += 2
+			elif gcommon.sync_map_y == 2:
+				gcommon.cur_map_dy = 1
+				self.y += 1
 			else:
 				if self.y <= (176 -2):
 					dy = 2

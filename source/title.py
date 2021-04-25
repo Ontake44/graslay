@@ -155,6 +155,9 @@ class TitleScene:
 			elif gcommon.checkDownP():
 				BGM.sound(gcommon.SOUND_MENUMOVE)
 				self.menuPos = (self.menuPos +1) % 4
+			elif pyxel.btnp(pyxel.KEY_T):
+				gcommon.app.startStageSelect()
+				return
 			
 			if self.menuPos == TITLEMENU_START:
 				n = -1

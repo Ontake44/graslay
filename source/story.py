@@ -192,6 +192,11 @@ class Story:
 		]
 
 	@classmethod
+	def getStoryCave(cls):
+		return [
+		]
+
+	@classmethod
 	def getStoryWarehouse(cls):
 		tbl1 = [[300, 0, 0.0, -1.0],[30, 0, -3.0, 0.5],[600, 0, -3.0,0.0]]
 		baseOffset = 0

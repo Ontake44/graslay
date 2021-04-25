@@ -117,6 +117,69 @@ class MapDraw2:
 	def draw2(self):
 		pass
 
+# 洞窟
+class MapDrawCave:
+	def __init__(self):
+		pass
+	
+	def init(self):
+		gcommon.map_x = 0
+		gcommon.map_y = 8*8
+		gcommon.back_map_x = 0		#-32 * 8/2
+		gcommon.back_map_y = 20 * 8
+		gcommon.mapHeight = 8 * 256
+
+	def update0(self, skip):
+		pass
+
+	def update(self, skip):
+		if skip == False:
+			# スキップ時はマップデータやオブジェクト追加しない
+			for i in range(0, 128):
+				my = 127 -i
+				mx = gcommon.screenPosToMapPosX(256)
+				n = gcommon.getMapDataByMapPosPage(2, mx, my)
+				if n in (390, 391):
+					# 砲台
+					gcommon.setMapDataByMapPosPage(2, mx, my, 0)
+					obj = enemy.Battery1([0,0,mx, my, 0])
+					if GameSession.isHard():
+						obj.first = 20
+						obj.shot_speed = 3
+					if n == 391:
+						obj.mirror = 1
+					ObjMgr.addObj(obj)
+				else:
+					doMapCharacter(n, mx, my)
+		gcommon.map_x += gcommon.cur_scroll_x
+		gcommon.map_y += gcommon.cur_scroll_y
+		gcommon.map_y += gcommon.cur_map_dy
+		gcommon.back_map_x += gcommon.cur_scroll_x/2
+
+	def drawBackground(self):
+		if gcommon.back_map_x < 0:
+			pyxel.bltm(-1 * int(gcommon.back_map_x), 0, 1, 0, 0, 33, 33)
+		else:
+			mx = (int)(gcommon.back_map_x/8)
+			pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 0, 33, 33)
+
+	def draw(self):
+		tm = 0
+		if gcommon.map_x < 0:
+			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), tm, 0, (int)(gcommon.map_y/8),33,33, 2)
+		else:
+			#tm = 1 + int(gcommon.map_x/4096)
+			moffset = (int(gcommon.map_x/2048) & 1) * 128
+			w = int((gcommon.map_x %2048)/8)
+			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, 2)
+			if w >= 224:
+				tm2 = tm + int((gcommon.map_x+256)/4096)
+				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
+				pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, 2)
+
+	def draw2(self):
+		pass
+
 # 倉庫ステージ
 class MapDrawWarehouse:
 	def __init__(self):
