@@ -125,6 +125,7 @@ class Stage:
                 # 初期スタートは発艦時にBGM開始されているので、BGM流すのはリスタート・カスタム時だけ
                 BGM.play(BGM.STAGE1)
         elif stage == "2A":
+            # 生物
             #pyxel.load("assets/graslay_dangeon22.pyxres", False, False, True, True)
             pyxel.image(1).load(0,0,"assets/graslay2.png")
             gcommon.sync_map_y = 0
@@ -134,7 +135,9 @@ class Stage:
             MapData.loadMapData(0, "assets/graslay2.pyxmap")
             MapData.loadMapAttribute("assets/graslay2.mapatr")
         elif stage == "2B":
+            # 洞窟
             pyxel.image(1).load(0,0,"assets/stage_cave.png")
+            pyxel.image(2).load(0,0,"assets/stage_cave-2.png")
             gcommon.sync_map_y = 2
             gcommon.long_map = False
             gcommon.draw_star = False

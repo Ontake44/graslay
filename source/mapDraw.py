@@ -1,3 +1,4 @@
+import math
 import pyxel
 import gcommon
 import enemy
@@ -120,14 +121,18 @@ class MapDraw2:
 # 洞窟
 class MapDrawCave:
 	def __init__(self):
-		pass
+		self.shiftList = []
+		for i in range(32):
+			n = int(3* math.sin(i * math.pi/16))
+			self.shiftList.append(n)
 	
 	def init(self):
 		gcommon.map_x = 0
 		gcommon.map_y = 8*8
 		gcommon.back_map_x = 0		#-32 * 8/2
-		gcommon.back_map_y = 20 * 8
+		gcommon.back_map_y = 0
 		gcommon.mapHeight = 8 * 256
+		gcommon.waterSurface_y = 93 * 8.0
 
 	def update0(self, skip):
 		pass
@@ -155,13 +160,26 @@ class MapDrawCave:
 		gcommon.map_y += gcommon.cur_scroll_y
 		gcommon.map_y += gcommon.cur_map_dy
 		gcommon.back_map_x += gcommon.cur_scroll_x/2
+		gcommon.back_map_y += gcommon.cur_scroll_y/2
 
 	def drawBackground(self):
-		if gcommon.back_map_x < 0:
-			pyxel.bltm(-1 * int(gcommon.back_map_x), 0, 1, 0, 0, 33, 33)
+		wy = gcommon.waterSurface_y - gcommon.map_y
+		# 通常表示
+		bx = int(gcommon.back_map_x)
+		if bx < 0:
+			pyxel.bltm(-1 * bx, -1 * (int(gcommon.back_map_y) % 8), 1, 0, (int)(gcommon.back_map_y/8), 33, 33)
 		else:
-			mx = (int)(gcommon.back_map_x/8)
-			pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 0, 33, 33)
+			mx = (int)(bx/8)
+			pyxel.bltm(-1 * (bx % 8), -1 * (int(gcommon.back_map_y) % 8), 1, mx, (int)(gcommon.back_map_y/8), 33, 33)
+		if wy >= 0 and wy <= gcommon.SCREEN_MAX_Y:
+			i = 0
+			# 8を足しているが、destx > sourcexで、近い場合だと描画がおかしくなるみたいなので
+			# ※sourcexがマイナスになるのが問題ではないようだ
+			while( wy <= gcommon.SCREEN_MAX_Y ):
+				pyxel.blt(0, wy, 4, 8 + self.shiftList[(int(wy + (pyxel.frame_count>>3))) & 31], wy, 256, 1)
+				i += 1
+				wy += 1
+
 
 	def draw(self):
 		tm = 0
@@ -178,7 +196,16 @@ class MapDrawCave:
 				pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, 2)
 
 	def draw2(self):
-		pass
+		wy = gcommon.waterSurface_y - gcommon.map_y
+		if wy >= 0 and wy <= gcommon.SCREEN_MAX_Y:
+			Drawing.setBrightness1()
+			pyxel.blt(0, wy, 4, 0, wy, 256, 200)
+			pyxel.pal()
+		x = -8 + (int(gcommon.map_x) & 7)
+		while(x < gcommon.SCREEN_MAX_X):
+			pyxel.blt(x, wy, 1, 0, 88, 8 + ((pyxel.frame_count>>2) & 1)*8, 16, 0)
+			x += 8
+
 
 # 倉庫ステージ
 class MapDrawWarehouse:

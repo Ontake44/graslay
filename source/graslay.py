@@ -722,6 +722,8 @@ class MainGame:
 		self.eventTable =[
 			[0,StartMapDrawCave],
 			[0, StartBGM, BGM.STAGE2],
+			[1300,SetMapScroll, 0.25, 0.25],	\
+			[3500,SetMapScroll, 0.50, 0.0],	\
 		]
 
 	def initEventWarehouse(self):

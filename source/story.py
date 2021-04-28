@@ -12,6 +12,7 @@ import boss4
 import bossFactory
 import bossLast
 import bossWarehouse
+import bossCave
 from enemyBattery import MovableBattery1
 from enemyBattery import ContainerCarrier1
 from enemyBattery import Tractor1
@@ -194,6 +195,8 @@ class Story:
 	@classmethod
 	def getStoryCave(cls):
 		return [
+			[3300, enemy.WaterSurface, 0, 200],
+			[6100, bossCave.BossCave],
 		]
 
 	@classmethod

@@ -810,9 +810,13 @@ class Splash(EnemyBase):
 		self.count = 200
 		self.direction = 0		# ラジアン
 		self.angle = 2 * math.pi
+		self.speed = 6
+		self.lifeMin = 100
+		self.lifeMax = 240
 		self.hitCheck = False
 		self.shotHitCheck = False
 
+	# 全方位にパーティクル
 	@classmethod
 	def append(cls, x, y, layer):
 		ObjMgr.addObj(Splash(x, y, layer))
@@ -831,12 +835,32 @@ class Splash(EnemyBase):
 		obj.count = count
 		ObjMgr.addObj(obj)
 
+	@classmethod
+	def appendDr2(cls, x, y, layer, dr, angle, speed, count):
+		obj = Splash(x, y, layer)
+		obj.direction = dr
+		obj.angle = angle
+		obj.count = count
+		obj.speed = speed
+		ObjMgr.addObj(obj)
+
+	@classmethod
+	def appendDr3(cls, x, y, layer, dr, angle, speed, lifeMin, lifeMax, count):
+		obj = Splash(x, y, layer)
+		obj.direction = dr
+		obj.angle = angle
+		obj.count = count
+		obj.speed = speed
+		obj.lifeMin = lifeMin
+		obj.lifeMax = lifeMax
+		ObjMgr.addObj(obj)
+
 	def update(self):
 		if self.cnt == 0:
 			for dummy in range(0,self.count):
 				r = self.direction + random.random() * self.angle - self.angle/2
-				speed = random.random() * 6
-				s = SplashItem(self.x, self.y, speed * math.cos(r), speed * math.sin(r), random.randrange(100, 240))
+				speed = random.random() * self.speed
+				s = SplashItem(self.x, self.y, speed * math.cos(r), speed * math.sin(r), random.randrange(self.lifeMin, self.lifeMax))
 				self.tbl.append(s)
 
 		newTbl = []
@@ -848,6 +872,64 @@ class Splash(EnemyBase):
 				s.y += s.dy
 				s.dx *= 0.97
 				s.dy *= 0.97
+		self.tbl = newTbl
+		if len(self.tbl) == 0:
+			self.remove()
+
+	def draw(self):
+		for s in self.tbl:
+			n = (s.life - s.cnt)/ s.life
+			if n > 0.5:
+				if s.cnt & 1 == 0:
+					continue
+			elif n > 0.6:
+				if s.cnt & 3 != 0:
+					continue
+			elif n > 0.8:
+				if s.cnt & 7 != 0:
+					continue
+			pyxel.pset(s.x, s.y, 7)
+
+class WaterSplash(EnemyBase):
+	def __init__(self, cx, cy, layer):
+		super(WaterSplash, self).__init__()
+		self.x = cx
+		self.y = cy
+		self.layer = layer
+		self.tbl = []
+		self.count = 200
+		self.direction = 0		# ラジアン
+		self.angle = 2 * math.pi
+		self.hitCheck = False
+		self.shotHitCheck = False
+
+	@classmethod
+	def appendDr(cls, x, y, layer, dr, angle, count):
+		obj = WaterSplash(x, y, layer)
+		obj.direction = dr
+		obj.angle = angle
+		obj.count = count
+		ObjMgr.addObj(obj)
+
+	def update(self):
+		if self.cnt == 0:
+			for dummy in range(0,self.count):
+				r = self.direction + random.random() * self.angle - self.angle/2
+				speed = random.random() * 6
+				s = SplashItem(self.x + random.randrange(-10, 10), self.y, speed * math.cos(r), speed * math.sin(r), random.randrange(100, 240))
+				self.tbl.append(s)
+
+		wy = gcommon.waterSurface_y - gcommon.map_y
+		newTbl = []
+		for s in self.tbl:
+			s.cnt -= 1
+			if s.cnt > 0:
+				s.x += s.dx
+				s.y += s.dy
+				s.dx *= 0.97
+				s.dy += 0.05
+				if s.y < wy:
+					newTbl.append(s)
 		self.tbl = newTbl
 		if len(self.tbl) == 0:
 			self.remove()
@@ -3773,3 +3855,47 @@ class Fighter3(EnemyBase):
 				pyxel.blt(self.x +22, self.y +10-3, 1, 112, 72, 16, 6, 3)
 
 
+
+class WaterSurface(EnemyBase):
+	def __init__(self, t):
+		super(WaterSurface, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.layer = gcommon.C_LAYER_UNDER_GRD | gcommon.C_LAYER_UPPER_SKY
+		self.hitCheck = False
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+		self.ground = True
+		self.shiftList = []
+		for i in range(32):
+			n = int(3* math.sin(i * math.pi/16))
+			self.shiftList.append(n)
+
+	def update(self):
+		pass
+
+	def drawLayer(self, layer):
+		pass
+		# if (layer & gcommon.C_LAYER_UNDER_GRD) != 0:
+		# 	y = self.y
+		# 	i = 0
+		# 	while( y <= gcommon.SCREEN_MAX_Y ):
+		# 		pyxel.blt(0, y, 4, 8 +self.shiftList[(int(y + (self.cnt>>3))) & 31], y, 256, 1)
+		# 		i += 1
+		# 		y+= 1
+		# elif (layer & gcommon.C_LAYER_UPPER_SKY) != 0:
+				
+		# 	Drawing.setBrightness1()
+		# 	pyxel.blt(0, self.y, 4, 0, self.y, 256, 200)
+		# 	pyxel.pal()
+		# 	#if self.cnt & 1 == 0:
+		# 	x = -8 + (int(self.x) & 7)
+		# 	while(x < gcommon.SCREEN_MAX_X):
+		# 		pyxel.blt(x, self.y, 1, 0, 88, 8 + ((self.cnt>>2) & 1)*8, 16, 0)
+		# 		x += 8
+
+
+	# def draw(self):
+	# 	Drawing.setBrightness1()
+	# 	pyxel.blt(0, self.y, 4, 0, self.y, 256, 200)
+	# 	pyxel.pal()
