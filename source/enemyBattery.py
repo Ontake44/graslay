@@ -241,3 +241,63 @@ class Ducker1(EnemyBase):
 
 	def draw(self):
 		pass
+
+
+# 植物砲台
+class PlantBattery1(EnemyBase):
+	def __init__(self, t):
+		super(PlantBattery1, self).__init__()
+		pos = gcommon.mapPosToScreenPos(t[2], t[3])
+		self.x = pos[0]
+		self.y = pos[1]
+		self.mirror = t[4]
+		self.firstShot = t[5]
+		self.left = 11
+		self.top = 3
+		self.right = 44
+		self.bottom = 16
+		if self.mirror == 1:
+			self.top = 23 -16
+			self.bottom = 23 -3
+		self.layer = gcommon.C_LAYER_GRD
+		self.hp = 100
+		self.shotInterval = int(120 / GameSession.enemy_shot_rate)
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+		self.ground = True
+		self.score = 500
+		self.state = 0
+
+	def update(self):
+		if self.x <= -56:
+			self.remove()
+			return
+		if self.state == 0 and self.cnt == self.firstShot:
+			self.setState(1)
+		if self.state == 1:
+			if self.cnt == 10:
+				if self.mirror== 0:
+					enemy.enemy_shot_dr_multi(self.x +27.5, self.y + self.mirror * 24, 2, 0, 48, 6, 2)
+				else:
+					enemy.enemy_shot_dr_multi(self.x +27.5, self.y + self.mirror * 24, 2, 0, 16, 6, 2)
+			elif self.cnt > 30:
+				self.state = 2
+		elif self.state == 2:
+			if self.cnt == self.shotInterval:
+				self.setState(1)
+
+	def draw(self):
+		ssy = 1
+		if self.mirror:
+			ssy = -1
+		pyxel.blt(self.x, self.y, 2, 0, 40, 16, 24 * ssy, 3)
+		pyxel.blt(self.x +40, self.y, 2, 40, 40, 16, 24 * ssy, 3)
+		if self.state == 1:
+			sx = 56
+			if self.cnt > 8 and self.cnt < 22:
+				sx = 80
+			pyxel.blt(self.x +16, self.y, 2, sx, 40, 24, 24 * ssy, 3)
+		else:
+			pyxel.blt(self.x +16, self.y, 2, 16, 40, 24, 24 * ssy, 3)
+

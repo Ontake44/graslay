@@ -18,6 +18,8 @@ from enemyBattery import ContainerCarrier1
 from enemyBattery import Tractor1
 from enemyArmored import Armored1
 from gameSession import GameSession
+import enemyFighter
+import enemyMine
 
 class Story:
 	@classmethod
@@ -195,6 +197,14 @@ class Story:
 	@classmethod
 	def getStoryCave(cls):
 		return [
+			[100, enemyFighter.Fighter4Group, 0, 60, 20, 5],
+			[240, enemyFighter.Fighter4Group, 1, 60, 20, 5],
+			[300, enemyMine.Mine1, 256, 12 *8, 90, 150],
+			[360, enemyMine.Mine1, 256, 12 *8, 90, 150],
+			[460, enemyFighter.Fighter4Group, 1, 60, 20, 5],
+			[580, enemyFighter.Fighter4Group, 0, 60, 20, 5],
+			[800, enemyFighter.Fighter4Group, 0, 60, 20, 5],
+			[940, enemyFighter.Fighter4Group, 1, 60, 20, 5],
 			[3300, enemy.WaterSurface, 0, 200],
 			[6100, bossCave.BossCave],
 		]

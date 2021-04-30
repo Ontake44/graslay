@@ -132,8 +132,11 @@ class MyShipBase:
 				else:
 					self.y -= 2
 			elif gcommon.sync_map_y == 2:
-				gcommon.cur_map_dy = -1
-				self.y -= 1
+				if self.y > (88 -16):
+					self.y -= 2
+				else:
+					gcommon.cur_map_dy = -1
+					self.y -= 1
 			else:
 				if self.y >= (2+2):
 					dy = -2
@@ -154,8 +157,11 @@ class MyShipBase:
 				else:
 					self.y += 2
 			elif gcommon.sync_map_y == 2:
-				gcommon.cur_map_dy = 1
-				self.y += 1
+				if self.y < (88 +16):
+					self.y += 2
+				else:
+					gcommon.cur_map_dy = 1
+					self.y += 1
 			else:
 				if self.y <= (176 -2):
 					dy = 2

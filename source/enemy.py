@@ -156,11 +156,14 @@ class EnemyBase:
 #  mode = -1
 #    停止
 #  mode = 0
+#    一定速度
 #    [2] dx 速度
 #    [3] dy 速度
 #  mode = 1
+#    レイヤ移動
 #    [2] Layer
 #  mode = 2
+#    一定加速
 #    [2] ax 加速度
 #    [3] ay 加速度
 #  mode = 3
@@ -169,9 +172,22 @@ class EnemyBase:
 #    [2] aax 変位加速度 0.95とか
 #    [3] aay 変位加速度
 #  mode = 5  ※to cntは使用しない
+#    指定座標に移動
 #    [2] 移動先座標X
 #    [3] 移動先座標Y
 #    [4] 速度
+#  mode = 6
+#    回転移動
+#    [2] 初期角度
+#    [3] 角速度
+#    [4] 速度
+#  mode = 7
+#    指定座標にセット ※to cntは使用しない
+#    [2] X
+#    [3] Y
+#  mode = 100
+#    指定インデックスに移動
+#    [2] インデックス
 class CountMover:
 	def __init__(self, obj, table, loopFlag):
 		self.obj = obj
@@ -183,6 +199,7 @@ class CountMover:
 		self.cnt = 0
 		self.dx = 0.0
 		self.dy = 0.0
+		self.rad = 0.0
 
 	def update(self):
 		if self.isEnd:
@@ -200,28 +217,45 @@ class CountMover:
 			if math.sqrt(xx*xx + yy*yy) < item[4]:
 				self.nextTable()
 
-		elif self.cnt < item[0]:
-			if item[1] == 0:
+		elif self.cnt <= item[0]:
+			mode = item[1]
+			if mode == 0:
 				self.dx = item[2]
 				self.dy = item[3]
 				self.obj.x += self.dx
 				self.obj.y += self.dy
-			elif item[1] == 1:
+			elif mode == 1:
 				self.obj.layer = item[2]
-			elif item[1] == 2:
+			elif mode == 2:
 				self.obj.x += self.dx
 				self.obj.y += self.dy
 				self.dx += item[2]
 				self.dy += item[3]
-			elif item[1] == 3:
+			elif mode == 3:
 				self.obj.x += self.dx
 				self.obj.y += self.dy
-			elif item[1] == 4:
+			elif mode == 4:
 				self.obj.x += self.dx
 				self.obj.y += self.dy
 				self.dx *= item[2]
 				self.dy *= item[3]
-			elif item[1] == -1:
+			elif mode == 6:
+				if self.cnt == 0:
+					self.rad = item[2]
+				self.dx = item[4] * math.cos(self.rad)
+				self.dy = item[4] * math.sin(self.rad)
+				self.obj.x += self.dx
+				self.obj.y += self.dy
+				self.rad += item[3]
+				#gcommon.debugPrint(str(self.dx) + " " + str(self.dy))
+			elif mode == 7:
+				self.x = item[2]
+				self.y = item[3]
+				self.nextTable()
+			elif mode == 100:
+				self.tableIndex = item[2]
+				self.cnt = 0
+			elif mode == -1:
 				# 停止
 				self.dx = 0.0
 				self.dy = 0.0
@@ -329,6 +363,8 @@ class EnemyShot(EnemyBase):
 		self.speed = speed
 		self.type = gcommon.T_E_SHOT1
 		self.layer = gcommon.C_LAYER_E_SHOT
+		self.ground = gcommon.eshot_sync_scroll
+
 
 	@classmethod
 	def createToMyShip(cls, x, y, speed, shotType, offsetDr):

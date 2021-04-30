@@ -141,7 +141,7 @@ class Stage:
             gcommon.sync_map_y = 2
             gcommon.long_map = False
             gcommon.draw_star = False
-            gcommon.eshot_sync_scroll = False
+            gcommon.eshot_sync_scroll = True
             MapData.loadMapData(0, "assets/stage_cave.pyxmap")
             MapData.loadMapData(1, "assets/stage_caveb.pyxmap")
             MapData.loadMapAttribute("assets/stage_cave.mapatr")

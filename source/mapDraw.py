@@ -3,6 +3,7 @@ import pyxel
 import gcommon
 import enemy
 import item
+import enemyBattery
 from objMgr import ObjMgr
 from gameSession import GameSession
 from drawing import Drawing
@@ -140,19 +141,19 @@ class MapDrawCave:
 	def update(self, skip):
 		if skip == False:
 			# スキップ時はマップデータやオブジェクト追加しない
-			for i in range(0, 128):
-				my = 127 -i
+			for my in range(0, 128):
 				mx = gcommon.screenPosToMapPosX(256)
-				n = gcommon.getMapDataByMapPosPage(2, mx, my)
+				n = gcommon.getMapDataByMapPosPage(0, mx, my)
 				if n in (390, 391):
-					# 砲台
-					gcommon.setMapDataByMapPosPage(2, mx, my, 0)
-					obj = enemy.Battery1([0,0,mx, my, 0])
+					# 植物砲台
+					gcommon.setMapDataByMapPosPage(0, mx, my, 0)
+					mirror = 0
+					if n == 391:
+						mirror = 1
+						my -= 1
+					obj = enemyBattery.PlantBattery1([0,0,mx, my, mirror, 90])
 					if GameSession.isHard():
 						obj.first = 20
-						obj.shot_speed = 3
-					if n == 391:
-						obj.mirror = 1
 					ObjMgr.addObj(obj)
 				else:
 					doMapCharacter(n, mx, my)

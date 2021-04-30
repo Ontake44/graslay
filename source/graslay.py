@@ -387,16 +387,9 @@ class MainGame:
 		for obj in ObjMgr.objs:
 			if obj.removeFlag == False:
 				if gcommon.scroll_flag:
-					if gcommon.eshot_sync_scroll:
-						#if obj.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD, gcommon.C_LAYER_E_SHOT):
-						if obj.ground:
-							obj.x -= gcommon.cur_scroll_x
-							obj.y -= gcommon.cur_scroll_y
-					else:
-						#if obj.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD):
-						if obj.ground:
-							obj.x -= gcommon.cur_scroll_x
-							obj.y -= gcommon.cur_scroll_y
+					if obj.ground:
+						obj.x -= gcommon.cur_scroll_x
+						obj.y -= gcommon.cur_scroll_y
 					obj.x -= gcommon.cur_map_dx
 					obj.y -= gcommon.cur_map_dy
 				if obj.nextStateNo != -1:
