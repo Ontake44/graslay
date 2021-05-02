@@ -89,6 +89,14 @@ class MyShipBase:
 		else:	# sub_scene = 10
 			# continue確認中
 			pass
+
+		# 水しぶき
+		if self.cnt % 10 == 0:
+			if self.y + gcommon.map_y+12 > gcommon.waterSurface_y and self.y + gcommon.map_y+8 <= gcommon.waterSurface_y:
+				enemy.Splash.appendDr3(self.x +16, self.y+8, gcommon.C_LAYER_GRD, math.pi+math.pi/16, math.pi/8, 6.0, 20, 50, 10)
+			elif self.y + gcommon.map_y+8 > gcommon.waterSurface_y:
+				enemy.Splash.appendDr3(self.x, self.y+8, gcommon.C_LAYER_GRD, math.pi, math.pi/12, 2.0, 10,20, 10)
+
 		self.cnt += 1
 
 	def actionButtonInput(self):
@@ -549,6 +557,7 @@ class MyShotBase:
 		self.removeFlag = False
 		self.effect = True
 		self.cnt = 0
+		self.splashed = False
 
 	def hit(self, obj, brokenFlag):
 		self.remove()
@@ -564,6 +573,14 @@ class MyShotBase:
 		enemy.Particle1.appendShotCenter(self)
 		if effectSound:
 			BGM.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
+
+	# 水しぶき
+	def splash(self):
+		if self.splashed == False:
+			py = self.y +(self.bottom -self.top)/2
+			if self.dy > 0.0 and py +gcommon.map_y > gcommon.waterSurface_y and py +gcommon.map_y < gcommon.waterSurface_y +8:
+				enemy.Splash.appendDr3(self.x, py, gcommon.C_LAYER_GRD, math.atan2(-self.dy, self.dx), math.pi/8, 3.0, 10, 20, 6)
+				self.splashed = True
 
 
 class MyShot(MyShotBase):
@@ -584,8 +601,10 @@ class MyShot(MyShotBase):
 		self.y = self.y + self.dy
 		if self.x <= -8 or self.x >= 256:
 			self.remove()
+			return
 		elif self.y <= -8 or self.y >= 192:
 			self.remove()
+			return
 		else:
 			# ストレートの場合8ドット移動なので、２箇所マップチェックする
 			for i in range(2):
@@ -593,6 +612,7 @@ class MyShot(MyShotBase):
 				if checkShotMapCollision(self, px, self.y + 3):
 					enemy.Particle1.appendShotCenterReverse(self)
 					return
+		self.splash()
 
 	def draw(self):
 		# 当たり判定描画
@@ -640,12 +660,15 @@ class MyShotBDouble(MyShotBase):
 		self.y = self.y + self.dy
 		if self.x <= -8 or self.x >= 256:
 			self.remove()
+			return
 		elif self.y <= -8 or self.y >= 192:
 			self.remove()
+			return
 		else:
 			if checkShotMapCollision(self, self.x, self.y):
 				enemy.Particle1.appendShotCenterReverse(self)
 				return
+		self.splash()
 
 	def draw(self):
 		# 当たり判定描画
@@ -801,8 +824,10 @@ class MyMissile0(MyShotBase):
 			self.y = self.y + self.dy
 			if self.x <= -8 or self.x >= 256:
 				self.remove()
+				return
 			elif self.y <= -8 or self.y >= 192:
 				self.remove()
+				return
 			else:
 				if abs(self.dy) <= 6:
 					self.dy *= 1.05
@@ -813,6 +838,8 @@ class MyMissile0(MyShotBase):
 			# 爆発中
 			if self.cnt > 3:
 				self.remove()
+				return
+		self.splash()
 		self.cnt += 1
 
 	def setExplotion(self):
@@ -946,12 +973,15 @@ class MyMissile2(MyShotBase):
 				self.dy *= 1.05
 			if self.x <= -8 or self.x >= 256:
 				self.remove()
+				return
 			elif self.y <= -8 or self.y >= 192:
 				self.remove()
+				return
 			else:
 				if gcommon.isMapFreePos(self.x, self.y) == False:
 					# 爆発形態へ
 					self.setExplosion()
+			self.splash()
 		else:
 			# 爆発中
 			if self.cnt > 30:
@@ -1024,11 +1054,16 @@ class MyMissileB0(MyShotBase):
 			self.y += gcommon.cur_map_dy
 		if self.x <= -8 or self.x >= 256:
 			self.remove()
+			return
 		elif self.y <= -8 or self.y >= 192:
 			self.remove()
+			return
 		else:
 			if gcommon.isMapFreePos(self.x, self.y) == False:
 				self.remove()
+				return
+		if self.state == 0:
+			self.splash()
 
 	def draw(self):
 		if self.state == 0:
@@ -1057,13 +1092,17 @@ class MyMissileB1(MyShotBase):
 		self.y = self.y + self.dy
 		if self.x <= -8 or self.x >= 256:
 			self.remove()
+			return
 		elif self.y <= -8 or self.y >= 192:
 			self.remove()
+			return
 		else:
 			if abs(self.dy) <= 6:
 				self.dy *= 1.05
 			if gcommon.isMapFreePos(self.x, self.y) == False:
 				self.remove()
+				return
+		self.splash()
 
 	def draw(self):
 		if abs(self.dy) > 5:

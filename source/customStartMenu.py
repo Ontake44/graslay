@@ -17,7 +17,6 @@ START_X = 80
 
 class CustomStartMenuScene:
 	# とりあえずのステージ選択
-	stageList = ["1", "2A", "3A", "3B", "4A", "5A", "6A"]
 	def __init__(self):
 		self.star_pos = 0
 		oy = 16
@@ -106,8 +105,8 @@ class CustomStartMenuScene:
 				if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
 					BGM.sound(gcommon.SOUND_MENUMOVE)
 					self.stageIndex += 1
-					if self.stageIndex >= len(__class__.stageList):
-						self.stageIndex = len(__class__.stageList) -1
+					if self.stageIndex >= len(gcommon.stageList):
+						self.stageIndex = len(gcommon.stageList) -1
 				elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
 					BGM.sound(gcommon.SOUND_MENUMOVE)
 					self.stageIndex -= 1
@@ -167,7 +166,7 @@ class CustomStartMenuScene:
 		else:
 			# GAME START
 			if self.cnt > 40:
-				Settings.startStage = __class__.stageList[self.stageIndex]
+				Settings.startStage = gcommon.stageList[self.stageIndex]
 				gcommon.app.startCustomGame()
 		self.cnt += 1
 
@@ -209,9 +208,9 @@ class CustomStartMenuScene:
 		idx += 1
 		self.setOptionColor(MENU_START_STAGE)
 		Drawing.showText(x1, self.menuYList[MENU_START_STAGE], "START STAGE")
-		Drawing.showText(x2, self.menuYList[MENU_START_STAGE], __class__.stageList[self.stageIndex])
+		Drawing.showText(x2, self.menuYList[MENU_START_STAGE], gcommon.stageList[self.stageIndex])
 		if MENU_START_STAGE == self.menuPos:
-			Drawing.drawUpDownMarker2(x2 -10, self.menuYList[MENU_START_STAGE], 0, len(__class__.stageList)-1, self.stageIndex)
+			Drawing.drawUpDownMarker2(x2 -10, self.menuYList[MENU_START_STAGE], 0, len(gcommon.stageList)-1, self.stageIndex)
 		idx += 1
 
 		text = gcommon.difficultyText[self.difficulty] + " START"

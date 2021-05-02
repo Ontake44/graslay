@@ -16,6 +16,9 @@ DIFFICULTY_HARD = 2
 
 difficultyText = (" EASY ", "NORMAL", " HARD ")
 
+stageList = ("1", "2A", "2B", "3A", "3B", "4A", "5A", "6A")
+
+
 # 機体種別
 class WeaponType:
 	TYPE_A = 0		# Axelay
@@ -133,7 +136,7 @@ KEY_PERIOD = 5
 
 START_MY_POWER = 1
 
-SHOT0_POWER = 10		# 5
+SHOT0_POWER = 13		# 5
 SHOT1_POWER = 5
 SHOT2_POWER = 7
 SHOT_POWERS = (SHOT0_POWER, SHOT1_POWER, SHOT2_POWER)

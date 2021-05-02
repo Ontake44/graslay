@@ -110,6 +110,9 @@ bossFactoryFinA7 = [
 ]
 
 class BossFactory(enemy.EnemyBase):
+	homingBeamInterval = (50, 45, 40)
+	roundShotInterval = (6, 5, 4)
+	arcShotInterval = (7, 6, 5)
 	def __init__(self, t):
 		super(BossFactory, self).__init__()
 		self.x = 80
@@ -270,7 +273,7 @@ class BossFactory(enemy.EnemyBase):
 						if self.subCnt == 1:
 							self.omega = math.pi/64
 						# 卍のように撃つ
-						if self.subCnt % 4 == 1:
+						if self.subCnt % __class__.roundShotInterval[GameSession.difficulty] == 1:
 							rr = 0 if self.finMode == 0 else math.pi/4
 							for i in range(4):
 								px = self.x +39.5 +math.cos(self.rad + rr +math.pi/2 * i) * 32
@@ -282,7 +285,7 @@ class BossFactory(enemy.EnemyBase):
 							self.omega *= 0.99
 					else:
 						# 弧を描くような弾
-						if self.subCnt % 5 == 0:
+						if self.subCnt % __class__.arcShotInterval[GameSession.difficulty] == 0:
 							for i in range(4):
 								px = self.x +39.5 +math.cos(self.rad + math.pi/4 + math.pi/2 * i) * 32
 								py = self.y +39.5 +math.sin(self.rad + math.pi/4 + math.pi/2 * i) * 32
@@ -403,34 +406,17 @@ class BossFactory(enemy.EnemyBase):
 					self.setSubState(1)
 					self.dr64 = -1
 			elif self.subState == 1:
-				if self.subCnt % 40 == 1:
+				if self.subCnt % __class__.homingBeamInterval[GameSession.difficulty] == 1:
+					# ホーミングビーム
 					rr = 0.0 if self.finMode == 0 else math.pi/4
 					i = (int(self.subCnt/40)) & 3
-					#gcommon.debugPrint("i=" + str(i))
 					for i in range(2):
 						px = self.x +39.5 +math.cos(self.rad + rr +math.pi * i) * 32
 						py = self.y +39.5 +math.sin(self.rad + rr +math.pi * i) * 32
 						dr = gcommon.atan2x(px -(self.x +39.5), py - (self.y +39.5))
-						ObjMgr.addObj(enemyShot.HomingBeam1(px, py, dr))
+						beam = enemyShot.HomingBeam1(px, py, dr)
+						ObjMgr.addObj(beam)
 					
-					# rr = 0 if self.finMode == 0 else math.pi/4
-					# n = 5 if GameSession.isHard() else 4
-					# dr = gcommon.get_atan_no_to_ship(self.x +39.5, self.y +39.5)
-					# if self.subCnt & 32 == 0:
-					# 	#print("5")
-					# 	for i in range(4):
-					# 		enemy.enemy_shot_dr_multi(
-					# 			self.x +39.5 +math.cos(self.rad + rr +math.pi/2 * i) * 32,
-					# 			self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
-					# 			2, 0, dr, n, 6)
-					# else:
-					# 	#print("4")
-					# 	for i in range(4):
-					# 		enemy.enemy_shot_dr_multi(
-					# 			self.x +39.5 +math.cos(self.rad + rr +math.pi/2 * i) * 32,
-					# 			self.y +39.5 +math.sin(self.rad + rr +math.pi/2 * i) * 32,
-					# 			2, 0, dr, n -1, 4)
-
 				if self.subCnt > 160:
 					self.setSubState(2)
 			elif self.subState == 2:

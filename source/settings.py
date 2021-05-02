@@ -51,7 +51,7 @@ class Settings:
             if "playerStock" in json_data:
                 playerStock = int(json_data["playerStock"])
             if "startStage" in json_data:
-                startStage = int(json_data["startStage"])
+                startStage = str(json_data["startStage"])
             if "bgmVol" in json_data:
                 bgmVol = int(json_data["bgmVol"])
             if "soundVol" in json_data:
@@ -69,7 +69,7 @@ class Settings:
 
             if playerStock >= 1 and playerStock <= 99:
                 Settings.playerStock = playerStock
-            if startStage >= 1 and startStage <= 6:
+            if startStage in gcommon.stageList:
                 Settings.startStage = startStage
             if bgmVol >= 0 and bgmVol <= 10:
                 Settings.bgmVolume = bgmVol

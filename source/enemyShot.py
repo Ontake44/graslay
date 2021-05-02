@@ -17,7 +17,7 @@ class BossFactoryShot2(enemy.EnemyBase):
 		self.top = -3.0
 		self.right = 3.0
 		self.bottom = 3.0
-		self.layer = gcommon.C_LAYER_SKY
+		self.layer = gcommon.C_LAYER_E_SHOT
 		self.hitCheck = True
 		self.shotHitCheck = False
 		self.enemyShotCollision = False
@@ -54,13 +54,12 @@ class HomingBeam1(enemy.EnemyBase):
 		self.hitCheck = True
 		self.shotHitCheck = False
 		self.enemyShotCollision = False
-		self.hp = 1
-		self.score = 20
 		self.speed = 3.0
+		self.homingTime = 45
 		self.posList = []
 
 	def update(self):
-		if self.cnt <= 50:
+		if self.cnt <= self.homingTime:
 			tempDr = gcommon.get_atan_rad_to_ship(self.x, self.y)
 			rr = gcommon.radNormalize(tempDr - self.dr)
 			if rr == 0.0:

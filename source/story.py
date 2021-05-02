@@ -20,6 +20,8 @@ from enemyArmored import Armored1
 from gameSession import GameSession
 import enemyFighter
 import enemyMine
+import enemyOthers
+import enemyCreature
 
 class Story:
 	@classmethod
@@ -27,10 +29,10 @@ class Story:
 		return [
 			[150, enemy.Fan1Group, 8, 10, 6],	
 			[270, enemy.Fan1Group, 170, 10, 6],	
-			#[360, enemy.Fan1Group, 8, 10, 6],	
-			[360, enemy.Fan1aGroup, 12],
-			#[450, enemy.Fan1Group, 170, 10, 6],
-			[450, enemy.Fan1aGroup, 12],
+			[360, enemy.Fan1Group, 8, 10, 6],	
+			#[360, enemy.Fan1aGroup, 12],
+			[450, enemy.Fan1Group, 170, 10, 6],
+			#[450, enemy.Fan1aGroup, 12],
 			[500, enemy.MissileShip, 40, 160],
 			[530, enemy.MissileShip, 120, 200],
 			[630, enemy.RollingFighter1Group, 42, 15, 4],
@@ -201,11 +203,31 @@ class Story:
 			[240, enemyFighter.Fighter4Group, 1, 60, 20, 5],
 			[300, enemyMine.Mine1, 256, 12 *8, 90, 150],
 			[360, enemyMine.Mine1, 256, 12 *8, 90, 150],
-			[460, enemyFighter.Fighter4Group, 1, 60, 20, 5],
-			[580, enemyFighter.Fighter4Group, 0, 60, 20, 5],
+			#[460, enemyFighter.Fighter4Group, 1, 60, 20, 5],
+			#[580, enemyFighter.Fighter4Group, 0, 60, 20, 5],
 			[800, enemyFighter.Fighter4Group, 0, 60, 20, 5],
 			[940, enemyFighter.Fighter4Group, 1, 60, 20, 5],
+			[1200, enemyFighter.Fighter4Group, 2, 120, 20, 5],
+			[1260, enemyMine.Mine1, 256, 45 *8, 150, -150],
+			[1320, enemyMine.Mine1, 256, 47 *8, 150, -150],
+			[1320, enemyFighter.Fighter4Group, 3, 150, 20, 5],
+			[1800, enemyFighter.Fighter4Group, 2, 120, 20, 5],
+			[1920, enemyFighter.Fighter4Group, 3, 150, 20, 5],
+			[2100, enemyFighter.Fighter4Group, 2, 120, 20, 5],
+			[2120, enemyFighter.Fighter4Group, 3, 150, 20, 5],
+			[2400, enemyFighter.Fighter4Group, 4, 150, 20, 5],
+			[3100, enemyFighter.Fighter4Group, 3, 150, 20, 5],
+			[3240, enemyFighter.Fighter4Group, 4, 150, 20, 5],
 			[3300, enemy.WaterSurface, 0, 200],
+			[3500, enemyFighter.Fighter4Group, 0, 60, 20, 5],
+			[3600, enemyCreature.Worm3, 256, 8 * 85],
+			[3640, enemyFighter.Fighter4Group, 1, 60, 20, 5],
+			[3720, enemyCreature.Worm3, 256, 8 * 89],
+			[3890, enemyMine.Mine1, 256, 77 *8, 90, 150],
+			[3950, enemyMine.Mine1, 256, 77 *8, 90, 150],
+			[4010, enemyMine.Mine1, 256, 97 *8, 90, -150],
+			[4400, enemyCreature.Worm3, 256, 8 * 87],
+			[4600, enemyCreature.Worm3, 256, 8 * 94],
 			[6100, bossCave.BossCave],
 		]
 
@@ -540,6 +562,7 @@ class Story:
 			[4530, enemy.Jumper1, 256, 30, 0.05],		\
 			[4600, enemy.Jumper1, 256, 20, 0.05],		\
 			[4630, enemy.Jumper1, 256, 30, 0.05],		\
+			[6700, enemyOthers.ArrowOnScreen, 120, 50, 0, "WARNING!", 180],
 			[6850, bossFactory.BossFactory, 0, 0],		\
 		]
 
@@ -660,11 +683,13 @@ class Story:
 			[6000 +baseOffset, enemy.Spider1, 300, 64.5],		\
 			[6200 +baseOffset, enemy.Tank1, 256, 152, 0, 0],	\
 			[6260 +baseOffset, enemy.Tank1, 256, 16, 1, 0],	\
+			[6320 +baseOffset, enemyOthers.ArrowOnMap, 259, 46, 1, "HIDE", 180],
 			[6520 +baseOffset, enemy.Tank1, -24, 152, 0, 2],	\
 			[6600 +baseOffset, enemy.Tank1, -24, 16, 1, 2],	\
 			[6700 +baseOffset, enemy.Tank1, 256, 152, 0, 0],	\
 			[6750 +baseOffset, enemy.Tank1, -24, 16, 1, 3],	\
 			[6800 +baseOffset, enemy.Tank1, -24, 16, 1, 2],	\
+			[6900 +baseOffset, enemyOthers.ArrowOnMap, 256 +39, 154-128, 0, "HIDE", 180],
 			[7000 +baseOffset, enemy.Tank1, 256, 16, 1, 0],	\
 			[7200 +baseOffset, enemy.Tank1, -24, 152, 0, 2],	\
 			[7300 +baseOffset, enemy.Tank1, -24, 16, 1, 3],	\

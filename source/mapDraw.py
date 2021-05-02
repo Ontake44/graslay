@@ -4,6 +4,7 @@ import gcommon
 import enemy
 import item
 import enemyBattery
+import enemyCreature
 from objMgr import ObjMgr
 from gameSession import GameSession
 from drawing import Drawing
@@ -154,6 +155,26 @@ class MapDrawCave:
 					obj = enemyBattery.PlantBattery1([0,0,mx, my, mirror, 90])
 					if GameSession.isHard():
 						obj.first = 20
+					ObjMgr.addObj(obj)
+				elif n in (392, 393):
+					# 植物砲台
+					gcommon.setMapDataByMapPosPage(0, mx, my, 0)
+					mirror = 0
+					if n == 393:
+						mirror = 1
+						my -= 1
+					obj = enemyBattery.PlantBattery2([0,0,mx, my, mirror, 90])
+					if GameSession.isHard():
+						obj.first = 20
+					ObjMgr.addObj(obj)
+				elif n in (394, 395):
+					gcommon.setMapDataByMapPosPage(0, mx, my, 0)
+					time = gcommon.getMapDataByMapPos(mx+1, my) -416
+					gcommon.setMapDataByMapPosPage(0, mx+1, my, 0)
+					mirror = 0
+					if n == 395:
+						mirror = 1
+					obj = enemyCreature.CellLauncher1([0,0,mx, my, mirror, time])
 					ObjMgr.addObj(obj)
 				else:
 					doMapCharacter(n, mx, my)

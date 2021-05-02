@@ -5,6 +5,7 @@ from gameSession import GameSession
 from audio import BGM
 
 class StageInfo:
+
     def __init__(self, stage, stageNo, enabled, nextStageList):
         self.stage = stage
         self.stageNo = stageNo
@@ -109,6 +110,7 @@ class Stage:
     def initStage(cls, stage, restart):
         gcommon.breakableMapData = False
         pyxel.tilemap(0).refimg = 1
+        gcommon.waterSurface_y = 256 * 8.0
 
         if stage == "1":
             #pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)

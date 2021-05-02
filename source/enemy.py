@@ -896,7 +896,7 @@ class Splash(EnemyBase):
 			for dummy in range(0,self.count):
 				r = self.direction + random.random() * self.angle - self.angle/2
 				speed = random.random() * self.speed
-				s = SplashItem(self.x, self.y, speed * math.cos(r), speed * math.sin(r), random.randrange(self.lifeMin, self.lifeMax))
+				s = SplashItem(self.x + random.randrange(-5, 5), self.y, speed * math.cos(r), speed * math.sin(r), random.randrange(self.lifeMin, self.lifeMax))
 				self.tbl.append(s)
 
 		newTbl = []
