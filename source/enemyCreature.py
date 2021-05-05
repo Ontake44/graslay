@@ -16,8 +16,8 @@ class Worm3(EnemyBase):
         self.x = t[2]
         self.y = t[3]  - gcommon.map_y
         self.left = 4
-        self.top = 4
-        self.right = 13
+        self.top = 2
+        self.right = 23
         self.bottom = 13
         self.layer = gcommon.C_LAYER_SKY
         self.hp = 200
@@ -71,9 +71,16 @@ class Worm3(EnemyBase):
             else:
                 pyxel.blt(self.x + 20 + i * 14, self.cellY[index] -gcommon.map_y, 2, 40, 80, 16, 16, 3)
 
+    def broken(self):
+        super(__class__, self).broken()
+        posList = []
+        x = 27
+        for i in range(0, len(self.cellY), self.cellDelay):
+            posList.append([self.x +x, self.cellY[i]-gcommon.map_y + (self.bottom-self.top)/2 ])
+            x += 14
+        enemy.DelayedExplosions.create(posList, self.layer, self.exptype, 5)
 
-
-# 
+# Cell3を放出する発射台
 class CellLauncher1(EnemyBase):
     def __init__(self, t):
         super(CellLauncher1, self).__init__()
@@ -113,7 +120,11 @@ class CellLauncher1(EnemyBase):
                 ObjMgr.addObj(Cell3([0, 0, self.x +12, self.y, 0.0, -1.0 + self.mirror * 2.0, 60]))
 
     def draw(self):
-        pyxel.blt(self.x, self.y, 2, 0, 96, 40, 16 - self.mirror*32, 3)
+        n = self.cnt % 30
+        if self.state == 1 and (n >= 25 or n < 5): 
+            pyxel.blt(self.x, self.y, 2, 40, 96, 40, 16 - self.mirror*32, 3)
+        else:
+            pyxel.blt(self.x, self.y, 2, 0, 96, 40, 16 - self.mirror*32, 3)
 
 class Cell3(EnemyBase):
     def __init__(self, t):

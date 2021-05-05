@@ -378,6 +378,16 @@ class Drawing:
                 poly[i+1][0], poly[i+1][1],
                 poly[i+2][0], poly[i+2][1], clr)	
 
+    # 頂点配列、色でポリゴンを描く
+    @classmethod
+    def drawPolygonPos(cls, x, y, poly, clr):
+        sx = x+poly[0][0]
+        sy = y+poly[0][1]
+        for i in range(len(poly)-2):
+            pyxel.tri(sx, sy, 
+                x+poly[i+1][0], y+poly[i+1][1],
+                x+poly[i+2][0], y+poly[i+2][1], clr)	
+
 
     # 頂点配列、色でポリゴンを描く（外枠あり）
     @classmethod

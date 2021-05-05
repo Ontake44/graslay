@@ -141,7 +141,7 @@ class Stage:
             pyxel.image(1).load(0,0,"assets/stage_cave.png")
             pyxel.image(2).load(0,0,"assets/stage_cave-2.png")
             gcommon.sync_map_y = 2
-            gcommon.long_map = False
+            gcommon.long_map = True
             gcommon.draw_star = False
             gcommon.eshot_sync_scroll = True
             MapData.loadMapData(0, "assets/stage_cave.pyxmap")

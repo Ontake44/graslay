@@ -3935,3 +3935,30 @@ class WaterSurface(EnemyBase):
 	# 	Drawing.setBrightness1()
 	# 	pyxel.blt(0, self.y, 4, 0, self.y, 256, 200)
 	# 	pyxel.pal()
+
+
+class DelayedExplosions(EnemyBase):
+	def __init__(self, posList, layer, exptype, delay):
+		super(DelayedExplosions, self).__init__()
+		self.posList = posList
+		self.layer = layer
+		self.exptype = exptype
+		self.delay = delay
+		self.hitCheck = False
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+		self.expCount = 0
+		for pos in self.posList:
+			gcommon.debugPrint(str(pos[0]) + " " + str(pos[1]))
+	
+	@classmethod
+	def create(cls, posList, layer, exptype, delay):
+		ObjMgr.addObj(DelayedExplosions(posList, layer, exptype, delay))
+	
+	def update(self):
+		if self.cnt % self.delay == 0:
+			pos = self.posList[self.expCount]
+			create_explosion(pos[0], pos[1], self.layer, self.exptype)
+			self.expCount += 1
+			if self.expCount >= len(self.posList):
+				self.remove()

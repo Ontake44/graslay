@@ -60,7 +60,10 @@ class Fighter4(EnemyBase):
             width = 16
         else:
             width = -16
-        pyxel.blt(self.x, self.y, 2, 0 + n*16, 0, width, 16, 0)
+        if self.cnt & 2 == 0:
+            pyxel.blt(self.x, self.y, 2, 0 + n*16, 0, width, 16, 0)
+        else:
+            pyxel.blt(self.x, self.y, 2, 48 + n*16, 0, width, 16, 0)
 
 
 class Fighter4Group(EnemyBase):

@@ -5,6 +5,7 @@ import gcommon
 import enemy
 from objMgr import ObjMgr
 from audio import BGM
+from drawing import Drawing
 
 # ボス処理
 
@@ -84,6 +85,9 @@ class BossExplosion(enemy.EnemyBase):
 
 
 class BossLaserBeam1(enemy.EnemyBase):
+	beamPoints = [[0,2],[7,0],[14,2],[7,4]]
+	#beamPoints = [[0,1],[7,0],[14,1],[7,2]]
+	#beamPoints = [[0.0,1.5],[7.0,0.0],[14.0,1.5],[7.0,3.0]]
 	def __init__(self, x, y, rad):
 		super(BossLaserBeam1, self).__init__()
 		self.x = x
@@ -100,21 +104,25 @@ class BossLaserBeam1(enemy.EnemyBase):
 		self.enemyShotCollision = False
 		self.dx = math.cos(self.rad) * 3
 		self.dy = math.sin(self.rad) * 3
+		self.polygonList = gcommon.getAnglePoints([0,0], __class__.beamPoints, [7,1], self.rad)
+		#self.xpolygons = None
 
 	def update(self):
 		self.x += self.dx
 		self.y += self.dy
 		if self.x < -20 or self.x > 276:
 			self.remove()
+			return
 		elif self.y < -20 or self.y > gcommon.SCREEN_MAX_Y + 20:
 			self.remove()
+			return
+		#self.xpolygons = gcommon.getAnglePolygons([self.x, self.y], self.polygonList, [7,2], self.rad)
 
 	def draw(self):
 		if self.cnt & 2 == 0:
-			pyxel.line(self.x -self.dx * 2, self.y -self.dy * 2, self.x + self.dx * 2, self.y + self.dy * 2, 7)
+			Drawing.drawPolygonPos(self.x, self.y, self.polygonList, 7)
 		else:
-			pyxel.line(self.x -self.dx * 2, self.y -self.dy * 2, self.x + self.dx * 2, self.y + self.dy * 2, 10)
-
+			Drawing.drawPolygonPos(self.x, self.y, self.polygonList, 10)
 
 class MiddleBoss1(enemy.EnemyBase):
 	def __init__(self, t):
@@ -252,3 +260,92 @@ class MiddleBoss1Laser(enemy.EnemyBase):
 	def draw(self):
 		pyxel.blt(self.x, self.y, 2, 184, 0, 16, 4, gcommon.TP_COLOR)
 
+class ChangeDirectionLaser1(enemy.EnemyBase):
+	def __init__(self, x, y, rad, omega):
+		super(__class__, self).__init__()
+		self.x = x
+		self.y = y
+		self.rad = rad
+		self.omega = omega
+		self.speed = 1.0
+		self.left = 0
+		self.top = 0
+		self.right = 0
+		self.bottom = 0
+		self.layer = gcommon.C_LAYER_E_SHOT
+		self.ground = True
+		self.hitCheck = True
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+		self.phase1Time = 20
+		self.phase2Time = 20
+		self.laserLength = 20
+		# 終点へのオフセット
+		self.edx = 0.0
+		self.edy = 0.0
+		self.cycleCount = 0
+
+	def update(self):
+		if self.state == 0:
+			#gcommon.debugPrint("0:" + str(self.x) + " " + str(self.y))
+			# 視点から伸びる
+			self.left = -3
+			self.top = -3
+			self.right = 3
+			self.bottom = 3
+			self.edx = self.laserLength * math.cos(self.rad) * self.cnt / self.phase1Time
+			self.edy = self.laserLength * math.sin(self.rad) * self.cnt / self.phase1Time
+			if self.cnt >= self.phase1Time:
+				self.nextState()
+
+		elif self.state == 1:
+			#gcommon.debugPrint("1:" + str(self.x) + " " + str(self.y))
+			# 移動
+			dx = math.cos(self.rad) * self.speed
+			dy = math.sin(self.rad) * self.speed
+			self.x += dx
+			self.y += dy
+			self.left = self.edx -3
+			self.top = self.edy -3
+			self.right = self.left +6
+			self.bottom = self.top +6
+			if self.cnt >= self.phase2Time:
+				self.nextState()
+		
+		elif self.state == 2:
+			#gcommon.debugPrint("2:" + str(self.x) + " " + str(self.y))
+			# 終点に着き、縮む
+			#   始点と終点が入れ替える
+			if self.cnt == 0:
+				self.x = self.x + self.edx
+				self.y = self.y + self.edy
+			self.edx = -self.laserLength * math.cos(self.rad) * (self.phase1Time -self.cnt) / self.phase1Time
+			self.edy = -self.laserLength * math.sin(self.rad) * (self.phase1Time -self.cnt) / self.phase1Time
+			self.left = -3
+			self.top = -3
+			self.right = self.left +6
+			self.bottom = self.top +6
+			if self.cnt >= self.phase1Time:
+				self.cycleCount += 1
+				if self.cycleCount >= 10:
+					self.remove()
+				else:
+					self.rad += self.omega
+					self.setState(0)
+
+
+	def draw(self):
+		x1 = self.x
+		x2 = self.x + self.edx
+		y1 = self.y
+		y2 = self.y + self.edy
+		pyxel.line(x1, y1 -1, x2, y2-1, 9)
+		pyxel.line(x1, y1 +1, x2, y2+1, 9)
+		pyxel.line(x1-1, y1, x2-1, y2, 9)
+		pyxel.line(x1+1, y1, x2+1, y2, 9)
+		pyxel.line(x1, y1, x2, y2, 10)
+		sx = 48 if self.cnt & 4 == 0 else 56
+		if self.state in (0,2):
+			pyxel.blt(x1 -3, y1 -3, 2, sx, 120, 7, 7, 3)
+		if self.state == 1:
+			pyxel.blt(x2 -3, y2 -3, 2, sx, 120, 7, 7, 3)

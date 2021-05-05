@@ -56,6 +56,8 @@ class HomingBeam1(enemy.EnemyBase):
 		self.enemyShotCollision = False
 		self.speed = 3.0
 		self.homingTime = 45
+		# 角速度
+		self.omega = math.pi/60
 		self.posList = []
 
 	def update(self):
@@ -65,11 +67,11 @@ class HomingBeam1(enemy.EnemyBase):
 			if rr == 0.0:
 				pass
 			elif  rr > 0.0:
-				self.dr += math.pi/60
+				self.dr += self.omega
 				if self.dr >= math.pi*2:
 					self.dr -= math.pi*2
 			else:
-				self.dr -= math.pi/60
+				self.dr -= self.omega
 				if self.dr <= 0.0:
 					self.dr += math.pi*2
 		if self.cnt < 30:

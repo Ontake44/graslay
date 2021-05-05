@@ -228,7 +228,7 @@ class Story:
 			[4010, enemyMine.Mine1, 256, 97 *8, 90, -150],
 			[4400, enemyCreature.Worm3, 256, 8 * 87],
 			[4600, enemyCreature.Worm3, 256, 8 * 94],
-			[6100, bossCave.BossCave],
+			[6540, bossCave.BossCave],
 		]
 
 	@classmethod
