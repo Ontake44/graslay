@@ -507,5 +507,5 @@ class BossFactory(enemy.EnemyBase):
 		GameSession.addScore(self.score)
 		BGM.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		ObjMgr.objs.append(enemy.Delay(enemy.StageClear, [0,0,"5A"], 240))
+		ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
 

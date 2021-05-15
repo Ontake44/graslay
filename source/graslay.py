@@ -947,9 +947,6 @@ class App:
 		else:
 			self.startTitle()
 
-	def startStageClear(self, stage):
-		self.setScene(StageClear(stage))
-
 	def startEnding(self):
 		self.setScene(ending.EndingScene())
 

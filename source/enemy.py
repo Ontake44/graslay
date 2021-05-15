@@ -797,53 +797,6 @@ def drawBattery1(x, y, mirror):
 		elif dr8 == 7:
 			pyxel.blt(x, y, 1, 16, 96, -16, -16, gcommon.TP_COLOR)
 
-# class StageClearText(EnemyBase):
-# 	def __init__(self, stage):
-# 		super(StageClearText, self).__init__()
-# 		self.x = 0
-# 		self.y = 0
-# 		self.stage = stage
-# 		self.left = 0
-# 		self.top = 0
-# 		self.right = 0
-# 		self.bottom = 0
-# 		self.layer = gcommon.C_LAYER_TEXT
-
-# 	def update(self):
-# 		pass
-
-# 	def draw(self):
-# 		pyxel.blt(127-16*5/2, 90, 0, 0, 240, 80, 16, gcommon.TP_COLOR)
-# 		pyxel.blt(127-16/2, 114, 0, 146+ (self.stage -1)*16, 176, 16, 16, gcommon.TP_COLOR)
-# 		pyxel.blt(127-16*5/2, 138, 0, 80, 240, 80, 16, gcommon.TP_COLOR)
-
-
-# class Splash(EnemyBase):
-# 	def __init__(self, x, y, layer):
-# 		super(Splash, self).__init__()
-# 		self.t = gcommon.T_SKY_EXP
-# 		self.x = x
-# 		self.y = y
-# 		self.layer = layer
-# 		self.offset = random.random()
-
-# 	def update(self):
-# 		self.cnt += 1
-# 		if self.cnt > 100:
-# 			self.removeFlag = True
-
-# 	def draw(self):
-# 		gcommon.draw_splash2(self, self.offset)
-
-
-# 	def draw(self):
-# 		d = ((self.dr + 2) & 63)>>2
-# 		if d >= 8:
-# 			pyxel.blt(self.x, self.y, 2, (d -8) * 24, 16+24, 24, 24, gcommon.TP_COLOR)
-# 		else:
-# 			pyxel.blt(self.x, self.y, 2, d * 24, 16, 24, 24, gcommon.TP_COLOR)
-
-
 class SplashItem:
 	def __init__(self, x, y, dx, dy, cnt):
 		self.x = x
@@ -1857,7 +1810,10 @@ class Delay(EnemyBase):
 
 	def update(self):
 		if self.cnt == self.delayTime:
-			ObjMgr.addObj(self.cls(self.t))
+			if self.t != None:
+				ObjMgr.addObj(self.cls(self.t))
+			else:
+				ObjMgr.addObj(self.cls())
 			self.remove()
 
 	def draw(self):
@@ -1865,14 +1821,14 @@ class Delay(EnemyBase):
 
 
 class StageClear(EnemyBase):
-	def __init__(self, t):
+	def __init__(self):
 		super(StageClear, self).__init__()
 		self.layer = gcommon.C_LAYER_TEXT
 		self.x = gcommon.SCREEN_MAX_X +1
 		self.y = 90
 		self.hitCheck = False
 		self.shotHitCheck = False
-		self.stage = t[2]
+		self.stage = GameSession.stage
 		self.text = "STAGE " + self.stage + " CLEAR"
 		BGM.playOnce(BGM.STAGE_CLEAR)
 		ObjMgr.myShip.setSubScene(5)
