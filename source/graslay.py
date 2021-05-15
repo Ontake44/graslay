@@ -31,6 +31,7 @@ from mapDraw import MapDrawWarehouse
 from mapDraw import MapDraw3
 from mapDraw import MapDraw4
 from mapDraw import MapDrawFactory
+from mapDraw import MapDrawFire
 from mapDraw import MapDrawLast
 from mapDraw import MapData
 import stage
@@ -168,6 +169,13 @@ class StartMapDraw4:
 class StartMapDrawFactory:
 	def __init__(self, t):
 		ObjMgr.setDrawMap(MapDrawFactory())
+
+	def do(self):
+		pass
+
+class StartMapDrawFire:
+	def __init__(self, t):
+		ObjMgr.setDrawMap(MapDrawFire())
 
 	def do(self):
 		pass
@@ -662,7 +670,7 @@ class MainGame:
 		BGM.sound(gcommon.SOUND_LARGE_EXP, gcommon.SOUND_CH1)
 
 	def initEvent(self):
-		if self.stage == "1":
+		if self.stage == "1A":
 			self.initEvent1()
 		elif self.stage == "2A":
 			self.initEvent2()
@@ -676,6 +684,8 @@ class MainGame:
 			self.initEvent4()
 		elif self.stage == "5A":
 			self.initEventFactory()
+		elif self.stage == "5B":
+			self.initEventFire()
 		elif self.stage == "6A":
 			self.initEventLast()
 	
@@ -717,8 +727,8 @@ class MainGame:
 			[0, StartBGM, BGM.STAGE2],
 			[1300,SetMapScroll, 0.25, 0.25],	\
 			[3500,SetMapScroll, 0.50, 0.0],	\
-			[6100, StartBGM, BGM.BOSS],
-			[6460,SetMapScroll, 0.0, 0.0],	\
+			[5920, StartBGM, BGM.BOSS],
+			[6280,SetMapScroll, 0.0, 0.0],	\
 		]
 
 	def initEventWarehouse(self):
@@ -762,6 +772,12 @@ class MainGame:
 			[7800,EndMapDraw],		\
 		]
 
+	def initEventFire(self):
+		self.eventTable =[
+			[0, StartBGM, BGM.STAGE5],
+			[0, StartMapDrawFire],		\
+		]
+
 	def initEventLast(self):
 		baseOffset = 1200
 		self.eventTable =[ \
@@ -773,7 +789,7 @@ class MainGame:
 		]
 
 	def initStory(self):
-		if self.stage == "1":
+		if self.stage == "1A":
 			self.story = story.Story.getStory1()
 		elif self.stage == "2A":
 			self.story = story.Story.getStory2()
@@ -787,6 +803,8 @@ class MainGame:
 			self.story = story.Story.getStory4()
 		elif self.stage == "5A":
 			self.story = story.Story.getStoryFactory()
+		elif self.stage == "5B":
+			self.story = story.Story.getStoryFire()
 		elif self.stage == "6A":
 			self.story = story.Story.getStoryLast()
 
@@ -846,7 +864,7 @@ class App:
 		self.nextScene = nextScene
 
 	def startNormalGame(self, difficulty):
-		self.stage = "1"
+		self.stage = "1A"
 		#print("Difficulty : " + str(difficulty))
 		Settings.difficulty = difficulty
 		Settings.saveSettings()
@@ -861,7 +879,7 @@ class App:
 		#self.setScene(ending.EndingScene())
 
 	def startMainGame(self):
-		self.setScene(MainGame("1"))
+		self.setScene(MainGame("1A"))
 
 	def startCustomGame(self):
 		# debug
@@ -940,7 +958,7 @@ class App:
 		#self.setScene(stageSelect.StageSelectScene(self, "2A", {"1", "2A"}))
 
 	def startStageSelect(self):
-		self.setScene(stageSelect.StageSelectScene(self, "1", {}))
+		self.setScene(stageSelect.StageSelectScene(self, "2A", {}))
 
 	def startScoreRanking(self, exitTo):
 		self.setScene(ranking.RankingDispScene(exitTo))

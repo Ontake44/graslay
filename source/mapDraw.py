@@ -218,8 +218,10 @@ class MapDrawCave:
 				pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, 2)
 
 	def draw2(self):
-		wy = gcommon.waterSurface_y - gcommon.map_y
-		if wy >= 0 and wy <= gcommon.SCREEN_MAX_Y:
+		wy = int(gcommon.waterSurface_y - gcommon.map_y)
+		if wy < 0:
+			wy = 0
+		if wy <= gcommon.SCREEN_MAX_Y:
 			Drawing.setBrightness1()
 			pyxel.blt(0, wy, 4, 0, wy, 256, 200)
 			pyxel.pal()
@@ -681,6 +683,87 @@ class MapDrawFactory:
 
 	def draw2(self):
 		pass
+
+class MapDrawFire:
+	def __init__(self):
+		self.cnt = 0
+		self.shiftList = []
+		for i in range(32):
+			n = int(5* math.sin(i * math.pi/16))
+			self.shiftList.append(n)
+	
+	def init(self):
+		gcommon.map_x = 0 * 8
+		gcommon.map_y = 0*8
+		gcommon.back_map_x = 0		#-32 * 8/2
+		gcommon.back_map_y = 0
+		gcommon.mapHeight = 8 * 256
+
+	def update0(self, skip):
+		pass
+
+	def update(self, skip):
+		if skip == False:
+			# スキップ時はマップデータやオブジェクト追加しない
+			for i in range(0, 128):
+				my = 127 -i
+				mx = gcommon.screenPosToMapPosX(256)
+				n = gcommon.getMapDataByMapPosPage(0, mx, my)
+				doMapCharacter(n, mx, my)
+		gcommon.map_x += gcommon.cur_scroll_x
+		gcommon.map_y += gcommon.cur_scroll_y
+		gcommon.back_map_x += gcommon.cur_scroll_x/2
+		self.cnt += 1
+
+	def drawBackground(self):
+		pass
+		# if gcommon.back_map_x < 0:
+		# 	pyxel.bltm(-1 * int(gcommon.back_map_x), 0, 7, 0, 24,33,33,3)
+		# else:
+		# 	mx = (int)(gcommon.back_map_x/8)
+		# 	pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 7, mx, 24,33,33, 3)
+
+	def draw(self):
+		tm = 2
+		# if gcommon.map_x < 0:
+		# 	pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), tm, 0, (int)(gcommon.map_y/8),33,33, 3)
+		# else:
+		# 	#tm = 1 + int(gcommon.map_x/4096)
+		# 	moffset = (int(gcommon.map_x/2048) & 1) * 128
+		# 	w = int((gcommon.map_x %2048)/8)
+		# 	pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, 3)
+		# 	if w >= 224:
+		# 		tm2 = tm + int((gcommon.map_x+256)/4096)
+		# 		moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
+		# 		pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, 3)
+		m = ((self.cnt>>3) % 3) * 7
+		pyxel.bltm(-1 * (int(gcommon.map_x) % 8), 0, tm, (int)(gcommon.map_x/8), m,33, 7, 3)
+		count = 7 *8
+		y = 0
+		while( count > 0 ):
+			#pyxel.blt(0, y -1, 4, 8 + self.shiftList[(int(self.cnt>>3)) & 31], y, 256, 1)
+			offset = 8 + self.shiftList[(y +int(self.cnt>>2)) & 31]
+			pyxel.blt(0, 192- 7*8 + y, 4, offset, y, 256, 1)
+			pyxel.blt(256 -offset, 192- 7*8 + y, 4, 0, y, offset, 1)
+			count -=1
+			y += 1
+		pyxel.blt(0, 0, 4, 0, 192 -7*8, 256, -7*8)
+
+	def draw2(self):
+		pass
+		# tm = 0
+		# if gcommon.map_x < 0:
+		# 	pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), tm, 0, (int)(gcommon.map_y/8),33,33, 3)
+		# else:
+		# 	#tm = 1 + int(gcommon.map_x/4096)
+		# 	moffset = (int(gcommon.map_x/2048) & 1) * 128
+		# 	w = int((gcommon.map_x %2048)/8)
+		# 	pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, 3)
+		# 	if w >= 224:
+		# 		tm2 = int((gcommon.map_x+256)/4096)
+		# 		moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
+		# 		pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, 3)
+
 
 class MapDrawLast:
 	def __init__(self):

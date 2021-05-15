@@ -10,6 +10,7 @@ from enemy import CountMover
 import enemy
 from gameSession import GameSession
 
+# 蝙蝠みたい？
 class Fighter4(EnemyBase):
     def __init__(self, t):
         super(Fighter4, self).__init__()
@@ -132,3 +133,4 @@ class Fighter4Group(EnemyBase):
 
     def draw(self):
         pass
+

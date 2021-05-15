@@ -24,11 +24,13 @@ tank1_spmap=[64,0,0,0,32,0,0,0]
 
 
 def enemy_shot(x, y, speed, shotType):
-	ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, 0))
+	if gcommon.get_distance_my(x, y) > gcommon.ENEMY_SHOT_DISTANCE:
+		ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, 0))
 	#ObjMgr.objs.append(EnemyShot(x, y, speed, shotType, -1, 0))
 
 def enemy_shot_offset(x, y, speed, shotType, offsetDr):
-	ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, offsetDr))
+	if gcommon.get_distance_my(x, y) > gcommon.ENEMY_SHOT_DISTANCE:
+		ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, offsetDr))
 
 def enemy_shot_multi(x, y, speed, shotType, count, angleDr):
 	for i in range(count):
@@ -172,7 +174,7 @@ class EnemyBase:
 #    [2] aax 変位加速度 0.95とか
 #    [3] aay 変位加速度
 #  mode = 5  ※to cntは使用しない
-#    指定座標に移動
+#    指定座標に移動  -9999 で座標維持
 #    [2] 移動先座標X
 #    [3] 移動先座標Y
 #    [4] 速度
@@ -207,14 +209,31 @@ class CountMover:
 		item = self.table[self.tableIndex]
 		if item[1] == 5:
 			# 移動先座標指定
-			rad = math.atan2(item[3] -self.obj.y, item[2] -self.obj.x)
-			self.dx = math.cos(rad) * item[4]
-			self.dy = math.sin(rad) * item[4]
-			self.obj.x += self.dx
-			self.obj.y += self.dy
-			xx = item[2] -self.obj.x
-			yy = item[3] -self.obj.y
-			if math.sqrt(xx*xx + yy*yy) < item[4]:
+			if item[2] == -9999:
+				# X座標変化なし
+				self.dx = 0
+				self.dy = item[4]
+				self.obj.x += self.dx
+				self.obj.y += self.dy
+				xx = 0
+				yy = item[3] -self.obj.y
+			elif item[3] == -9999:
+				# Y座標変化なし
+				self.dx = item[4]
+				self.dy = 0
+				self.obj.x += self.dx
+				self.obj.y += self.dy
+				xx = item[2] -self.obj.x
+				yy = 0
+			else:
+				rad = math.atan2(item[3] -self.obj.y, item[2] -self.obj.x)
+				self.dx = math.cos(rad) * item[4]
+				self.dy = math.sin(rad) * item[4]
+				self.obj.x += self.dx
+				self.obj.y += self.dy
+				xx = item[2] -self.obj.x
+				yy = item[3] -self.obj.y
+			if math.sqrt(xx*xx + yy*yy) < abs(item[4]):
 				self.nextTable()
 
 		elif self.cnt <= item[0]:

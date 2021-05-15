@@ -253,6 +253,25 @@ class Drawing:
         pyxel.pal(15, 7)
 
     @classmethod
+    def setUnderwaterColor(cls):
+        pyxel.pal(0, 1)
+        pyxel.pal(1, 5)
+        pyxel.pal(2, 1)
+        pyxel.pal(3, 1)
+        pyxel.pal(4, 2)
+        pyxel.pal(5, 1)
+        pyxel.pal(6, 12)
+        pyxel.pal(7, 13)
+        pyxel.pal(8, 2)
+        pyxel.pal(9, 4)
+        pyxel.pal(10, 9)
+        pyxel.pal(11, 3)
+        pyxel.pal(12, 6)
+        pyxel.pal(13, 5)
+        pyxel.pal(14, 8)
+        pyxel.pal(15, 14)
+
+    @classmethod
     def setBrightnessMinus1(cls):
         pyxel.pal(1, 0)
         pyxel.pal(2, 1)

@@ -16,7 +16,7 @@ DIFFICULTY_HARD = 2
 
 difficultyText = (" EASY ", "NORMAL", " HARD ")
 
-stageList = ("1", "2A", "2B", "3A", "3B", "4A", "5A", "6A")
+stageList = ("1A", "2A", "2B", "3A", "3B", "4A", "5A", "5B", "6A")
 
 
 # 機体種別
@@ -34,6 +34,8 @@ B_WEAPON_TAILGUN = 1
 B_WEAPON_LASER = 2
 B_WEAPON_RIPPLE = 3
 
+# これ以上自機に近いと敵弾を発射しないという距離
+ENEMY_SHOT_DISTANCE = 32
 
 PAUSE_NONE = 0		# ゲーム中
 PAUSE_PAUSE = 1		# PAUSE
@@ -942,3 +944,15 @@ def debugPrint(s):
 	if DebugMode:
 		print(s)
 
+def getShrinkList(lst):
+	newList = []
+	for item in lst:
+		if item != None and item.removeFlag == False:
+			newList.append(item)
+	return newList
+
+def breakObjects(objs):
+	if objs != None:
+		for obj in objs:
+			if obj != None and obj.removeFlag == False:
+				obj.broken()

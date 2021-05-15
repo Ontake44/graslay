@@ -22,7 +22,7 @@ class GameSession:
 
 	@classmethod
 	def initNormal(cls, difficulty):
-		__class__.init(difficulty, Defaults.INIT_PLAYER_STOCK, gcommon.GAMEMODE_NORMAL, "1", Settings.credits)
+		__class__.init(difficulty, Defaults.INIT_PLAYER_STOCK, gcommon.GAMEMODE_NORMAL, "1A", Settings.credits)
 
 	@classmethod
 	def init(cls, difficulty, playerStock, gameMode, stage, credits):

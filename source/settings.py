@@ -5,7 +5,7 @@ import os
 import gcommon
 
 class Defaults:
-	INIT_START_STAGE = "1"
+	INIT_START_STAGE = "1A"
 	INIT_WEAPON_TYPE = gcommon.WeaponType.TYPE_A
 	# 残機
 	INIT_PLAYER_STOCK = 3
@@ -38,7 +38,7 @@ class Settings:
             settingsPath = os.path.join(os.path.expanduser("~"), cls.SETTINGS_FILE)
 
             playerStock = 3
-            startStage = "1"
+            startStage = "1A"
             bgmVol = 6
             soundVol = 10
             mouseEnabled = "1"

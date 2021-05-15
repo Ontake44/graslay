@@ -33,12 +33,13 @@ class StageLinkManager:
         # stage6F = StageInfo("6F", 6, False, None)
 
         stage5A = StageInfo("5A", 5, True, [stage6A])
+        stage5B = StageInfo("5B", 5, True, [stage6A])
         # stage5B = StageInfo("5B", 5, False, [stage6B, stage6C])
         # stage5C = StageInfo("5C", 5, False, [stage6C, stage6D])
         # stage5D = StageInfo("5D", 5, False, [stage6D, stage6E])
         # stage5E = StageInfo("5E", 5, False, [stage6E, stage6F])
 
-        stage4A = StageInfo("4A", 4, True, [stage5A])
+        stage4A = StageInfo("4A", 4, True, [stage5A, stage5B])
         # stage4B = StageInfo("4B", 4, True, [stage5B, stage5C])
         # stage4C = StageInfo("4C", 4, False, [stage5C, stage5D])
         # stage4D = StageInfo("4D", 4, False, [stage5D, stage5E])
@@ -49,7 +50,7 @@ class StageLinkManager:
         stage2A = StageInfo("2A", 2, True, [stage3A, stage3B])
         stage2B = StageInfo("2B", 2, True, [stage3A, stage3B])
 
-        self.stageRoot = StageInfo("1", 1, True, [stage2A, stage2B])
+        self.stageRoot = StageInfo("1A", 1, True, [stage2A, stage2B])
         self.stageRoot.x = 16
         self.stageRoot.y = 100
         dx = 40
@@ -64,7 +65,9 @@ class StageLinkManager:
         stage4A.x = stage3A.x +dx 
         stage4A.y = self.stageRoot.y
         stage5A.x = stage4A.x +dx 
-        stage5A.y = self.stageRoot.y
+        stage5A.y = self.stageRoot.y -12
+        stage5B.x = stage4A.x +dx 
+        stage5B.y = self.stageRoot.y +12
         stage6A.x = stage5A.x +dx 
         stage6A.y = self.stageRoot.y
 
@@ -112,7 +115,7 @@ class Stage:
         pyxel.tilemap(0).refimg = 1
         gcommon.waterSurface_y = 256 * 8.0
 
-        if stage == "1":
+        if stage == "1A":
             #pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
             pyxel.image(1).load(0,0,"assets/graslay1.png")
             gcommon.sync_map_y = 0
@@ -156,9 +159,9 @@ class Stage:
             gcommon.long_map = True
             gcommon.draw_star = False
             gcommon.eshot_sync_scroll = False
-            MapData.loadMapData(0, "assets/stage_warehouse0.pyxmap")
-            MapData.loadMapData(2, "assets/stage_warehouse1.pyxmap")
-            MapData.loadMapData(7, "assets/stage_warehouseb.pyxmap")
+            MapData.loadMapData(0, "assets/stage_warehouse0.pyxmap")    # 手前に見えるマップ
+            MapData.loadMapData(2, "assets/stage_warehouse1.pyxmap")    # 奥に見えるマップ
+            MapData.loadMapData(7, "assets/stage_warehouseb.pyxmap")    # 遠景
             pyxel.tilemap(0).refimg = 1
             pyxel.tilemap(2).refimg = 1
             pyxel.tilemap(7).refimg = 1  # background
@@ -200,6 +203,19 @@ class Stage:
             MapData.loadMapData(1, "assets/graslay_factoryb.pyxmap")
             MapData.loadMapAttribute("assets/graslay_factory.mapatr")
             pyxel.tilemap(1).refimg = 1
+        elif stage == "5B":
+            # 火
+            pyxel.image(1).load(0,0,"assets/stage_fire.png")
+            gcommon.sync_map_y = 0
+            gcommon.long_map = True
+            gcommon.draw_star = True
+            gcommon.eshot_sync_scroll = False
+            MapData.loadMapData(0, "assets/stage_fire0.pyxmap")    # 基地
+            MapData.loadMapData(2, "assets/stage_fire1.pyxmap")    # 火
+            MapData.loadMapData(7, "assets/stage_fireb.pyxmap")    # 遠景？
+            MapData.loadMapAttribute("assets/stage_fire.mapatr")
+            pyxel.tilemap(0).refimg = 1
+            pyxel.tilemap(2).refimg = 1
         elif stage == "6A":
             # 最終ステージ
             pyxel.image(1).load(0,0,"assets/graslay_last.png")

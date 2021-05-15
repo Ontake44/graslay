@@ -243,7 +243,7 @@ class Ducker1(EnemyBase):
 		pass
 
 
-# 植物砲台
+# 植物砲台（大）
 class PlantBattery1(EnemyBase):
 	def __init__(self, t):
 		super(PlantBattery1, self).__init__()
@@ -277,6 +277,12 @@ class PlantBattery1(EnemyBase):
 			self.setState(1)
 		if self.state == 1:
 			if self.cnt == 10:
+				if self.mirror:
+					if self.y < 28:
+						return
+				else:
+					if self.y > (gcommon.SCREEN_MAX_Y -28):
+						return
 				shotY = 48
 				if self.mirror != 0:
 					shotY = 16
@@ -287,7 +293,7 @@ class PlantBattery1(EnemyBase):
 					shotCount = 6
 				else:
 					shotCount = 8
-				enemy.enemy_shot_dr_multi(self.x +27.5, self.y + self.mirror * 24, 2, 0, shotY, shotCount, 3)
+				enemy.enemy_shot_dr_multi(self.x +27.5, self.y + self.mirror * 24, 2, 0, shotY, shotCount, 4)
 			elif self.cnt > 30:
 				self.state = 2
 		elif self.state == 2:
@@ -308,7 +314,7 @@ class PlantBattery1(EnemyBase):
 		else:
 			pyxel.blt(self.x +16, self.y, 2, 16, 40, 24, 24 * ssy, 3)
 
-# 植物砲台
+# 植物砲台（小）
 class PlantBattery2(EnemyBase):
 	def __init__(self, t):
 		super(PlantBattery2, self).__init__()
@@ -350,8 +356,9 @@ class PlantBattery2(EnemyBase):
 				self.setState(1)
 
 	def draw(self):
+		sx = 72 if self.cnt & 16 == 0 else 96
 		ssy = 1
 		if self.mirror:
 			ssy = -1
-		pyxel.blt(self.x, self.y, 2, 72, 16, 24, 24 * ssy, 3)
+		pyxel.blt(self.x, self.y, 2, sx, 16, 24, 24 * ssy, 3)
 

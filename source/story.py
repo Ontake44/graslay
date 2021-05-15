@@ -228,7 +228,13 @@ class Story:
 			[4010, enemyMine.Mine1, 256, 97 *8, 90, -150],
 			[4400, enemyCreature.Worm3, 256, 8 * 87],
 			[4600, enemyCreature.Worm3, 256, 8 * 94],
-			[6540, bossCave.BossCave],
+			[4900, enemyCreature.Worm3, 256, 8 * 87],
+			[4960, enemyCreature.Worm3, 256, 8 * 90],
+			[5020, enemyCreature.Worm3, 256, 8 * 94],
+			[5600, enemyCreature.Worm3, 256, 8 * 94],
+			[5690, enemyCreature.Worm3, 256, 8 * 87],
+			[5780, enemyCreature.Worm3, 256, 8 * 90],
+			[6360, bossCave.BossCave],
 		]
 
 	@classmethod
@@ -564,6 +570,11 @@ class Story:
 			[4630, enemy.Jumper1, 256, 30, 0.05],		\
 			[6700, enemyOthers.ArrowOnScreen, 120, 50, 0, "WARNING!", 180],
 			[6850, bossFactory.BossFactory, 0, 0],		\
+		]
+
+	@classmethod
+	def getStoryFire(cls):
+		return [
 		]
 
 	@classmethod

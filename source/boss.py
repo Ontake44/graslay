@@ -19,6 +19,7 @@ BOSS_LAST_2 = 4000
 BOSS_LAST_3 = 7000
 BOSS_LAST_CORE_HP = 1200
 BOSS_WAREHOUSE_HP = 7000
+BOSS_CAVE_HP = 7000
 
 # def remove_all_battery():
 # 	for obj in ObjMgr.objs:
@@ -349,3 +350,64 @@ class ChangeDirectionLaser1(enemy.EnemyBase):
 			pyxel.blt(x1 -3, y1 -3, 2, sx, 120, 7, 7, 3)
 		if self.state == 1:
 			pyxel.blt(x2 -3, y2 -3, 2, sx, 120, 7, 7, 3)
+
+
+class DelayedShotLaser1(enemy.EnemyBase):
+	def __init__(self, x, y, rad):
+		super(__class__, self).__init__()
+		self.x = x
+		self.y = y
+		self.rad = rad
+		self.speed = 2.0
+		self.left = -3
+		self.top = -3
+		self.right = 3
+		self.bottom = 3
+		self.layer = gcommon.C_LAYER_E_SHOT
+		self.ground = True
+		self.hitCheck = True
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+		self.phase1Time = 20
+		self.phase2Time = 20
+		self.laserLength = 20
+		self.dx = 0.0
+		self.dy = 0.0
+		self.cycleCount = 0
+		self.ex = 0.0
+		self.ey = 0.0
+
+	def update(self):
+		if self.state == 0:
+			# 射出前
+			if self.cnt >= self.phase1Time:
+				self.dx = math.cos(self.rad) * self.speed
+				self.dy = math.sin(self.rad) * self.speed
+				self.ex = math.cos(self.rad) * 8
+				self.ey = math.sin(self.rad) * 8
+				self.x += self.ex
+				self.y += self.ey
+				self.nextState()
+
+		elif self.state == 1:
+			# 移動
+			self.x += self.dx
+			self.y += self.dy
+			if self.x < -12 or self.x > gcommon.SCREEN_MAX_X +12 or self.y < -12 or self.y > gcommon.SCREEN_MAX_Y +12:
+				self.remove()
+
+		
+	def draw(self):
+		if self.state == 0:
+			sx = 48 if self.cnt & 4 == 0 else 56
+			pyxel.blt(self.x -3, self.y -3, 2, sx, 120, 7, 7, 3)
+		else:
+			x1 = self.x + self.ex
+			x2 = self.x - self.ex
+			y1 = self.y + self.ey
+			y2 = self.y - self.ey
+			pyxel.line(x1, y1 -1, x2, y2-1, 9)
+			pyxel.line(x1, y1 +1, x2, y2+1, 9)
+			pyxel.line(x1-1, y1, x2-1, y2, 9)
+			pyxel.line(x1+1, y1, x2+1, y2, 9)
+			pyxel.line(x1, y1, x2, y2, 10)
