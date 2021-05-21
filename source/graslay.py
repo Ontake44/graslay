@@ -409,6 +409,9 @@ class MainGame:
 				obj.frameCount += 1
 				if obj.removeFlag == False:
 					newObjs.append(obj)
+		for obj in ObjMgr.insertObjs:
+			newObjs.append(obj)
+		ObjMgr.insertObjs.clear()
 		ObjMgr.objs = newObjs
 
 		self.Collision()

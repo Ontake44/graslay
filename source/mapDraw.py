@@ -1,10 +1,12 @@
 import math
+from typing import get_origin
 import pyxel
 import gcommon
 import enemy
 import item
 import enemyBattery
 import enemyCreature
+import enemyOthers
 from objMgr import ObjMgr
 from gameSession import GameSession
 from drawing import Drawing
@@ -17,6 +19,18 @@ def doMapCharacter(n, mx, my):
 	elif n in (428, 429):
 		gcommon.setMapDataByMapPos(mx, my, 0)
 		ObjMgr.addObj(item.OneUpItem1(mx, my, (n==429)))
+		return True
+	else:
+		return False
+
+def doMapCharacter2(n, mx, my, tbl):
+	if n in (tbl[0], tbl[0]+1):
+		gcommon.setMapDataByMapPos(mx, my, 0)
+		ObjMgr.addObj(item.ScoreItem1(mx, my, (n==tbl[0]+1)))
+		return True
+	elif n in (tbl[1], tbl[1]+1):
+		gcommon.setMapDataByMapPos(mx, my, 0)
+		ObjMgr.addObj(item.OneUpItem1(mx, my, (n==tbl[1]+1)))
 		return True
 	else:
 		return False
@@ -694,7 +708,7 @@ class MapDrawFire:
 	
 	def init(self):
 		gcommon.map_x = 0 * 8
-		gcommon.map_y = 0*8
+		gcommon.map_y = 0 *8
 		gcommon.back_map_x = 0		#-32 * 8/2
 		gcommon.back_map_y = 0
 		gcommon.mapHeight = 8 * 256
@@ -709,7 +723,16 @@ class MapDrawFire:
 				my = 127 -i
 				mx = gcommon.screenPosToMapPosX(256)
 				n = gcommon.getMapDataByMapPosPage(0, mx, my)
-				doMapCharacter(n, mx, my)
+				if n in (964, 965):
+					# 砲台
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					ObjMgr.addObj(enemyBattery.FireBattery1(mx, my, 0 if n == 964 else 1))
+				elif n in (966, 967):
+					# 炎
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					ObjMgr.addObj(enemyOthers.FireChimney1(mx, my, -1 if n == 966 else 1, 60))
+				else:
+					doMapCharacter(n, mx, my)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 		gcommon.back_map_x += gcommon.cur_scroll_x/2
@@ -750,19 +773,19 @@ class MapDrawFire:
 		pyxel.blt(0, 0, 4, 0, 192 -7*8, 256, -7*8)
 
 	def draw2(self):
-		pass
-		# tm = 0
-		# if gcommon.map_x < 0:
-		# 	pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), tm, 0, (int)(gcommon.map_y/8),33,33, 3)
-		# else:
-		# 	#tm = 1 + int(gcommon.map_x/4096)
-		# 	moffset = (int(gcommon.map_x/2048) & 1) * 128
-		# 	w = int((gcommon.map_x %2048)/8)
-		# 	pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, 3)
-		# 	if w >= 224:
-		# 		tm2 = int((gcommon.map_x+256)/4096)
-		# 		moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
-		# 		pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, 3)
+		#tm = 0
+		#pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), (int)(gcommon.map_y/8),33,25, 3)
+		tm = 0
+		if gcommon.map_x < 0:
+			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), tm, 0, (int)(gcommon.map_y/8),33,33, 3)
+		else:
+			moffset = (int(gcommon.map_x/2048) & 1) * 128
+			w = int((gcommon.map_x %2048)/8)
+			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, 3)
+			if w >= 224:
+				tm2 = tm + int((gcommon.map_x+256)/4096)
+				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
+				pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, 3)
 
 
 class MapDrawLast:

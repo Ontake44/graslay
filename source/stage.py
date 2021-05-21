@@ -206,6 +206,7 @@ class Stage:
         elif stage == "5B":
             # 火
             pyxel.image(1).load(0,0,"assets/stage_fire.png")
+            pyxel.image(2).load(0,0,"assets/stage_fire2.png")
             gcommon.sync_map_y = 0
             gcommon.long_map = True
             gcommon.draw_star = True

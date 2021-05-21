@@ -362,3 +362,10 @@ class PlantBattery2(EnemyBase):
 			ssy = -1
 		pyxel.blt(self.x, self.y, 2, sx, 16, 24, 24 * ssy, 3)
 
+class FireBattery1(enemy.Battery0):
+	def __init__(self, mx, my, mirror):
+		pos = gcommon.mapPosToScreenPos(mx, my)
+		super(__class__, self).__init__(pos[0], pos[1], mirror)
+		self.imageSourceIndex = 2
+		self.imageSourceX = 0
+		self.imageSourceY = 80

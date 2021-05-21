@@ -1,3 +1,4 @@
+from typing import get_origin
 import pyxel
 import math
 import random
@@ -336,3 +337,55 @@ class Bat1a(EnemyBase):
             pyxel.blt(self.x, self.y, 2, 0, 0, width, 16, 0)
         else:
             pyxel.blt(self.x, self.y, 2, 48, 0, width, 16, 0)
+
+
+class FireWorm1(EnemyBase):
+    imageTable = [
+        [0, -1, 1], [1, -1, 1], [2, -1, 1], [3, -1, 1],
+        [4, 1, 1], [3, 1, 1], [2, 1, 1], [1, 1, 1],
+        [0, 1, 1], [1, 1, -1], [2, 1, -1], [3, 1, -1],
+        [4, 1, -1], [3, -1, -1], [2, -1, -1], [1, -1, -1]
+    ]
+    def __init__(self, t):
+        super(__class__, self).__init__()
+        self.x = t[2]
+        self.y = t[3]
+        self.moveTable = t[5]
+        self.layer = gcommon.C_LAYER_GRD
+        self.ground = True
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.mover = CountMover(self, self.moveTable, False)
+        self.mover.deg = t[4]
+        self.cellCount = 12
+        self.cellDelay = 20
+        self.cellList = []
+        for i in range(self.cellCount * self.cellDelay):
+            self.cellList.append([self.x, self.y, self.mover.deg])
+    
+    def update(self):
+        self.mover.update()
+        for c in self.cellList:
+            c[0] -= gcommon.cur_scroll_x
+        self.cellList.insert(0, [self.x, self.y, self.mover.deg])
+        if len(self.cellList) > (self.cellCount *  self.cellDelay +1):
+            self.cellList.pop()
+        
+    def draw(self):
+        index = self.cellCount * self.cellDelay -self.cellDelay
+        tail = True
+        for i in range(self.cellCount):
+            if index >= 0 and index < len(self.cellList):
+                if tail:
+                    self.drawCell(self.cellList[index][0], self.cellList[index][1], self.cellList[index][2] +180)
+                    tail = False
+                else:
+                    self.drawCell(self.cellList[index][0], self.cellList[index][1], self.cellList[index][2])
+                index -= self.cellDelay
+
+    def drawCell(self, x, y, deg):
+        n = int((deg +360/32) * 16/360) & 15
+        tbl = __class__.imageTable[n]
+        pyxel.blt(x -19.5, y -19.5, 2, tbl[0] *40, 0, 40 * tbl[1], 40 * tbl[2], 2)
+
+

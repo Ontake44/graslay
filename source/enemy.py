@@ -179,7 +179,7 @@ class EnemyBase:
 #    [3] 移動先座標Y
 #    [4] 速度
 #  mode = 6
-#    回転移動
+#    回転移動（ラジアン指定）
 #    [2] 初期角度
 #    [3] 角速度
 #    [4] 速度
@@ -187,6 +187,11 @@ class EnemyBase:
 #    指定座標にセット ※to cntは使用しない
 #    [2] X
 #    [3] Y
+#  mode = 8
+#    回転移動（度数指定）
+#    [2] 初期角度
+#    [3] 角速度
+#    [4] 速度
 #  mode = 100
 #    指定インデックスに移動
 #    [2] インデックス
@@ -202,6 +207,7 @@ class CountMover:
 		self.dx = 0.0
 		self.dy = 0.0
 		self.rad = 0.0
+		self.deg = 0.0
 
 	def update(self):
 		if self.isEnd:
@@ -271,6 +277,18 @@ class CountMover:
 				self.x = item[2]
 				self.y = item[3]
 				self.nextTable()
+			elif mode == 8:
+				if self.cnt == 0:
+					self.deg = item[2]
+				rad = math.radians(self.deg)
+				self.dx = item[4] * math.cos(rad)
+				self.dy = item[4] * math.sin(rad)
+				self.obj.x += self.dx
+				self.obj.y += self.dy
+				self.deg += item[3]
+				self.deg = math.fmod(self.deg, 360.0)
+				if self.deg < 0:
+					self.deg += 360.0
 			elif mode == 100:
 				self.tableIndex = item[2]
 				self.cnt = 0
@@ -723,17 +741,14 @@ class RollingFighter1Group(EnemyBase):
 	def draw(self):
 		pass
 
-
-
 #
 # 砲台
-class Battery1(EnemyBase):
-	def __init__(self, t):
-		super(Battery1, self).__init__()
-		pos = gcommon.mapPosToScreenPos(t[2], t[3])
-		self.x = pos[0]		# map x
-		self.y = pos[1]		# map y
-		self.mirror = t[4]	# 0: normal 1:上下逆
+class Battery0(EnemyBase):
+	def __init__(self, x, y, mirror):
+		super(__class__, self).__init__()
+		self.x = x		# screen x
+		self.y = y		# screen y
+		self.mirror = mirror	# 0 or 1
 		self.left = 2
 		self.right = 13
 		if self.mirror == 0:
@@ -753,49 +768,64 @@ class Battery1(EnemyBase):
 		self.first = int(120 / GameSession.enemy_shot_rate)
 		self.shot_speed = 2
 		self.remove_min_x = -16
+		self.imageSourceX = 0
+		self.imageSourceY = 96
+		self.imageSourceIndex = 1
+		gcommon.debugPrint("interval=" + str(self.interval))
 
 	def update(self):
 		if self.x < self.remove_min_x:
 			self.remove()
 			return
-		if self.first == self.cnt or self.cnt % self.interval ==0:
+		if self.cnt != 0 and (self.first == self.cnt or self.cnt % self.interval ==0):
 			enemy_shot(self.x+8,self.y+6, self.shot_speed, 0)
 
 	def draw(self):
-		drawBattery1(self.x, self.y, self.mirror)
+		drawBattery0(self.x, self.y, self.mirror, self.imageSourceIndex, self.imageSourceX, self.imageSourceY)
 
 def drawBattery1(x, y, mirror):
+	drawBattery0(x, y, mirror, 1, 0, 96)
+
+def drawBattery0(x, y, mirror, srcIndex, srcX, srcY):
 	dr8 = 0
 	dr8 = gcommon.get_direction_my(x+8, y +8)
 	y = int(y)
 	if mirror == 0:
 		if dr8  in (0, 1):
-			pyxel.blt(x, y, 1, 0, 96, -16, 16, gcommon.TP_COLOR)
+			pyxel.blt(x, y, srcIndex, srcX +0, srcY, -16, 16, gcommon.TP_COLOR)
 		elif dr8 == 2:
-			pyxel.blt(x, y, 1, 32, 96, 16, 16, gcommon.TP_COLOR)
+			pyxel.blt(x, y, srcIndex, srcX +32, srcY, 16, 16, gcommon.TP_COLOR)
 		elif dr8 in (3, 4):
-			pyxel.blt(x, y, 1, 0, 96, 16, 16, gcommon.TP_COLOR)
+			pyxel.blt(x, y, srcIndex, srcX +0, srcY, 16, 16, gcommon.TP_COLOR)
 		elif dr8 in (5, 6):
-			pyxel.blt(x, y, 1, 16, 96, 16, 16, gcommon.TP_COLOR)
+			pyxel.blt(x, y, srcIndex, srcX +16, srcY, 16, 16, gcommon.TP_COLOR)
 		elif dr8 == 7:
-			pyxel.blt(x, y, 1, 16, 96, -16, 16, gcommon.TP_COLOR)
+			pyxel.blt(x, y, srcIndex, srcX +16, srcY, -16, 16, gcommon.TP_COLOR)
 	else:
 		if dr8 == 0:
-			pyxel.blt(x, y, 1, 0, 96, -16, -16, gcommon.TP_COLOR)
+			pyxel.blt(x, y, srcIndex, srcX +0, srcY, -16, -16, gcommon.TP_COLOR)
 		elif dr8 == 1:
-			pyxel.blt(x, y, 1, 16, 96, -16, -16, gcommon.TP_COLOR)
+			pyxel.blt(x, y, srcIndex, srcX +16, srcY, -16, -16, gcommon.TP_COLOR)
 		elif dr8 == 2:
-			pyxel.blt(x, y, 1, 32, 96, 16, -16, gcommon.TP_COLOR)
+			pyxel.blt(x, y, srcIndex, srcX +32, srcY, 16, -16, gcommon.TP_COLOR)
 		elif dr8 == 3:
-			pyxel.blt(x, y, 1, 16, 96, 16, -16, gcommon.TP_COLOR)
+			pyxel.blt(x, y, srcIndex, srcX +16, srcY, 16, -16, gcommon.TP_COLOR)
 		elif dr8 == 4:
-			pyxel.blt(x, y, 1, 0, 96, 16, -16, gcommon.TP_COLOR)
+			pyxel.blt(x, y, srcIndex, srcX +0, srcY, 16, -16, gcommon.TP_COLOR)
 		elif dr8 == 5:
-			pyxel.blt(x, y, 1, 0, 96, 16, -16, gcommon.TP_COLOR)
+			pyxel.blt(x, y, srcIndex, srcX +0, srcY, 16, -16, gcommon.TP_COLOR)
 		elif dr8 == 6:
-			pyxel.blt(x, y, 1, 32, 96, 16, -16, gcommon.TP_COLOR)
+			pyxel.blt(x, y, srcIndex, srcX +32, srcY, 16, -16, gcommon.TP_COLOR)
 		elif dr8 == 7:
-			pyxel.blt(x, y, 1, 16, 96, -16, -16, gcommon.TP_COLOR)
+			pyxel.blt(x, y, srcIndex, srcX +16, srcY, -16, -16, gcommon.TP_COLOR)
+
+#
+# 砲台
+class Battery1(Battery0):
+	def __init__(self, t):
+		pos = gcommon.mapPosToScreenPos(t[2], t[3])
+		super(Battery1, self).__init__(pos[0], pos[1], t[4])
+
 
 class SplashItem:
 	def __init__(self, x, y, dx, dy, cnt):

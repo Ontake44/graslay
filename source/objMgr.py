@@ -13,6 +13,7 @@ class ObjMgr:
 
 	# 敵
 	objs = []
+	insertObjs = []
 
 	nextDrawMap = None
 	drawMap = None
@@ -31,12 +32,18 @@ class ObjMgr:
 			cls.mmissileGroupsList.append([])
 		
 		cls.objs.clear()
+		cls.insertObjs.clear()
 		cls.nextDrawMap = None
 		cls.drawMap = None
 
 	@classmethod
 	def addObj(cls, obj):
 		cls.objs.append(obj)
+		return obj
+
+	@classmethod
+	def insertObj(cls, obj):
+		cls.insertObjs.append(obj)
 		return obj
 
 	@classmethod

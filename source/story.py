@@ -575,6 +575,14 @@ class Story:
 	@classmethod
 	def getStoryFire(cls):
 		return [
+			[300, enemyCreature.FireWorm1, 240, 230, 270,
+				[
+					[90, 0, 0.0, -1.0],
+					[90, 8, 270, -1.0, 1.0],
+					[90, 8, 270-90, 1.0, 1.0],
+					[120, 0, 0.0, -1.0],
+				]
+			],
 		]
 
 	@classmethod

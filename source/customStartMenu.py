@@ -1,3 +1,4 @@
+from typing import get_origin
 import pyxel
 import gcommon
 from mouseManager import MouseManager
@@ -27,6 +28,11 @@ class CustomStartMenuScene:
 		self.mouseManager = MouseManager()
 		self.difficulty = Settings.difficulty
 		self.stageIndex = 0
+		for index, stg in enumerate(gcommon.stageList):
+			if stg == Settings.startStage:
+				self.stageIndex = index
+				break
+
 		self.menuRects = []
 		for y in self.menuYList:
 			self.menuRects.append(gcommon.Rect.create(
@@ -153,6 +159,7 @@ class CustomStartMenuScene:
 						self.difficulty -= 1
 				elif gcommon.checkShotKeyP():
 					Settings.difficulty = self.difficulty
+					Settings.startStage = gcommon.stageList[self.stageIndex]
 					Settings.saveSettings()
 					BGM.sound(gcommon.SOUND_GAMESTART)
 					self.state = 1
@@ -166,7 +173,6 @@ class CustomStartMenuScene:
 		else:
 			# GAME START
 			if self.cnt > 40:
-				Settings.startStage = gcommon.stageList[self.stageIndex]
 				gcommon.app.startCustomGame()
 		self.cnt += 1
 
