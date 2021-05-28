@@ -1,4 +1,5 @@
 
+from typing import Coroutine
 import pyxel
 import math
 import random
@@ -155,47 +156,58 @@ class EnemyBase:
 
 # [0] to cnt
 # [1] mode
-#  mode = -1
+#  mode = -1 :STOP
 #    停止
-#  mode = 0
+#  mode = 0  : MOVE
 #    一定速度
 #    [2] dx 速度
 #    [3] dy 速度
-#  mode = 1
+#  mode = 1  : CHANGE_LAYER
 #    レイヤ移動
 #    [2] Layer
-#  mode = 2
+#  mode = 2  : ACCEL
 #    一定加速
 #    [2] ax 加速度
 #    [3] ay 加速度
-#  mode = 3
+#  mode = 3 : KEEP
 #    現状の速度を保つ
-#  mode = 4
+#  mode = 4 : ACCEL_RATE
 #    [2] aax 変位加速度 0.95とか
 #    [3] aay 変位加速度
-#  mode = 5  ※to cntは使用しない
+#  mode = 5 : MOVE_TO ※to cntは使用しない
 #    指定座標に移動  -9999 で座標維持
 #    [2] 移動先座標X
 #    [3] 移動先座標Y
 #    [4] 速度
-#  mode = 6
+#  mode = 6 : ROTATE_RAD
 #    回転移動（ラジアン指定）
 #    [2] 初期角度
 #    [3] 角速度
 #    [4] 速度
-#  mode = 7
+#  mode = 7 : SET_POS
 #    指定座標にセット ※to cntは使用しない
 #    [2] X
 #    [3] Y
-#  mode = 8
+#  mode = 8 : ROTATE_DEG
 #    回転移動（度数指定）
 #    [2] 初期角度
 #    [3] 角速度
 #    [4] 速度
-#  mode = 100
+#  mode = 100 : SET_INDEX
 #    指定インデックスに移動
 #    [2] インデックス
 class CountMover:
+	STOP = -1
+	MOVE = 0
+	CHANGE_LAYER = 1
+	ACCEL = 2
+	KEEP = 3
+	ACCEL_RATE = 4
+	MOVE_TO = 5
+	ROTATE_RAD = 6
+	SET_POS = 7
+	ROTATE_DEG = 8
+	SET_INDEX = 100
 	def __init__(self, obj, table, loopFlag):
 		self.obj = obj
 		self.table = table
@@ -771,7 +783,7 @@ class Battery0(EnemyBase):
 		self.imageSourceX = 0
 		self.imageSourceY = 96
 		self.imageSourceIndex = 1
-		gcommon.debugPrint("interval=" + str(self.interval))
+		#gcommon.debugPrint("interval=" + str(self.interval))
 
 	def update(self):
 		if self.x < self.remove_min_x:
@@ -853,6 +865,7 @@ class Splash(EnemyBase):
 		self.lifeMax = 240
 		self.hitCheck = False
 		self.shotHitCheck = False
+		self.color = 7
 
 	# 全方位にパーティクル
 	@classmethod
@@ -893,6 +906,19 @@ class Splash(EnemyBase):
 		obj.lifeMax = lifeMax
 		ObjMgr.addObj(obj)
 
+	@classmethod
+	def appendParam(cls, x, y, layer, dr, angle, speed=6, lifeMin=100, lifeMax=200, count=200, ground=False, color=7):
+		obj = Splash(x, y, layer)
+		obj.direction = dr
+		obj.angle = angle
+		obj.count = count
+		obj.speed = speed
+		obj.lifeMin = lifeMin
+		obj.lifeMax = lifeMax
+		obj.ground = ground
+		obj.color = color
+		ObjMgr.addObj(obj)
+
 	def update(self):
 		if self.cnt == 0:
 			for dummy in range(0,self.count):
@@ -902,14 +928,24 @@ class Splash(EnemyBase):
 				self.tbl.append(s)
 
 		newTbl = []
-		for s in self.tbl:
-			s.cnt -= 1
-			if s.cnt > 0:
-				newTbl.append(s)
-				s.x += s.dx
-				s.y += s.dy
-				s.dx *= 0.97
-				s.dy *= 0.97
+		if self.ground:
+			for s in self.tbl:
+				s.cnt -= 1
+				if s.cnt > 0:
+					newTbl.append(s)
+					s.x += s.dx - gcommon.cur_scroll_x
+					s.y += s.dy - gcommon.cur_scroll_y
+					s.dx *= 0.97
+					s.dy *= 0.97
+		else:
+			for s in self.tbl:
+				s.cnt -= 1
+				if s.cnt > 0:
+					newTbl.append(s)
+					s.x += s.dx
+					s.y += s.dy
+					s.dx *= 0.97
+					s.dy *= 0.97
 		self.tbl = newTbl
 		if len(self.tbl) == 0:
 			self.remove()
@@ -926,7 +962,7 @@ class Splash(EnemyBase):
 			elif n > 0.8:
 				if s.cnt & 7 != 0:
 					continue
-			pyxel.pset(s.x, s.y, 7)
+			pyxel.pset(s.x, s.y, self.color)
 
 class WaterSplash(EnemyBase):
 	def __init__(self, cx, cy, layer):
@@ -3967,3 +4003,36 @@ class DelayedExplosions(EnemyBase):
 			self.expCount += 1
 			if self.expCount >= len(self.posList):
 				self.remove()
+
+# [0] to cnt
+# [1] mode
+class CountStater:
+	def __init__(self, obj, table, loopFlag=False):
+		self.obj = obj
+		self.table = table
+		self.tableIndex = 0
+		self.loopFlag = loopFlag
+		self.isEnd = False
+		self.cycleCount = 0
+		self.cnt = 0
+		self.state = 0
+
+	def update(self):
+		if self.isEnd:
+			return
+		item = self.table[self.tableIndex]
+		if self.cnt <= item[0]:
+			self.state = item[1]
+			self.cnt += 1
+		else:
+			self.nextTable()
+
+	def nextTable(self):
+		self.tableIndex += 1
+		self.cnt = 0
+		if self.tableIndex == len(self.table):
+			if self.loopFlag:
+				self.cycleCount += 1
+				self.tableIndex = 0
+			else:
+				self.isEnd = True

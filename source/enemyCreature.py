@@ -1,3 +1,4 @@
+from enum import EnumMeta
 from typing import get_origin
 import pyxel
 import math
@@ -8,6 +9,7 @@ from drawing import Drawing
 from enemy import EnemyBase
 from enemy import CountMover
 import enemy
+import enemyOthers
 from gameSession import GameSession
 
 # 蛇のように動く回虫
@@ -351,41 +353,102 @@ class FireWorm1(EnemyBase):
         self.x = t[2]
         self.y = t[3]
         self.moveTable = t[5]
+        self.stateTable = t[6]
         self.layer = gcommon.C_LAYER_GRD
         self.ground = True
-        self.hitCheck = False
-        self.shotHitCheck = False
+        self.hitCheck = True
+        self.shotHitCheck = True
+        self.hp = gcommon.HP_UNBREAKABLE
         self.mover = CountMover(self, self.moveTable, False)
+        if self.stateTable != None:
+            self.stater = enemy.CountStater(self, self.stateTable)
+        else:
+            self.stater = None
         self.mover.deg = t[4]
         self.cellCount = 12
-        self.cellDelay = 20
+        self.cellDelay = 22
         self.cellList = []
+        self.collisionRects = []
         for i in range(self.cellCount * self.cellDelay):
             self.cellList.append([self.x, self.y, self.mover.deg])
     
     def update(self):
         self.mover.update()
+        if self.mover.isEnd:
+            # 移動テーブル終わりで削除
+            self.remove()
+            return
+        if self.stater != None:
+            self.stater.update()
+            if self.stater.state == 1:
+                if self.stater.cnt % 10 == 0:
+                    #enemy.enemy_shot(self.x, self.y, 3, 0)
+                    ObjMgr.addObj(enemyOthers.Fire2(self.x, self.y, self.mover.deg))
+                    ObjMgr.addObj(enemyOthers.Fire2(self.x, self.y, math.fmod(self.mover.deg +20, 360)))
+                    ObjMgr.addObj(enemyOthers.Fire2(self.x, self.y, math.fmod(self.mover.deg -20, 360)))
+
         for c in self.cellList:
             c[0] -= gcommon.cur_scroll_x
         self.cellList.insert(0, [self.x, self.y, self.mover.deg])
         if len(self.cellList) > (self.cellCount *  self.cellDelay +1):
             self.cellList.pop()
         
-    def draw(self):
-        index = self.cellCount * self.cellDelay -self.cellDelay
-        tail = True
+        self.collisionRects.clear()
+        index = 0
+        x = self.x
+        y = self.y
         for i in range(self.cellCount):
-            if index >= 0 and index < len(self.cellList):
-                if tail:
-                    self.drawCell(self.cellList[index][0], self.cellList[index][1], self.cellList[index][2] +180)
-                    tail = False
-                else:
-                    self.drawCell(self.cellList[index][0], self.cellList[index][1], self.cellList[index][2])
-                index -= self.cellDelay
+            # 当たり判定設定
+            c = self.cellList[index]
+            cx = c[0] -self.x
+            cy = c[1] -self.y
+            self.collisionRects.append(gcommon.Rect.create(cx -12, cy-12, cx+12, cy+12))
+
+            # 
+            if c[1] > 190 and c[1] < 193:
+                x = c[0] + random.randrange(-20, 20)
+                enemy.Splash.appendParam(x, c[1], gcommon.C_LAYER_SKY, math.pi*1.5, math.pi*0.2,
+                    speed=5, lifeMin=50, lifeMax=100, count=20, ground=True, color=10)
+            elif c[1] > 4 and c[1] < 10:
+                x = c[0] + random.randrange(-20, 20)
+                enemy.Splash.appendParam(x, c[1], gcommon.C_LAYER_SKY, math.pi*0.5, math.pi*0.2,
+                    speed=5, lifeMin=50, lifeMax=100, count=20, ground=True, color=10)
+
+            index += self.cellDelay
+
+    def draw(self):
+        # index = self.cellCount * self.cellDelay -self.cellDelay
+        # tail = True
+        # for i in range(self.cellCount):
+        #     if index >= 0 and index < len(self.cellList):
+        #         if tail:
+        #             self.drawCell(self.cellList[index][0], self.cellList[index][1], self.cellList[index][2] +180)
+        #             tail = False
+        #         else:
+        #             self.drawCell(self.cellList[index][0], self.cellList[index][1], self.cellList[index][2])
+        #         index -= self.cellDelay
+        length = self.cellCount
+        index = int(self.cellDelay/2)
+        for i in range(length -1):
+            pyxel.blt(self.cellList[index][0] -19.5, self.cellList[index][1] -19.5, 2, 200, 0, 40, 40, 2)
+            index += self.cellDelay
+        index = 0
+        for i in range(length):
+            if index == 0:
+                self.drawCell(self.cellList[index][0], self.cellList[index][1], self.cellList[index][2])
+            elif i == length -1:
+                self.drawCell(self.cellList[index][0], self.cellList[index][1], self.cellList[index][2] +180)
+            else:
+                self.drawCell2(self.cellList[index][0], self.cellList[index][1], self.cellList[index][2])
+            index += self.cellDelay
 
     def drawCell(self, x, y, deg):
         n = int((deg +360/32) * 16/360) & 15
         tbl = __class__.imageTable[n]
         pyxel.blt(x -19.5, y -19.5, 2, tbl[0] *40, 0, 40 * tbl[1], 40 * tbl[2], 2)
 
+    def drawCell2(self, x, y, deg):
+        n = int((deg +360/32) * 16/360) & 15
+        tbl = __class__.imageTable[n]
+        pyxel.blt(x -19.5, y -19.5, 2, tbl[0] *40, 40, 40 * tbl[1], 40 * tbl[2], 2)
 

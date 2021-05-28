@@ -729,8 +729,13 @@ class MapDrawFire:
 					ObjMgr.addObj(enemyBattery.FireBattery1(mx, my, 0 if n == 964 else 1))
 				elif n in (966, 967):
 					# 炎
-					gcommon.setMapDataByMapPos(mx, my, 0)
-					ObjMgr.addObj(enemyOthers.FireChimney1(mx, my, -1 if n == 966 else 1, 60))
+					p = gcommon.getMapDataByMapPos(mx +1, my)
+					gcommon.setMapDataByMapPos2(mx, my, 0, 2, 1)
+					if p > 992:
+						pattern = p -992
+					else:
+						pattern = 0
+					ObjMgr.addObj(enemyOthers.FireChimney1(mx, my, -1 if n == 966 else 1, pattern))
 				else:
 					doMapCharacter(n, mx, my)
 		gcommon.map_x += gcommon.cur_scroll_x
@@ -747,20 +752,11 @@ class MapDrawFire:
 		# 	pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 7, mx, 24,33,33, 3)
 
 	def draw(self):
+		# プロミネンス？を描く
 		tm = 2
-		# if gcommon.map_x < 0:
-		# 	pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), tm, 0, (int)(gcommon.map_y/8),33,33, 3)
-		# else:
-		# 	#tm = 1 + int(gcommon.map_x/4096)
-		# 	moffset = (int(gcommon.map_x/2048) & 1) * 128
-		# 	w = int((gcommon.map_x %2048)/8)
-		# 	pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, 3)
-		# 	if w >= 224:
-		# 		tm2 = tm + int((gcommon.map_x+256)/4096)
-		# 		moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
-		# 		pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, 3)
 		m = ((self.cnt>>3) % 3) * 7
-		pyxel.bltm(-1 * (int(gcommon.map_x) % 8), 0, tm, (int)(gcommon.map_x/8), m,33, 7, 3)
+		mx = int(gcommon.map_x) & 127
+		pyxel.bltm(-1 * (mx % 8), 0, tm, int(mx/8), m,33, 7, 3)
 		count = 7 *8
 		y = 0
 		while( count > 0 ):

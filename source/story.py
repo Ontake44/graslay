@@ -18,6 +18,7 @@ from enemyBattery import ContainerCarrier1
 from enemyBattery import Tractor1
 from enemyArmored import Armored1
 from gameSession import GameSession
+from enemy import CountMover
 import enemyFighter
 import enemyMine
 import enemyOthers
@@ -575,14 +576,114 @@ class Story:
 	@classmethod
 	def getStoryFire(cls):
 		return [
+			[200, enemyFighter.FireBird1, 256, 30],
+			[220, enemyFighter.FireBird1, 256, 50],
+			[280, enemyFighter.FireBird1, 256, 60],
+			[300, enemyFighter.FireBird1, 256, 80],
 			[300, enemyCreature.FireWorm1, 240, 230, 270,
 				[
-					[90, 0, 0.0, -1.0],
+					[90, CountMover.MOVE, 0.0, -1.0],
+					[90, CountMover.ROTATE_DEG, 270, -1.0, 1.0],
+					[90, CountMover.ROTATE_DEG, 270-90, 1.0, 1.0],
+					[360, CountMover.MOVE, 0.0, -1.0],
+				],
+				None
+			],
+			[500, enemyFighter.FireBird1, 256, 40],
+			[520, enemyFighter.FireBird1, 256, 60],
+			[600, enemyFighter.FireBird1, 256, 100],
+			[620, enemyFighter.FireBird1, 256, 120],
+			[700, enemyFighter.FireBird1, 256, 80],
+			[720, enemyFighter.FireBird1, 256, 40],
+			[800, enemyFighter.FireBird1, 256, 40],
+			[820, enemyFighter.FireBird1, 256, 60],
+			[1100, enemyFighter.FireBird1, 256, 60],
+			[1120, enemyFighter.FireBird1, 256, 80],
+			[1200, enemyFighter.FireBird1, 256, 40],
+			[1220, enemyFighter.FireBird1, 256, 60],
+			[1280, enemyFighter.FireBird1, 256, 60],
+			[1300, enemyFighter.FireBird1, 256, 80],
+			[1500, enemyFighter.FireBird1, 256, 40],
+			[1520, enemyFighter.FireBird1, 256, 60],
+			[1530, enemyCreature.FireWorm1, 260, -30, 90,
+				[
+					[90, CountMover.MOVE, 0.0, 1.0],
+					[45, CountMover.ROTATE_DEG, 90, 1.0, 1.0],
+					[45, CountMover.ROTATE_DEG, 90+45, -1.0, 1.0],
+					[360, CountMover.MOVE, 0.0, 1.0],
+				],
+				None
+			],
+			[1700, enemyFighter.FireBird1, 256, 40],
+			[1720, enemyFighter.FireBird1, 256, 60],
+			[2200, enemyCreature.FireWorm1, 170, 230, 270,
+				[
+					[90, CountMover.MOVE, 0.0, -1.0],
+					[90, CountMover.ROTATE_DEG, 270, 1.0, 1.0],
+					[150, CountMover.MOVE, 1.0, 0.0],
+					[90, CountMover.ROTATE_DEG, 0, 1.0, 1.0],
+					[360, CountMover.MOVE, 0.0, 1.0],
+				],
+				None
+			],
+			[2960, enemyCreature.FireWorm1, 280, -30, 90,
+				[
+					[90, CountMover.MOVE, 0.0, 1.0],
+					[90, 8, 90, 1.0, 1.0],
+					[400, CountMover.MOVE, -1.0, 0.0],
+				], None
+			],
+			[3000, enemyFighter.FireBird1, 256, 40],
+			[3020, enemyFighter.FireBird1, 256, 60],
+			[3150, enemyCreature.FireWorm1, 280, 230, 270,
+				[
+					[90, CountMover.MOVE, 0.0, -1.0],
 					[90, 8, 270, -1.0, 1.0],
-					[90, 8, 270-90, 1.0, 1.0],
-					[120, 0, 0.0, -1.0],
+					[400, CountMover.MOVE, -1.0, 0.0],
+				], None
+			],
+			[3400, enemyFighter.FireBird1, 256, 80],
+			[3420, enemyFighter.FireBird1, 256, 60],
+			[3460, enemyFighter.FireBird1, 256, 120],
+			[3520, enemyFighter.FireBird1, 256, 80],
+			[3720, enemyFighter.FireBird1, 256, 40],
+			[3740, enemyFighter.FireBird1, 256, 80],
+			[3740, enemyCreature.FireWorm1, 300, 230, 225,
+				[
+					[90, CountMover.MOVE, -0.7, -0.7],
+					[90, 8, 225, 1.0, 1.0],
+					[400, CountMover.MOVE, 0.7, -0.7],
+				],
+				[
+					[90, 0],
+					[90, 1],
+					[0, 100]
 				]
 			],
+			[3800, enemyFighter.FireBird1, 256, 40],
+			[3820, enemyFighter.FireBird1, 256, 80],
+			[4200, enemyFighter.FireBird1, 256, 80],
+			[4220, enemyFighter.FireBird1, 256, 60],
+			[4250, enemyCreature.FireWorm1, 300, -30, 135,
+				[
+					[90, CountMover.MOVE, -0.7, 0.7],
+					[90, 8, 135, -1.0, 1.0],
+					[400, CountMover.MOVE, 0.7, 0.7],
+				],
+				[
+					[90, 0],
+					[90, 1],
+					[0, 100]
+				]
+			],
+			[4800, enemyFighter.FireBird1, 256, 40],
+			[4820, enemyFighter.FireBird1, 256, 80],
+			[4900, enemyFighter.FireBird1, 256, 100],
+			[4920, enemyFighter.FireBird1, 256, 60],
+			[5300, enemyFighter.FireBird1, 256, 30],
+			[5320, enemyFighter.FireBird1, 256, 40],
+			[5370, enemyFighter.FireBird1, 256, 100],
+			[5390, enemyFighter.FireBird1, 256, 120],
 		]
 
 	@classmethod

@@ -134,3 +134,39 @@ class Fighter4Group(EnemyBase):
     def draw(self):
         pass
 
+
+class FireBird1(EnemyBase):
+    def __init__(self, t):
+        super(__class__, self).__init__()
+        self.x = t[2]
+        self.y = t[3]
+        self.left = 4
+        self.top = 4
+        self.right = 13
+        self.bottom = 13
+        self.layer = gcommon.C_LAYER_SKY
+        self.hp = 50
+        self.hitCheck = True
+        self.shotHitCheck = True
+        self.enemyShotCollision = False
+        self.score = 100
+        self.imageIndex = 0
+        self.first = 60 / GameSession.difficutlyRate
+        self.dy = 0.0
+        self.dr64 = 0		# 0 to 63
+
+    def update(self):
+        self.x -= 1.5
+        if self.x < -24:
+            self.remove()
+        self.y = self.y + self.dy
+        self.dy = gcommon.sin_table[int(self.dr64)] * 1.2
+        self.dr64 = math.fmod(self.dr64 + 0.5, 63)
+        if self.cnt == self.first:
+            enemy.enemy_shot(self.x +5, self.y+12, 2, 0)
+        self.imageIndex = (self.cnt>>3) & 3
+        
+    def draw(self):
+        pyxel.blt(self.x, self.y, 2, self.imageIndex * 24, 120, 24, 18, 3)
+
+

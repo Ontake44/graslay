@@ -361,7 +361,8 @@ class MainGame:
 				self.pauseCnt = 0
 				pygame.mixer.music.pause()
 				return
-
+			elif pyxel.btnp(pyxel.KEY_O):
+				ObjMgr.debugListObj()
 		# 星
 		if gcommon.scroll_flag and gcommon.draw_star:
 			gcommon.star_pos -= 0.2
@@ -526,8 +527,8 @@ class MainGame:
 		
 		#pyxel.text(120, 184, str(gcommon.back_map_x), 7)
 		if gcommon.DebugMode:
-			pyxel.text(120, 184, str(gcommon.game_timer), 7)
-			pyxel.text(160, 184, str(len(ObjMgr.objs)), 7)
+			gcommon.Text2(121, 184, str(gcommon.game_timer), 7, 0)
+			gcommon.Text2(160, 184, str(len(ObjMgr.objs)), 7, 0)
 			#pyxel.text(160, 184, str(len(ObjMgr.shots)), 7)
 		#pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(ObjMgr.myShip.x, ObjMgr.myShip.y)), 7)
