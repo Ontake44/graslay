@@ -168,13 +168,19 @@ class Fire2(EnemyBase):
         self.hitCheck = True
         self.shotHitCheck = False
         self.enemyShotCollision = False
+        self.imageSourceX = 2 * 24
+        self.imageSourceY = 96
+        self.imageSourceIndex = 2
+        self.speed = 3.0
 
     def update(self):
-        self.x += 3.0 * math.cos(self.rad)
-        self.y += 3.0 * math.sin(self.rad)
+        self.x += self.speed * math.cos(self.rad)
+        self.y += self.speed * math.sin(self.rad)
         if self.x < -12 or self.y < -12 or self.x > (gcommon.SCREEN_MAX_X+12) or self.y > (gcommon.SCREEN_MAX_Y +12):
             self.remove()
             return
 
     def draw(self):
-        pyxel.blt(self.x -11.5, self.y -11.5, 2, 2 * 24, 96, 24, 24, 3)
+        fx = 1 if self.cnt & 2 == 0 else -1
+        fy = 1 if self.cnt & 4 == 0 else -1
+        pyxel.blt(self.x -11.5, self.y -11.5, self.imageSourceIndex, self.imageSourceX, self.imageSourceY, 24 * fx, 24 * fy, 3)

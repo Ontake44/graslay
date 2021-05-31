@@ -207,6 +207,8 @@ class CountMover:
 	ROTATE_RAD = 6
 	SET_POS = 7
 	ROTATE_DEG = 8
+	ROTATE_DEG2 = 9
+	SET_DEG = 10
 	SET_INDEX = 100
 	def __init__(self, obj, table, loopFlag):
 		self.obj = obj
@@ -215,6 +217,7 @@ class CountMover:
 		self.loopFlag = loopFlag
 		self.isEnd = False
 		self.cycleCount = 0
+		self.cycleFlag = False
 		self.cnt = 0
 		self.dx = 0.0
 		self.dy = 0.0
@@ -222,6 +225,7 @@ class CountMover:
 		self.deg = 0.0
 
 	def update(self):
+		self.cycleFlag = False
 		if self.isEnd:
 			return
 		item = self.table[self.tableIndex]
@@ -286,9 +290,8 @@ class CountMover:
 				self.rad += item[3]
 				#gcommon.debugPrint(str(self.dx) + " " + str(self.dy))
 			elif mode == 7:
-				self.x = item[2]
-				self.y = item[3]
-				self.nextTable()
+				self.obj.x = item[2]
+				self.obj.y = item[3]
 			elif mode == 8:
 				if self.cnt == 0:
 					self.deg = item[2]
@@ -301,6 +304,19 @@ class CountMover:
 				self.deg = math.fmod(self.deg, 360.0)
 				if self.deg < 0:
 					self.deg += 360.0
+			elif mode == __class__.ROTATE_DEG2:
+				rad = math.radians(self.deg)
+				self.dx = item[3] * math.cos(rad)
+				self.dy = item[3] * math.sin(rad)
+				self.obj.x += self.dx
+				self.obj.y += self.dy
+				self.deg += item[2]
+				self.deg = math.fmod(self.deg, 360.0)
+				if self.deg < 0:
+					self.deg += 360.0
+			elif mode == __class__.SET_DEG:
+				self.deg = item[2]
+				gcommon.debugPrint("SET_DEG")
 			elif mode == 100:
 				self.tableIndex = item[2]
 				self.cnt = 0
@@ -321,6 +337,7 @@ class CountMover:
 			if self.loopFlag:
 				self.cycleCount += 1
 				self.tableIndex = 0
+				self.cycleFlag = True
 			else:
 				self.isEnd = True
 
@@ -4007,11 +4024,12 @@ class DelayedExplosions(EnemyBase):
 # [0] to cnt
 # [1] mode
 class CountStater:
-	def __init__(self, obj, table, loopFlag=False):
+	def __init__(self, obj, table, loopFlag=False, absolute=False):
 		self.obj = obj
 		self.table = table
 		self.tableIndex = 0
 		self.loopFlag = loopFlag
+		self.absolute = absolute
 		self.isEnd = False
 		self.cycleCount = 0
 		self.cnt = 0
@@ -4027,9 +4045,14 @@ class CountStater:
 		else:
 			self.nextTable()
 
+	def reset(self):
+		self.tableIndex = 0
+		self.cnt = 0
+
 	def nextTable(self):
 		self.tableIndex += 1
-		self.cnt = 0
+		if self.absolute == False:
+			self.cnt = 0
 		if self.tableIndex == len(self.table):
 			if self.loopFlag:
 				self.cycleCount += 1

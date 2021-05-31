@@ -13,6 +13,7 @@ import bossFactory
 import bossLast
 import bossWarehouse
 import bossCave
+import bossFire
 from enemyBattery import MovableBattery1
 from enemyBattery import ContainerCarrier1
 from enemyBattery import Tractor1
@@ -23,6 +24,7 @@ import enemyFighter
 import enemyMine
 import enemyOthers
 import enemyCreature
+
 
 class Story:
 	@classmethod
@@ -684,6 +686,15 @@ class Story:
 			[5320, enemyFighter.FireBird1, 256, 40],
 			[5370, enemyFighter.FireBird1, 256, 100],
 			[5390, enemyFighter.FireBird1, 256, 120],
+			[6000, bossFire.BossFire, 240, 230, 270,
+				[
+					[90, CountMover.MOVE, 0.0, -1.0],
+					[90, CountMover.ROTATE_DEG, 270, -1.0, 1.0],
+					[90, CountMover.ROTATE_DEG, 270-90, 1.0, 1.0],
+					[360, CountMover.MOVE, 0.0, -1.0],
+				],
+				None
+			],
 		]
 
 	@classmethod
