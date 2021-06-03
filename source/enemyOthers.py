@@ -153,6 +153,8 @@ class Fire1(EnemyBase):
             return
         pyxel.blt(self.x -11.5, self.y -11.5, 2, self.imageIndex * 24, 96, 24, 24, 3)
 
+
+# ドラゴンが吐く炎（直線移動）
 class Fire2(EnemyBase):
     # x,y 中心座標
     def __init__(self, x, y, deg):
@@ -164,7 +166,7 @@ class Fire2(EnemyBase):
         self.top = -3.5
         self.right = 3.5
         self.bottom = 3.5
-        self.layer = gcommon.C_LAYER_SKY
+        self.layer = gcommon.C_LAYER_E_SHOT
         self.hitCheck = True
         self.shotHitCheck = False
         self.enemyShotCollision = False
@@ -184,3 +186,47 @@ class Fire2(EnemyBase):
         fx = 1 if self.cnt & 2 == 0 else -1
         fy = 1 if self.cnt & 4 == 0 else -1
         pyxel.blt(self.x -11.5, self.y -11.5, self.imageSourceIndex, self.imageSourceX, self.imageSourceY, 24 * fx, 24 * fy, 3)
+
+# ドラゴンが吐く炎（誘導）
+class Fire3(EnemyBase):
+    # x,y 中心座標
+    def __init__(self, x, y, deg):
+        super(__class__, self).__init__()
+        self.x = x
+        self.y = y
+        rad = math.radians(deg)
+        self.speed = 2.0
+        self.dx = self.speed * math.cos(rad)
+        self.dy = self.speed * math.sin(rad)
+        self.left = -3.5
+        self.top = -3.5
+        self.right = 3.5
+        self.bottom = 3.5
+        self.layer = gcommon.C_LAYER_E_SHOT
+        self.hitCheck = True
+        self.shotHitCheck = True
+        self.hp = 1
+        self.score = 20
+        self.enemyShotCollision = False
+        self.imageSourceX = 88
+        self.imageSourceY = 64
+        self.imageSourceIndex = 2
+
+    def update(self):
+        if self.cnt > 20 and self.cnt < 70:
+            rad = math.atan2(ObjMgr.myShip.y -self.y, ObjMgr.myShip.x -self.x)
+            self.dx += math.cos(rad) * 0.1
+            self.dy += math.sin(rad) * 0.1
+            l = math.sqrt(self.dx * self.dx + self.dy * self.dy)
+            if l > self.speed:
+                self.dx = self.dx * self.speed / l
+                self.dy = self.dy * self.speed / l
+        self.x += self.dx
+        self.y += self.dy
+        if self.x < -12 or self.y < -12 or self.x > (gcommon.SCREEN_MAX_X+12) or self.y > (gcommon.SCREEN_MAX_Y +12):
+            self.remove()
+            return
+
+    def draw(self):
+        sx = 0 if self.cnt & 2 == 0 else 24
+        pyxel.blt(self.x -11.5, self.y -11.5, self.imageSourceIndex, self.imageSourceX +sx, self.imageSourceY, 24, 24, 3)

@@ -1,3 +1,4 @@
+from typing import get_origin
 import pyxel
 import math
 import random
@@ -35,19 +36,20 @@ class BossFire(enemy.EnemyBase):
         [270, CountMover.ROTATE_DEG2, -1.0, 1.0] ,
         [30, CountMover.MOVE, 0.0, 1.0],
         [270, CountMover.ROTATE_DEG2, 1.0, 1.0] ,
-        [510, CountMover.MOVE, 1.0, 0.0],
+        [540, CountMover.MOVE, 1.0, 0.0],
         [0, CountMover.SET_POS, 256 +32, 60],
         [0, CountMover.SET_DEG, 180]
     ]
     stateTable0 = [
         [1020, 0],
-        [1140, 1],
+        [1140, 1],  # 待ち
         [1380, 2],  # 大量ブレス
-        [1880, 0],
-        [2000, 1],
-        [2480, 2],  # 大量ブレス
+        [1880, 3],
+        [2000, 1],  # 待ち
+        [2510, 2],  # 大量ブレス
         [9999, 0],
     ]
+    intervaTable = (45, 30, 24)
     def __init__(self, t):
         super(__class__, self).__init__()
         self.x = 256 +32
@@ -57,11 +59,19 @@ class BossFire(enemy.EnemyBase):
         self.mover.deg = 180
         self.stater = enemy.CountStater(self, __class__.stateTable0, True, True)
         self.stateTable = None
+        self.left = -12
+        self.top = -12
+        self.right = 12
+        self.bottom = 12
+        self.hitcolor1 = 10
+        self.hitcolor2 = 7
         self.layer = gcommon.C_LAYER_GRD
+        self.exptype = gcommon.C_EXPTYPE_SKY_M
         self.ground = True
         self.hitCheck = True
         self.shotHitCheck = True
-        self.hp = gcommon.HP_UNBREAKABLE
+        self.hp = boss.BOSS_FIRE_HP
+        self.score = 15000
         self.cellCount = 13
         self.cellDelay = 30
         self.cellList = []
@@ -69,7 +79,7 @@ class BossFire(enemy.EnemyBase):
         for i in range(self.cellCount * self.cellDelay):
             self.cellList.append([self.x, self.y, self.mover.deg])
         pyxel.image(2).load(0,0,"assets/bossFire.png")
-
+        self.fireInterval = __class__.intervaTable[GameSession.difficulty]
 
     def fire(self, x, y, deg, speed):
         obj = enemyOthers.Fire2(x, y, deg)
@@ -77,6 +87,10 @@ class BossFire(enemy.EnemyBase):
         obj.imageSourceX = 64
         obj.imageSourceY = 64
         obj.speed = speed
+        ObjMgr.addObj(obj)
+
+    def fire2(self, x, y, deg, speed):
+        obj = enemyOthers.Fire3(x, y, deg)
         ObjMgr.addObj(obj)
 
     def update(self):
@@ -120,11 +134,11 @@ class BossFire(enemy.EnemyBase):
             index += self.cellDelay
 
         if self.stater.state == 0:
-            if self.stater.cnt % 30 == 0:
+            if self.stater.cnt % self.fireInterval == 0:
                 # 先頭部からの炎
                 self.shotHead()
 
-                if self.stater.cnt % 60 == 0:
+                if self.stater.cnt % (self.fireInterval*2) == 0:
                     self.shotMiddle()
                 
                 # 最後部からの炎
@@ -133,6 +147,17 @@ class BossFire(enemy.EnemyBase):
             if self.stater.cnt % 8 == 0:
                 # 先頭部からの炎
                 self.shotHead()
+        elif self.stater.state == 3:
+            if self.stater.cnt % self.fireInterval == 0:
+                # 先頭部からの炎
+                self.shotHead2()
+
+                if self.stater.cnt % 60 == 0:
+                    self.shotMiddle()
+                
+                # 最後部からの炎
+                self.shotTail()
+
 
     def shotHead(self):
         rad = math.radians(self.mover.deg)
@@ -141,6 +166,14 @@ class BossFire(enemy.EnemyBase):
         self.fire(ox, oy, math.fmod(self.mover.deg +20, 360), 3.0)
         self.fire(ox, oy, math.fmod(self.mover.deg -20, 360), 3.0)
         self.fire(ox, oy, self.mover.deg, 3.0)
+
+    def shotHead2(self):
+        rad = math.radians(self.mover.deg)
+        ox = self.x + math.cos(rad) * 20.0
+        oy = self.y + math.sin(rad) * 20.0
+        self.fire2(ox, oy, math.fmod(self.mover.deg +20, 360), 3.0)
+        self.fire2(ox, oy, math.fmod(self.mover.deg -20, 360), 3.0)
+        self.fire2(ox, oy, self.mover.deg, 3.0)
 
     def shotMiddle(self):
         index = self.cellDelay * 3
@@ -195,4 +228,69 @@ class BossFire(enemy.EnemyBase):
         tbl = __class__.imageTable[n]
         pyxel.blt(x -31.5, y -31.5, 2, tbl[0] *64, 128 +tbl[1] *64, 64 * tbl[2], 64 * tbl[3], 3)
 
+
+    # 当たった場合の破壊処理
+    # 破壊した場合True
+    def doShotCollision(self, shot):
+        if gcommon.check_collision(self, shot):
+            self.hp -= shot.shotPower
+            if self.hp <= 0:
+                self.broken()
+                return True
+            if shot.effect and self.shotEffect:
+                shot.doEffect(self.shotEffectSound)
+            self.hit = True
+            return False
+        else:
+            if shot.effect and self.shotEffect:
+                shot.doEffect(self.shotEffectSound)
+            self.hit = False
+            return False
+
+    # 破壊されたとき
+    def broken(self):
+        GameSession.addScore(self.score)
+        
+        enemy.create_explosion2(self.x+(self.right+self.left+1)/2, self.y+(self.bottom+self.top+1)/2, self.layer, self.exptype, self.expsound)
+        self.remove()
+        self.doExplosion()
+        enemy.removeEnemyShot()
+        ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 180))
+
+    def doExplosion(self):
+        index = 0
+        for i in range(self.cellCount):
+            ObjMgr.addObj(BossFireExplosion(self.cellList[index][0], self.cellList[index][1], False))
+            index += self.cellDelay
+
+class BossFireExplosion(enemy.EnemyBase):
+    def __init__(self, x, y, head):
+        super(__class__, self).__init__()
+        self.x = x
+        self.y = y
+        self.head = head
+        self.layer = gcommon.C_LAYER_SKY
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.enemyShotCollision = False
+        #rad = math.radians(random.randrange(360))
+        rad = math.atan2(100 - y, 128 -x)
+        self.dx = math.cos(rad) * 4
+        self.dy = math.sin(rad) * 4
+        self.index = 0
+        self.life = 20 + random.randrange(30)
+
+    def update(self):
+        if self.cnt > self.life:
+            enemy.create_explosion2(self.x, self.y, gcommon.C_LAYER_SKY, gcommon.C_EXPTYPE_SKY_M, -1)
+            self.remove()
+            return
+        self.x += self.dx
+        self.y += self.dy
+        self.index = (self.index + 1) & 15
+
+    def draw(self):
+        sy = 0 if self.head else 128
+        tbl = BossFire.imageTable[self.index]
+        pyxel.blt(self.x -31.5, self.y -31.5, 2, tbl[0] *64, sy +tbl[1] *64, 64 * tbl[2], 64 * tbl[3], 3)
 
