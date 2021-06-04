@@ -6,6 +6,8 @@ from audio import BGM
 from drawing import Drawing
 
 class StageSelectScene:
+    nodeBaseX = 16
+    nodeBaseY = 80
     imageColorTable = [
         [[1, 0], [5, 1], [12, 5]],
         [[1, 0], [5, 1], [12, 5]],
@@ -72,9 +74,18 @@ class StageSelectScene:
         pyxel.cls(0)
         #self.drawStar()
         gcommon.drawStar(self.star_pos)
+
+        if len(self.nextStageList) == 1:
+            # 選択できない
+            Drawing.showTextHCenter(20, "GET READY FOR THE NEXT STAGE")
+        else:
+            Drawing.showTextHCenter(20, "SELECT NEXT STAGE")
+
         stageInfo = self.stageManager.stageRoot
         stageInfo.setDrawFlag(False)
         self.drawNode(stageInfo)
+
+        Drawing.showTextHCenter(140, "PUSH SHOT KEY")
 
     # def drawStar(self):
     #     for i in range(0,96):
@@ -132,12 +143,12 @@ class StageSelectScene:
         #             status = 2
         for t in __class__.imageColorTable[status]:
             pyxel.pal(t[0], t[1])
-        pyxel.blt(node.x, node.y, 0, 0, 224, 32, 16)
+        pyxel.blt(node.x +__class__.nodeBaseX, node.y + __class__.nodeBaseY, 0, 0, 224, 32, 16)
         pyxel.pal()
         for t in __class__.textColorTable[status]:
             pyxel.pal(t[0], t[1])
         if node != None:
-            Drawing.showText(node.x + 8, node.y +4, node.stage)
+            Drawing.showText(node.x + 8 +__class__.nodeBaseX, node.y +4 + __class__.nodeBaseY, node.stage)
         pyxel.pal()
         if node != None and node.nextStageList != None:
             for childNode in node.nextStageList:

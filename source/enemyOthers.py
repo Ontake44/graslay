@@ -213,7 +213,7 @@ class Fire3(EnemyBase):
         self.imageSourceIndex = 2
 
     def update(self):
-        if self.cnt > 20 and self.cnt < 70:
+        if self.cnt > 20 and self.cnt < 100:
             rad = math.atan2(ObjMgr.myShip.y -self.y, ObjMgr.myShip.x -self.x)
             self.dx += math.cos(rad) * 0.1
             self.dy += math.sin(rad) * 0.1

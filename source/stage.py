@@ -51,8 +51,8 @@ class StageLinkManager:
         stage2B = StageInfo("2B", 2, True, [stage3A, stage3B])
 
         self.stageRoot = StageInfo("1A", 1, True, [stage2A, stage2B])
-        self.stageRoot.x = 16
-        self.stageRoot.y = 100
+        self.stageRoot.x = 0
+        self.stageRoot.y = 0
         dx = 40
         stage2A.x = self.stageRoot.x +dx 
         stage2A.y = self.stageRoot.y -12

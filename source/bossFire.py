@@ -41,6 +41,16 @@ class BossFire(enemy.EnemyBase):
         [0, CountMover.SET_DEG, 180]
     ]
     stateTable0 = [
+        [920, 0],
+        [1020, 3],
+        [1140, 1],  # 待ち
+        [1380, 2],  # 大量ブレス
+        [1880, 3],
+        [2000, 1],  # 待ち
+        [2510, 2],  # 大量ブレス
+        [9999, 0],
+    ]
+    backstateTable0 = [
         [1020, 0],
         [1140, 1],  # 待ち
         [1380, 2],  # 大量ブレス
@@ -215,8 +225,8 @@ class BossFire(enemy.EnemyBase):
                 self.drawCell2(self.cellList[index][0], self.cellList[index][1], self.cellList[index][2])
                 if index % (self.cellDelay * 3) == 0:
                     pyxel.blt(self.cellList[index][0] -11.5, self.cellList[index][1] -11.5, 2, 64, 88, 24, 24, 3)
-        #gcommon.Text2(200, 184, str(self.cnt), 7, 0)
-        gcommon.Text2(200, 184, str(int(self.x)) + " " + str(int(self.y)), 7, 0)
+        gcommon.Text2(200, 184, str(self.cnt), 7, 0)
+        #gcommon.Text2(200, 184, str(int(self.x)) + " " + str(int(self.y)), 7, 0)
 
     def drawCell(self, x, y, deg):
         n = int((deg +360/32) * 16/360) & 15
