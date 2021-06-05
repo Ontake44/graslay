@@ -202,19 +202,42 @@ class BossWarehouse(enemy.EnemyBase):
 		self.subCnt += 1
 		if abs(self.countMover.dx) > 0.025 or abs(self.countMover.dy) > 0.025:
 			self.wheelCnt += 1
-		if self.countMover.tableIndex in (2, 4, 6, 8, 10):
-			self.gunRad = gcommon.getRadToShip(self.x, self.y, self.gunRad +math.pi, math.pi/60) - math.pi
-		elif self.countMover.tableIndex in (1, 3, 5, 7, 9, 11):
-			self.shotMainState()
-		if self.countMover.tableIndex == 1:
-			if self.countMover.cnt % 45 == 0:
-				ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[100*8, 0, -1.0, 0.0]]))
-		elif self.countMover.tableIndex == 5:
-			if self.countMover.cnt % 45 == 0:
-				ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[0, 5, 44, self.y, 1.0],[100*8, 0, 0.0, 1.0]]))
-		elif self.countMover.tableIndex == 9:
-			if self.countMover.cnt % 45 == 0:
-				ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[0, 5, 44, self.y, 1.0],[100*8, 0, 0.0, -1.0]]))
+		if self.state == 0:
+			if self.countMover.tableIndex in (2, 4, 6, 8, 10):
+				self.gunRad = gcommon.getRadToShip(self.x, self.y, self.gunRad +math.pi, math.pi/60) - math.pi
+			elif self.countMover.tableIndex in (1, 3, 5, 7, 9, 11):
+				self.shotMainState()
+			if self.countMover.tableIndex == 1:
+				if self.countMover.cnt % 45 == 0:
+					ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[100*8, 0, -1.0, 0.0]]))
+			elif self.countMover.tableIndex == 5:
+				if self.countMover.cnt % 45 == 0:
+					ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[0, 5, 44, self.y, 1.0],[100*8, 0, 0.0, 1.0]]))
+			elif self.countMover.tableIndex == 9:
+				if self.countMover.cnt % 45 == 0:
+					ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[0, 5, 44, self.y, 1.0],[100*8, 0, 0.0, -1.0]]))
+			if self.hp < boss.BOSS_WAREHOUSE_HP/3:
+				self.state = 1
+		elif self.state == 1:
+			if self.gunRad < 0.75 * math.pi:
+				self.gunRad += 0.025* math.pi
+			else:
+				self.nextState()
+		elif self.state == 2:
+			if self.cnt % 4 == 0:
+				self.shotMain()
+			self.gunRad -= 0.025* math.pi
+			if self.gunRad < -0.75 * math.pi:
+				self.nextState()
+		elif self.state == 3:
+			if self.cnt % 4 == 0:
+				self.shotMain()
+			self.gunRad += 0.025* math.pi
+			if self.gunRad > 0.75 * math.pi:
+				self.setState(1)
+			#self.gunRad -= 0.025* math.pi
+			#if self.gunRad < 1.5 * math.pi:
+
 		# self.xpolygonsList = []
 		# self.xpolygonsList.append(gcommon.getAnglePolygons([self.x + 20.0, self.y],
 		# 	self.polygonList, [27.5, 19.5], self.gunRad))
@@ -287,10 +310,10 @@ class BossWarehouse(enemy.EnemyBase):
 		r = self.gunRad + math.pi
 		px = self.gun_cx + math.cos(r + math.pi/20) * 30
 		py = self.gun_cy + math.sin(r + math.pi/20) * 30
-		enemy.enemy_shot_rad(px, py, 5, 1, r)
+		enemy.enemy_shot_rad(px, py, 4.5, 1, r)
 		px = self.gun_cx + math.cos(r - math.pi/20) * 30
 		py = self.gun_cy + math.sin(r - math.pi/20) * 30
-		enemy.enemy_shot_rad(px, py, 5, 1, r)
+		enemy.enemy_shot_rad(px, py, 4.5, 1, r)
 
 
 	def shot4directions(self):
