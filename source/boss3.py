@@ -37,7 +37,8 @@ class Boss3Anchor:
 #  9 体当たり・戻る
 #  10 最初に戻る
 class Boss3(enemy.EnemyBase):
-	shotCycles = (32, 24, 15)
+	#shotCycles = (32, 24, 15)
+	shotCycles = (40, 30, 20)
 	def __init__(self, t):
 		super(Boss3, self).__init__()
 		self.x = 256
@@ -66,6 +67,7 @@ class Boss3(enemy.EnemyBase):
 		self.body_max_y = 128
 		self.cycleCount = 0
 		self.shotCycle = __class__.shotCycles[GameSession.difficulty]
+		self.mainShotCycle = int(self.shotCycle*0.75)
 
 	def nextState(self):
 		self.state += 1
@@ -123,13 +125,18 @@ class Boss3(enemy.EnemyBase):
 			if self.body.y < self.body_min_y:
 				self.body.y = self.body_min_y
 				self.nextState()
-			elif self.cnt % self.shotCycle == 0:
+			elif self.cnt % self.mainShotCycle == 0:
 				ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
 				ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
 				BGM.sound(gcommon.SOUND_SHOT3)
-				if self.cnt % int(self.shotCycle*2.5) == 0 and self.cycleCount & 1 == 1:
-					enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, -4)
-					enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, 4)
+			if self.cnt % int(self.shotCycle) == 0 and self.cycleCount & 1 == 1:
+				#enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, -4)
+				#enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, 4)
+				#nemy.enemy_shot_multi(self.x+20, self.y+27, 2, 0, 3, 5)
+				#enemy.enemy_shot_multi(self.x+20, self.y+160-27, 2, 0, 3, 5)
+				gcommon.debugPrint("Shot Dish??")
+				self.shotDish(-1)
+				self.shotDish(1)
 			self.setBodyAnchorPos()
 		elif self.state == 4:
 			cy = gcommon.getCenterY(ObjMgr.myShip)
@@ -144,8 +151,8 @@ class Boss3(enemy.EnemyBase):
 
 			self.setBodyAnchorPos()
 			if self.cnt % self.shotCycle == 0:
-				enemy.enemy_shot(self.x+20, self.y+27, 4, 0)
-				enemy.enemy_shot(self.x+20, self.y+160-27, 4, 0)
+				enemy.enemy_shot_multi(self.x+20, self.y+27, 2, 0, 5, 5)
+				enemy.enemy_shot_multi(self.x+20, self.y+160-27, 2, 0, 5, 5)
 				BGM.sound(gcommon.SOUND_SHOT2)
 			if self.cnt > 180:
 				self.nextState()
@@ -188,13 +195,17 @@ class Boss3(enemy.EnemyBase):
 			if self.body.y > self.body_max_y:
 				self.body.y = self.body_max_y
 				self.nextState()
-			elif self.cnt % self.shotCycle == 0:
+			elif self.cnt % self.mainShotCycle == 0:
 				ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
 				ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
 				BGM.sound(gcommon.SOUND_SHOT2)
-				if self.cnt % (self.shotCycle*2) == 0 and self.cycleCount & 1 == 1:
-					enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, -4)
-					enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, 4)
+			if self.cnt % (self.shotCycle) == 0 and self.cycleCount & 1 == 1:
+				#enemy.enemy_shot_self.x, self.body.y+23, 2, 0, -4)
+				#enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, 4)
+				#enemy.enemy_shot_multi(self.x+20, self.y+27, 2, 0, 3, 5)
+				#enemy.enemy_shot_multi(self.x+20, self.y+160-27, 2, 0, 3, 5)
+				self.shotDish(-1)
+				self.shotDish(1)
 			self.setBodyAnchorPos()
 		elif self.state == 8:
 			# 中心に移動
@@ -256,6 +267,14 @@ class Boss3(enemy.EnemyBase):
 			return False
 		return gcommon.check_collision(self.body, shot)
 	
+	def shotDish(self, dy):
+		x = self.x+20
+		if dy > 0:
+			y = self.y+27
+		else:
+			y = self.y+160-27
+		ObjMgr.addObj(Boss3Dish(x, y, -2, dy * 2))
+
 	# def doShotCollision(self, shot):
 	# 	rad = math.atan2(shot.dy, shot.dx)
 	# 	enemy.Particle1.appendCenter(shot, rad)
@@ -319,4 +338,37 @@ class Boss3Shot(enemy.EnemyBase):
 	def draw(self):
 		# pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
 		pyxel.blt(self.x, self.y, 1, 192, 96, 24, 8, gcommon.TP_COLOR)
+
+
+class Boss3Dish(enemy.EnemyBase):
+	# x,y 弾の中心を指定
+	# dr  0 -63
+	def __init__(self, x, y, dx, dy):
+		super(__class__, self).__init__()
+		self.shotHitCheck = False
+		self.x = x
+		self.y = y
+		self.dx = dx
+		self.dy = dy
+		self.layer = gcommon.C_LAYER_E_SHOT
+		self.hp = 30
+		self.shotHitCheck = True
+		self.left = -11.5
+		self.top = -11.5
+		self.right = 11.5
+		self.bottom = 11.5
+
+	def update(self):
+		self.x += self.dx
+		self.y += self.dy
+		if self.x <=-24:
+			self.removeFlag = True
+			return
+		if self.dy < 0 and self.y < (gcommon.SCREEN_MIN_Y +28):
+			self.dy = -self.dy
+		elif self.dy > 0 and self.y > (gcommon.SCREEN_MAX_Y -28):
+			self.dy = -self.dy
+
+	def draw(self):
+		pyxel.blt(self.x -11.5, self.y -11.5, 1, 232, 96, 24, 24, gcommon.TP_COLOR)
 

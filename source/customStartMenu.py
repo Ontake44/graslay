@@ -104,21 +104,6 @@ class CustomStartMenuScene:
 					if Settings.playerStock < 1:
 						Settings.playerStock = 1
 
-			# elif self.menuPos == MENU_START_STAGE:
-			# 	n = -1
-			# 	if self.mouseManager.visible:
-			# 		n = gcommon.checkMouseMenuPos(self.startStageRects)
-			# 	if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
-			# 		BGM.sound(gcommon.SOUND_MENUMOVE)
-			# 		self.stageIndex += 1
-			# 		if self.stageIndex >= len(gcommon.stageList):
-			# 			self.stageIndex = len(gcommon.stageList) -1
-			# 	elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
-			# 		BGM.sound(gcommon.SOUND_MENUMOVE)
-			# 		self.stageIndex -= 1
-			# 		if self.stageIndex < 0:
-			# 			self.stageIndex = 0
-
 			elif self.menuPos == MENU_WEAPON_TYPE:
 				n = -1
 				if self.mouseManager.visible:

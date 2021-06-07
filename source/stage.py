@@ -99,7 +99,7 @@ class StageLinkManager:
     def getFirstStage(self):
         return self.stageRoot
 
-    def findNextStageList(self, stage: str) -> []:
+    def findNextStageList(self, stage: str):
         return self.nextStageList(self.stageRoot, stage)
 
     def findStage(self, stage: str) -> StageInfo:
@@ -118,7 +118,7 @@ class StageLinkManager:
             return None
 
 
-    def nextStageList(self, node, stage: str) -> []:
+    def nextStageList(self, node, stage: str):
         if node.stage == stage:
             return node.nextStageList
         elif node.nextStageList == None:
@@ -197,7 +197,7 @@ class Stage:
             gcommon.sync_map_y = 1
             gcommon.long_map = True
             gcommon.draw_star = True
-            gcommon.eshot_sync_scroll = True
+            gcommon.eshot_sync_scroll = False
             gcommon.breakableMapData = True
             MapData.loadMapData(0, "assets/graslay3-0.pyxmap")
             MapData.loadMapData(1, "assets/graslay3-1.pyxmap")
