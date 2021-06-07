@@ -13,7 +13,18 @@ class StageInfo:
         self.nextStageList = nextStageList
         self.x = 0
         self.y = 0
+        self.imageX = 0
+        self.imageY = 0
         self.drawFlag = False
+        self.parentList = None
+        if self.nextStageList != None:
+            for child in self.nextStageList:
+                child.appendParent(self)
+
+    def appendParent(self, parent):
+        if self.parentList == None:
+            self.parentList = []
+        self.parentList.append(parent)
 
     def setDrawFlag(self, flag):
         self.drawFlag = flag
@@ -22,10 +33,16 @@ class StageInfo:
                 if childNode != None:
                     childNode.setDrawFlag(flag)
 
+    def setImage(self, x, y):
+        self.imageX = x
+        self.imageY = y
+
+
 # 各ステージ間の関係を管理するクラス
 class StageLinkManager:
     def __init__(self):
         stage6A = StageInfo("6A", 6, True, None)
+        stage6A.setImage(1, 1)
         # stage6B = StageInfo("6B", 6, False, None)
         # stage6C = StageInfo("6C", 6, False, None)
         # stage6D = StageInfo("6D", 6, False, None)
@@ -33,24 +50,32 @@ class StageLinkManager:
         # stage6F = StageInfo("6F", 6, False, None)
 
         stage5A = StageInfo("5A", 5, True, [stage6A])
+        stage5A.setImage(0, 1)
         stage5B = StageInfo("5B", 5, True, [stage6A])
+        stage5B.setImage(0, 3)
         # stage5B = StageInfo("5B", 5, False, [stage6B, stage6C])
         # stage5C = StageInfo("5C", 5, False, [stage6C, stage6D])
         # stage5D = StageInfo("5D", 5, False, [stage6D, stage6E])
         # stage5E = StageInfo("5E", 5, False, [stage6E, stage6F])
 
         stage4A = StageInfo("4A", 4, True, [stage5A, stage5B])
+        stage4A.setImage(3, 0)
         # stage4B = StageInfo("4B", 4, True, [stage5B, stage5C])
         # stage4C = StageInfo("4C", 4, False, [stage5C, stage5D])
         # stage4D = StageInfo("4D", 4, False, [stage5D, stage5E])
 
         stage3A = StageInfo("3A", 3, True, [stage4A])
+        stage3A.setImage(2, 0)
         stage3B = StageInfo("3B", 3, True, [stage4A])
+        stage3B.setImage(2, 2)
 
         stage2A = StageInfo("2A", 2, True, [stage3A, stage3B])
+        stage2A.setImage(1, 0)
         stage2B = StageInfo("2B", 2, True, [stage3A, stage3B])
+        stage2B.setImage(1, 2)
 
         self.stageRoot = StageInfo("1A", 1, True, [stage2A, stage2B])
+        self.stageRoot.setImage(0, 0)
         self.stageRoot.x = 0
         self.stageRoot.y = 0
         dx = 40
@@ -71,7 +96,7 @@ class StageLinkManager:
         stage6A.x = stage5A.x +dx 
         stage6A.y = self.stageRoot.y
 
-    def firstStage(self):
+    def getFirstStage(self):
         return self.stageRoot
 
     def findNextStageList(self, stage: str) -> []:

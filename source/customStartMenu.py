@@ -9,9 +9,9 @@ from drawing import Drawing
 MENU_PLAYER_STOCK = 0
 MENU_WEAPON_TYPE = 1
 MENU_WEAPON_OPTION = 2
-MENU_START_STAGE = 3
-MENU_GAME_START = 4
-MENU_EXIT = 5
+#MENU_START_STAGE = 3
+MENU_GAME_START = 3
+MENU_EXIT = 4
 
 MENU_VALUE_X = 172
 START_X = 80
@@ -49,10 +49,10 @@ class CustomStartMenuScene:
 			gcommon.Rect.createWH(MENU_VALUE_X -10, self.menuYList[MENU_WEAPON_OPTION], 8, 8),
 			gcommon.Rect.createWH(MENU_VALUE_X -10+26, self.menuYList[MENU_WEAPON_OPTION], 8, 8)
 		]
-		self.startStageRects = [
-			gcommon.Rect.createWH(MENU_VALUE_X -10, self.menuYList[MENU_START_STAGE], 8, 8),
-			gcommon.Rect.createWH(MENU_VALUE_X -10+26, self.menuYList[MENU_START_STAGE], 8, 8)
-		]
+		# self.startStageRects = [
+		# 	gcommon.Rect.createWH(MENU_VALUE_X -10, self.menuYList[MENU_START_STAGE], 8, 8),
+		# 	gcommon.Rect.createWH(MENU_VALUE_X -10+26, self.menuYList[MENU_START_STAGE], 8, 8)
+		# ]
 		self.difficultyRects = [
 			gcommon.Rect.createWH(START_X -12, self.menuYList[MENU_GAME_START], 8, 8),
 			gcommon.Rect.createWH(START_X +(6+6)*8 + 4, self.menuYList[2], 8, 8),
@@ -80,7 +80,7 @@ class CustomStartMenuScene:
 				BGM.sound(gcommon.SOUND_MENUMOVE)
 				self.menuPos += 1
 				if self.menuPos == MENU_WEAPON_OPTION and Settings.weaponType == gcommon.WeaponType.TYPE_A:
-					self.menuPos = MENU_START_STAGE
+					self.menuPos = MENU_GAME_START
 				if self.menuPos > 5:
 					self.menuPos = 0
 			
@@ -104,20 +104,20 @@ class CustomStartMenuScene:
 					if Settings.playerStock < 1:
 						Settings.playerStock = 1
 
-			elif self.menuPos == MENU_START_STAGE:
-				n = -1
-				if self.mouseManager.visible:
-					n = gcommon.checkMouseMenuPos(self.startStageRects)
-				if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
-					BGM.sound(gcommon.SOUND_MENUMOVE)
-					self.stageIndex += 1
-					if self.stageIndex >= len(gcommon.stageList):
-						self.stageIndex = len(gcommon.stageList) -1
-				elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
-					BGM.sound(gcommon.SOUND_MENUMOVE)
-					self.stageIndex -= 1
-					if self.stageIndex < 0:
-						self.stageIndex = 0
+			# elif self.menuPos == MENU_START_STAGE:
+			# 	n = -1
+			# 	if self.mouseManager.visible:
+			# 		n = gcommon.checkMouseMenuPos(self.startStageRects)
+			# 	if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
+			# 		BGM.sound(gcommon.SOUND_MENUMOVE)
+			# 		self.stageIndex += 1
+			# 		if self.stageIndex >= len(gcommon.stageList):
+			# 			self.stageIndex = len(gcommon.stageList) -1
+			# 	elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
+			# 		BGM.sound(gcommon.SOUND_MENUMOVE)
+			# 		self.stageIndex -= 1
+			# 		if self.stageIndex < 0:
+			# 			self.stageIndex = 0
 
 			elif self.menuPos == MENU_WEAPON_TYPE:
 				n = -1
@@ -211,12 +211,12 @@ class CustomStartMenuScene:
 			if MENU_WEAPON_OPTION == self.menuPos:
 				Drawing.drawUpDownMarker2(x2 -10, self.menuYList[MENU_WEAPON_OPTION], 0, 99, Settings.multipleCount)
 
-		idx += 1
-		self.setOptionColor(MENU_START_STAGE)
-		Drawing.showText(x1, self.menuYList[MENU_START_STAGE], "START STAGE")
-		Drawing.showText(x2, self.menuYList[MENU_START_STAGE], gcommon.stageList[self.stageIndex])
-		if MENU_START_STAGE == self.menuPos:
-			Drawing.drawUpDownMarker2(x2 -10, self.menuYList[MENU_START_STAGE], 0, len(gcommon.stageList)-1, self.stageIndex)
+		# idx += 1
+		# self.setOptionColor(MENU_START_STAGE)
+		# Drawing.showText(x1, self.menuYList[MENU_START_STAGE], "START STAGE")
+		# Drawing.showText(x2, self.menuYList[MENU_START_STAGE], gcommon.stageList[self.stageIndex])
+		# if MENU_START_STAGE == self.menuPos:
+		# 	Drawing.drawUpDownMarker2(x2 -10, self.menuYList[MENU_START_STAGE], 0, len(gcommon.stageList)-1, self.stageIndex)
 		idx += 1
 
 		text = gcommon.difficultyText[self.difficulty] + " START"

@@ -902,8 +902,9 @@ class App:
 		GameSession.playerStock -= 1
 		GameSession.weaponType = Settings.weaponType
 		GameSession.multipleCount = Settings.multipleCount
-		self.stage = Settings.startStage
-		self.setScene(MainGame(self.stage))
+		#self.stage = Settings.startStage
+		#self.setScene(MainGame(self.stage))
+		self.setScene(stageSelect.CustomStageSelectScene(self))
 
 	def startStage(self, stage):
 		self.stage = stage
@@ -923,7 +924,7 @@ class App:
 			self.startEnding()
 		else:
 			#self.startStage(stageList[0].stage)
-			self.setScene(stageSelect.StageSelectScene(self, self.stage, None))
+			self.setScene(stageSelect.NextStageSelectScene(self, self.stage, None))
 
 	def startNextStage(self, stage):
 		self.startStage(stage)
@@ -958,10 +959,10 @@ class App:
 
 	def startOption(self):
 		self.setScene(OptionMenuScene())
-		#self.setScene(stageSelect.StageSelectScene(self, "2A", {"1", "2A"}))
 
 	def startStageSelect(self):
-		self.setScene(stageSelect.StageSelectScene(self, "3A", {}))
+		#self.setScene(stageSelect.NextStageSelectScene(self, "2A", {"1A", "2A"}))
+		self.setScene(stageSelect.CustomStageSelectScene(self))
 
 	def startScoreRanking(self, exitTo):
 		self.setScene(ranking.RankingDispScene(exitTo))
