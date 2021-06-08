@@ -38,11 +38,11 @@ class Boss3Anchor:
 #  10 最初に戻る
 class Boss3(enemy.EnemyBase):
 	#shotCycles = (32, 24, 15)
-	shotCycles = (40, 30, 20)
+	shotCycles = (44, 35, 28)
 	def __init__(self, t):
 		super(Boss3, self).__init__()
 		self.x = 256
-		self.y = 16
+		self.y = 8
 		self.left = 16
 		self.top = 9
 		self.right = 63
@@ -56,11 +56,14 @@ class Boss3(enemy.EnemyBase):
 		self.body = Boss3Body()
 		self.body.y = 72
 		self.anchor = Boss3Anchor()
-		self.upperARect = gcommon.Rect.create(8, 0, 72, 15)
-		self.upperBRect = gcommon.Rect.create(24, 16, 71, 29)
-		self.shaftRect = gcommon.Rect.create(40, 30, 62, 129)
-		self.lowerBRect = gcommon.Rect.create(24, 130, 71, 143)
-		self.lowerARect = gcommon.Rect.create(8, 144, 72, 159)
+		# self.upperARect = gcommon.Rect.create(8, 0, 72, 15)
+		# self.upperBRect = gcommon.Rect.create(24, 16, 71, 29)
+		# self.shaftRect = gcommon.Rect.create(40, 30, 62, 129)
+		# self.lowerBRect = gcommon.Rect.create(24, 130, 71, 143)
+		# self.lowerARect = gcommon.Rect.create(8, 144, 72, 159)
+		self.collisionRects = gcommon.Rect.createFromList([
+			[8, 0, 72, 15], [24, 16, 71, 29], [40, 30, 62, 129+16], [24, 130+16, 71, 143+16], [8, 144+16, 72, 159+16]
+		])
 		self.mode = 0
 		self.modeCnt = 0
 		self.body_min_y = 16
@@ -129,14 +132,14 @@ class Boss3(enemy.EnemyBase):
 				ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
 				ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
 				BGM.sound(gcommon.SOUND_SHOT3)
-			if self.cnt % int(self.shotCycle) == 0 and self.cycleCount & 1 == 1:
+			#if self.cnt % int(self.shotCycle*2) == 0 and self.cycleCount & 1 == 1:
 				#enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, -4)
 				#enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, 4)
-				#nemy.enemy_shot_multi(self.x+20, self.y+27, 2, 0, 3, 5)
+				#enemy.enemy_shot_multi(self.x+20, self.y+27, 2, 0, 3, 5)
 				#enemy.enemy_shot_multi(self.x+20, self.y+160-27, 2, 0, 3, 5)
-				gcommon.debugPrint("Shot Dish??")
-				self.shotDish(-1)
-				self.shotDish(1)
+				#gcommon.debugPrint("Shot 2??")
+				#self.shotDish(-1)
+				#self.shotDish(1)
 			self.setBodyAnchorPos()
 		elif self.state == 4:
 			cy = gcommon.getCenterY(ObjMgr.myShip)
@@ -199,13 +202,14 @@ class Boss3(enemy.EnemyBase):
 				ObjMgr.addObj(Boss3Shot(self.x, self.body.y+12, 4))
 				ObjMgr.addObj(Boss3Shot(self.x, self.body.y+37, 4))
 				BGM.sound(gcommon.SOUND_SHOT2)
-			if self.cnt % (self.shotCycle) == 0 and self.cycleCount & 1 == 1:
+			#if self.cnt % int(self.shotCycle*2) == 0 and self.cycleCount & 1 == 1:
 				#enemy.enemy_shot_self.x, self.body.y+23, 2, 0, -4)
 				#enemy.enemy_shot_offset(self.x, self.body.y+23, 2, 0, 4)
 				#enemy.enemy_shot_multi(self.x+20, self.y+27, 2, 0, 3, 5)
 				#enemy.enemy_shot_multi(self.x+20, self.y+160-27, 2, 0, 3, 5)
-				self.shotDish(-1)
-				self.shotDish(1)
+				#gcommon.debugPrint("Shot 2??")
+				#self.shotDish(-1)
+				#self.shotDish(1)
 			self.setBodyAnchorPos()
 		elif self.state == 8:
 			# 中心に移動
@@ -247,19 +251,19 @@ class Boss3(enemy.EnemyBase):
 			xoffset = -80
 		# 上半分
 		pyxel.blt(self.x, self.y, 1, 176 +xoffset, 224, 80, -32, gcommon.TP_COLOR)
-		pyxel.blt(self.x+32, self.y+32, 1, 208, 176, 32, -48, gcommon.TP_COLOR)
+		pyxel.blt(self.x+32, self.y+32, 1, 208, 168, 32, -56, gcommon.TP_COLOR)
 		# 下半分
-		pyxel.blt(self.x+32, self.y+80, 1, 208, 176, 32, 48, gcommon.TP_COLOR)
-		pyxel.blt(self.x, self.y+128, 1, 176 +xoffset, 224, 80, 32, gcommon.TP_COLOR)
+		pyxel.blt(self.x+32, self.y+88, 1, 208, 168, 32, 56, gcommon.TP_COLOR)
+		pyxel.blt(self.x, self.y+144, 1, 176 +xoffset, 224, 80, 32, gcommon.TP_COLOR)
 		# アンカー
-		pyxel.blt(self.anchor.x, self.anchor.y, 1, 192, 112, 24, 16, gcommon.TP_COLOR)
+		pyxel.blt(self.anchor.x, self.anchor.y, 1, 192, 104, 24, 16, gcommon.TP_COLOR)
 		x = self.anchor.x +24
 		while(x < self.body.x +8):
-			pyxel.blt(x, self.anchor.y, 1, 216, 112, 16, 16, gcommon.TP_COLOR)
+			pyxel.blt(x, self.anchor.y, 1, 216, 104, 16, 16, gcommon.TP_COLOR)
 			x += 16
 
 		# 本体
-		pyxel.blt(self.body.x, self.body.y, 1, 208, 128, 48, 48, gcommon.TP_COLOR)
+		pyxel.blt(self.body.x, self.body.y, 1, 208, 120, 48, 48, gcommon.TP_COLOR)
 
 	# 自機弾と敵との当たり判定と破壊処理
 	def checkShotCollision(self, shot):
@@ -267,13 +271,13 @@ class Boss3(enemy.EnemyBase):
 			return False
 		return gcommon.check_collision(self.body, shot)
 	
-	def shotDish(self, dy):
-		x = self.x+20
-		if dy > 0:
-			y = self.y+27
-		else:
-			y = self.y+160-27
-		ObjMgr.addObj(Boss3Dish(x, y, -2, dy * 2))
+	# def shotDish(self, dy):
+	# 	x = self.x+20
+	# 	if dy > 0:
+	# 		y = self.y+27
+	# 	else:
+	# 		y = self.y+160-27
+	# 	ObjMgr.addObj(Boss3Dish(x, y, -2, dy * 2))
 
 	# def doShotCollision(self, shot):
 	# 	rad = math.atan2(shot.dy, shot.dx)
@@ -292,17 +296,7 @@ class Boss3(enemy.EnemyBase):
 			return True
 		if gcommon.check_collision(self.anchor, ObjMgr.myShip):
 			return True
-		if gcommon.check_collision2(self.x, self.y, self.upperARect, ObjMgr.myShip):
-			return True
-		if gcommon.check_collision2(self.x, self.y, self.upperBRect, ObjMgr.myShip):
-			return True
-		if gcommon.check_collision2(self.x, self.y, self.shaftRect, ObjMgr.myShip):
-			return True
-		if gcommon.check_collision2(self.x, self.y, self.lowerBRect, ObjMgr.myShip):
-			return True
-		if gcommon.check_collision2(self.x, self.y, self.lowerARect, ObjMgr.myShip):
-			return True
-		return False
+		return gcommon.check_collision_list(self.x, self.y, self.collisionRects, ObjMgr.myShip)
 
 	def broken(self):
 		self.remove()
@@ -339,36 +333,36 @@ class Boss3Shot(enemy.EnemyBase):
 		# pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)
 		pyxel.blt(self.x, self.y, 1, 192, 96, 24, 8, gcommon.TP_COLOR)
 
+# 作ったけど、使わない
+# class Boss3Dish(enemy.EnemyBase):
+# 	# x,y 弾の中心を指定
+# 	# dr  0 -63
+# 	def __init__(self, x, y, dx, dy):
+# 		super(__class__, self).__init__()
+# 		self.shotHitCheck = False
+# 		self.x = x
+# 		self.y = y
+# 		self.dx = dx
+# 		self.dy = dy
+# 		self.layer = gcommon.C_LAYER_E_SHOT
+# 		self.hp = 30
+# 		self.shotHitCheck = True
+# 		self.left = -11.5
+# 		self.top = -11.5
+# 		self.right = 11.5
+# 		self.bottom = 11.5
 
-class Boss3Dish(enemy.EnemyBase):
-	# x,y 弾の中心を指定
-	# dr  0 -63
-	def __init__(self, x, y, dx, dy):
-		super(__class__, self).__init__()
-		self.shotHitCheck = False
-		self.x = x
-		self.y = y
-		self.dx = dx
-		self.dy = dy
-		self.layer = gcommon.C_LAYER_E_SHOT
-		self.hp = 30
-		self.shotHitCheck = True
-		self.left = -11.5
-		self.top = -11.5
-		self.right = 11.5
-		self.bottom = 11.5
+# 	def update(self):
+# 		self.x += self.dx
+# 		self.y += self.dy
+# 		if self.x <=-24:
+# 			self.removeFlag = True
+# 			return
+# 		if self.dy < 0 and self.y < (gcommon.SCREEN_MIN_Y +28):
+# 			self.dy = -self.dy
+# 		elif self.dy > 0 and self.y > (gcommon.SCREEN_MAX_Y -28):
+# 			self.dy = -self.dy
 
-	def update(self):
-		self.x += self.dx
-		self.y += self.dy
-		if self.x <=-24:
-			self.removeFlag = True
-			return
-		if self.dy < 0 and self.y < (gcommon.SCREEN_MIN_Y +28):
-			self.dy = -self.dy
-		elif self.dy > 0 and self.y > (gcommon.SCREEN_MAX_Y -28):
-			self.dy = -self.dy
-
-	def draw(self):
-		pyxel.blt(self.x -11.5, self.y -11.5, 1, 232, 96, 24, 24, gcommon.TP_COLOR)
+# 	def draw(self):
+# 		pyxel.blt(self.x -11.5, self.y -11.5, 1, 232, 96, 24, 24, gcommon.TP_COLOR)
 

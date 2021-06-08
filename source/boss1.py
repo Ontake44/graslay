@@ -77,6 +77,7 @@ class Boss1(enemy.EnemyBase):
 			if self.cnt > 260:
 				self.nextState()
 		elif self.state == 1:
+			# 指定位置まで移動
 			self.x -= gcommon.cur_scroll_x
 			self.x += 0.625
 			self.y -= 0.20		#0.125
@@ -85,6 +86,7 @@ class Boss1(enemy.EnemyBase):
 			if self.cnt > 270:
 				self.nextState()
 		elif self.state == 2:
+			# 指定位置まで移動
 			self.y += 0.25
 			if self.cnt % 60 == 0:
 				self.shotFix4()
@@ -162,6 +164,8 @@ class Boss1(enemy.EnemyBase):
 			if self.y +30 > ObjMgr.myShip.y:
 				dy = -dy
 			self.y += dy
+			if self.cnt % 30 == 0:
+				self.shotFix4()
 			if self.cnt > self.beamTime:
 				self.nextState()
 		elif self.state == 8:
