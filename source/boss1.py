@@ -50,6 +50,9 @@ class Boss1(enemy.EnemyBase):
 		self.top = 16
 		self.right = 93
 		self.bottom = 45
+		self.collisionRects = gcommon.Rect.createFromList([
+			[1, 23, 15, 37], [16, 16, 93, 45]
+		])
 		self.hp = 999999
 		self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.score = 5000
@@ -61,7 +64,7 @@ class Boss1(enemy.EnemyBase):
 		self.subState = 0
 		self.isLeft = True
 		self.beamTime = __class__.beamTimes[GameSession.difficulty]
-		gcommon.debugPrint("beam Time = " + str(self.beamTime))
+		#gcommon.debugPrint("beam Time = " + str(self.beamTime))
 		self.tbl = []
 		self.beamObj = Boss1Beam(self)
 		ObjMgr.addObj(self.beamObj)
