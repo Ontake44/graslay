@@ -403,6 +403,7 @@ class Boss2(enemy.EnemyBase):
 		self.feelers.append(Feeler(self, 16, 29, 24, 6))
 		self.feelers.append(Feeler(self, 16, 8, 40, 6))
 		self.feelers.append(Feeler(self, 50, 8, 56, 6))
+		self.feelerShots = []
 		#self.feelers[0].setMode(1)
 		#self.feelers[1].setMode(1)
 		#self.feelers[2].setMode(1)
@@ -524,31 +525,30 @@ class Boss2(enemy.EnemyBase):
 			attack = boss2tbl[self.tblIndex][4]
 			if attack == 1:
 				# 触手伸ばす攻撃
-				if self.cycleCount & 1 == 0:
-					if self.subcnt == 1:
-						self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+29, 24)))
-						BGM.sound(gcommon.SOUND_FEELER_GROW)
-					elif self.subcnt == 20:
-						self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+8, 40)))
-					elif self.subcnt == 40:
-						self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+8, 24)))
-					elif self.subcnt == 60:
-						self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+29, 40)))
-				else:
-					if self.subcnt == 1:
-						self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +14, self.y+16, 32)))
-						BGM.sound(gcommon.SOUND_FEELER_GROW)
-					elif self.subcnt == 15:
-						self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +33, self.y+5, 20)))
-					elif self.subcnt == 30:
-						self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +31, self.y+33, 40)))
-					#elif self.subcnt == 45:
-					#	ObjMgr.addObj(Boss2Cell(self, self.x +48, self.y+6, 24))
-					#elif self.subcnt == 60:
-					#	ObjMgr.addObj(Boss2Cell(self, self.x +48, self.y+33, 38))
+				#if self.cycleCount & 1 == 0:
+				if self.subcnt == 1:
+					#self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+29, 24)))
+					self.shotBoss2Feeler(self.x +16, self.y+29, math.pi * 0.75)
+					BGM.sound(gcommon.SOUND_FEELER_GROW)
+				elif self.subcnt == 20:
+					#self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+8, 40)))
+					self.shotBoss2Feeler(self.x +16, self.y+8, math.pi * 1.25)
+				elif self.subcnt == 40:
+					#self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+8, 24)))
+					self.shotBoss2Feeler(self.x +50, self.y+8, math.pi *1.5)
+				elif self.subcnt == 60:
+					#self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+29, 40)))
+					self.shotBoss2Feeler(self.x +50, self.y+29, math.pi*0.5)
 			self.subcnt+=1
 
+	def shotBoss2Feeler(self, x, y, rad):
+		self.feelerShots.append(ObjMgr.addObj(Boss2FeelerShot(self, x, y, rad)))
+
 	def draw(self):
+		if self.cnt & 16 == 0:
+			pyxel.blt(self.x, self.y, 1, 176, 112, 80, 48, gcommon.TP_COLOR)
+		else:
+			pyxel.blt(self.x, self.y, 1, 176, 160, 80, 48, gcommon.TP_COLOR)
 		pyxel.blt(self.x, self.y, 1, 176, 208, 80, 48, gcommon.TP_COLOR)
 
 	def nextTbl(self):
@@ -568,6 +568,8 @@ class Boss2(enemy.EnemyBase):
 	def broken(self):
 		for feeler in self.feelers:
 			feeler.remove()
+		for feelerShot in self.feelerShots:
+			feelerShot.remove()
 		for cell in self.bossCells:
 			if cell.removeFlag == False:
 				cell.remove()
@@ -578,4 +580,87 @@ class Boss2(enemy.EnemyBase):
 		BGM.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
 		ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
+
+class Boss2FeelerShot(enemy.EnemyBase):
+	def __init__(self, bossObj, x, y, rad):
+		super(__class__, self).__init__()
+		self.bossObj = bossObj
+		self.x = x	# 中心座標
+		self.y = y
+		self.layer = gcommon.C_LAYER_GRD
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.hp = 1000
+		self.speed = 2.5
+		self.rad = rad
+		self.imageSourceX = 32
+		self.imageSourceY = 128
+		self.cellCount = 6
+		self.cellDelay = 5
+		self.cellList = []
+		self.collisionRects = []
+		self.omega = math.pi/20
+
+	def update(self):
+		if self.state == 0:
+			if self.cnt > 5 and (self.cnt & 1 == 0) and self.cnt < 100:
+				if self.cnt < 40:
+					self.omega = math.pi/20
+				else:
+					self.omega = math.pi/40
+				rad = gcommon.get_atan_to_ship(self.x, self.y)
+				rad = gcommon.radNormalize(rad - self.rad)
+				if math.fabs(rad) > 0.1:
+					if rad > 0:
+						self.rad += self.omega
+					else:
+						self.rad -= self.omega
+			self.x += self.speed * math.cos(self.rad)
+			self.y += self.speed * math.sin(self.rad)
+			if self.x < -12 or self.y < -12 or self.x > (gcommon.SCREEN_MAX_X+12) or self.y > (gcommon.SCREEN_MAX_Y +12):
+				self.nextState()
+		elif self.state == 1:
+			pos = gcommon.getCenterPos(self.bossObj)
+			if self.cnt & 1 == 0:
+				rad = math.atan2(pos[1] - self.y, pos[0] - self.x)
+				rad = gcommon.radNormalize(rad - self.rad)
+				if math.fabs(rad) > 0.1:
+					if rad > 0:
+						self.rad += math.pi/20
+					else:
+						self.rad -= math.pi/20
+			self.x += self.speed * math.cos(self.rad)
+			self.y += self.speed * math.sin(self.rad)
+			lx = pos[0] -self.x
+			ly = pos[1] -self.y
+			if math.sqrt(lx*lx +ly*ly) < 10:
+				self.nextState()
+		else:
+			pos = gcommon.getCenterPos(self.bossObj)
+			self.x = pos[0]
+			self.y = pos[1]
+			if self.cnt > 60:
+				self.remove()
+				return
+		self.cellList.insert(0, [self.x, self.y])
+		if len(self.cellList) > (self.cellCount *  self.cellDelay +1):
+			self.cellList.pop()
+
+		index = 0
+		self.collisionRects = []
+		while(index < len(self.cellList)):
+			c = self.cellList[index]
+			cx = c[0] -self.x
+			cy = c[1] -self.y
+			self.collisionRects.append(gcommon.Rect.create(cx -5, cy-5, cx+5, cy+5))
+			index += self.cellDelay
+
+	def draw(self):
+		index = 0
+		sx = 0
+		while(index < len(self.cellList)):
+			c = self.cellList[index]
+			pyxel.blt(c[0] -7.5, c[1] -7.5, 1, self.imageSourceX + sx, self.imageSourceY, 16, 16, 2)
+			sx = -32
+			index += self.cellDelay
 

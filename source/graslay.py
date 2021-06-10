@@ -723,6 +723,7 @@ class MainGame:
 			[4608,SetMapScroll, 0.25, -0.25],	\
 			[5216,SetMapScroll, 0.50, 0.0],	\
 			[6300, StartBGM, BGM.BOSS],
+			#[7224,SetMapScroll, 0.0, 0.0],	\
 		]
 
 	def initEventCave(self):
