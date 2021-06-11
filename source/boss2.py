@@ -527,17 +527,13 @@ class Boss2(enemy.EnemyBase):
 				# 触手伸ばす攻撃
 				#if self.cycleCount & 1 == 0:
 				if self.subcnt == 1:
-					#self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+29, 24)))
 					self.shotBoss2Feeler(self.x +16, self.y+29, math.pi * 0.75)
 					BGM.sound(gcommon.SOUND_FEELER_GROW)
 				elif self.subcnt == 20:
-					#self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +16, self.y+8, 40)))
 					self.shotBoss2Feeler(self.x +16, self.y+8, math.pi * 1.25)
-				elif self.subcnt == 40:
-					#self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+8, 24)))
+				elif self.subcnt == 40 and GameSession.isNormalOrMore():
 					self.shotBoss2Feeler(self.x +50, self.y+8, math.pi *1.5)
-				elif self.subcnt == 60:
-					#self.bossCells.append(ObjMgr.addObj(Boss2Cell(self, self.x +50, self.y+29, 40)))
+				elif self.subcnt == 60 and GameSession.isHard():
 					self.shotBoss2Feeler(self.x +50, self.y+29, math.pi*0.5)
 			self.subcnt+=1
 
@@ -581,6 +577,8 @@ class Boss2(enemy.EnemyBase):
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
 		ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
 
+
+# 触手ロケットパンチ
 class Boss2FeelerShot(enemy.EnemyBase):
 	def __init__(self, bossObj, x, y, rad):
 		super(__class__, self).__init__()
@@ -599,15 +597,17 @@ class Boss2FeelerShot(enemy.EnemyBase):
 		self.cellDelay = 5
 		self.cellList = []
 		self.collisionRects = []
-		self.omega = math.pi/20
+		self.omega1 = math.pi/20
+		self.omega2 = math.pi/40
+		self.omega = self.omega1
 
 	def update(self):
 		if self.state == 0:
 			if self.cnt > 5 and (self.cnt & 1 == 0) and self.cnt < 100:
 				if self.cnt < 40:
-					self.omega = math.pi/20
+					self.omega = self.omega1
 				else:
-					self.omega = math.pi/40
+					self.omega = self.omega2
 				rad = gcommon.get_atan_to_ship(self.x, self.y)
 				rad = gcommon.radNormalize(rad - self.rad)
 				if math.fabs(rad) > 0.1:
