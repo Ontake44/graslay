@@ -23,7 +23,7 @@ class Worm3(EnemyBase):
         self.right = 23
         self.bottom = 13
         self.layer = gcommon.C_LAYER_SKY
-        self.hp = 200
+        self.hp = 150
         self.hitCheck = True
         self.shotHitCheck = True
         self.enemyShotCollision = False

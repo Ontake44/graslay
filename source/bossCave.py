@@ -50,6 +50,8 @@ class BossCave(enemy.EnemyBase):
         [49, 46]
     ]
     laserIntervalTable = (240, 200, 180)
+    batMaxTable = (3, 4, 6)
+    wormMaxTable = (3, 4, 5)
     def __init__(self, t):
         super(BossCave, self).__init__()
         self.x = 128
@@ -76,6 +78,8 @@ class BossCave(enemy.EnemyBase):
         self.laserInterval = __class__.laserIntervalTable[GameSession.difficulty]
         self.attackState = 0
         self.attackCnt = 0
+        self.batMax = __class__.batMaxTable[GameSession.difficulty]
+        self.wormMax = __class__.wormMaxTable[GameSession.difficulty]
 
     def update(self):
         if self.state < 100:
@@ -128,7 +132,7 @@ class BossCave(enemy.EnemyBase):
                 if self.cnt % 200 == 0:
                     # 水中の蟲
                     self.worm4List = gcommon.getShrinkList(self.worm4List)
-                    if len(self.worm4List) < 5:
+                    if len(self.worm4List) < self.wormMax:
                         dx = 1.0 if self.cnt % 400 == 0 else -1.0
                         dy = 0.20 if self.cnt % 800 == 0 else -0.25
                         obj = enemyCreature.Worm4(self.x + 8*6, self.y + 112, dx, dy)
@@ -138,7 +142,7 @@ class BossCave(enemy.EnemyBase):
                 if c % 20 == 0 and c < 80:
                     # 蝙蝠みたいなやつ
                     self.bat1List = gcommon.getShrinkList(self.bat1List)
-                    if len(self.bat1List) < 6:
+                    if len(self.bat1List) < self.batMax:
                         dx = (self.random.rand() % 10 -5)/5.0
                         dy = -4.0
                         obj = enemyCreature.Worm5(self, self.x + 8*6, self.y + 15, dx, dy)
@@ -155,19 +159,29 @@ class BossCave(enemy.EnemyBase):
         if self.attackCnt % 180 == 0:
             # レーザー
             omega = math.pi/4 if self.cnt % 360 == 0 else -math.pi/4
-            for i, pt in enumerate(__class__.laserPointTable):
-                ObjMgr.addObj(boss.ChangeDirectionLaser1(self.x + pt[0], self.y + pt[1], -math.pi/2 - math.pi/16 + math.pi/4 * i, omega))
+            if GameSession.isHard():
+                for i, pt in enumerate(__class__.laserPointTable):
+                    ObjMgr.addObj(boss.ChangeDirectionLaser1(self.x + pt[0], self.y + pt[1], -math.pi/2 - math.pi/16 + math.pi/4 * i, omega))
+            else:
+                for i, pt in enumerate(__class__.laserPointTable):
+                    if i & 1 == 0:
+                        ObjMgr.addObj(boss.ChangeDirectionLaser1(self.x + pt[0], self.y + pt[1], -math.pi/2 - math.pi/16 + math.pi/4 * i, omega))
         self.attackCnt +=1
         if self.attackCnt >= 180:
             self.attackCnt = 0
             self.attackState += 1
 
     def attack1(self):
+        if GameSession.isEasy():
+            return
         if self.attackCnt % 10 == 0:
             n = int(self.attackCnt /10)
             pt = __class__.laserPointTable[n]
-            ObjMgr.addObj(boss.DelayedShotLaser1(self.x + pt[0], self.y + pt[1], -math.pi/2 + math.pi/4 * n + math.pi/16))
-            ObjMgr.addObj(boss.DelayedShotLaser1(self.x + pt[0], self.y + pt[1], -math.pi/2 + math.pi/4 * n - math.pi/16))
+            if GameSession.isHard():
+                ObjMgr.addObj(boss.DelayedShotLaser1(self.x + pt[0], self.y + pt[1], -math.pi/2 + math.pi/4 * n + math.pi/16))
+                ObjMgr.addObj(boss.DelayedShotLaser1(self.x + pt[0], self.y + pt[1], -math.pi/2 + math.pi/4 * n - math.pi/16))
+            else:
+                ObjMgr.addObj(boss.DelayedShotLaser1(self.x + pt[0], self.y + pt[1], -math.pi/2 + math.pi/4 * n))
         self.attackCnt +=1
         if self.attackCnt > 10 * 7:
             self.attackCnt = 0
@@ -200,6 +214,8 @@ class BossCave(enemy.EnemyBase):
                 pyxel.blt(self.x +32, self.y +40, 2, 136, 136, 56, 48)
             n = (self.cnt>>4) & 3
             pyxel.blt(self.x +80, self.y +8, 2, 96 +n*40, 184, 40, 24, 3)
+            # 中心の玉
+            pyxel.blt(self.x +48, self.y +54, 2, 232, 208, 24, 22, 3)
         elif self.state == 100:
             pyxel.blt(self.x, self.y, 2, 136, 0, 256-136, 136, 3)
         else:

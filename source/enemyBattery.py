@@ -332,7 +332,7 @@ class PlantBattery2(EnemyBase):
 			self.bottom = 23 -3
 		self.layer = gcommon.C_LAYER_GRD
 		self.hp = 20
-		self.shotInterval = int(120 / GameSession.enemy_shot_rate)
+		self.shotInterval = int(150 / GameSession.enemy_shot_rate)
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
