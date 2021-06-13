@@ -772,6 +772,10 @@ def isMapFree(no):
 	global mapAttribute
 	return mapAttribute[no >> 5][no & 31] != "1"
 
+def isMapZero(no):
+	global mapAttribute
+	return mapAttribute[no >> 5][no & 31] == "0"
+
 # 敵弾発射可能？
 def isShotMapPos(x, y):
 	no = getMapData(x, y)
@@ -786,6 +790,13 @@ def isMapFreePos(x, y):
 	no = getMapData(x, y)
 	if no >= 0:
 		return isMapFree(no)
+	else:
+		return True
+
+def isMapZeroPos(x, y):
+	no = getMapData(x, y)
+	if no >= 0:
+		return isMapZero(no)
 	else:
 		return True
 

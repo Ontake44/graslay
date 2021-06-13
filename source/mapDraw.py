@@ -518,10 +518,7 @@ class MapDraw4:
 					ObjMgr.addObj(obj)
 				elif n in (390, 391):
 					# 砲台
-					obj = enemy.Battery2(mx, my, 1)
-					if n == 391:
-						obj.direction = -1
-					ObjMgr.addObj(obj)
+					ObjMgr.addObj(enemy.Battery2(mx, my, 1 if n==390 else -1))
 				else:
 					# 共通のマップキャラクタ処理
 					doMapCharacter(n, mx, my)

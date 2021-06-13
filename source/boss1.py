@@ -66,6 +66,8 @@ class Boss1(enemy.EnemyBase):
 		self.beamTime = __class__.beamTimes[GameSession.difficulty]
 		#gcommon.debugPrint("beam Time = " + str(self.beamTime))
 		self.tbl = []
+		self.shotFlag = False
+		self.dy = 0.0
 		self.beamObj = Boss1Beam(self)
 		ObjMgr.addObj(self.beamObj)
 
@@ -138,7 +140,7 @@ class Boss1(enemy.EnemyBase):
 					newTbl.append(s)
 			self.tbl = newTbl
 
-			if self.cnt > self.beamTime:
+			if self.cnt > 90:
 				self.nextState()
 				BGM.sound(gcommon.SOUND_BOSS1BEAM)
 		elif self.state == 5:
@@ -157,29 +159,34 @@ class Boss1(enemy.EnemyBase):
 			self.beam = 6
 			zy = abs(self.y +30 - ObjMgr.myShip.y)
 			if zy > 80:
-				dy = 3
+				self.dy = 3
 			elif zy > 50:
-				dy = 2
+				self.dy = 2
 			elif zy > 20:
-				dy = 1
+				self.dy = 1
 			else:
-				dy = 0.25
+				self.dy = 0.25
 			if self.y +30 > ObjMgr.myShip.y:
-				dy = -dy
-			self.y += dy
-			if self.cnt % 30 == 0:
-				self.shotFix4()
+				self.dy = -self.dy
+			self.y += self.dy
+			#if self.cnt % 30 == 0:
+			#	self.shotFix4()
 			if self.cnt > self.beamTime:
 				self.nextState()
 		elif self.state == 8:
+			self.dy = 0.0
 			# ビーム発射終了（移動なし）
 			self.beam = 5- int(self.cnt/3)
 			self.beamObj.hitCheck = False
 			if self.beam < 0:
-				self.state = 3
-				self.cnt = 0
+				self.setState(3)
 	def draw(self):
 		if self.state == 4:
+			if self.cnt > 20:
+				if self.cnt & 3 == 0:
+					pyxel.blt(self.x -22, self.y+22, 1, 48, 208, 24, 16, 0)
+				elif self.cnt & 3 == 1:
+					pyxel.blt(self.x -22, self.y+22, 1, 48, 224, 24, 16, 0)
 			for s in self.tbl:
 				y = s.x* s.x/s.a
 				pyxel.pset(self.x -s.x, self.y +28 -y + s.y, 7)
@@ -190,6 +197,24 @@ class Boss1(enemy.EnemyBase):
 		else:
 			pyxel.blt(self.x +40, self.y+8, 1, 128, 136, 32, 48, gcommon.TP_COLOR)
 		pyxel.blt(self.x +72, self.y , 1, 232, 200, 24, 56, gcommon.TP_COLOR)
+
+		# バーニア
+		if self.dy > 0.1:
+			if self.cnt & 3 == 0:
+				pyxel.blt(self.x +24, self.y-6, 1, 24, 176, 8, -26, 0)
+				pyxel.blt(self.x +72, self.y-6, 1, 24, 176, 8, -26, 0)
+			elif self.cnt & 3 == 2:
+				pyxel.blt(self.x +24, self.y-6, 1, 32, 176, 8, -26, 0)
+				pyxel.blt(self.x +72, self.y-6, 1, 32, 176, 8, -26, 0)
+		elif self.dy < -0.1:
+			if self.cnt & 3 == 0:
+				pyxel.blt(self.x +24, self.y+42, 1, 24, 176, 8, 26, 0)
+				pyxel.blt(self.x +72, self.y+42, 1, 24, 176, 8, 26, 0)
+			elif self.cnt & 3 == 2:
+				pyxel.blt(self.x +24, self.y+42, 1, 32, 176, 8, 26, 0)
+				pyxel.blt(self.x +72, self.y+42, 1, 32, 176, 8, 26, 0)
+
+		# ビーム表示
 		if self.beam >= 1 and self.beam <=5:
 			bx = self.x -12
 			while(bx > -8):
@@ -213,25 +238,35 @@ class Boss1(enemy.EnemyBase):
 
 	def shotFix4(self):
 		ox = 0 if self.isLeft else 8
-		enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +22, 4, 1, self.getDirection(33))
-		enemy.enemy_shot_dr(self.x +52 +ox, self.y +16, 4, 1, self.getDirection(37))
-		enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +42, 4, 1, self.getDirection(31))
-		enemy.enemy_shot_dr(self.x +52 +ox, self.y +48, 4, 1, self.getDirection(27))
+		if self.shotFlag:
+			enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +22, 4, 1, self.getDirection(32+3))
+			enemy.enemy_shot_dr(self.x +52 +ox, self.y +16, 4, 1, self.getDirection(32+7))
+			enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +42, 4, 1, self.getDirection(32-3))
+			enemy.enemy_shot_dr(self.x +52 +ox, self.y +48, 4, 1, self.getDirection(32-7))
+			self.shotFlag = False
+		else:
+			enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +22, 4, 1, self.getDirection(32+1))
+			enemy.enemy_shot_dr(self.x +52 +ox, self.y +16, 4, 1, self.getDirection(32+5))
+			enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +42, 4, 1, self.getDirection(32-1))
+			enemy.enemy_shot_dr(self.x +52 +ox, self.y +48, 4, 1, self.getDirection(32-5))
+			self.shotFlag = True
 		BGM.sound(gcommon.SOUND_SHOT2)
 
 	def shotFix8(self):
 		ox = 0 if self.isLeft else 8
-		enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +22, 2, 0, self.getDirection(31))
-		enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +22, 2, 0, self.getDirection(33))
-		
-		enemy.enemy_shot_dr(self.x +52 +ox, self.y +16, 2, 0, self.getDirection(35))
-		enemy.enemy_shot_dr(self.x +52 +ox, self.y +16, 2, 0, self.getDirection(37))
-		
-		enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +42, 2, 0, self.getDirection(31))
-		enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +42, 2, 0, self.getDirection(33))
-		
-		enemy.enemy_shot_dr(self.x +52 +ox, self.y +48, 2, 0, self.getDirection(27))
-		enemy.enemy_shot_dr(self.x +52 +ox, self.y +48, 2, 0, self.getDirection(29))
+
+		if self.shotFlag:
+			enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +22, 4, 1, self.getDirection(32+3))
+			enemy.enemy_shot_dr(self.x +52 +ox, self.y +16, 4, 1, self.getDirection(32+7))
+			enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +42, 4, 1, self.getDirection(32-3))
+			enemy.enemy_shot_dr(self.x +52 +ox, self.y +48, 4, 1, self.getDirection(32-7))
+			self.shotFlag = False
+		else:
+			enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +22, 4, 1, self.getDirection(32+1))
+			enemy.enemy_shot_dr(self.x +52 +ox, self.y +16, 4, 1, self.getDirection(32+5))
+			enemy.enemy_shot_dr(self.x +48 +ox*2, self.y +42, 4, 1, self.getDirection(32-1))
+			enemy.enemy_shot_dr(self.x +52 +ox, self.y +48, 4, 1, self.getDirection(32-5))
+			self.shotFlag = True
 		BGM.sound(gcommon.SOUND_SHOT2)
 
 	def broken(self):

@@ -1415,8 +1415,8 @@ class Missile3(EnemyBase):
 			if self.dx > 3:
 				self.dx = 3
 		if self.x < 32:
-			for i in range(16):
-				enemy_shot_dr(self.x + 8, self.y + 3, 2, 0, i*4)
+			for i in range(6):
+				enemy_shot_dr(self.x + 8, self.y + 3, 2, 0, int(i*10.6))
 			self.remove()
 		
 	def drawMissile(self):
@@ -1804,10 +1804,10 @@ class Worm2(EnemyBase):
 		self.y = t[3]
 		self.dr = t[4]
 		self.tbl = t[5]
-		self.left = 2
-		self.top = 2
-		self.right = 21
-		self.bottom = 21
+		self.left = 4
+		self.top = 4
+		self.right = 19
+		self.bottom = 19
 		self.hp = 600
 		#self.layer = gcommon.C_LAYER_UNDER_GRD
 		self.layer = gcommon.C_LAYER_GRD
@@ -2050,9 +2050,11 @@ class FallingObject(EnemyBase):
 		for i in range(self.mWidth):
 			check = False
 			if self.direction == 1:
-				check = gcommon.isMapFreePos(self.x + i*8, self.y +self.mHeight * 8)
+				#check = gcommon.isMapFreePos(self.x + i*8, self.y +self.mHeight * 8)
+				check = gcommon.isMapZeroPos(self.x + i*8, self.y +self.mHeight * 8)
 			else:
-				check = gcommon.isMapFreePos(self.x + i*8, self.y -1)
+				#check = gcommon.isMapFreePos(self.x + i*8, self.y -1)
+				check = gcommon.isMapZeroPos(self.x + i*8, self.y -1)
 			if check == False:
 				# 何かある
 				exist = True
@@ -2089,6 +2091,10 @@ class RuinPillar1(FallingObject):
 	def __init__(self, mx, my, direction, size):
 		super(RuinPillar1, self).__init__(mx, my, direction, 2, size, True)
 		self.size = size	# 高さ（8ドット単位） 2 - 6
+		self.left = 2
+		self.top = 0
+		self.right = 2 * 8 -3
+		self.bottom = self.mHeight * 8 -1
 		self.hp = 30
 		self.score = 50
 		self.bx = (self.size -2) * 2
@@ -2104,10 +2110,10 @@ class RuinFloor1(FallingObject):
 	def __init__(self, mx, my, direction, size):
 		super(RuinFloor1, self).__init__(mx, my, direction, size*2, 2, True)
 		self.size = size
-		self.left = 0
-		self.top = 4
-		self.right = self.mWidth * 8
-		self.bottom = self.mHeight * 8 -5
+		self.left = 2
+		self.top = 0
+		self.right = self.mWidth * 8 -3
+		self.bottom = self.mHeight * 8 -1
 		self.by = (self.size -2) * 2
 		self.enemyShotCollision = True
 		self.shotEffect = False
@@ -3400,9 +3406,9 @@ class Fighter2(EnemyBase):
 		self.brakeX = t[4]
 		self.dx = -3
 		self.direction = t[5]	# -1: 上  1:下
-		self.left = 5
+		self.left = 8
 		self.top = 4
-		self.right = 21
+		self.right = 29
 		self.bottom = 27
 		self.hp = 30
 		self.layer = gcommon.C_LAYER_SKY

@@ -44,14 +44,17 @@ class Boss4(enemy.EnemyBase):
 				self.nextState()
 		elif self.state == 1:
 			if self.subState == 0:
+				# 上に移動
 				self.y -= 1
 				if self.y < 8:
 					self.nextSubState()
 			elif self.subState == 1:
+				# 下に移動
 				self.y += 1
 				if self.y > 140:
 					self.nextSubState()
 			elif self.subState == 2:
+				# 上に移動
 				self.y -= 1
 				if self.y < 80:
 					self.subState = 0
@@ -59,9 +62,9 @@ class Boss4(enemy.EnemyBase):
 					self.nextState()
 			if self.cnt & 15 == 15:
 				self.shotDanmaku()
-		elif self.state == 2:
+		elif self.state in (2, 3, 4):
 			self.shotMissle()
-		elif self.state == 3:
+		elif self.state == 5:
 			if self.subState == 0:
 				self.y += 1
 				if self.y > 140:
@@ -78,9 +81,9 @@ class Boss4(enemy.EnemyBase):
 					self.nextState()
 			if self.cnt & 15 == 15:
 				self.shotDanmaku()
-		elif self.state in  [4, 5, 6, 7, 8]:
+		elif self.state in  [6, 7, 8, 9, 10]:
 			self.shotMissle()
-		elif self.state == 9:
+		elif self.state == 11:
 			self.setState(1)
 
 	def shotMissle(self):
@@ -105,12 +108,12 @@ class Boss4(enemy.EnemyBase):
 					elif mt == 1:
 						self.missileObj[i] = enemy.Missile2(self.x, self.y +16, 0)
 					else:
-						self.missileObj[i] = enemy.Missile3(self.x, self.y +16, 0)
+						self.missileObj[i] = enemy.Missile1(self.x, self.y +16, 0)
 				self.missileIndex += 1
 				if self.missileIndex >= len(missileTable):
 					self.missileIndex = 0
 				self.subCnt += 1
-			elif self.subCnt == 40:
+			elif self.subCnt == 20:
 				# ミサイル発射中へ
 				self.nextSubState()
 				self.missileState = 0
@@ -138,7 +141,7 @@ class Boss4(enemy.EnemyBase):
 				self.subCnt = 0
 		elif self.subState == 2:
 			# 待ち
-			if self.subCnt == 30:
+			if self.subCnt == 20:
 				self.setSubState(0)
 				self.nextState()
 				return
@@ -146,7 +149,7 @@ class Boss4(enemy.EnemyBase):
 
 	def shotDanmaku(self):
 		if self.cnt & 31 == 31:
-			speed = 3
+			speed = 2.5
 			enemy.enemy_shot_dr(self.x +52, self.y +16, speed, 0, 35)
 			enemy.enemy_shot_dr(self.x +48, self.y +22, speed, 0, 31)
 			enemy.enemy_shot_dr(self.x +48, self.y +42, speed, 0, 33)
