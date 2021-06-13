@@ -241,6 +241,12 @@ class Boss3(enemy.EnemyBase):
 					self.cycleCount += 1
 			self.setBodyAnchorPos()
 
+		r = random.randrange(0, 15)
+		if r == 0:
+			enemy.Splash.appendParam(self.x +16, self.y, gcommon.C_LAYER_GRD, math.pi-math.pi/32, math.pi/16, speed=6.0, lifeMin=20, lifeMax=50, count=10, color=10)
+		elif r == 5:
+			enemy.Splash.appendParam(self.x +16, self.y +176, gcommon.C_LAYER_GRD, math.pi+math.pi/32, math.pi/16, speed=6.0, lifeMin=20, lifeMax=50, count=10, color=10)
+
 		# マップループ
 		if gcommon.map_x >= 6800 + 256:
 			gcommon.map_x -= 8*4
