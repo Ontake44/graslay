@@ -75,13 +75,13 @@ class CustomStartMenuScene:
 				if self.menuPos == MENU_WEAPON_OPTION and Settings.weaponType == gcommon.WeaponType.TYPE_A:
 					self.menuPos = MENU_WEAPON_TYPE
 				if self.menuPos < 0:
-					self.menuPos = 5
+					self.menuPos = 4
 			if gcommon.checkDownP():
 				BGM.sound(gcommon.SOUND_MENUMOVE)
 				self.menuPos += 1
 				if self.menuPos == MENU_WEAPON_OPTION and Settings.weaponType == gcommon.WeaponType.TYPE_A:
 					self.menuPos = MENU_GAME_START
-				if self.menuPos > 5:
+				if self.menuPos > 4:
 					self.menuPos = 0
 			
 			if self.mouseManager.visible:

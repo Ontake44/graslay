@@ -37,7 +37,7 @@ class Fighter4(EnemyBase):
             self.remove()
             return
         if self.cnt == self.shotFirst:
-            enemy.enemy_shot(self.x +10, self.y+10, 3, 0)
+            enemy.enemy_shot(self.x +10, self.y+10, 2, 0)
 
     def draw(self):
         n = 0
@@ -66,7 +66,7 @@ class Fighter4(EnemyBase):
         else:
             pyxel.blt(self.x, self.y, 2, 48 + n*16, 0, width, 16, 0)
 
-
+# 蝙蝠みたいなやつ
 class Fighter4Group(EnemyBase):
     # 下から上へ
     moveTable0 = [

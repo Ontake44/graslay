@@ -587,10 +587,8 @@ class MapDrawFactory:
 					if n in (390, 391):
 						# 砲台
 						gcommon.setMapDataByMapPos(mx, my, 0)
-						obj = enemy.Battery1([0,0,mx, my, 0])
+						obj = enemy.Battery1([0,0,mx, my, 0 if n == 390 else 1])
 						obj.first = 20
-						if n == 391:
-							obj.mirror = 1
 						ObjMgr.addObj(obj)
 					elif n in (394, 395):
 						# サーキュレーター

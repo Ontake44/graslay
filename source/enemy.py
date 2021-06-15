@@ -46,7 +46,7 @@ def enemy_shot_rad(x, y, speed, shotType, rad):
 def enemy_shot_dr_multi(x, y, speed, shotType, dr, count, angleDr):
 	if count & 1 == 1:
 		ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr))
-		for i in range(count>>1):
+		for i in range(1,(count>>1)+1):
 			ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr + angleDr * i))
 			ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr - angleDr * i))
 	else:
@@ -2510,12 +2510,8 @@ class Battery3(EnemyBase):
 		self.ground = True
 		self.left = 2
 		self.right = 13
-		if self.direction == 1:
-			self.top = 5
-			self.bottom = 15
-		else:
-			self.top = 0
-			self.bottom = 10
+		self.top = 5
+		self.bottom = 15
 		self.hp = 10
 		self.score = 300
 
@@ -2543,10 +2539,10 @@ class Lift1(EnemyBase):
 		self.x = x
 		self.y = y
 		self.direction = direction	# 1:下  -1:上
-		self.left = 4
-		self.top = 0
-		self.right = 63
-		self.bottom = 15
+		self.left = 2
+		self.top = 1
+		self.right = 61
+		self.bottom = 8
 		self.hp = 999999
 		self.shotEffect = False
 		self.layer = gcommon.C_LAYER_GRD
@@ -2598,10 +2594,12 @@ class LiftAppear1(EnemyBase):
 	def createLift(self):
 		if self.direction == 1:
 			# 下
+			gcommon.debugPrint("Lower")
 			ObjMgr.addObj(Lift1(self.x, -16, self.direction))
 			ObjMgr.addObj(Battery3(self.x +16, -32, self.direction))
 		else:
 			# 上
+			gcommon.debugPrint("Upper")
 			ObjMgr.addObj(Lift1(self.x, gcommon.SCREEN_MAX_Y+1+16, self.direction))
 			ObjMgr.addObj(Battery3(self.x +16, gcommon.SCREEN_MAX_Y+1, self.direction))
 

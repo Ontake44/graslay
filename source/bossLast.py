@@ -37,6 +37,8 @@ class BossLast1(enemy.EnemyBase):
 		[[0,130],[9,0],[9,199],[0,68]],
 	]
 	launcherTable = [[38,24],[66,128+15],[66,49],[38,128+40]]
+	#launcherDrTable = [32 -5, 32 +2, 32 +2, 32 +5]
+	fallShot2RadTable = [0.6, 0.75, 0.65, 0.7, 0.63, 0.8, 0.72]
 	table8 = [5,3,6,2,1,7,4,0]
 	arrowDrTable = [1.0, 0.8, 1.2, 0.95, 1.1, 0.7, 1.05, 0.9, 1.3, 0.85, 1.15]
 	initHp = boss.BOSS_LAST_1 + boss.BOSS_LAST_2 + boss.BOSS_LAST_3	# 5000		# 2000
@@ -68,7 +70,7 @@ class BossLast1(enemy.EnemyBase):
 		self.beam2 = None
 		self.roundBeam = None
 		# ボスの攻撃形態
-		self.mode = 0
+		self.mode = 1
 		self.coreX = self.x +32+16+32
 		self.coreY = self.y +64+16+16
 		# コアの回転角度
@@ -78,6 +80,7 @@ class BossLast1(enemy.EnemyBase):
 		self.arrowRad = math.pi
 		self.omega = 0.0
 		self.random = gcommon.ClassicRand()
+		self.fallShot2RadIndex = 0
 		pyxel.image(2).load(0,0,"assets/graslay_last-3.png")
 		# 移動ビーム砲台発射口
 		ObjMgr.addObj(BossLast1Launcher(self.x, self.y, -1))
@@ -218,6 +221,7 @@ class BossLast1(enemy.EnemyBase):
 		elif self.state == 3:
 			if self.cnt > 30:
 				self.nextState()
+				self.fallShot2RadIndex = 0
 		elif self.state == 4:
 			# # 矢型の弾
 			# if self.cnt & 3 == 0:
@@ -225,16 +229,31 @@ class BossLast1(enemy.EnemyBase):
 			# 	ObjMgr.addObj(BossLastArrowShot(self.x +32+16+32, self.y +64+16+16, self.arrowRad))
 			# ひし形弾
 			if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
-				count = 12
+				count = 51
 			elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
-				count = 8
+				count = 37
 			else:
-				count = 5
+				count = 23
 			if self.cnt % count == 0:
-				ObjMgr.addObj(BossLastFallShotGroup(self.x +32+16+32, self.y +64+16+16,
-					math.pi + math.pi * (self.random.rand() % 100 -50)/120, 
-					(self.random.rand() % 120 -60)/800, 5))
-			if self.cnt > 240:
+				n = self.cnt % 4
+				pos = __class__.launcherTable[n]
+				if n in (0, 2):
+					rad = math.pi * __class__.fallShot2RadTable[self.fallShot2RadIndex]
+				else:
+					rad = -math.pi * __class__.fallShot2RadTable[self.fallShot2RadIndex]
+				ObjMgr.addObj(BossLastBoundShot(self.x +pos[0], self.y +pos[1], rad))
+				#ObjMgr.addObj(BossLastBoundShot(self.x +pos[0], self.y +pos[1], math.pi))
+				self.fallShot2RadIndex += 1
+				if self.fallShot2RadIndex >= len(__class__.fallShot2RadTable):
+					self.fallShot2RadIndex = 0
+			# if self.cnt % count == 0:
+			# 	speed = 2
+			# 	n = int(self.cnt /count) % 4
+			# 	pos = __class__.launcherTable[n]
+			# 	#enemy.enemy_shot_dr_multi(self.x +pos[0], self.y +pos[1], 2, 0, __class__.launcherDrTable[n], 3, 2)
+			# 	enemy.enemy_shot_multi(self.x +pos[0], self.y +pos[1], speed, 0, 5, 3)
+
+			if self.cnt > 300:
 				self.nextState()
 		elif self.state == 5:
 			if self.cnt == 1:
@@ -571,7 +590,7 @@ class BossLastBattery1(enemy.EnemyBase):
 				self.remove()
 				return
 			if self.cnt % 30 == (15 + self.flag * 5):
-				ObjMgr.addObj(BossLastBattery1Beam(self.x, self.y, 4 * self.flag))
+				ObjMgr.addObj(BossLastBattery1Beam(self.x, self.y, 2 * self.flag))
 
 	def draw(self):
 		pyxel.blt(self.x, self.y, 2, 96, 64, 16, -16 *self.flag, 3)
@@ -1216,7 +1235,7 @@ class BossLastRoundBeam(enemy.EnemyBase):
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
-		myPos : [float] = gcommon.getCenterPos(ObjMgr.myShip)
+		myPos = gcommon.getCenterPos(ObjMgr.myShip)
 		for i in [2,3, 8, 9]:
 			for pos in self.listArray[i]:
 				d = gcommon.get_distance_pos2(myPos, pos)
@@ -1241,3 +1260,58 @@ class BossLastBaseExplosion(enemy.EnemyBase):
 			if self.cnt < 120:
 				# 120超えるとサウンドなし
 				BGM.sound(gcommon.SOUND_MID_EXP)
+
+class BossLastBoundShot(enemy.EnemyBase):
+	def __init__(self, x, y, rad):
+		super(__class__, self).__init__()
+		self.x = x
+		self.y = y
+		self.rad = rad
+		self.left = -4.5
+		self.top = -4.5
+		self.right = 4.5
+		self.bottom = 4.5
+		self.layer = gcommon.C_LAYER_E_SHOT
+		self.ground = False
+		self.hitCheck = True
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+		self.speed = 2.0
+		self.hp = 2000
+		self.dx = self.speed * math.cos(self.rad)
+		self.dy = self.speed * math.sin(self.rad)
+		self.cellCount = 3
+		self.cellDelay = 4
+		self.cellList = []
+		#if self.rad < 0:
+		#	self.ddy = 0.1
+		#else:
+		#	self.ddy = -0.1
+
+	def update(self):
+		self.x += self.dx
+		self.y += self.dy
+		#self.dy += self.ddy
+		if self.x < -8:
+			self.remove()
+			return
+		if self.y < gcommon.SCREEN_MIN_Y +12 or self.y > gcommon.SCREEN_MAX_Y -12:
+			self.dy = -self.dy
+		self.cellList.insert(0, [self.x, self.y])
+		if len(self.cellList) > (self.cellCount *  self.cellDelay +1):
+			self.cellList.pop()
+
+	def draw(self):
+		imageIndex = 0
+		cellIndex = 0
+		posList = []
+		while imageIndex <= 2 and cellIndex < len(self.cellList):
+			posList.insert(0, self.cellList[cellIndex])
+			cellIndex += self.cellDelay
+			imageIndex += 1
+
+		imageIndex = 2
+		for pos in posList:
+			pyxel.blt(pos[0] -7.5, pos[1] -7.5, 2, imageIndex *16, 240, 16, 16, 3)
+			imageIndex -= 1
+

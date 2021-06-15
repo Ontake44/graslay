@@ -239,7 +239,7 @@ POWER_RATE_HARD = 1.0
 
 ENEMY_SHOT_RATE_EASY = 0.65
 ENEMY_SHOT_RATE_NORMAL = 0.75
-ENEMY_SHOT_RATE_HARD = 1.0
+ENEMY_SHOT_RATE_HARD = 0.90
 
 DIFFICULTY_RATE_EASY = 0.75
 DIFFICULTY_RATE_NORMAL = 1.0
@@ -786,28 +786,28 @@ def isShotMapPos(x, y):
 	else:
 		return True
 
-def isMapFreePos(x, y):
+def isMapFreePos(x, y) -> bool:
 	no = getMapData(x, y)
 	if no >= 0:
 		return isMapFree(no)
 	else:
 		return True
 
-def isMapZeroPos(x, y):
+def isMapZeroPos(x, y) -> bool:
 	no = getMapData(x, y)
 	if no >= 0:
 		return isMapZero(no)
 	else:
 		return True
 
-def isMapFreeByMapPos(mx, my):
+def isMapFreeByMapPos(mx, my) -> bool:
 	no = getMapDataByMapPos(mx, my)
 	if no >= 0:
 		return isMapFree(no)
 	else:
 		return True
 
-def mapPosToScreenPos(mx, my):
+def mapPosToScreenPos(mx, my) -> list:
 	global map_x
 	global map_y
 	global mapHeight

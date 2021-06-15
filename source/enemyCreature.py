@@ -52,14 +52,9 @@ class Worm3(EnemyBase):
             dr = 4
             count = 8
             angle = 8
-            if GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
-                dr = 32
-                count = 2
-                angle = 2
-            else:
-                dr = 32
-                count = 4
-                angle = 2
+            dr = 32
+            count = 2
+            angle = 2
             enemy.enemy_shot_dr_multi(self.x, self.y + 9, 2, 0, dr, count, angle)
 
     def draw(self):

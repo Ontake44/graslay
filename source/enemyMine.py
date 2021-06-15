@@ -85,14 +85,10 @@ class Mine1(EnemyBase):
             dr = 0
             count = 4
             angle = 16
-        elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
+        else:
             dr = 4
             count = 8
             angle = 8
-        else:
-            dr = 2
-            count = 16
-            angle = 4
-        enemy.enemy_shot_dr_multi(self.x + 8, self.y + 3, 3, 0, dr, count, angle)
+        enemy.enemy_shot_dr_multi(self.x + 8, self.y + 3, 2, 0, dr, count, angle)
         super(Mine1, self).broken()
 
