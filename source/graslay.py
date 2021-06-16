@@ -962,8 +962,8 @@ class App:
 		self.setScene(OptionMenuScene())
 
 	def startStageSelect(self):
-		#self.setScene(stageSelect.NextStageSelectScene(self, "2A", {"1A", "2A"}))
-		self.setScene(stageSelect.CustomStageSelectScene(self))
+		self.setScene(stageSelect.NextStageSelectScene(self, "2A", {"1A", "2A"}))
+		#self.setScene(stageSelect.CustomStageSelectScene(self))
 
 	def startScoreRanking(self, exitTo):
 		self.setScene(ranking.RankingDispScene(exitTo))

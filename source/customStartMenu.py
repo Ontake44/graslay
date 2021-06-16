@@ -21,7 +21,7 @@ class CustomStartMenuScene:
 	def __init__(self):
 		self.star_pos = 0
 		oy = 16
-		self.menuYList = (50 +oy, 70 +oy, 90 +oy, 110+oy, 130+oy, 158 +oy)
+		self.menuYList = (50 +oy, 70 +oy, 90 +oy, 110+oy, 130+oy)		#, 158 +oy)
 		self.menuPos = 0
 		self.state = 0
 		self.cnt = 0
@@ -55,7 +55,7 @@ class CustomStartMenuScene:
 		# ]
 		self.difficultyRects = [
 			gcommon.Rect.createWH(START_X -12, self.menuYList[MENU_GAME_START], 8, 8),
-			gcommon.Rect.createWH(START_X +(6+6)*8 + 4, self.menuYList[2], 8, 8),
+			gcommon.Rect.createWH(START_X +(6+6)*8 + 4, self.menuYList[MENU_GAME_START], 8, 8),
 		]
 
 	def init(self):

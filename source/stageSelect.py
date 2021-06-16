@@ -4,6 +4,7 @@ import stage
 import gcommon
 from audio import BGM
 from drawing import Drawing
+from mouseManager import MouseManager
 
 class StageSelect:
     nodeBaseX = 16
@@ -102,6 +103,7 @@ class NextStageSelectScene:
         self.state = 0
         self.cnt = 0
         self.star_pos = 0
+        self.mouseManager = MouseManager()
 
     def init(self):
         pyxel.image(1).load(0,0,"assets/stageList.png")
@@ -110,7 +112,7 @@ class NextStageSelectScene:
         self.star_pos -= 0.25
         if self.star_pos<0:
             self.star_pos += 256
-
+        self.mouseManager.update()
         if self.state == 0:
             if self.cnt == 20:
                 BGM.play(BGM.STAGE_SELECT)
@@ -120,16 +122,22 @@ class NextStageSelectScene:
                     self.currentIndex -= 1
                     if self.currentIndex < 0:
                         self.currentIndex = len(self.nextStageList) -1
-                if gcommon.checkDownP():
+                elif gcommon.checkDownP():
                     BGM.sound(gcommon.SOUND_MENUMOVE)
                     self.currentIndex += 1
                     if self.currentIndex >= len(self.nextStageList):
                         self.currentIndex = 0
-                if gcommon.checkShotKeyP():
+                elif gcommon.checkShotKeyP():
                     BGM.stop()
                     BGM.sound(gcommon.SOUND_GAMESTART)
                     self.state = 1
                     self.cnt = 0
+                else:
+                    for i, stageInfo in enumerate(self.nextStageList):
+                        rect = gcommon.Rect.createWH(stageInfo.x + StageSelect.nodeBaseX, stageInfo.y + StageSelect.nodeBaseY, 32, 16)
+                        if rect.contains(pyxel.mouse_x, pyxel.mouse_y):
+                            self.currentIndex = i
+
         else:
             #print(str(self.cnt))
             if self.cnt > 40:
@@ -166,6 +174,8 @@ class NextStageSelectScene:
 
         Drawing.showTextHCenter(180, "PUSH SHOT KEY")
   
+        if self.mouseManager.visible:
+            self.mouseManager.drawMenuCursor()
 
 class CustomStageSelectScene:
     nodeBaseX = 16
@@ -204,6 +214,7 @@ class CustomStageSelectScene:
         self.selectableStageMap = {}
         self.setSelectableStageMap(self.currentStageInfo)
         self.clearedMap = {}
+        self.mouseManager = MouseManager()
 
     def init(self):
         pyxel.image(1).load(0,0,"assets/stageList.png")
@@ -219,7 +230,7 @@ class CustomStageSelectScene:
         self.star_pos -= 0.25
         if self.star_pos<0:
             self.star_pos += 256
-
+        self.mouseManager.update()
         if self.state == 0:
             if self.cnt == 20:
                 BGM.play(BGM.STAGE_SELECT)
@@ -256,17 +267,34 @@ class CustomStageSelectScene:
                         self.currentStageInfo = self.currentStageInfo.parentList[0]
                         self.currentIndex = 0
                         #gcommon.debugPrint("index = " + str(self.currentIndex) + " " + self.currentStageInfo.stage)
-                if gcommon.checkShotKeyP():
+                elif gcommon.checkShotKeyP():
                     BGM.stop()
                     BGM.sound(gcommon.SOUND_GAMESTART)
                     self.state = 1
                     self.cnt = 0
+                else:
+                    if self.mouseManager.visible:
+                        stageInfo = self.getMouseSelectedStageInfo(self.rootStageInfo)
+                        if stageInfo != None:
+                            self.currentStageInfo = stageInfo
+
         else:
             #print(str(self.cnt))
             if self.cnt > 40:
                 gcommon.app.startNextStage(self.currentStageInfo.stage)
         self.cnt += 1
 
+    def getMouseSelectedStageInfo(self, stageInfo : stage.StageInfo):
+        rect = gcommon.Rect.createWH(stageInfo.x + StageSelect.nodeBaseX, stageInfo.y + StageSelect.nodeBaseY, 32, 16)
+        if rect.contains(pyxel.mouse_x, pyxel.mouse_y):
+            return stageInfo
+        elif stageInfo.nextStageList != None:
+            for nextStage in stageInfo.nextStageList:
+                s = self.getMouseSelectedStageInfo(nextStage)
+                if s != None:
+                    return s
+        else:
+            return None
 
     def draw(self):
         pyxel.cls(0)
@@ -279,7 +307,7 @@ class CustomStageSelectScene:
         stageInfo.setDrawFlag(False)
         highlight = True
         if self.state == 0:
-            if self.cnt & 16 == 0:
+            if self.cnt & 8 == 0:
                 highlight = False
         elif self.state == 1:
             if self.cnt & 2 == 0:
@@ -291,6 +319,9 @@ class CustomStageSelectScene:
         pyxel.blt(32, 108, 1, px, py, 64, 56)
 
         Drawing.showTextHCenter(180, "PUSH SHOT KEY")
+
+        if self.mouseManager.visible:
+            self.mouseManager.drawMenuCursor()
 
     # node 描画するステージ(StateInfo)
     # currentStage 現在選択中のステージ(StateInfo)

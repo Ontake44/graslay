@@ -75,7 +75,7 @@ class Settings:
                 Settings.bgmVolume = bgmVol
             if soundVol >= 0 and soundVol <= 10:
                 Settings.soundVolume = soundVol
-            Settings.mouseEnabled = True if mouseEnabled == "1" else False
+            Settings.mouseEnabled = True if mouseEnabled == 1 else False
             if difficulty in (gcommon.DIFFICULTY_EASY, gcommon.DIFFICULTY_NORMAL, gcommon.DIFFICULTY_HARD):
                 Settings.difficulty = difficulty
             if credits > 0 and credits < 100:

@@ -316,7 +316,7 @@ class CountMover:
 					self.deg += 360.0
 			elif mode == __class__.SET_DEG:
 				self.deg = item[2]
-				gcommon.debugPrint("SET_DEG")
+				#gcommon.debugPrint("SET_DEG")
 			elif mode == 100:
 				self.tableIndex = item[2]
 				self.cnt = 0
@@ -1241,7 +1241,7 @@ class Fan1bLauncher(EnemyBase):
 		self.ground = True
 		self.hitCheck = False
 		self.shotHitCheck = False
-		gcommon.debugPrint("Fan1bLauncher")
+		#gcommon.debugPrint("Fan1bLauncher")
 
 	def update(self):
 		if self.x < 0 or self.frameCount > 420:
@@ -2594,12 +2594,12 @@ class LiftAppear1(EnemyBase):
 	def createLift(self):
 		if self.direction == 1:
 			# 下
-			gcommon.debugPrint("Lower")
+			#gcommon.debugPrint("Lower")
 			ObjMgr.addObj(Lift1(self.x, -16, self.direction))
 			ObjMgr.addObj(Battery3(self.x +16, -32, self.direction))
 		else:
 			# 上
-			gcommon.debugPrint("Upper")
+			#gcommon.debugPrint("Upper")
 			ObjMgr.addObj(Lift1(self.x, gcommon.SCREEN_MAX_Y+1+16, self.direction))
 			ObjMgr.addObj(Battery3(self.x +16, gcommon.SCREEN_MAX_Y+1, self.direction))
 
