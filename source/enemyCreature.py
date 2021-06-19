@@ -399,7 +399,7 @@ class FireWorm1(EnemyBase):
             cy = c[1] -self.y
             self.collisionRects.append(gcommon.Rect.create(cx -12, cy-12, cx+12, cy+12))
 
-            # 
+            # 火の粉
             if c[1] > 190 and c[1] < 193:
                 x = c[0] + random.randrange(-20, 20)
                 enemy.Splash.appendParam(x, c[1], gcommon.C_LAYER_SKY, math.pi*1.5, math.pi*0.2,

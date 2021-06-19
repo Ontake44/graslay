@@ -407,6 +407,20 @@ def radNormalize(rad):
 		r += math.pi * 2
 	return r
 
+# radを 0 ～2piの間に正規化する
+def radNormalizeX(rad):
+	r = math.fmod(rad, math.pi * 2)
+	if r < 0.0:
+		r += math.pi * 2
+	return r
+
+def degNormalize(deg):
+	d = int(deg) % 360
+	if d < 0:
+		return 360 -d
+	else:
+		return d
+
 # 指定した座標・ラジアンから、自機方向にomega回転した値を返す
 def getRadToShip(x, y, rad, omega):
 	tempDr = get_atan_rad_to_ship(x, y)

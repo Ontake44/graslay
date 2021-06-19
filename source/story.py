@@ -650,34 +650,42 @@ class Story:
 			[3520, enemyFighter.FireBird1, 256, 80],
 			[3720, enemyFighter.FireBird1, 256, 40],
 			[3740, enemyFighter.FireBird1, 256, 80],
-			[3740, enemyCreature.FireWorm1, 300, 230, 225,
-				[
-					[90, CountMover.MOVE, -0.7, -0.7],
-					[90, 8, 225, 1.0, 1.0],
-					[400, CountMover.MOVE, 0.7, -0.7],
-				],
-				[
-					[90, 0],
-					[90, 1],
-					[0, 100]
-				]
-			],
+			[3760, enemyOthers.Prominence1Appear, 256, 200, 1, 1],
+			# [3740, enemyCreature.FireWorm1, 300, 230, 225,
+			# 	[
+			# 		[90, CountMover.MOVE, -0.7, -0.7],
+			# 		[90, 8, 225, 1.0, 1.0],
+			# 		[400, CountMover.MOVE, 0.7, -0.7],
+			# 	],
+			# 	[
+			# 		[90, 0],
+			# 		[90, 1],
+			# 		[0, 100]
+			# 	]
+			# ],
+			[3760, enemyFighter.FireBird1, 256, 80],
+			[3780, enemyFighter.FireBird1, 256, 60],
+			[3800, enemyFighter.FireBird1, 256, 120],
+
 			[3800, enemyFighter.FireBird1, 256, 40],
 			[3820, enemyFighter.FireBird1, 256, 80],
+			[3880, enemyOthers.Prominence1Appear, 256, 0, -1, -1],
+			[4000, enemyOthers.Prominence1Appear, 380, 200, -1, 1],
 			[4200, enemyFighter.FireBird1, 256, 80],
 			[4220, enemyFighter.FireBird1, 256, 60],
-			[4250, enemyCreature.FireWorm1, 300, -30, 135,
-				[
-					[90, CountMover.MOVE, -0.7, 0.7],
-					[90, 8, 135, -1.0, 1.0],
-					[400, CountMover.MOVE, 0.7, 0.7],
-				],
-				[
-					[90, 0],
-					[90, 1],
-					[0, 100]
-				]
-			],
+			[4400, enemyOthers.Prominence1Appear, 256, 0, -1, -1],
+			# [4250, enemyCreature.FireWorm1, 300, -30, 135,
+			# 	[
+			# 		[90, CountMover.MOVE, -0.7, 0.7],
+			# 		[90, 8, 135, -1.0, 1.0],
+			# 		[400, CountMover.MOVE, 0.7, 0.7],
+			# 	],
+			# 	[
+			# 		[90, 0],
+			# 		[90, 1],
+			# 		[0, 100]
+			# 	]
+			# ],
 			[4800, enemyFighter.FireBird1, 256, 40],
 			[4820, enemyFighter.FireBird1, 256, 80],
 			[4900, enemyFighter.FireBird1, 256, 100],
