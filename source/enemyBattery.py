@@ -5,6 +5,7 @@ import math
 import random
 import gcommon
 import enemy
+import item
 from objMgr import ObjMgr
 from enemy import EnemyBase
 from enemy import CountMover
@@ -160,9 +161,10 @@ class Tractor1(EnemyBase):
 		self.mover = CountMover(self, self.moveTable, False)
 		self.ground = True
 		self.score = 100
-		obj = Freight1(self, 0, 36)
+		# 貨物車を追加
+		obj = Freight1(self, 0, 36, 1)
 		ObjMgr.addObj(obj)
-		ObjMgr.addObj(Freight1(obj, 0, 48))
+		ObjMgr.addObj(Freight1(obj, 0, 48, 2))
 
 	def update(self):
 		self.mover.update()
@@ -180,13 +182,14 @@ class Tractor1(EnemyBase):
 
 # 貨物車
 class Freight1(EnemyBase):
-	def __init__(self, parent, offsetX, offsetY):
+	def __init__(self, parent, offsetX, offsetY, itemType=0):
 		super(Freight1, self).__init__()
 		self.x = parent.x + offsetX
 		self.y = parent.y + offsetY
 		self.parent = parent
 		self.offsetX = offsetX
 		self.offsetY = offsetY
+		self.itemType = itemType
 		self.left = -11
 		self.top = -22
 		self.right = 11
@@ -210,6 +213,13 @@ class Freight1(EnemyBase):
 
 	def draw(self):
 		pyxel.blt(self.x -11.5, self.y -24.5, 2, 0, 48, 24, 48, 3)
+
+	def broken(self):
+		super().broken()
+		if self.itemType == 1:
+			item.ScoreItem1.createByPos(self.x, self.y)
+		elif self.itemType == 2:
+			item.OneUpItem1.createByPos(self.x, self.y)
 
 
 # ※動かない

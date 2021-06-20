@@ -2675,11 +2675,14 @@ class HomingMissile1(EnemyBase):
 		self.bottom = 4
 		self.hp = 10
 		self.dr = dr
-		self.layer = gcommon.C_LAYER_SKY
+		self.layer = gcommon.C_LAYER_E_SHOT
 		self.score = 10
 		self.hitCheck = True
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
+		self.imageSourceIndex = 2
+		self.imageSourceX = 120
+		self.imageSourceY = 64
 	
 	def update(self):
 		if self.x < -16 or self.x > gcommon.SCREEN_MAX_X or self.y <-16 or self.y > gcommon.SCREEN_MAX_Y:
@@ -2698,11 +2701,11 @@ class HomingMissile1(EnemyBase):
 		fy = math.sin(gcommon.atan_table[d<<2]) * 8
 		if self.cnt & 2 == 0:
 			if self.cnt & 1 == 0:
-				pyxel.blt(self.x -7.5 -fx, self.y -7.5 -fy, 2, 200, 64, 16, 16, gcommon.TP_COLOR)
+				pyxel.blt(self.x -7.5 -fx, self.y -7.5 -fy, self.imageSourceIndex, self.imageSourceX +80, self.imageSourceY, 16, 16, gcommon.TP_COLOR)
 			else:
-				pyxel.blt(self.x -7.5 -fx, self.y -7.5 -fy, 2, 216, 64, 16, 16, gcommon.TP_COLOR)
+				pyxel.blt(self.x -7.5 -fx, self.y -7.5 -fy, self.imageSourceIndex, self.imageSourceX +96, self.imageSourceY, 16, 16, gcommon.TP_COLOR)
 		t = HomingMissile1.directionTable[d]
-		pyxel.blt(self.x -7.5, self.y -7.5, 2, 120 + t[0] * 16, 64, 16 * t[1], 16 * -t[2], gcommon.TP_COLOR)
+		pyxel.blt(self.x -7.5, self.y -7.5, self.imageSourceIndex, self.imageSourceX + t[0] * 16, self.imageSourceY, 16 * t[1], 16 * -t[2], gcommon.TP_COLOR)
 
 class SpotLight(EnemyBase):
 	def __init__(self, parent):

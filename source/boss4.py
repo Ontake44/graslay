@@ -12,9 +12,9 @@ missileTable = [
 	[0, 0, 0],
 	[0, 1, 0],
 	[1, 1, 0],
-	[2, 0, 0],
-	[0, 1, 2],
-	[2, 2, 2]
+	[0, 0, 0],
+	[0, 1, 0],
+	[0, 0, 0]
 ]
 
 class Boss4(enemy.EnemyBase):
@@ -35,6 +35,9 @@ class Boss4(enemy.EnemyBase):
 		self.missileState = 0
 		self.missileObj = [None, None, None]
 		self.missileIndex = 0
+		self.homingMissileInterval = 60
+		self.homingMissileCnt = 0
+		self.homingMissileFlag = False
 		self.score = 12000
 
 	def update(self):
@@ -62,8 +65,12 @@ class Boss4(enemy.EnemyBase):
 					self.nextState()
 			if self.cnt & 15 == 15:
 				self.shotDanmaku()
+			self.homingMissileFlag = False
+			#if self.cnt % self.homingMissileInterval == 0:
+			#	self.shotHomingMissile()
 		elif self.state in (2, 3, 4):
 			self.shotMissle()
+			self.homingMissileFlag = True
 		elif self.state == 5:
 			if self.subState == 0:
 				self.y += 1
@@ -81,10 +88,33 @@ class Boss4(enemy.EnemyBase):
 					self.nextState()
 			if self.cnt & 15 == 15:
 				self.shotDanmaku()
+			self.homingMissileFlag = False
+			#if self.cnt % self.homingMissileInterval == 0:
+			#	self.shotHomingMissile()
 		elif self.state in  [6, 7, 8, 9, 10]:
 			self.shotMissle()
+			self.homingMissileFlag = True
 		elif self.state == 11:
 			self.setState(1)
+		self.shotHomingMissile()
+
+	def shotHomingMissile(self):
+		if self.homingMissileFlag:
+			if self.homingMissileCnt == 20:
+				obj = enemy.HomingMissile1(self.x +68, self.y +8, 48)
+				obj.imageSourceIndex = 1
+				obj.imageSourceX = 128
+				obj.imageSourceY = 80
+				ObjMgr.addObj(obj)
+
+				obj = enemy.HomingMissile1(self.x +68, self.y+48, 16)
+				obj.imageSourceIndex = 1
+				obj.imageSourceX = 128
+				obj.imageSourceY = 80
+				ObjMgr.addObj(obj)
+		self.homingMissileCnt += 1
+		if self.homingMissileCnt >= self.homingMissileInterval:
+			self.homingMissileCnt = 0
 
 	def shotMissle(self):
 		if self.subState == 0:
@@ -105,10 +135,10 @@ class Boss4(enemy.EnemyBase):
 					mt = missileTable[self.missileIndex][i]
 					if mt == 0:
 						self.missileObj[i] = enemy.Missile1(self.x, self.y +16, 0)
-					elif mt == 1:
-						self.missileObj[i] = enemy.Missile2(self.x, self.y +16, 0)
 					else:
-						self.missileObj[i] = enemy.Missile1(self.x, self.y +16, 0)
+						self.missileObj[i] = enemy.Missile2(self.x, self.y +16, 0)
+					# else:
+					# 	self.missileObj[i] = enemy.Missile1(self.x, self.y +16, 0)
 				self.missileIndex += 1
 				if self.missileIndex >= len(missileTable):
 					self.missileIndex = 0
@@ -141,7 +171,7 @@ class Boss4(enemy.EnemyBase):
 				self.subCnt = 0
 		elif self.subState == 2:
 			# 待ち
-			if self.subCnt == 20:
+			if self.subCnt == 30:
 				self.setSubState(0)
 				self.nextState()
 				return
@@ -204,6 +234,15 @@ class Boss4(enemy.EnemyBase):
 					self.missileObj[2].drawMissile()
 
 		pyxel.blt(self.x, self.y, 1, 160, 200, 96, 56, gcommon.TP_COLOR)
+		if self.homingMissileFlag:
+			if (self.homingMissileCnt >=0 and self.homingMissileCnt < 10) \
+				or (self.homingMissileCnt >= 30 and self.homingMissileCnt < 40):
+				pyxel.blt(self.x +64, self.y +0, 1, 224, 168, 16, 16, gcommon.TP_COLOR)
+				pyxel.blt(self.x +64, self.y +32, 1, 224, 184, 16, 16, gcommon.TP_COLOR)
+			elif (self.homingMissileCnt >=10 and self.homingMissileCnt < 30):
+				pyxel.blt(self.x +64, self.y +0, 1, 240, 168, 16, 16, gcommon.TP_COLOR)
+				pyxel.blt(self.x +64, self.y +32, 1, 240, 184, 16, 16, gcommon.TP_COLOR)
+			
 
 	def broken(self):
 		self.remove()

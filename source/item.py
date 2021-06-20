@@ -8,17 +8,17 @@ from gameSession import GameSession
 from audio import BGM
 
 class ScoreItem1(enemy.EnemyBase):
-	def __init__(self, mx, my, hide=False):
+	# x,y中心座標
+	def __init__(self, x, y, hide=False, offsetX=0, offsetY=0):
 		super(ScoreItem1, self).__init__()
-		pos = gcommon.mapPosToScreenPos(mx, my)
-		self.x = pos[0]
-		self.y = pos[1]
+		self.x = x
+		self.y = y
 		self.hide = hide
-		self.left = -2
-		self.top = -2
-		self.right = 17
-		self.bottom = 17
-		self.layer = gcommon.C_LAYER_GRD
+		self.left = -6
+		self.top = -6
+		self.right = 6
+		self.bottom = 6
+		self.layer = gcommon.C_LAYER_GRD | gcommon.C_LAYER_TEXT
 		self.ground = True
 		self.hitCheck = True
 		self.shotHitCheck = False
@@ -35,6 +35,15 @@ class ScoreItem1(enemy.EnemyBase):
 		#   state
 		#    2 : 表示
 		#    3 : スコア表示
+
+	@classmethod
+	def createByPos(cls, x, y, hide=False):
+		return ObjMgr.addObj(ScoreItem1(x, y, hide))
+
+	@classmethod
+	def createByMapPos(cls, mx, my, hide=False, offsetX=0, offsetY=0):
+		pos = gcommon.mapPosToScreenPos(mx, my)
+		return cls.createByPos(pos[0] +offsetX +7.5, pos[1] +offsetY +7.5, hide)
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
@@ -64,29 +73,37 @@ class ScoreItem1(enemy.EnemyBase):
 			if self.cnt > 30:
 				self.remove()
 
-	def draw(self):
-		if self.state == 0:
-			pass	#pyxel.blt(self.x, self.y, 0, ((self.cnt>>3)&3) * 16, 192, 16, 16, gcommon.TP_COLOR)
-		elif self.state in (1, 2):
-			pyxel.blt(self.x, self.y, 0, ((self.cnt>>3)&3) * 16, 176, 16, 16, gcommon.TP_COLOR)
-		else:	# 3
+	#def draw(self):
+		# if self.state == 0:
+		# 	pass	#pyxel.blt(self.x, self.y, 0, ((self.cnt>>3)&3) * 16, 192, 16, 16, gcommon.TP_COLOR)
+		# elif self.state in (1, 2):
+		# 	pyxel.blt(self.x, self.y, 0, ((self.cnt>>3)&3) * 16, 176, 16, 16, gcommon.TP_COLOR)
+		# else:	# 3
+		# 	if self.hide:
+		# 		pyxel.blt(self.x, self.y +4 -(self.cnt>>1), 0, 16, 208, 16, 8, 0)
+		# 	else:
+		# 		pyxel.blt(self.x, self.y +4 -(self.cnt>>1), 0, 0, 208, 16, 8, 0)
+
+	def drawLayer(self, layer):
+		if layer==gcommon.C_LAYER_GRD and self.state in (1, 2):
+			pyxel.blt(self.x -7.5, self.y -7.5, 0, ((self.cnt>>3)&3) * 16, 176, 16, 16, gcommon.TP_COLOR)
+		elif layer==gcommon.C_LAYER_TEXT and self.state == 3:
 			if self.hide:
-				pyxel.blt(self.x, self.y +4 -(self.cnt>>1), 0, 16, 208, 16, 8, 0)
+				pyxel.blt(self.x -7.5, self.y -7.5 +4 -(self.cnt>>1), 0, 16, 208, 16, 8, 0)
 			else:
-				pyxel.blt(self.x, self.y +4 -(self.cnt>>1), 0, 0, 208, 16, 8, 0)
+				pyxel.blt(self.x -7.5, self.y -7.5 +4 -(self.cnt>>1), 0, 0, 208, 16, 8, 0)
 
 
 class OneUpItem1(enemy.EnemyBase):
-	def __init__(self, mx, my, hide=False):
+	def __init__(self, x, y, hide=False):
 		super(OneUpItem1, self).__init__()
-		pos = gcommon.mapPosToScreenPos(mx, my)
-		self.x = pos[0]
-		self.y = pos[1]
+		self.x = x
+		self.y = y
 		self.hide = hide
-		self.left = 0
-		self.top = 0
-		self.right = 15
-		self.bottom = 15
+		self.left = -6
+		self.top = -6
+		self.right = 6
+		self.bottom = 6
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True
 		self.score = 1000
@@ -105,6 +122,15 @@ class OneUpItem1(enemy.EnemyBase):
 		#   state
 		#    2 : 表示
 		#    3 : 1UP表示
+
+	@classmethod
+	def createByPos(cls, x, y, hide=False):
+		return ObjMgr.addObj(OneUpItem1(x, y, hide))
+
+	@classmethod
+	def createByMapPos(cls, mx, my, hide=False, offsetX=0, offsetY=0):
+		pos = gcommon.mapPosToScreenPos(mx, my)
+		return cls.createByPos(pos[0] +offsetX +7.5, pos[1] +offsetY +7.5, hide)
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
@@ -134,7 +160,7 @@ class OneUpItem1(enemy.EnemyBase):
 		if self.state == 0:
 			pass
 		elif self.state in (1, 2):
-			pyxel.blt(self.x, self.y, 0, ((self.cnt>>3)&3) * 16, 192, 16, 16, gcommon.TP_COLOR)
+			pyxel.blt(self.x -7.5, self.y -7.5, 0, ((self.cnt>>3)&3) * 16, 192, 16, 16, gcommon.TP_COLOR)
 		else:	# 3
-			pyxel.blt(self.x, self.y +4 -(self.cnt>>1), 0, 0, 216, 16, 8, 0)
+			pyxel.blt(self.x -7.5, self.y -7.5 +4 -(self.cnt>>1), 0, 0, 216, 16, 8, 0)
 

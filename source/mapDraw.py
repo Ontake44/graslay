@@ -14,26 +14,26 @@ from drawing import Drawing
 def doMapCharacter(n, mx, my):
 	if n in (426, 427):
 		gcommon.setMapDataByMapPos(mx, my, 0)
-		ObjMgr.addObj(item.ScoreItem1(mx, my, (n==427)))
+		item.ScoreItem1.createByMapPos(mx, my, (n==427))
 		return True
 	elif n in (428, 429):
 		gcommon.setMapDataByMapPos(mx, my, 0)
-		ObjMgr.addObj(item.OneUpItem1(mx, my, (n==429)))
+		item.OneUpItem1.createByMapPos(mx, my, (n==429))
 		return True
 	else:
 		return False
 
-def doMapCharacter2(n, mx, my, tbl):
-	if n in (tbl[0], tbl[0]+1):
-		gcommon.setMapDataByMapPos(mx, my, 0)
-		ObjMgr.addObj(item.ScoreItem1(mx, my, (n==tbl[0]+1)))
-		return True
-	elif n in (tbl[1], tbl[1]+1):
-		gcommon.setMapDataByMapPos(mx, my, 0)
-		ObjMgr.addObj(item.OneUpItem1(mx, my, (n==tbl[1]+1)))
-		return True
-	else:
-		return False
+# def doMapCharacter2(n, mx, my, tbl):
+# 	if n in (tbl[0], tbl[0]+1):
+# 		gcommon.setMapDataByMapPos(mx, my, 0)
+# 		item.createByMapPos(mx, my, (n==tbl[0]+1))
+# 		return True
+# 	elif n in (tbl[1], tbl[1]+1):
+# 		gcommon.setMapDataByMapPos(mx, my, 0)
+# 		item.OneUpItem1.createByMapPos(mx, my, (n==tbl[1]+1))
+# 		return True
+# 	else:
+# 		return False
 
 class MapData:
 	@classmethod
@@ -278,7 +278,12 @@ class MapDrawWarehouse:
 						obj.mirror = 1
 					ObjMgr.addObj(obj)
 				else:
-					doMapCharacter(n, mx, my)
+					n = gcommon.getMapDataByMapPosPage(5, mx, my)
+					gcommon.setMapDataByMapPosPage(5, mx, my, 0)
+					if n in (426, 427):
+						item.ScoreItem1.createByMapPos(mx, my, hide=(n==427), offsetX=-4, offsetY=-4)
+					elif n in (428, 429):
+						item.OneUpItem1.createByMapPos(mx, my, hide=(n==429), offsetX=-4, offsetY=-4)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 		gcommon.back_map_x += gcommon.cur_scroll_x/2

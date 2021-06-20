@@ -186,6 +186,7 @@ class Stage:
             gcommon.eshot_sync_scroll = False
             MapData.loadMapData(0, "assets/stage_warehouse0.pyxmap")    # 手前に見えるマップ
             MapData.loadMapData(2, "assets/stage_warehouse1.pyxmap")    # 奥に見えるマップ
+            MapData.loadMapData(5, "assets/stage_warehousei.pyxmap")    # アイテム用マップ
             MapData.loadMapData(7, "assets/stage_warehouseb.pyxmap")    # 遠景
             pyxel.tilemap(0).refimg = 1
             pyxel.tilemap(2).refimg = 1
