@@ -145,7 +145,7 @@ class FireBird1(EnemyBase):
         self.right = 13
         self.bottom = 13
         self.layer = gcommon.C_LAYER_SKY
-        self.hp = 50
+        self.hp = 20
         self.hitCheck = True
         self.shotHitCheck = True
         self.enemyShotCollision = False
@@ -154,6 +154,7 @@ class FireBird1(EnemyBase):
         self.first = 60 / GameSession.difficutlyRate
         self.dy = 0.0
         self.dr64 = 0		# 0 to 63
+        self.createTimer = gcommon.game_timer
 
     def update(self):
         self.x -= 1.5
@@ -168,5 +169,32 @@ class FireBird1(EnemyBase):
         
     def draw(self):
         pyxel.blt(self.x, self.y, 2, self.imageIndex * 24, 120, 24, 18, 3)
+        #pyxel.text(self.x, self.y, str(self.createTimer), 7)
+
+
+
+class FireBird1Group(EnemyBase):
+    def __init__(self, t):
+        super(__class__, self).__init__()
+        self.x = t[2]
+        self.y = t[3]
+        self.interval = t[4]
+        self.max = t[5]
+        self.offset = t[6]
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.enemyShotCollision = False
+        self.cnt2 = 0
+
+    def update(self):
+        if self.cnt % self.interval == 0:
+            ObjMgr.addObj(FireBird1([0, 0, self.x, self.y]))
+            self.cnt2 += 1
+            self.y += self.offset
+            if self.cnt2 >= self.max:
+                self.remove()
+        
+    def draw(self):
+        pass
 
 

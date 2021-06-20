@@ -70,7 +70,7 @@ class BossLast1(enemy.EnemyBase):
 		self.beam2 = None
 		self.roundBeam = None
 		# ボスの攻撃形態
-		self.mode = 1
+		self.mode = 0
 		self.coreX = self.x +32+16+32
 		self.coreY = self.y +64+16+16
 		# コアの回転角度

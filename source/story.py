@@ -578,10 +578,8 @@ class Story:
 	@classmethod
 	def getStoryFire(cls):
 		return [
-			[200, enemyFighter.FireBird1, 256, 30],
-			[220, enemyFighter.FireBird1, 256, 50],
-			[280, enemyFighter.FireBird1, 256, 60],
-			[300, enemyFighter.FireBird1, 256, 80],
+			[200, enemyFighter.FireBird1Group, 256, 30, 20, 3, 20],
+			[300, enemyFighter.FireBird1Group, 256, 80, 20, 3, 20],
 			[300, enemyCreature.FireWorm1, 240, 230, 270,
 				[
 					[90, CountMover.MOVE, 0.0, -1.0],
@@ -591,16 +589,20 @@ class Story:
 				],
 				None
 			],
-			[500, enemyFighter.FireBird1, 256, 40],
-			[520, enemyFighter.FireBird1, 256, 60],
-			[600, enemyFighter.FireBird1, 256, 100],
-			[620, enemyFighter.FireBird1, 256, 120],
-			[700, enemyFighter.FireBird1, 256, 80],
-			[720, enemyFighter.FireBird1, 256, 40],
+			[500, enemyFighter.FireBird1Group, 256, 40, 20, 3, 20],
+
+			[600, enemyFighter.FireBird1Group, 256, 90, 20, 3, 20],
+			
+			[700, enemyFighter.FireBird1Group, 256, 80, 20, 3, -20],
+
 			[800, enemyFighter.FireBird1, 256, 40],
 			[820, enemyFighter.FireBird1, 256, 60],
+
+			[900, enemyFighter.FireBird1Group, 256, 40, 20, 3, 20],
+
 			[1100, enemyFighter.FireBird1, 256, 60],
 			[1120, enemyFighter.FireBird1, 256, 80],
+
 			[1200, enemyFighter.FireBird1, 256, 40],
 			[1220, enemyFighter.FireBird1, 256, 60],
 			[1280, enemyFighter.FireBird1, 256, 60],
@@ -628,6 +630,8 @@ class Story:
 				],
 				None
 			],
+			[2600, enemyFighter.FireBird1Group, 256, 40, 20, 3, 20],
+			[2800, enemyFighter.FireBird1Group, 256, 100, 20, 3, -20],
 			[2960, enemyCreature.FireWorm1, 280, -30, 90,
 				[
 					[90, CountMover.MOVE, 0.0, 1.0],
@@ -637,6 +641,7 @@ class Story:
 			],
 			[3000, enemyFighter.FireBird1, 256, 40],
 			[3020, enemyFighter.FireBird1, 256, 60],
+			[3100, enemyFighter.FireBird1Group, 256, 100, 20, 3, -20],
 			[3150, enemyCreature.FireWorm1, 280, 230, 270,
 				[
 					[90, CountMover.MOVE, 0.0, -1.0],
@@ -644,6 +649,7 @@ class Story:
 					[400, CountMover.MOVE, -1.0, 0.0],
 				], None
 			],
+			[3250, enemyFighter.FireBird1Group, 256, 40, 20, 3, 30],
 			[3400, enemyFighter.FireBird1, 256, 80],
 			[3420, enemyFighter.FireBird1, 256, 60],
 			[3460, enemyFighter.FireBird1, 256, 120],
@@ -671,9 +677,11 @@ class Story:
 			[3820, enemyFighter.FireBird1, 256, 80],
 			[3880, enemyOthers.Prominence1Appear, 256, 0, -1, -1],
 			[4000, enemyOthers.Prominence1Appear, 380, 200, -1, 1],
+			[4100, enemyFighter.FireBird1Group, 256, 40, 20, 3, 30],
 			[4200, enemyFighter.FireBird1, 256, 80],
 			[4220, enemyFighter.FireBird1, 256, 60],
 			[4400, enemyOthers.Prominence1Appear, 256, 0, -1, -1],
+			[4500, enemyFighter.FireBird1Group, 256, 70, 20, 3, 20],
 			# [4250, enemyCreature.FireWorm1, 300, -30, 135,
 			# 	[
 			# 		[90, CountMover.MOVE, -0.7, 0.7],
@@ -686,14 +694,16 @@ class Story:
 			# 		[0, 100]
 			# 	]
 			# ],
-			[4800, enemyFighter.FireBird1, 256, 40],
-			[4820, enemyFighter.FireBird1, 256, 80],
-			[4900, enemyFighter.FireBird1, 256, 100],
-			[4920, enemyFighter.FireBird1, 256, 60],
-			[5300, enemyFighter.FireBird1, 256, 30],
-			[5320, enemyFighter.FireBird1, 256, 40],
-			[5370, enemyFighter.FireBird1, 256, 100],
-			[5390, enemyFighter.FireBird1, 256, 120],
+			[4600, enemyFighter.FireBird1Group, 256, 100, 20, 3, -20],
+			[4700, enemyFighter.FireBird1Group, 256, 60, 20, 3, 20],
+			[4800, enemyFighter.FireBird1Group, 256, 40, 20, 3, 20],
+
+			[4900, enemyFighter.FireBird1Group, 256, 100, 20, 3, -20],
+
+			[5300, enemyFighter.FireBird1Group, 256, 30, 20, 3, 20],
+			
+			[5370, enemyFighter.FireBird1Group, 256, 100, 20, 3, 20],
+			
 			[6000, bossFire.BossFire, 240, 230, 270,
 				[
 					[90, CountMover.MOVE, 0.0, -1.0],

@@ -194,10 +194,10 @@ class Fire3(EnemyBase):
         super(__class__, self).__init__()
         self.x = x
         self.y = y
-        rad = math.radians(deg)
+        self.rad = math.radians(deg)
         self.speed = 2.0
-        self.dx = self.speed * math.cos(rad)
-        self.dy = self.speed * math.sin(rad)
+        self.dx = self.speed * math.cos(self.rad)
+        self.dy = self.speed * math.sin(self.rad)
         self.left = -3.5
         self.top = -3.5
         self.right = 3.5
@@ -211,18 +211,24 @@ class Fire3(EnemyBase):
         self.imageSourceX = 88
         self.imageSourceY = 64
         self.imageSourceIndex = 2
+        self.omega1 = math.pi/20
+        self.omega2 = math.pi/40
 
     def update(self):
-        if self.cnt > 20 and self.cnt < 100:
-            rad = math.atan2(ObjMgr.myShip.y -self.y, ObjMgr.myShip.x -self.x)
-            self.dx += math.cos(rad) * 0.1
-            self.dy += math.sin(rad) * 0.1
-            l = math.sqrt(self.dx * self.dx + self.dy * self.dy)
-            if l > self.speed:
-                self.dx = self.dx * self.speed / l
-                self.dy = self.dy * self.speed / l
-        self.x += self.dx
-        self.y += self.dy
+        if self.cnt > 5 and (self.cnt & 1 == 0) and self.cnt < 100:
+            if self.cnt < 40:
+                self.omega = self.omega1
+            else:
+                self.omega = self.omega2
+            rad = gcommon.get_atan_to_ship(self.x, self.y)
+            rad = gcommon.radNormalize(rad - self.rad)
+            if math.fabs(rad) > 0.1:
+                if rad > 0:
+                    self.rad += self.omega
+                else:
+                    self.rad -= self.omega
+        self.x += self.speed * math.cos(self.rad)
+        self.y += self.speed * math.sin(self.rad)
         if self.x < -12 or self.y < -12 or self.x > (gcommon.SCREEN_MAX_X+12) or self.y > (gcommon.SCREEN_MAX_Y +12):
             self.remove()
             return
@@ -442,17 +448,29 @@ class Prominence2(EnemyBase):
         self.shotHitCheck = False
         self.enemyShotCollision = False
         self.rad = -math.pi/4 * direction      # rad は -pi/4～pi*3/4
-
+        self.omega = math.pi/120 
     def update(self):
         if self.x + self.radius + 20 < 0:
             self.remove()
             return
-        self.rad += math.pi/120 * self.direction
+        self.rad += self.omega * self.direction
         if self.direction == 1 and self.rad >= math.pi * 2:
             self.rad -= math.pi * 2
         elif self.direction == -1 and self.rad <= 0.0:
             self.rad += math.pi * 2
-        
+
+        # if self.direction == 1:
+        #     if self.rad >= math.pi*0.25 and self.rad <= math.pi*0.5:
+        #         self.omega -= math.pi/11000
+        #     elif self.rad >= math.pi*0.5 and self.rad <= math.pi*0.75:
+        #         self.omega += math.pi/11000
+        # else:
+        #     if self.rad >= math.pi*1.25 and self.rad <= math.pi*1.5:
+        #         self.omega += math.pi/10000
+        #     elif self.rad >= math.pi*1.5 and self.rad <= math.pi*1.75:
+        #         self.omega -= math.pi/10000
+            
+
         # 当たり判定
         x = self.radius * math.cos(self.rad)
         y = -self.radius * 1.1 * math.sin(self.rad)

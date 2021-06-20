@@ -779,7 +779,7 @@ class MainGame:
 
 	def initEventFire(self):
 		self.eventTable =[
-			[0, StartBGM, BGM.STAGE5],
+			[0, StartBGM, BGM.STAGE_FIRE],
 			[0, StartMapDrawFire],		\
 			[5650,StartBGM, BGM.BOSS],	\
 			[5900,SetMapScroll, 0.0, 0.0],
