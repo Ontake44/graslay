@@ -41,7 +41,7 @@ class Boss1Base(enemy.EnemyBase):
  
 
 class Boss1(enemy.EnemyBase):
-	beamTimes = (45, 60, 90)
+	beamTimes = (40, 55, 70)
 	def __init__(self, t):
 		super(Boss1, self).__init__()
 		self.x = t[2]
@@ -169,8 +169,12 @@ class Boss1(enemy.EnemyBase):
 			if self.y +30 > ObjMgr.myShip.y:
 				self.dy = -self.dy
 			self.y += self.dy
-			#if self.cnt % 30 == 0:
-			#	self.shotFix4()
+			if GameSession.isNormal():
+				if self.cnt % 45 == 0:
+					self.shotFix4()
+			elif GameSession.isHard():
+				if self.cnt % 30 == 0:
+					self.shotFix4()
 			if self.cnt > self.beamTime:
 				self.nextState()
 		elif self.state == 8:

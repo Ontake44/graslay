@@ -53,7 +53,7 @@ class MovableBattery1p(EnemyBase):
 		self.layer = gcommon.C_LAYER_GRD
 		self.hitcolor1 = 13
 		self.hitcolor2 = 15
-		self.hp = 80
+		self.hp = 70
 		self.shotInterval = int(120 / GameSession.enemy_shot_rate)
 		self.hitCheck = True
 		self.shotHitCheck = True

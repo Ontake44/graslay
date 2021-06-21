@@ -729,7 +729,7 @@ class MainGame:
 	def initEventCave(self):
 		self.eventTable =[
 			[0,StartMapDrawCave],
-			[0, StartBGM, BGM.STAGE2],
+			[0, StartBGM, BGM.STAGE_CAVE],
 			[1300,SetMapScroll, 0.25, 0.25],	\
 			[3500,SetMapScroll, 0.50, 0.0],	\
 			[5920, StartBGM, BGM.BOSS],
@@ -738,7 +738,7 @@ class MainGame:
 
 	def initEventWarehouse(self):
 		self.eventTable =[ \
-			[0, StartBGM, BGM.STAGE5],
+			[0, StartBGM, BGM.STAGE_WAREHOUSE],
 			[0,StartMapDraw, MapDrawWarehouse],		\
 			[2184,SetMapScroll, 0.0, 0.5],
 			[3384,SetMapScroll, 0.5, 0.0],
