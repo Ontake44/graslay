@@ -4066,3 +4066,13 @@ class CountStater:
 				self.tableIndex = 0
 			else:
 				self.isEnd = True
+
+class DummyEnemy(EnemyBase):
+	def __init__(self, count):
+		super(__class__, self).__init__()
+		self.count = count
+
+	def update(self):
+		if self.cnt >= self.count:
+			gcommon.debugPrint("DummyEnemy removed")
+			self.remove()

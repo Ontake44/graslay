@@ -231,6 +231,7 @@ class Worm4(EnemyBase):
 
 # 洞窟ボスから射出される蝙蝠の卵（水面）
 class Worm5(EnemyBase):
+    coolTimeTable = [360, 240, 120]
     def __init__(self, parent, x, y, dx, dy):
         super(__class__, self).__init__()
         self.parent = parent
@@ -281,19 +282,25 @@ class Worm5(EnemyBase):
                 self.remove()
                 enemy.Particle2.append(self.x +8, self.y+8, 20)
                 rad = math.pi*1.25 if self.x < 112 else math.pi*1.75
-                obj = Bat1a(self.x, self.y, rad)
+                obj = Bat1a(self.parent, self.x, self.y, rad)
                 self.parent.appendBat(obj)
                 ObjMgr.addObj(obj)
         
     def draw(self):
         pyxel.blt(self.x, self.y, 2, 0, 200, 16, 16, 0)
 
+    def broken(self):
+        super().broken()
+        self.parent.appendBat(ObjMgr.addObj(enemy.DummyEnemy(__class__.coolTimeTable[GameSession.difficulty])))
+
 # 蝙蝠？みたいなの
 # BossCaveから射出される卵から出現
 class Bat1a(EnemyBase):
     shotIntervalTable = [240, 120, 90]
-    def __init__(self, x, y, rad):
+    coolTimeTable = [360, 240, 120]
+    def __init__(self, parent, x, y, rad):
         super(__class__, self).__init__()
+        self.parent = parent
         self.x = x
         self.y = y
         self.rad = rad
@@ -335,6 +342,9 @@ class Bat1a(EnemyBase):
         else:
             pyxel.blt(self.x, self.y, 2, 48, 0, width, 16, 0)
 
+    def broken(self):
+        super().broken()
+        self.parent.appendBat(ObjMgr.addObj(enemy.DummyEnemy(__class__.coolTimeTable[GameSession.difficulty])))
 
 class FireWorm1(EnemyBase):
     imageTable = [
