@@ -134,6 +134,8 @@ class BossWarehouse(enemy.EnemyBase):
 	]
 	pos4rads = [math.pi/5.0, -math.pi/5.0, math.pi -math.pi/5.0, math.pi +math.pi/5.0]
 	shot4poss = [[-6, -16], [10, -16], [-6, 16], [10, 16]]
+	sideShotIntervalTable = [8, 6, 5]
+	crazyShotIntervalTable = [6, 5, 4]
 	def __init__(self, t):
 		super(BossWarehouse, self).__init__()
 		self.x = 256 + 48
@@ -186,6 +188,8 @@ class BossWarehouse(enemy.EnemyBase):
 		self.wheelCnt = 0
 		self.gunWidth = 56
 		self.gunHeight = 56
+		self.sideShotInterval = __class__.sideShotIntervalTable[GameSession.difficulty]
+		self.crazyShotInterval = __class__.crazyShotIntervalTable[GameSession.difficulty]
 		self.image = [None]* self.gunWidth
 		self.work = [None]* self.gunHeight
 		for y in range(self.gunWidth):
@@ -217,20 +221,22 @@ class BossWarehouse(enemy.EnemyBase):
 				if self.countMover.cnt % 45 == 0:
 					ObjMgr.addObj(enemyBattery.MovableBattery1p(self.x -16, self.y, 30, [[0, 5, 44, self.y, 1.0],[100*8, 0, 0.0, -1.0]]))
 			if self.hp < boss.BOSS_WAREHOUSE_HP/3:
+				# 発狂モード
 				self.state = 1
 		elif self.state == 1:
+			# 発狂モード
 			if self.gunRad < 0.75 * math.pi:
 				self.gunRad += 0.025* math.pi
 			else:
 				self.nextState()
 		elif self.state == 2:
-			if self.cnt % 4 == 0:
+			if self.cnt % self.crazyShotInterval == 0:
 				self.shotMain()
 			self.gunRad -= 0.025* math.pi
 			if self.gunRad < -0.75 * math.pi:
 				self.nextState()
 		elif self.state == 3:
-			if self.cnt % 4 == 0:
+			if self.cnt % self.crazyShotInterval == 0:
 				self.shotMain()
 			self.gunRad += 0.025* math.pi
 			if self.gunRad > 0.75 * math.pi:
@@ -300,7 +306,7 @@ class BossWarehouse(enemy.EnemyBase):
 	def shotMainState(self):
 		if self.countMover.cnt > 30 and self.countMover.cnt < 120 and self.countMover.cnt % 10 == 0:
 			self.shotMain()
-		if self.countMover.cnt >= 60 and self.countMover.cnt % 6 == 0:
+		if self.countMover.cnt >= 60 and self.countMover.cnt % self.sideShotInterval == 0:
 			px = self.gun_cx - 8.0 * math.cos(self.gunRad)
 			py = self.gun_cy - 8.0 * math.sin(self.gunRad)
 			enemy.enemy_shot_rad(px, py, 3.5, 0, self.gunRad + math.pi  - ( 125 -self.countMover.cnt) * math.pi/180)

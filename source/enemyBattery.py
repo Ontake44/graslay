@@ -170,7 +170,7 @@ class Tractor1(EnemyBase):
 		self.mover.update()
 		if self.x <= -136 or self.x >= gcommon.SCREEN_MAX_X+136 or self.y <= -136 or self.y >= gcommon.SCREEN_MAX_Y+136:
 			self.remove()
-			gcommon.debugPrint("Tractor1 removed")
+			#gcommon.debugPrint("Tractor1 removed")
 			return
 
 	def draw(self):
@@ -208,7 +208,7 @@ class Freight1(EnemyBase):
 			self.y = self.parent.y + self.offsetY
 		if self.x <= -100 or self.x >= gcommon.SCREEN_MAX_X+100 or self.y <= -100 or self.y >= gcommon.SCREEN_MAX_Y+100:
 			self.remove()
-			gcommon.debugPrint("Tractor1 removed")
+			#gcommon.debugPrint("Tractor1 removed")
 			return
 
 	def draw(self):

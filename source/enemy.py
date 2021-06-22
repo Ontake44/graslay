@@ -25,11 +25,19 @@ tank1_spmap=[64,0,0,0,32,0,0,0]
 
 
 def enemy_shot(x, y, speed, shotType):
+	if x < (gcommon.SCREEN_MIN_X+8) or x > (gcommon.SCREEN_MAX_X-8):
+		return
+	if y < (gcommon.SCREEN_MIN_Y+8) or y > (gcommon.SCREEN_MAX_Y-8):
+		return
 	if gcommon.get_distance_my(x, y) > gcommon.ENEMY_SHOT_DISTANCE:
 		ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, 0))
 	#ObjMgr.objs.append(EnemyShot(x, y, speed, shotType, -1, 0))
 
 def enemy_shot_offset(x, y, speed, shotType, offsetDr):
+	if x < (gcommon.SCREEN_MIN_X+8) or x > (gcommon.SCREEN_MAX_X-8):
+		return
+	if y < (gcommon.SCREEN_MIN_Y+8) or y > (gcommon.SCREEN_MAX_Y-8):
+		return
 	if gcommon.get_distance_my(x, y) > gcommon.ENEMY_SHOT_DISTANCE:
 		ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, offsetDr))
 
@@ -4013,8 +4021,8 @@ class DelayedExplosions(EnemyBase):
 		self.shotHitCheck = False
 		self.enemyShotCollision = False
 		self.expCount = 0
-		for pos in self.posList:
-			gcommon.debugPrint(str(pos[0]) + " " + str(pos[1]))
+		# for pos in self.posList:
+		# 	gcommon.debugPrint(str(pos[0]) + " " + str(pos[1]))
 	
 	@classmethod
 	def create(cls, posList, layer, exptype, delay):
@@ -4074,5 +4082,5 @@ class DummyEnemy(EnemyBase):
 
 	def update(self):
 		if self.cnt >= self.count:
-			gcommon.debugPrint("DummyEnemy removed")
+			#gcommon.debugPrint("DummyEnemy removed")
 			self.remove()

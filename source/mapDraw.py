@@ -736,8 +736,13 @@ class MapDrawFire:
 					else:
 						pattern = 0
 					ObjMgr.addObj(enemyOthers.FireChimney1(mx, my, -1 if n == 966 else 1, pattern))
-				else:
-					doMapCharacter(n, mx, my)
+				elif n in (960, 961):
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					item.ScoreItem1.createByMapPos(mx, my, (n==961))
+				elif n in (962, 963):
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					item.OneUpItem1.createByMapPos(mx, my, (n==963))
+
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 		gcommon.back_map_x += gcommon.cur_scroll_x/2
