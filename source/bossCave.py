@@ -1,3 +1,4 @@
+from pygame.mixer import Sound
 import pyxel
 import math
 import random
@@ -89,6 +90,8 @@ class BossCave(enemy.EnemyBase):
             if self.state == 0:
                 # 出現
                 if self.countMover.tableIndex == 2 and self.cnt % 4 == 0 and self.countMover.cnt < 40:
+                    if self.countMover.cnt == 0:
+                        BGM.sound(gcommon.SOUND_WATERSPLASH)
                     wy = gcommon.waterSurface_y - gcommon.map_y
                     for i in range(10):
                         enemy.WaterSplash.appendDr(self.x +20 + i*8, wy, gcommon.C_LAYER_SKY, math.pi * (1.2 + i*0.6/10), math.pi/6, 30)
