@@ -1,4 +1,10 @@
-GRASLAY version 1.10
+------------------------------------------------------
+  タイトル：GRASLAY
+  Version ：2.00
+  著 作 者：Ontake44
+  動作環境：Windows 7, 8.1, 10 いずれも64bit
+  連 絡 先：twitter： https://twitter.com/Ontake441
+------------------------------------------------------
 
 GRASLAYはレトロ風横スクロールシューティングゲームです。
 
@@ -11,12 +17,7 @@ https://github.com/kitao/pyxel/blob/master/README.ja.md
 
 
 ## 実行方法
-プログラムは以下にzipがあるのでダウンロードしてください。
-zipファイルを解凍後、graslay.exeを実行してください。
-[Download]https://github.com/Ontake44/graslay/tree/master/bin
-
-プログラムがアンチウィルスソフトに削除される場合があります。
-ダウンロードしても削除されてしまう場合は、除外フォルダを設定しそこにダウンロードするなどの対処をしてください。
+graslay.exeを実行してください。
 
 ## 操作方法
 * カーソルキーで自機が移動します。
@@ -30,14 +31,18 @@ zipファイルを解凍後、graslay.exeを実行してください。
 
 ## ゲームについて
 
-全６ステージ構成です。１ステージは比較的短いです。
+全９ステージですが、分岐がありますので６ステージでクリアです。
+１ステージは比較的短いです。
 
-1. 敵前線基地
-2. 細胞
-3. 高速スクロール
-4. 神殿
-5. 工場
-6. 敵本拠地
+1A. 敵前線基地
+2A. 細胞
+2B. 洞窟
+3A. 高速スクロール
+3B. 敵倉庫
+4A. 神殿
+5A. 工場
+5B. 炎基地
+6A. 敵本拠地
 
 ## 武器について
 
@@ -46,6 +51,8 @@ zipファイルを解凍後、graslay.exeを実行してください。
 * STRAIGHT 直線方向のショットと、上下ボムを発射します。
 * ROUND ショットを押し続けると、真後ろから前方まで可変します。また、前方にミサイルを発射します。
 * MULTI ８方向のショットと、やや後ろ下にスプレッドボムを発射します。
+
+※カスタムモードではおまけとして別武装(TYPE B)が使用できます。
 
 ## 不具合等
 
@@ -56,7 +63,7 @@ https://twitter.com/Ontake441
 
 ## 動画配信等について
 
-果たしてやってくれる方がいらっしゃるか謎ですが、ご自由にどうぞ。
+ご自由にどうぞ。
 
 
 ## アンインストール
@@ -75,18 +82,22 @@ https://twitter.com/Ontake441
 shimtone様
 https://dova-s.jp/_contents/author/profile295.html
 * タイトル idola cell
-* ステージ３ Spear
-* ステージ５ Abstract
-* ステージ６－１ Break the Wedge
-* ステージ６－２ Fantasma
-* ステージ６－３ In Dark Down
+* ステージ２Ｂ Nervousness
+* ステージ３Ａ Spear
+* ステージ３Ｂ In Chase
+* ステージ５Ａ Abstract
+* ステージ５Ｂ Zonky Cyber
+* ステージ６Ａ－１ Break the Wedge
+* ステージ６Ａ－２ Fantasma
+* ステージ６Ａ－３ In Dark Down
 * ボス Grenade
 * ランキング with silence
 
 FLASH☆BEAT様
 https://dova-s.jp/_contents/author/profile266.html
-* ステージ１ Dream Fantasy
+* ステージ１Ａ Dream Fantasy
 * エンディング Fireworks
+* ステージ選択 Runners High
 
 ISAo様
 https://dova-s.jp/_contents/author/profile081.html
@@ -94,8 +105,8 @@ https://dova-s.jp/_contents/author/profile081.html
 
 魔王魂様
 https://maoudamashii.jokersounds.com/music_bgm.html
-* ステージ２ ダンジョン２２
-* ステージ４ ダンジョン１５
+* ステージ２Ａ ダンジョン２２
+* ステージ４Ａ ダンジョン１５
 * ステージクリアー ジングル０２
 * ゲームオーバー ジングル０７
 
@@ -127,3 +138,16 @@ Licenesフォルダも参照してください。
 ### 1.10
 * カスタムモードで追加武装を選択できるようにした。
 
+### 1.11
+改善および各種不具合修正
+* マウス操作をON/OFFできるように改善。
+* マルチプル間隔調整。
+* ステージ１BGM音量調整。
+* 触手が破壊後消えないのを修正。
+* ステージ３で砲台等が現れない場合があるのを修正。
+* TYPE B上下ミサイルが貫通していたのを修正。
+
+### 2.00
+* ３ステージ追加し、２、３、５面を選択分岐するようにした。
+* 従来ステージは1A～6A、追加は2B、3B、5Bとなります。
+* 従来ステージボスの攻撃を若干見直し。
