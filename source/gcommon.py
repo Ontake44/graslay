@@ -476,6 +476,11 @@ def get_leftOrRight(r1, r2):
 	else:
 		return -1
 
+#      6
+#    5   7
+#   4     0
+#    3   1
+#      2
 # return 0-7
 def get_direction_my(x, y):
 	return (int((get_atan_no(x, y, ObjMgr.myShip.x+8, ObjMgr.myShip.y+8)+3)/8) & 7)

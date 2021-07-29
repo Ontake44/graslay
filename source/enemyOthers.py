@@ -510,3 +510,98 @@ class Prominence2(EnemyBase):
             pyxel.pal(10, 7)
         pyxel.blt(x -11.5, y -11.5, 1, t[0], t[1], 24 * t[2], 24 * t[3], 0)
         pyxel.pal()
+
+
+# 移動壁
+class MovableWall(EnemyBase):
+    posTable = [
+        [2, 2],         # 0
+    ]
+    sizeTable = [
+        [12, 12],       # 0
+    ]
+    MoveTable = [
+        [   # 0  下に12移動
+            [96, enemy.CountMover.MOVE, 0.0, 1.0],
+        ],
+        [   # 1  上に12移動
+            [96, enemy.CountMover.MOVE, 0.0, -1.0],
+        ],
+        [   # 2  右に12移動
+            [96, enemy.CountMover.MOVE, 1.0, 0.0],
+        ],
+        [   # 3  左に12移動
+            [96, enemy.CountMover.MOVE, -1.0, 0.0],
+        ],
+        [   # 4  左、右に移動
+            [48, enemy.CountMover.MOVE, -1.0, 0.0],
+            [120, enemy.CountMover.STOP],
+            [48, enemy.CountMover.MOVE, 1.0, 0.0],
+        ],
+        [   # 5  下に6移動
+            [48, enemy.CountMover.MOVE, 0.0, 1.0],
+        ],
+        [   # 6  上に6移動
+            [48, enemy.CountMover.MOVE, 0.0, -1.0],
+        ],
+        [   # 7  右に6移動
+            [48, enemy.CountMover.MOVE, 1.0, 0.0],
+        ],
+        [   # 8  左に6移動
+            [48, enemy.CountMover.MOVE, -1.0, 0.0],
+        ],
+        [   # 9  下に6移動、上に12移動
+            [48, enemy.CountMover.MOVE, 0.0, 1.0],
+            [120, enemy.CountMover.STOP],
+            [96, enemy.CountMover.MOVE, 0.0, -1.0],
+        ],
+        [   # 10  上に6移動、下に6移動、上に6移動
+            [48, enemy.CountMover.MOVE, 0.0, -1.0],
+            [60, enemy.CountMover.STOP],
+            [48, enemy.CountMover.MOVE, 0.0, 1.0],
+            [60, enemy.CountMover.STOP],
+            [48, enemy.CountMover.MOVE, 0.0, -1.0],
+        ],
+        [   # 11  下に6移動、上に6移動、下に6移動
+            [48, enemy.CountMover.MOVE, 0.0, 1.0],
+            [60, enemy.CountMover.STOP],
+            [48, enemy.CountMover.MOVE, 0.0, -1.0],
+            [60, enemy.CountMover.STOP],
+            [48, enemy.CountMover.MOVE, 0.0, 1.0],
+        ],
+    ]
+
+    def __init__(self, mx, my, patternNo, startCount, moveNo):
+        super(__class__, self).__init__()
+        pos = gcommon.mapPosToScreenPos(mx, my)
+        self.x = pos[0]
+        self.y = pos[1]
+        self.patternNo = patternNo
+        self.moveNo = moveNo
+        self.startCount = startCount
+        self.left = 0
+        self.top = 0
+        self.tablePos = __class__.posTable[patternNo]
+        self.tableSize = __class__.sizeTable[patternNo]
+        self.right = self.tableSize[0] * 8
+        self.bottom = self.tableSize[1] * 8
+        self.layer = gcommon.C_LAYER_GRD
+        self.hp = gcommon.HP_UNBREAKABLE
+        self.ground = True
+        self.hitCheck = True
+        self.shotHitCheck = True
+        self.enemyShotCollision = True
+        self.shotEffect = False
+        self.mover = CountMover(self, __class__.MoveTable[moveNo], False)
+
+    def update(self):
+        if self.state == 0:
+            if self.cnt == self.startCount:
+                self.nextState()
+        else:
+            self.mover.update()
+        if self.x < -12*8:
+            self.remove()
+
+    def draw(self):
+        pyxel.bltm(self.x, self.y, 1, self.tablePos[0], self.tablePos[1], self.tableSize[0], self.tableSize[1], 2)

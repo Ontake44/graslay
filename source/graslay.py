@@ -24,7 +24,7 @@ import story
 from objMgr import ObjMgr
 from optionMenu import OptionMenuScene
 from title import TitleScene
-from mapDraw import MapDraw1
+from mapDraw import MapDraw1, MapDrawLabirinth
 from mapDraw import MapDraw2
 from mapDraw import MapDrawCave
 from mapDraw import MapDrawWarehouse
@@ -183,6 +183,13 @@ class StartMapDrawFire:
 class StartMapDrawLast:
 	def __init__(self, t):
 		ObjMgr.setDrawMap(MapDrawLast())
+
+	def do(self):
+		pass
+
+class StartMapDrawLabyrinth:
+	def __init__(self, t):
+		ObjMgr.setDrawMap(MapDrawLabirinth())
 
 	def do(self):
 		pass
@@ -686,6 +693,8 @@ class MainGame:
 			self.initEventWarehouse()
 		elif self.stage == "4A":
 			self.initEvent4()
+		elif self.stage == "4B":
+			self.initEventLabyrinth()
 		elif self.stage == "5A":
 			self.initEventFactory()
 		elif self.stage == "5B":
@@ -795,6 +804,17 @@ class MainGame:
 			[8200 +baseOffset, StartBGM, BGM.BOSS],
 		]
 
+	def initEventLabyrinth(self):
+		baseOffset = 200
+		self.eventTable =[
+			[0, StartBGM, BGM.STAGE5],
+			[baseOffset,StartMapDrawLabyrinth],
+			[baseOffset +1616,SetMapScroll, 0.0, 0.0],
+			[baseOffset +1720,SetMapScroll, 0.0, 0.50],
+			[baseOffset +2720,SetMapScroll, 0.50, 0.0],
+		]
+
+
 	def initStory(self):
 		if self.stage == "1A":
 			self.story = story.Story.getStory1()
@@ -808,6 +828,8 @@ class MainGame:
 			self.story = story.Story.getStoryWarehouse()
 		elif self.stage == "4A":
 			self.story = story.Story.getStory4()
+		elif self.stage == "4B":
+			self.story = story.Story.getStoryLabyrinth()
 		elif self.stage == "5A":
 			self.story = story.Story.getStoryFactory()
 		elif self.stage == "5B":

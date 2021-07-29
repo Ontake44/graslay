@@ -33,9 +33,7 @@ class Story:
 			[150, enemy.Fan1Group, 8, 10, 6],	
 			[270, enemy.Fan1Group, 170, 10, 6],	
 			[360, enemy.Fan1Group, 8, 10, 6],	
-			#[360, enemy.Fan1aGroup, 12],
 			[450, enemy.Fan1Group, 170, 10, 6],
-			#[450, enemy.Fan1aGroup, 12],
 			[500, enemy.MissileShip, 40, 160],
 			[530, enemy.MissileShip, 120, 200],
 			[630, enemy.RollingFighter1Group, 42, 15, 4],
@@ -845,4 +843,34 @@ class Story:
 			[7400 +baseOffset, enemy.Tank1, 256, 16, 1, 0],	\
 			[7500 +baseOffset, enemy.Tank1, -24, 16, 1, 3],	\
 			[8400 +baseOffset, bossLast.BossLast1],	\
+		]
+
+	@classmethod
+	def getStoryLabyrinth(cls):
+		return [
+			[600, enemy.Fan1cLauncher, 26, 49, 6, 20,
+				[
+					[30, 0, 0.0, -2.0], [300, 0, -2.0, 0.0]
+				],
+			],
+			[1100, enemy.Fan1cLauncher, 40, 49, 6, 20,
+				[
+					[45, 0, 0.0, -2.0], [300, 0, -2.0, 0.0]
+				],
+			],
+			[1300, enemy.Fan1cLauncher, 62, 20, 20, 20,
+				[
+					[74, 0, 0.0, 2.0], [300, 0, -2.0, 0.0]
+				],
+			],
+			[1550, enemy.Fan1cLauncher, 81, 49, 6, 20,
+				[
+					[45, 0, 0.0, -2.0], [300, 0, -2.0, 0.0]
+				],
+			],
+			[1700, enemy.Fan1cLauncher, 81, 20, 20, 20,
+				[
+					[74, 0, 0.0, 2.0], [300, 0, -2.0, 0.0]
+				],
+			],
 		]

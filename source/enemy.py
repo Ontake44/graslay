@@ -781,19 +781,32 @@ class RollingFighter1Group(EnemyBase):
 #
 # 砲台
 class Battery0(EnemyBase):
-	def __init__(self, x, y, mirror):
+	# direction  0:上  1:下  2:右  3:左
+	def __init__(self, x, y, direction):
 		super(__class__, self).__init__()
 		self.x = x		# screen x
 		self.y = y		# screen y
-		self.mirror = mirror	# 0 or 1
-		self.left = 2
-		self.right = 13
-		if self.mirror == 0:
+		self.direction = direction	  # 0 -3
+		if self.direction == 0:
+			self.left = 2
 			self.top = 5
+			self.right = 13
 			self.bottom = 15
-		else:
+		elif self.direction == 1:
+			self.left = 2
 			self.top = 0
+			self.right = 13
 			self.bottom = 10
+		elif self.direction == 2:
+			self.left = 0
+			self.top = 2
+			self.right = 10
+			self.bottom = 13
+		elif self.direction == 3:
+			self.left = 5
+			self.top = 2
+			self.right = 15
+			self.bottom = 13
 		self.hp = 10
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True
@@ -808,7 +821,7 @@ class Battery0(EnemyBase):
 		self.imageSourceX = 0
 		self.imageSourceY = 96
 		self.imageSourceIndex = 1
-		#gcommon.debugPrint("interval=" + str(self.interval))
+		#gcommon.debugPrint("Battery direction =" + str(self.direction))
 
 	def update(self):
 		if self.x < self.remove_min_x:
@@ -818,43 +831,106 @@ class Battery0(EnemyBase):
 			enemy_shot(self.x+8,self.y+6, self.shot_speed, 0)
 
 	def draw(self):
-		drawBattery0(self.x, self.y, self.mirror, self.imageSourceIndex, self.imageSourceX, self.imageSourceY)
+		drawBattery0(self.x, self.y, self.direction, self.imageSourceIndex, self.imageSourceX, self.imageSourceY)
 
-def drawBattery1(x, y, mirror):
-	drawBattery0(x, y, mirror, 1, 0, 96)
+def drawBattery1(x, y, direction):
+	drawBattery0(x, y, direction, 1, 0, 96)
 
-def drawBattery0(x, y, mirror, srcIndex, srcX, srcY):
+def drawBattery0(x, y, direction, srcIndex, srcX, srcY):
 	dr8 = 0
 	dr8 = gcommon.get_direction_my(x+8, y +8)
 	y = int(y)
-	if mirror == 0:
+	#      6
+	#    5   7
+	#   4     0
+	#    3   1
+	#      2
+	if direction == 0:
+		# 上向き設置
 		if dr8  in (0, 1):
+			# 右向き
 			pyxel.blt(x, y, srcIndex, srcX +0, srcY, -16, 16, gcommon.TP_COLOR)
-		elif dr8 == 2:
+		elif dr8 in (2, 6):
+			# 上向き
 			pyxel.blt(x, y, srcIndex, srcX +32, srcY, 16, 16, gcommon.TP_COLOR)
 		elif dr8 in (3, 4):
+			# 左向き
 			pyxel.blt(x, y, srcIndex, srcX +0, srcY, 16, 16, gcommon.TP_COLOR)
-		elif dr8 in (5, 6):
+		elif dr8 == 5: # in (5, 6):
+			# 左上
 			pyxel.blt(x, y, srcIndex, srcX +16, srcY, 16, 16, gcommon.TP_COLOR)
 		elif dr8 == 7:
+			# 右上
 			pyxel.blt(x, y, srcIndex, srcX +16, srcY, -16, 16, gcommon.TP_COLOR)
-	else:
-		if dr8 == 0:
+	elif direction == 1:
+		# 下向き設置
+		if dr8 in (0, 7):
+			# 右向き
 			pyxel.blt(x, y, srcIndex, srcX +0, srcY, -16, -16, gcommon.TP_COLOR)
 		elif dr8 == 1:
+			# 右下
 			pyxel.blt(x, y, srcIndex, srcX +16, srcY, -16, -16, gcommon.TP_COLOR)
 		elif dr8 == 2:
+			# 下
 			pyxel.blt(x, y, srcIndex, srcX +32, srcY, 16, -16, gcommon.TP_COLOR)
 		elif dr8 == 3:
+			# 左下
 			pyxel.blt(x, y, srcIndex, srcX +16, srcY, 16, -16, gcommon.TP_COLOR)
 		elif dr8 == 4:
+			# 左
 			pyxel.blt(x, y, srcIndex, srcX +0, srcY, 16, -16, gcommon.TP_COLOR)
 		elif dr8 == 5:
+			# 左上
 			pyxel.blt(x, y, srcIndex, srcX +0, srcY, 16, -16, gcommon.TP_COLOR)
 		elif dr8 == 6:
+			# 上
 			pyxel.blt(x, y, srcIndex, srcX +32, srcY, 16, -16, gcommon.TP_COLOR)
+	elif direction == 2:
+		# 右向き設置
+		if dr8 == 0:
+			# 右向き
+			pyxel.blt(x, y, srcIndex, srcX +32, srcY+16, 16, 16, gcommon.TP_COLOR)
+		elif dr8 == 1:
+			# 右下
+			pyxel.blt(x, y, srcIndex, srcX +16, srcY+16, 16, -16, gcommon.TP_COLOR)
+		elif dr8 in (2, 3):
+			# 下
+			pyxel.blt(x, y, srcIndex, srcX +0, srcY+16, 16, -16, gcommon.TP_COLOR)
+		elif dr8 == 4:
+			# 右
+			pyxel.blt(x, y, srcIndex, srcX +32, srcY+16, 16, 16, gcommon.TP_COLOR)
+		elif dr8 in (5, 6):
+			# 下
+			pyxel.blt(x, y, srcIndex, srcX +0, srcY+16, 16, 16, gcommon.TP_COLOR)
 		elif dr8 == 7:
-			pyxel.blt(x, y, srcIndex, srcX +16, srcY, -16, -16, gcommon.TP_COLOR)
+			# 右上
+			pyxel.blt(x, y, srcIndex, srcX +16, srcY+16, 16, 16, gcommon.TP_COLOR)
+	elif direction == 3:
+		# 左向き設置
+		if dr8 == 0:
+			# 左
+			pyxel.blt(x, y, srcIndex, srcX +32, srcY+16, -16, 16, gcommon.TP_COLOR)
+		elif dr8 == 1:
+			# 下
+			pyxel.blt(x, y, srcIndex, srcX +0, srcY+16, -16, -16, gcommon.TP_COLOR)
+		elif dr8 == 2:
+			# 下
+			pyxel.blt(x, y, srcIndex, srcX +0, srcY+16, -16, -16, gcommon.TP_COLOR)
+		elif dr8 == 3:
+			# 左下
+			pyxel.blt(x, y, srcIndex, srcX +16, srcY+16, -16, -16, gcommon.TP_COLOR)
+		elif dr8 == 4:
+			# 左
+			pyxel.blt(x, y, srcIndex, srcX +32, srcY+16, -16, 16, gcommon.TP_COLOR)
+		elif dr8 == 5:
+			# 左
+			pyxel.blt(x, y, srcIndex, srcX +16, srcY+16, -16, 16, gcommon.TP_COLOR)
+		elif dr8 == 6:
+			# 上
+			pyxel.blt(x, y, srcIndex, srcX +0, srcY+16, -16, 16, gcommon.TP_COLOR)
+		elif dr8 == 7:
+			# 上
+			pyxel.blt(x, y, srcIndex, srcX +0, srcY+16, -16, 16, gcommon.TP_COLOR)
 
 #
 # 砲台
@@ -1116,8 +1192,6 @@ class Fan1a(EnemyBase):
 			if gcommon.inScreen(self.x, self.y):
 				self.inFlag = True
 			
-
-
 	def draw(self):
 		pyxel.blt(self.x -7.5, self.y -7.5, 1, 0 + (self.cnt & 4) * 4, 64, 16, 16, gcommon.TP_COLOR)
 
@@ -1224,10 +1298,10 @@ class Fan1b(EnemyBase):
 	def update(self):
 		self.x += self.dx
 		self.y += self.dy
-		if self.x < -16 or self.x > gcommon.SCREEN_MAX_X:
+		if self.x < -32 or self.x > (gcommon.SCREEN_MAX_X +16):
 			self.remove()
 			return
-		if self.y < -16 or self.y > gcommon.SCREEN_MAX_Y:
+		if self.y < -32 or self.y > (gcommon.SCREEN_MAX_Y+16):
 			self.remove()
 			return
 
@@ -1236,6 +1310,44 @@ class Fan1b(EnemyBase):
 
 	def draw(self):
 		pyxel.blt(self.x, self.y, 1, 0 + (self.cnt & 4) * 4, 64, 16, 16, gcommon.TP_COLOR)
+
+# x,y は中心座標
+class Fan1c(EnemyBase):
+	def __init__(self, x, y, moveTable):
+		super(__class__, self).__init__()
+		self.x = x
+		self.y = y
+		self.moveTable = moveTable
+		self.left = -8
+		self.top = -8
+		self.right = 8
+		self.bottom = 8
+		self.collisionRects = gcommon.Rect.createSingleList(-5.5, -5.5, 5.5, 5.5)
+		self.hp = 1
+		self.dx = 0
+		self.dy = 0
+		self.time1 = 30
+		self.layer = gcommon.C_LAYER_SKY
+		self.score = 50
+		self.ground = True
+		self.countMover = CountMover(self, moveTable, False)
+	
+	def update(self):
+		self.countMover.update()
+		self.x += self.dx
+		self.y += self.dy
+		if self.x < -32 or self.x > (gcommon.SCREEN_MAX_X +16):
+			self.remove()
+			return
+		if self.y < -32 or self.y > (gcommon.SCREEN_MAX_Y+16):
+			self.remove()
+			return
+
+		if self.frameCount == 30 and GameSession.isHard():
+			enemy_shot(self.x +8, self.y +8, 2, 0)
+
+	def draw(self):
+		pyxel.blt(self.x -7.5, self.y -7.5, 1, 0 + (self.cnt & 4) * 4, 64, 16, 16, gcommon.TP_COLOR)
 
 
 class Fan1bLauncher(EnemyBase):
@@ -1257,6 +1369,33 @@ class Fan1bLauncher(EnemyBase):
 			return
 		if self.cnt % self.interval == 0:
 			ObjMgr.addObj(Fan1b(self.x, self.y, self.dr64))
+
+	def draw(self):
+		pass
+
+class Fan1cLauncher(EnemyBase):
+	def __init__(self, t):
+		super(__class__, self).__init__()
+		pos = gcommon.mapPosToScreenPos(t[2], t[3])
+		self.x = pos[0]
+		self.y = pos[1]
+		self.fanCount = t[4]
+		self.interval = t[5]
+		self.moveTable = t[6]
+		self.ground = True
+		self.hitCheck = False
+		self.shotHitCheck = False
+
+	def update(self):
+		if self.x < 0 or self.frameCount > 420:
+			self.remove()
+			return
+		if self.cnt % self.interval == 0:
+			ObjMgr.addObj(Fan1c(self.x, self.y, self.moveTable))
+			self.fanCount -= 1
+			if self.fanCount <= 0:
+				self.remove()
+				return
 
 	def draw(self):
 		pass
@@ -2539,6 +2678,56 @@ class Battery3(EnemyBase):
 
 	def draw(self):
 		drawBattery1(self.x, self.y, 0)
+
+# 親オブジェクトに付いて移動する砲台
+class Battery4(EnemyBase):
+	def __init__(self, parent, offsetX, offsetY, direction):
+		# direction
+		super(__class__, self).__init__()
+		self.parent = parent
+		self.offsetX = offsetX
+		self.offsetY = offsetY
+		self.x = self.parent.x + self.offsetX
+		self.y = self.parent.y + self.offsetY
+		self.direction = direction
+		if self.direction == 0:
+			self.left = 2
+			self.top = 5
+			self.right = 13
+			self.bottom = 15
+		elif self.direction == 1:
+			self.left = 2
+			self.top = 0
+			self.right = 13
+			self.bottom = 10
+		elif self.direction == 2:
+			self.left = 0
+			self.top = 2
+			self.right = 10
+			self.bottom = 13
+		elif self.direction == 3:
+			self.left = 5
+			self.top = 2
+			self.right = 15
+			self.bottom = 13
+		self.layer = gcommon.C_LAYER_GRD
+		self.interval = int(90 / GameSession.enemy_shot_rate)
+		self.first = int(90 / GameSession.enemy_shot_rate)
+		self.ground = True
+		self.hp = 10
+		self.score = 300
+
+	def update(self):
+		self.x = self.parent.x + self.offsetX
+		self.y = self.parent.y + self.offsetY
+		if self.x < -16:
+			self.remove()
+			return
+		if self.cnt != 0 and (self.first == self.cnt or self.cnt % self.interval ==0):
+			enemy_shot(self.x+8,self.y+6, 2, 0)
+
+	def draw(self):
+		drawBattery1(self.x, self.y, self.direction)
 
 
 class Lift1(EnemyBase):

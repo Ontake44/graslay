@@ -60,13 +60,14 @@ class StageLinkManager:
 
         stage4A = StageInfo("4A", 4, True, [stage5A, stage5B])
         stage4A.setImage(3, 0)
-        # stage4B = StageInfo("4B", 4, True, [stage5B, stage5C])
+        stage4B = StageInfo("4B", 4, True, [stage5A, stage5B])
+        stage4B.setImage(3, 2)
         # stage4C = StageInfo("4C", 4, False, [stage5C, stage5D])
         # stage4D = StageInfo("4D", 4, False, [stage5D, stage5E])
 
-        stage3A = StageInfo("3A", 3, True, [stage4A])
+        stage3A = StageInfo("3A", 3, True, [stage4A, stage4B])
         stage3A.setImage(2, 0)
-        stage3B = StageInfo("3B", 3, True, [stage4A])
+        stage3B = StageInfo("3B", 3, True, [stage4A, stage4B])
         stage3B.setImage(2, 2)
 
         stage2A = StageInfo("2A", 2, True, [stage3A, stage3B])
@@ -88,7 +89,9 @@ class StageLinkManager:
         stage3B.x = stage2B.x +dx
         stage3B.y = stage2B.y
         stage4A.x = stage3A.x +dx 
-        stage4A.y = self.stageRoot.y
+        stage4A.y = stage3A.y
+        stage4B.x = stage3B.x +dx 
+        stage4B.y = stage3B.y
         stage5A.x = stage4A.x +dx 
         stage5A.y = self.stageRoot.y -12
         stage5B.x = stage4A.x +dx 
@@ -216,6 +219,17 @@ class Stage:
             MapData.loadMapData(0, "assets/graslay4.pyxmap")
             MapData.loadMapData(1, "assets/graslay4b.pyxmap")
             MapData.loadMapAttribute("assets/graslay4.mapatr")
+            pyxel.tilemap(1).refimg = 1
+        elif stage == "4B":
+            # 迷宮
+            pyxel.image(1).load(0,0,"assets/stage_labyrinth.png")
+            gcommon.sync_map_y = 0
+            gcommon.long_map = True
+            gcommon.draw_star = True
+            gcommon.eshot_sync_scroll = False
+            MapData.loadMapData(0, "assets/stage_labyrinth.pyxmap")
+            MapData.loadMapData(1, "assets/stage_labyrinth2.pyxmap")
+            MapData.loadMapAttribute("assets/stage_labyrinth.mapatr")
             pyxel.tilemap(1).refimg = 1
         elif stage == "5A":
             # ファクトリー

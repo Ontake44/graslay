@@ -893,3 +893,80 @@ class MapDrawLast:
 
 	def draw2(self):
 		pass
+
+class MapDrawLabirinth:
+	def __init__(self):
+		pass
+	
+	def init(self):
+		gcommon.map_x = -32 * 8
+		gcommon.map_y = 8 * 24
+		gcommon.mapHeight = 8 * 256
+		gcommon.back_map_x = -32 * 8/2
+		gcommon.back_map_y = 0
+
+	def update0(self, skip):
+		pass
+
+	def update(self, skip):
+		if skip == False:
+			# スキップ時はマップデータやオブジェクト追加しない
+			for i in range(0, 128):
+				my = 127 -i
+				mx = gcommon.screenPosToMapPosX(256)
+				n = gcommon.getMapDataByMapPos(mx, my)
+				if n == 395:
+					# 移動床
+					gcommon.debugPrint(str(mx) + " " + str(my))
+					startTime = (gcommon.getMapDataByMapPos(mx+1, my) -992) * 10 + (gcommon.getMapDataByMapPos(mx+2, my) -992)
+					moveNo = (gcommon.getMapDataByMapPos(mx+3, my) -992) * 10 + (gcommon.getMapDataByMapPos(mx+4, my) -992)
+					battery = gcommon.getMapDataByMapPos(mx+5, my) - 458
+					gcommon.setMapDataByMapPos2(mx, my, 0, 12, 12)
+					obj = enemyOthers.MovableWall(mx, my, 0, startTime*60, moveNo)
+					ObjMgr.addObj(obj)
+					if battery>=0 and battery <= 3:
+						pos = gcommon.mapPosToScreenPos(mx, my)
+						if battery == 0:
+							ObjMgr.addObj(enemy.Battery4(obj, 5*8, -16, battery))
+						elif battery == 1:
+							ObjMgr.addObj(enemy.Battery4(obj, 5*8, 12*8, battery))
+						elif battery == 2:
+							ObjMgr.addObj(enemy.Battery4(obj, 12*8, 5*8, battery))
+						elif battery == 3:
+							ObjMgr.addObj(enemy.Battery4(obj, -2*8, 5*8, battery))
+
+				elif n in (390, 391, 392, 393):
+					# 砲台
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					ObjMgr.addObj(enemy.Battery1([0,0,mx, my, n -390]))
+				else:
+					# 共通のマップキャラクタ処理
+					doMapCharacter(n, mx, my)
+		gcommon.map_x += gcommon.cur_scroll_x
+		gcommon.map_y += gcommon.cur_scroll_y
+		gcommon.back_map_x += gcommon.cur_scroll_x/2
+
+	def drawBackground(self):
+		if gcommon.back_map_x < 0:
+			pyxel.bltm(-1 * int(gcommon.back_map_x), 0, 1, 0, 24,33,33, gcommon.TP_COLOR)
+		else:
+			mx = (int)(gcommon.back_map_x/8)
+			pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, gcommon.TP_COLOR)
+
+	def draw(self):
+		# 上下ループマップなのでややこしい
+		if gcommon.map_x < 0:
+			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+		else:
+			tm = int(gcommon.map_x/4096)
+			moffset = (int(gcommon.map_x/2048) & 1) * 128
+			w = int((gcommon.map_x %2048)/8)
+			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, gcommon.TP_COLOR)
+			if w >= 224:
+				tm2 = int((gcommon.map_x+256)/4096)
+				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
+				pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+
+	def draw2(self):
+		pass
+
