@@ -536,6 +536,7 @@ class MainGame:
 		if gcommon.DebugMode:
 			gcommon.Text2(121, 184, str(gcommon.game_timer), 7, 0)
 			gcommon.Text2(160, 184, str(len(ObjMgr.objs)), 7, 0)
+			#gcommon.Text2(160, 184, str(gcommon.map_y), 7, 0)
 			#pyxel.text(160, 184, str(len(ObjMgr.shots)), 7)
 		#pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(ObjMgr.myShip.x, ObjMgr.myShip.y)), 7)
@@ -811,7 +812,8 @@ class MainGame:
 			[baseOffset,StartMapDrawLabyrinth],
 			[baseOffset +1616,SetMapScroll, 0.0, 0.0],
 			[baseOffset +1720,SetMapScroll, 0.0, 0.50],
-			[baseOffset +2720,SetMapScroll, 0.50, 0.0],
+			[baseOffset +2728,SetMapScroll, 0.50, 0.0],
+			[baseOffset +6000,StartBGM, BGM.BOSS],
 		]
 
 

@@ -569,6 +569,23 @@ class MovableWall(EnemyBase):
             [60, enemy.CountMover.STOP],
             [48, enemy.CountMover.MOVE, 0.0, 1.0],
         ],
+        [   # 12  左に24移動、上に4移動
+            [48, enemy.CountMover.MOVE, -2.0, 0.0],
+            [60, enemy.CountMover.STOP],
+            [96, enemy.CountMover.MOVE, 0.0, -0.25],
+        ],
+        [   # 13  左に24移動、下に4移動
+            [48, enemy.CountMover.MOVE, -2.0, 0.0],
+            [60, enemy.CountMover.STOP],
+            [96, enemy.CountMover.MOVE, 0.0, 0.25],
+        ],
+        [   # 14  左に24移動、下に4移動、上に8移動
+            [48, enemy.CountMover.MOVE, -2.0, 0.0],
+            [30, enemy.CountMover.STOP],
+            [48, enemy.CountMover.MOVE, 0.0, 0.5],
+            [15, enemy.CountMover.STOP],
+            [96, enemy.CountMover.MOVE, 0.0, -0.5],
+        ],
     ]
 
     def __init__(self, mx, my, patternNo, startCount, moveNo):
@@ -579,12 +596,12 @@ class MovableWall(EnemyBase):
         self.patternNo = patternNo
         self.moveNo = moveNo
         self.startCount = startCount
-        self.left = 0
-        self.top = 0
+        self.left = 2
+        self.top = 2
         self.tablePos = __class__.posTable[patternNo]
         self.tableSize = __class__.sizeTable[patternNo]
-        self.right = self.tableSize[0] * 8
-        self.bottom = self.tableSize[1] * 8
+        self.right = self.tableSize[0] * 8 -2
+        self.bottom = self.tableSize[1] * 8 -2
         self.layer = gcommon.C_LAYER_GRD
         self.hp = gcommon.HP_UNBREAKABLE
         self.ground = True
@@ -600,7 +617,7 @@ class MovableWall(EnemyBase):
                 self.nextState()
         else:
             self.mover.update()
-        if self.x < -12*8:
+        if self.x < -12*10:
             self.remove()
 
     def draw(self):

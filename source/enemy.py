@@ -2718,6 +2718,9 @@ class Battery4(EnemyBase):
 		self.score = 300
 
 	def update(self):
+		if self.parent.removeFlag:
+			self.remove()
+			return
 		self.x = self.parent.x + self.offsetX
 		self.y = self.parent.y + self.offsetY
 		if self.x < -16:
