@@ -24,7 +24,7 @@ import story
 from objMgr import ObjMgr
 from optionMenu import OptionMenuScene
 from title import TitleScene
-from mapDraw import MapDraw1, MapDrawLabirinth
+from mapDraw import MapDraw1, MapDrawBattileShip, MapDrawLabirinth
 from mapDraw import MapDraw2
 from mapDraw import MapDrawCave
 from mapDraw import MapDrawWarehouse
@@ -190,6 +190,13 @@ class StartMapDrawLast:
 class StartMapDrawLabyrinth:
 	def __init__(self, t):
 		ObjMgr.setDrawMap(MapDrawLabirinth())
+
+	def do(self):
+		pass
+
+class StartMapDrawBattleShip:
+	def __init__(self, t):
+		ObjMgr.setDrawMap(MapDrawBattileShip())
 
 	def do(self):
 		pass
@@ -608,8 +615,7 @@ class MainGame:
 			else:
 				t = s[1]	# [1]はクラス型
 				obj = t(s)			# ここでインスタンス化
-				ObjMgr.objs.append(obj)
-				obj.appended()
+				ObjMgr.addObj(obj)
 			self.story_pos = self.story_pos + 1
 
 	def ExecuteEvent(self):
@@ -673,6 +679,7 @@ class MainGame:
 		for obj in ObjMgr.objs:
 			if obj.removeFlag == False and obj.hitCheck:
 				if obj.checkMyShipCollision() and ObjMgr.myShip.sub_scene == 1:
+					gcommon.debugPrint(str(obj) + " x=" + str(obj.parent.x) + " cnt=" +str(obj.cnt))
 					self.my_broken()
 					break
 
@@ -692,6 +699,8 @@ class MainGame:
 			self.initEvent3()
 		elif self.stage == "3B":
 			self.initEventWarehouse()
+		elif self.stage == "3C":
+			self.initEventBattileShip()
 		elif self.stage == "4A":
 			self.initEvent4()
 		elif self.stage == "4B":
@@ -816,6 +825,19 @@ class MainGame:
 			[baseOffset +6000,StartBGM, BGM.BOSS],
 		]
 
+	def initEventBattileShip(self):
+		baseOffset = 0
+		self.eventTable =[
+			[0, StartBGM, BGM.STAGE5],
+			[0, StartMapDrawBattleShip],
+			[0, SetMapScroll, 1.0, 0.0],
+			[baseOffset +520, SetMapScroll, 1.0, -0.25],
+			[baseOffset +1000, SetMapScroll, 1.0, 0.0],
+			[baseOffset +2800, SetMapScroll, 0.5, 0.25],
+			[baseOffset +3280, SetMapScroll, 0.25, 0.0],
+		]
+
+
 
 	def initStory(self):
 		if self.stage == "1A":
@@ -828,6 +850,8 @@ class MainGame:
 			self.story = story.Story.getStory3()
 		elif self.stage == "3B":
 			self.story = story.Story.getStoryWarehouse()
+		elif self.stage == "3C":
+			self.story = story.Story.getStoryBattileShip()
 		elif self.stage == "4A":
 			self.story = story.Story.getStory4()
 		elif self.stage == "4B":

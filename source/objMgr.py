@@ -39,6 +39,7 @@ class ObjMgr:
 	@classmethod
 	def addObj(cls, obj):
 		cls.objs.append(obj)
+		obj.appended()
 		return obj
 
 	@classmethod

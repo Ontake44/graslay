@@ -1,4 +1,5 @@
 
+from bossBattleShip import BossBattleShip
 import pyxel
 import math
 import random
@@ -14,6 +15,7 @@ import bossLast
 import bossWarehouse
 import bossCave
 import bossFire
+import bossBattleShip
 from enemyBattery import MovableBattery1
 from enemyBattery import ContainerCarrier1
 from enemyBattery import Tractor1
@@ -903,4 +905,53 @@ class Story:
 					[32, 0, 0.0, 2.0], [300, 0, -2.0, 0.0]
 				],
 			],
+		]
+
+	@classmethod
+	def getStoryBattileShip(cls):
+		baseOffset = 0
+		return [
+			[baseOffset +100, enemy.EnemyGroup, enemy.Fighter3, 
+				[
+					0, None, 256, 20,
+					[
+						[40, 0, -3.0, 0.0],[30, 0, -3.0, 0.5],[600, 0, -3.0,0.0]
+					], 30
+				], 15, 5],
+			[baseOffset +220, enemy.EnemyGroup, enemy.Fighter3, 
+				[
+					0, None, 256, 120,
+					[
+						[40, 0, -3.0, 0.0],[30, 0, -3.0, -0.5],[600, 0, -3.0,0.0]
+					], 30
+				], 15, 5],
+			[baseOffset +300, enemy.EnemyGroup, enemy.Fighter3, 
+				[
+					0, None, 256, 50,
+					[
+						[60, 0, -3.0, 0.0],[30, 0, -3.0, 0.75],[600, 0, -3.0,0.0]
+					], 30
+				], 15, 5],
+			[baseOffset +400, bossBattleShip.BossBattleShip],
+			[baseOffset +480, enemy.EnemyGroup, enemy.Fighter3, 
+				[
+					0, None, 256, 140,
+					[
+						[40, 0, -3.0, 0.0],[30, 0, -3.0, -0.5],[600, 0, -3.0,0.0]
+					], 30
+				], 15, 5],
+			[baseOffset +900, enemy.EnemyGroup, enemy.Fighter3, 
+				[
+					0, None, 256, 10,
+					[
+						[900, 0, -3.0, 0.0]
+					], 30
+				], 15, 5],
+			[baseOffset +1020, enemy.EnemyGroup, enemy.Fighter3, 
+				[
+					0, None, 256, 10,
+					[
+						[900, 0, -3.0, 0.0]
+					], 30
+				], 15, 5],
 		]

@@ -201,6 +201,12 @@ class EnemyBase:
 #    [2] 初期角度
 #    [3] 角速度
 #    [4] 速度
+#  mode = 11 : ACCEL_MAX
+#    最大加速移動
+#    [2] ax
+#    [3] ay
+#    [4] dx最大
+#    [5] dy最大
 #  mode = 100 : SET_INDEX
 #    指定インデックスに移動
 #    [2] インデックス
@@ -217,6 +223,7 @@ class CountMover:
 	ROTATE_DEG = 8
 	ROTATE_DEG2 = 9
 	SET_DEG = 10
+	ACCEL_MAX = 11
 	SET_INDEX = 100
 	def __init__(self, obj, table, loopFlag):
 		self.obj = obj
@@ -325,6 +332,25 @@ class CountMover:
 			elif mode == __class__.SET_DEG:
 				self.deg = item[2]
 				#gcommon.debugPrint("SET_DEG")
+			elif mode == __class__.ACCEL_MAX:
+				if item[2] > 0:
+					self.dx += item[2]
+					if self.dx > item[4]:
+						self.dx = item[4]
+				elif item[2] < 0:
+					self.dx += item[2]
+					if self.dx < item[4]:
+						self.dx = item[4]
+				if item[3] > 0:
+					self.dy += item[3]
+					if self.dy > item[5]:
+						self.dy = item[5]
+				elif item[3] < 0:
+					self.dy += item[3]
+					if self.dy < item[5]:
+						self.dy = item[5]
+				self.obj.x += self.dx
+				self.obj.y += self.dy
 			elif mode == 100:
 				self.tableIndex = item[2]
 				self.cnt = 0
@@ -360,8 +386,7 @@ class WhereAppear(EnemyBase):
 			table.insert(0, 0)
 			table.insert(0, 0)
 			obj = className(table)
-			ObjMgr.objs.append(obj)
-			obj.appended()
+			ObjMgr.addObj(obj)
 
 	def update(self):
 		self.remove()

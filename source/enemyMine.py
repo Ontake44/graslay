@@ -36,15 +36,6 @@ class Mine1(EnemyBase):
         else:
             self.dy = -1
 
-    def appended(self):
-        pass
-        #self.y = self.paramY - gcommon.map_y
-        # self.initY = self.y
-        # if self.movingHeight > 0:
-        #     self.dy = 1
-        # else:
-        #     self.dy = -1
-
     def update(self):
         self.initY -= gcommon.cur_scroll_y
         self.initY -= gcommon.cur_map_dy

@@ -69,10 +69,12 @@ class StageLinkManager:
         stage3A.setImage(2, 0)
         stage3B = StageInfo("3B", 3, True, [stage4A, stage4B])
         stage3B.setImage(2, 2)
+        stage3C = StageInfo("3C", 3, True, [stage4A, stage4B])
+        stage3C.setImage(2, 2)
 
-        stage2A = StageInfo("2A", 2, True, [stage3A, stage3B])
+        stage2A = StageInfo("2A", 2, True, [stage3A, stage3B, stage3C])
         stage2A.setImage(1, 0)
-        stage2B = StageInfo("2B", 2, True, [stage3A, stage3B])
+        stage2B = StageInfo("2B", 2, True, [stage3A, stage3B, stage3C])
         stage2B.setImage(1, 2)
 
         self.stageRoot = StageInfo("1A", 1, True, [stage2A, stage2B])
@@ -85,13 +87,15 @@ class StageLinkManager:
         stage2B.x = self.stageRoot.x +dx 
         stage2B.y = self.stageRoot.y +12
         stage3A.x = stage2A.x +dx
-        stage3A.y = stage2A.y
+        stage3A.y = stage2A.y -12
         stage3B.x = stage2B.x +dx
-        stage3B.y = stage2B.y
+        stage3B.y = stage2B.y -12
+        stage3C.x = stage2B.x +dx
+        stage3C.y = stage2B.y +12
         stage4A.x = stage3A.x +dx 
-        stage4A.y = stage3A.y
+        stage4A.y = stage3A.y +12
         stage4B.x = stage3B.x +dx 
-        stage4B.y = stage3B.y
+        stage4B.y = stage3B.y +12
         stage5A.x = stage4A.x +dx 
         stage5A.y = self.stageRoot.y -12
         stage5B.x = stage4A.x +dx 
@@ -209,6 +213,19 @@ class Stage:
             MapData.loadMapAttribute("assets/graslay3.mapatr")
             pyxel.tilemap(1).refimg = 1
             pyxel.tilemap(2).refimg = 1
+        elif stage == "3C":
+            # 巨大戦艦
+            pyxel.image(1).load(0,0,"assets/stage_battleship.png")
+            pyxel.image(2).load(0,0,"assets/stage_battleship-2.png")
+            gcommon.sync_map_y = 0
+            gcommon.long_map = True
+            gcommon.draw_star = True
+            gcommon.eshot_sync_scroll = False
+            MapData.loadMapData(0, "assets/stage_battleship.pyxmap")
+            MapData.loadMapData(1, "assets/stage_battleship-2.pyxmap")
+            MapData.loadMapAttribute("assets/stage_battleship.mapatr")
+            pyxel.tilemap(0).refimg = 1
+            pyxel.tilemap(1).refimg = 2
         elif stage == "4A":
             # 遺跡
             pyxel.image(1).load(0,0,"assets/graslay4.png")
