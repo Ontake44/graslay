@@ -49,6 +49,11 @@ class MapData:
 		gcommon.mapAttribute = attrFile.readlines()
 		attrFile.close()
 
+	@classmethod
+	def loadMapAttribute2(cls, fileName):
+		attrFile = open(gcommon.resource_path(fileName), mode = "r")
+		gcommon.mapAttribute2 = attrFile.readlines()
+		attrFile.close()
 
 class MapDraw1:
 	def __init__(self):

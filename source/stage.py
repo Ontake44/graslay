@@ -224,6 +224,7 @@ class Stage:
             MapData.loadMapData(0, "assets/stage_battleship.pyxmap")
             MapData.loadMapData(1, "assets/stage_battleship-2.pyxmap")
             MapData.loadMapAttribute("assets/stage_battleship.mapatr")
+            MapData.loadMapAttribute2("assets/stage_battleship-2.mapatr")
             pyxel.tilemap(0).refimg = 1
             pyxel.tilemap(1).refimg = 2
         elif stage == "4A":

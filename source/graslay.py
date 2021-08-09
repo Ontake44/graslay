@@ -679,7 +679,6 @@ class MainGame:
 		for obj in ObjMgr.objs:
 			if obj.removeFlag == False and obj.hitCheck:
 				if obj.checkMyShipCollision() and ObjMgr.myShip.sub_scene == 1:
-					gcommon.debugPrint(str(obj) + " x=" + str(obj.parent.x) + " cnt=" +str(obj.cnt))
 					self.my_broken()
 					break
 
@@ -832,7 +831,7 @@ class MainGame:
 			[0, StartMapDrawBattleShip],
 			[0, SetMapScroll, 1.0, 0.0],
 			[baseOffset +520, SetMapScroll, 1.0, -0.25],
-			[baseOffset +1000, SetMapScroll, 1.0, 0.0],
+			[baseOffset +1050, SetMapScroll, 1.0, 0.0],
 			[baseOffset +2800, SetMapScroll, 0.5, 0.25],
 			[baseOffset +3280, SetMapScroll, 0.25, 0.0],
 		]

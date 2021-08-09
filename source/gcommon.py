@@ -254,6 +254,7 @@ app = None
 star_ary = []
 
 mapAttribute = []
+mapAttribute2 = []
 
 
 waterSurface_y = 0.0

@@ -4292,6 +4292,49 @@ class CountStater:
 			else:
 				self.isEnd = True
 
+# CountStaterがバグっていたので2にした
+# [0] to cnt
+# [1] mode
+class CountStater2:
+	def __init__(self, obj, table, loopFlag=False, absolute=False):
+		self.obj = obj
+		self.table = table
+		self.tableIndex = 0
+		self.loopFlag = loopFlag
+		self.absolute = absolute
+		self.isEnd = False
+		self.cycleCount = 0
+		self.cnt = 0
+		self.state = 0
+
+	def update(self):
+		if self.isEnd:
+			return
+		item = self.table[self.tableIndex]
+		if self.cnt <= item[0]:
+			self.state = item[1]
+			self.cnt += 1
+		else:
+			self.nextTable()
+
+	def reset(self):
+		self.tableIndex = 0
+		self.cnt = 0
+
+	def nextTable(self):
+		self.tableIndex += 1
+		if self.absolute == False:
+			self.cnt = 0
+		if self.tableIndex == len(self.table):
+			if self.loopFlag:
+				self.cycleCount += 1
+				self.tableIndex = 0
+			else:
+				self.isEnd = True
+		else:
+			item = self.table[self.tableIndex]
+			self.state = item[1]
+
 class DummyEnemy(EnemyBase):
 	def __init__(self, count):
 		super(__class__, self).__init__()
