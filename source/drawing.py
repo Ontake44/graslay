@@ -293,6 +293,12 @@ class Drawing:
     0,1,2,8,4,5,3,9,12,13,14,11,6,10,15,7
     ]
 
+    dark_color_table = [
+    #   0  1  2  3  4  5   6   7  8  9 10 11 12 13 14  15
+        0, 0, 1, 1, 2, 1, 12, 13, 2, 8, 9, 3, 5, 5, 8, 10
+    ]
+
+
     # 明るさを設定する（-15～+15）
     @classmethod
     def setBrightness(cls, level):
@@ -314,6 +320,18 @@ class Drawing:
             else:
                 pyxel.pal(cls.color_table[c], cls.color_table[c +level])
 
+    @classmethod
+    def setBrightnessWithoutBlack2(cls, level):
+        if level == 0:
+            return
+        tbl = [0] * 16
+        for c in range(1, 15):
+            tbl[c] = cls.dark_color_table[c]
+        for i in range(-level-1):
+            for c in range(1, 15):
+                tbl[c] = cls.dark_color_table[tbl[c]]
+        for c in range(1, 15):
+            pyxel.pal(c, tbl[c])
 
     @classmethod
     def clipLine(cls, ip1, ip2, points):

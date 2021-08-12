@@ -5,10 +5,11 @@ import random
 import gcommon
 import enemy
 import boss
+import drawing
 from objMgr import ObjMgr
 from gameSession import GameSession
 from audio import BGM
-from enemy import CountMover, Fan1a
+from enemy import CountMover
 
 class BossBattleShip(enemy.EnemyBase):
     TILE_LEFT = 4
@@ -24,7 +25,9 @@ class BossBattleShip(enemy.EnemyBase):
     stateTable0 = [
         [699, 0],
         [1049, 1],
-        [3000, 2],
+        [1499, 2],
+        [1799, 3],
+        [5000, 4],
     ]
     # moveTable0 = [
     #     [0, CountMover.SET_POS, 256.0, -80.0],
@@ -81,6 +84,13 @@ class BossBattleShip(enemy.EnemyBase):
         self.appendBattery(49, 20, 0)
         self.appendBattery(53, 20, 0)
         self.appendBattery(11, 43, 1)       # 下
+        self.appendBattery(73, 20, 0)
+        self.appendBattery(84, 21, 0)
+        self.appendBattery(88, 21, 0)
+        self.appendBattery(92, 21, 0)
+        self.appendBattery(103, 21, 0)
+        self.appendBattery(107, 21, 0)
+        self.appendBattery(111, 21, 0)
 
     def appendBattery(self, mx, my, direction):
         self.batteryList.append(BattleShipBattery(self, (mx -__class__.TILE_LEFT)*8, (my -__class__.TILE_TOP)*8, direction))
@@ -107,6 +117,14 @@ class BossBattleShip(enemy.EnemyBase):
                 p = int((self.stater.cnt-1050)/20)
                 if p <= 3:
                     ObjMgr.addObj(BattleShipMissileLauncher1(self, (61-__class__.TILE_LEFT + p*5)*8, (32- __class__.TILE_TOP)*8, 61 +p*5, 32, 56))
+        elif self.stater.state == 3:
+            if self.stater.cnt == 1500:
+                ObjMgr.addObj(BossBattleShipLaserCannon(self, (91-__class__.TILE_LEFT)*8, (31-__class__.TILE_TOP)*8))
+        elif self.stater.state == 4:
+            if self.stater.cnt % 20 == 0:
+                p = int((self.stater.cnt-1800)/20)
+                if p <= 3:
+                    ObjMgr.addObj(BattleShipMissileLauncher1(self, (102-__class__.TILE_LEFT + p*5)*8, (32- __class__.TILE_TOP)*8, 102 +p*5, 32, 56))
 
     def draw(self):
         pyxel.bltm(self.x, self.y, 1, 4, 15, 134-4, 45-15, 2)
@@ -117,6 +135,11 @@ class BossBattleShip(enemy.EnemyBase):
         if shot.removeFlag:
             return False
         return self.getTileHit(shot.x + (shot.right -shot.left+1)/2, shot.y + (shot.bottom -shot.top+1)/2)
+
+    # 自機と敵との当たり判定
+    def checkMyShipCollision(self):
+        obj = ObjMgr.myShip
+        return self.getTileHit(obj.x + (obj.right -obj.left+1)/2, obj.y + (obj.bottom -obj.top+1)/2)
 
     # 当たった場合の破壊処理
     # 破壊した場合True
@@ -298,8 +321,8 @@ class BattleShipHomingMissile1(enemy.EnemyBase):
         self.x += math.cos(gcommon.atan_table[self.dr & 63]) * self.speed
         self.y += math.sin(gcommon.atan_table[self.dr & 63]) * self.speed
         if self.cnt % 3 == 0:
-            fx = math.cos(gcommon.atan_table[self.dr]) * 8
-            fy = math.sin(gcommon.atan_table[self.dr]) * 8
+            fx = math.cos(gcommon.atan_table[self.dr]) * 12
+            fy = math.sin(gcommon.atan_table[self.dr]) * 12
             ObjMgr.addObj(Smoke1(self.x -fx, self.y -fy))
                 
     def draw(self):
@@ -317,15 +340,15 @@ class BattleShipHomingMissile1(enemy.EnemyBase):
 # ミサイル発射管
 class BattleShipMissileLauncher1(enemy.EnemyBase):
     stateTable0 = [
-        [10, 1],
-        [10, 2],
+        [5, 1],
+        [5, 2],
+        [5, 3],    # 発射
         [10, 3],    # 発射
         [10, 3],    # 発射
-        [10, 3],    # 発射
-        [10, 2],
-        [10, 1],
-        [10, 0],
-        [10, 4],
+        [5, 2],
+        [5, 1],
+        [5, 0],
+        [5, 4],
     ]
     def __init__(self, parent, ox, oy, mx, my, direction):
         super(__class__, self).__init__()
@@ -351,13 +374,11 @@ class BattleShipMissileLauncher1(enemy.EnemyBase):
                 pyxel.tilemap(1).copy(self.mx, self.my, 1, 3 * state, 84, 3, 3)
         if state == 3:
             if self.stater.cnt == 0:
-                gcommon.debugPrint("Missile " + str(self.x) + " " + str(self.y))
                 px = self.x +12 + gcommon.cos_table[self.direction] * 6.0
                 py = self.y +12 + gcommon.sin_table[self.direction] * 6.0
                 obj = BattleShipHomingMissile1(px, py, self.direction)
                 ObjMgr.addObj(obj)
         if self.stater.isEnd:
-            gcommon.debugPrint("launcher remove")
             self.remove()
 
 class Smoke1(enemy.EnemyBase):
@@ -415,10 +436,114 @@ class BossBattleShipBridge(enemy.EnemyBase):
         self.x = self.parent.x + self.offsetX
         self.y = self.parent.y + self.offsetY
 
-
     def draw(self):
         pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 0, 92, 6, 4, 2)
 
     def broken(self):
         super(__class__, self).broken()
         pyxel.tilemap(1).copy(4 +int(self.offsetX/8), 15 +int(self.offsetY/8), 1, 4 +int(self.offsetX/8), 50 +int(self.offsetY/8), 6, 4)
+
+# レーザー砲
+#  state
+#   0 : シャッター開く
+#   1 : レーザー砲出てくる（明るくなる）
+#   2 : 回転しながら攻撃（反時計回り）
+#   3 : 回転しながら攻撃（時計回り）
+#   4 : レーザー砲隠れる（暗くなる）
+#   5 : シャッター閉まる
+class BossBattleShipLaserCannon(enemy.EnemyBase):
+    def __init__(self, parent, ox, oy):
+        super(__class__, self).__init__()
+        self.parent = parent
+        self.x = self.parent.x + ox
+        self.y = self.parent.y + oy
+        self.offsetX = ox
+        self.offsetY = oy
+        self.left = 0
+        self.top = 0
+        self.right = 31
+        self.bottom = 31
+        self.layer = gcommon.C_LAYER_SKY
+        self.ground = False
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.rad = 0.0
+        self.shotCount = 0
+        self.gunWidth = 48
+        self.gunHeight = 48
+        self.image = [None]* self.gunWidth
+        self.work = [None]* self.gunHeight
+        for y in range(self.gunWidth):
+            self.image[y] = [0]*self.gunHeight
+        img = pyxel.image(1)
+        for y in range(self.gunWidth):
+            for x in range(self.gunHeight):
+                self.image[y][x] = img.get(x +128, y +128)
+
+    def update(self):
+        self.x = self.parent.x + self.offsetX
+        self.y = self.parent.y + self.offsetY
+        if self.state == 0:
+            # シャッター開く
+            if self.cnt == 30:
+                self.nextState()
+        elif self.state == 1:
+            # レーザー砲出てくる（明るくなる）
+            if self.cnt == 30:
+                self.nextState()
+        elif self.state == 2:
+            # 回転しながら攻撃（反時計回り）
+            self.rad -= math.pi * 1.5/180
+            if self.cnt % 8 == 0:
+                ObjMgr.addObj(boss.BossLaserBeam1(
+                    self.x +56/2 + math.cos(self.rad) * 8,
+                    self.y +40/2 + math.sin(self.rad) * 8, self.rad))
+            if self.rad < -math.pi *150/180:
+                self.nextState()
+        elif self.state == 3:
+            self.rad += math.pi * 1.5/180
+            # 回転しながら攻撃（時計回り）
+            if self.cnt % 8 == 0:
+                ObjMgr.addObj(boss.BossLaserBeam1(gcommon.sint(self.x +56/2), gcommon.sint(self.y +40/2), self.rad))
+                if self.rad >= 0.0:
+                    self.rad = 0.0
+                    self.nextState()
+        elif self.state == 4:
+            # レーザー砲隠れる（暗くなる）
+            if self.cnt == 30:
+                self.nextState()
+        elif self.state == 5:
+            # シャッター閉まる
+            if self.cnt == 30:
+                self.remove()
+
+    def draw(self):
+        if self.state in (0, 5):
+            pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 30, 84, 7, 5)
+            # レーザー砲
+            drawing.Drawing.setBrightnessWithoutBlack2(-3)
+            pyxel.blt(gcommon.sint(self.x +(56-self.gunWidth)/2), gcommon.sint(self.y +(40-self.gunHeight)/2), 1, 128, 128, self.gunWidth, self.gunHeight, 2)
+            pyxel.pal()
+            # シャッター
+            if self.state == 0:
+                y = int(self.cnt/2)
+            else:
+                y = 15 -int(self.cnt/2)
+            if y <= 15:
+                pyxel.blt(self.x, self.y +5, 1, 128, 176+y, 56, 15-y, 2)
+                pyxel.blt(self.x, self.y +20+y, 1, 128, 176, 56, 15-y, 2)
+            pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 23, 84, 7, 5, 2)
+        elif self.state in (1, 4):
+            pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 30, 84, 7, 5)
+            # レーザー砲
+            if self.state == 1:
+                drawing.Drawing.setBrightnessWithoutBlack2(int(self.cnt/10) -3)
+            else:
+                drawing.Drawing.setBrightnessWithoutBlack2(-int(self.cnt/10))
+            pyxel.blt(gcommon.sint(self.x +(56-self.gunWidth)/2), gcommon.sint(self.y +(40-self.gunHeight)/2), 1, 128, 128, self.gunWidth, self.gunHeight, 2)
+            pyxel.pal()
+        elif self.state in (2, 3):
+            pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 30, 84, 7, 5)
+            drawing.Drawing.setRotateImage(176, 128, 1, self.work, self.image, -self.rad, 2)
+            pyxel.blt(gcommon.sint(self.x +(56-self.gunWidth)/2), gcommon.sint(self.y +(40-self.gunHeight)/2), 1, 176, 128, self.gunWidth, self.gunHeight, 2)
+        

@@ -102,11 +102,9 @@ class EnemyBase:
 
 	def nextState(self):
 		self.nextStateNo = self.state + 1
-		self.cnt = 0
 
 	def setState(self, state):
 		self.nextStateNo = state
-		self.cnt = 0
 
 	# 自機弾と敵との当たり判定
 	def checkShotCollision(self, shot):

@@ -270,7 +270,8 @@ class MainGame:
 			self.ExecuteEvent()
 			ObjMgr.updateDrawMap0(True)
 			ObjMgr.updateDrawMap(True)
-			
+			self.ExecuteStory()
+			self.updateEnemy()
 			gcommon.game_timer = gcommon.game_timer + 1	
 	
 	def doPause(self):
@@ -406,6 +407,12 @@ class MainGame:
 				newShots.append(shot)
 		ObjMgr.shots = newShots
 
+		self.updateEnemy()
+		self.Collision()
+		
+		gcommon.game_timer = gcommon.game_timer + 1
+	
+	def updateEnemy(self):
 		newObjs = []
 		for obj in ObjMgr.objs:
 			if obj.removeFlag == False:
@@ -428,11 +435,6 @@ class MainGame:
 			newObjs.append(obj)
 		ObjMgr.insertObjs.clear()
 		ObjMgr.objs = newObjs
-
-		self.Collision()
-		
-		gcommon.game_timer = gcommon.game_timer + 1
-	
 
 	def draw(self):
 		pyxel.cls(0)
@@ -831,7 +833,7 @@ class MainGame:
 			[0, StartMapDrawBattleShip],
 			[0, SetMapScroll, 1.0, 0.0],
 			[baseOffset +520, SetMapScroll, 1.0, -0.25],
-			[baseOffset +1050, SetMapScroll, 1.0, 0.0],
+			[baseOffset +1014, SetMapScroll, 1.0, 0.0],
 			[baseOffset +2800, SetMapScroll, 0.5, 0.25],
 			[baseOffset +3280, SetMapScroll, 0.25, 0.0],
 		]

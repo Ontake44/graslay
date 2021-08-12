@@ -21,12 +21,33 @@ from enemyBattery import ContainerCarrier1
 from enemyBattery import Tractor1
 from enemyArmored import Armored1
 from gameSession import GameSession
+from objMgr import ObjMgr
 from enemy import CountMover
 import enemyFighter
 import enemyMine
 import enemyOthers
 import enemyCreature
 
+class StoryManager:
+
+	def __init__(self, story):
+		self.story = story
+		self.story_pos = 0
+
+	def doStory(self):
+		while True:
+			if len(self.story) <= self.story_pos:
+				return
+		
+			s = self.story[self.story_pos]
+			if s[0] < gcommon.game_timer:
+				pass
+			elif s[0] != gcommon.game_timer:
+				return
+			else:
+				method = s[1]	# [1]はメソッド
+				method(s)
+			self.story_pos = self.story_pos + 1
 
 class Story:
 	@classmethod
