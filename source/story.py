@@ -30,23 +30,37 @@ import enemyCreature
 
 class StoryManager:
 
-	def __init__(self, story):
+	def __init__(self, obj, story, loopFlag=False, diffTime=False):
+		self.obj = obj
 		self.story = story
 		self.story_pos = 0
+		self.cnt = 0
+		self.loopFlag = loopFlag
+		self.diffTime = diffTime
+		self.isEnd = False
+		self.cycleCount = 0
 
 	def doStory(self):
 		while True:
 			if len(self.story) <= self.story_pos:
-				return
-		
+				if self.loopFlag:
+					self.cnt = 0
+					self.story_pos = 0
+				else:
+					self.isEnd = True
+					return
 			s = self.story[self.story_pos]
-			if s[0] < gcommon.game_timer:
+			if s[0] < self.cnt:
 				pass
-			elif s[0] != gcommon.game_timer:
+			elif s[0] != self.cnt:
+				self.cnt += 1
 				return
 			else:
 				method = s[1]	# [1]はメソッド
-				method(s)
+				if method != None:
+					method(self.obj, s)
+				if self.diffTime:
+					self.cnt = 0
 			self.story_pos = self.story_pos + 1
 
 class Story:
@@ -973,6 +987,41 @@ class Story:
 					0, None, 256, 10,
 					[
 						[900, 0, -3.0, 0.0]
+					], 30
+				], 15, 5],
+			[baseOffset +2380, enemy.EnemyGroup, enemy.Fighter3, 
+				[
+					0, None, 256, 10,
+					[
+						[900, 0, -3.0, 0.0]
+					], 30
+				], 15, 5],
+			[baseOffset +2700, enemy.EnemyGroup, enemy.Fighter3, 
+				[
+					0, None, 256, 100,
+					[
+						[90, 0, -3.0, -1.0], [900, 0, -3.0, 0.0]
+					], 30
+				], 15, 5],
+			[baseOffset +2800, enemy.EnemyGroup, enemy.Fighter3, 
+				[
+					0, None, -24, 10,
+					[
+						[900, 0, 3.0, 0.0]
+					], 30
+				], 15, 5],
+			[baseOffset +3200, enemy.EnemyGroup, enemy.Fighter3, 
+				[
+					0, None, 256, 120,
+					[
+						[90, 0, -3.0, 0.5], [900, 0, -3.0, 0.0]
+					], 30
+				], 15, 5],
+			[baseOffset +3400, enemy.EnemyGroup, enemy.Fighter3, 
+				[
+					0, None, -24, 154,
+					[
+						[900, 0, 3.0, 0.0]
 					], 30
 				], 15, 5],
 		]

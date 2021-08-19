@@ -621,4 +621,32 @@ class MovableWall(EnemyBase):
             self.remove()
 
     def draw(self):
-        pyxel.bltm(self.x, self.y, 1, self.tablePos[0], self.tablePos[1], self.tableSize[0], self.tableSize[1], 2)
+        pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, self.tablePos[0], self.tablePos[1], self.tableSize[0], self.tableSize[1], 2)
+
+class Smoke1(enemy.EnemyBase):
+    def __init__(self, x, y):
+        super(__class__, self).__init__()
+        self.x = x
+        self.y = y
+        self.layer = gcommon.C_LAYER_SKY
+        self.ground = False
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.enemyShotCollision = False
+        self.nextCnt = random.randrange(7,11)
+        self.index = 0
+
+    def update(self):
+        newIndex = int(self.cnt/self.nextCnt)
+        if newIndex > 5:
+            self.remove()
+            return
+        else:
+            if newIndex != self.index:
+                self.index = newIndex
+                self.nextCnt = random.randrange(5,12)
+    
+    def draw(self):
+        dx = 1 if self.cnt & 1 == 0 else -1
+        dy = 1 if self.cnt & 2 == 0 else -1
+        pyxel.blt(self.x -7.5, self.y -7.5, 1, 32 + self.index*16, 240, 16 * dx, 16 * dy, 0)

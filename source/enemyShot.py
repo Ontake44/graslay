@@ -3,7 +3,9 @@ import pyxel
 import math
 import random
 import gcommon
+from objMgr import ObjMgr
 import enemy
+import enemyOthers
 
 # 弧を描くように回って飛ぶ
 # x,y は中心座標
@@ -102,3 +104,42 @@ class HomingBeam1(enemy.EnemyBase):
 			pyxel.blt(pos[0] -3, pos[1] -3, 0, 0, 40, 7, 7, 0)
 		pyxel.pal()
 		pyxel.blt(self.x -3, self.y -3, 0, 0, 40, 7, 7, 0)
+
+# 魚雷
+class Torpedo1(enemy.EnemyBase):
+	def __init__(self, x, y):
+		super(__class__, self).__init__()
+		self.x = x
+		self.y = y
+		self.left = 1
+		self.top = 0
+		self.right = 44
+		self.bottom = 6
+		self.layer = gcommon.C_LAYER_SKY
+		self.ground = False
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+		self.hp = 50
+		self.ground = True
+		self.speed = 3.0
+		self.imageSourceX = 0
+		self.imageSourceY = 112
+		self.imageSourceIndex = 1
+
+	def update(self):
+		self.x += self.speed
+		if self.x > gcommon.SCREEN_MAX_X:
+			self.remove()
+			return
+		if self.cnt % 3 == 0:
+			obj = enemyOthers.Smoke1(self.x -8, self.y +3)
+			obj.ground = True
+			ObjMgr.addObj(obj)
+		if self.speed < 6.0:
+			self.speed += 0.1
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, self.imageSourceIndex, self.imageSourceX, self.imageSourceY, 48, 7, 3)
+
+

@@ -9,6 +9,7 @@ from objMgr import ObjMgr
 
 VERSION = "2.00"
 START_GAME_TIMER= 0		# 3600 :3		#2700 :2
+START_STAGE = None
 
 DIFFICULTY_EASY = 0
 DIFFICULTY_NORMAL = 1

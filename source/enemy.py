@@ -844,13 +844,14 @@ class Battery0(EnemyBase):
 		self.imageSourceX = 0
 		self.imageSourceY = 96
 		self.imageSourceIndex = 1
+		self.shotFlag = True
 		#gcommon.debugPrint("Battery direction =" + str(self.direction))
 
 	def update(self):
 		if self.x < self.remove_min_x:
 			self.remove()
 			return
-		if self.cnt != 0 and (self.first == self.cnt or self.cnt % self.interval ==0):
+		if self.shotFlag and self.cnt != 0 and (self.first == self.cnt or self.cnt % self.interval ==0):
 			enemy_shot(self.x+8,self.y+6, self.shot_speed, 0)
 
 	def draw(self):
@@ -862,7 +863,8 @@ def drawBattery1(x, y, direction):
 def drawBattery0(x, y, direction, srcIndex, srcX, srcY):
 	dr8 = 0
 	dr8 = gcommon.get_direction_my(x+8, y +8)
-	y = int(y)
+	x = gcommon.sint(x)
+	y = gcommon.sint(y)
 	#      6
 	#    5   7
 	#   4     0
@@ -4153,10 +4155,18 @@ class Fighter3(EnemyBase):
 		self.y = t[3]
 		self.moveTable = t[4]
 		self.shotFirst = t[5]
-		self.left = 4
-		self.top = 7
-		self.right = 19
-		self.bottom = 15
+		if self.x > gcommon.SCREEN_MIN_X:
+			self.left = 4
+			self.top = 7
+			self.right = 19
+			self.bottom = 15
+			self.direction = 1
+		else:
+			self.left = 4
+			self.top = 7
+			self.right = 23
+			self.bottom = 15
+			self.direction = -1
 		self.layer = gcommon.C_LAYER_SKY
 		self.hp = 1
 		self.hitCheck = True
@@ -4167,17 +4177,27 @@ class Fighter3(EnemyBase):
 
 	def update(self):
 		self.mover.update()
+		if self.x < -24 or self.x > gcommon.SCREEN_MAX_X +20:
+			self.remove()
+			return
 		if self.cnt == self.shotFirst:
 			enemy_shot(self.x +10, self.y+10, 3, 0)
 
 	def draw(self):
-		pyxel.blt(self.x, self.y, 1, 32, 200, 24, 22, 3)
-		if self.cnt & 2 == 0:
-			if self.cnt & 4 == 0:
-				pyxel.blt(self.x +22, self.y +10-3, 1, 112, 64, 16, 6, 3)
-			else:
-				pyxel.blt(self.x +22, self.y +10-3, 1, 112, 72, 16, 6, 3)
-
+		if self.direction == 1:
+			pyxel.blt(self.x, self.y, 1, 32, 200, 24, 22, 3)
+			if self.cnt & 2 == 0:
+				if self.cnt & 4 == 0:
+					pyxel.blt(self.x +22, self.y +10-3, 1, 112, 64, 16, 6, 3)
+				else:
+					pyxel.blt(self.x +22, self.y +10-3, 1, 112, 72, 16, 6, 3)
+		else:
+			pyxel.blt(self.x, self.y, 1, 32, 200, -24, 22, 3)
+			if self.cnt & 2 == 0:
+				if self.cnt & 4 == 0:
+					pyxel.blt(self.x -16, self.y +10-3, 1, 112, 64, -16, 6, 3)
+				else:
+					pyxel.blt(self.x -16, self.y +10-3, 1, 112, 72, -16, 6, 3)
 
 
 class WaterSurface(EnemyBase):

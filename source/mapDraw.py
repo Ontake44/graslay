@@ -961,16 +961,16 @@ class MapDrawLabirinth:
 	def draw(self):
 		# 上下ループマップなのでややこしい
 		if gcommon.map_x < 0:
-			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+			pyxel.bltm(gcommon.sint(-1 * int(gcommon.map_x)), gcommon.sint(-1 * (int(gcommon.map_y) % 8)), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 		else:
 			tm = int(gcommon.map_x/4096)
 			moffset = (int(gcommon.map_x/2048) & 1) * 128
 			w = int((gcommon.map_x %2048)/8)
-			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, gcommon.TP_COLOR)
+			pyxel.bltm(gcommon.sint(-1 * (int(gcommon.map_x) % 8)), gcommon.sint(-1 * (int(gcommon.map_y) % 8)), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, gcommon.TP_COLOR)
 			if w >= 224:
 				tm2 = int((gcommon.map_x+256)/4096)
 				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
-				pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+				pyxel.bltm(gcommon.sint((256-w)*8 -1 * (int(gcommon.map_x) % 8)), gcommon.sint(-1 * (int(gcommon.map_y) % 8)), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 
 	def draw2(self):
 		pass

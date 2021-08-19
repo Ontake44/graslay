@@ -273,6 +273,8 @@ class MainGame:
 			self.ExecuteStory()
 			self.updateEnemy()
 			gcommon.game_timer = gcommon.game_timer + 1	
+		#for obj in ObjMgr.objs:
+		#	gcommon.debugPrint(str(obj))
 	
 	def doPause(self):
 		if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.GAMEPAD_1_START):
@@ -642,7 +644,7 @@ class MainGame:
 	
 		# 壁との当たり判定
 		if ObjMgr.myShip.sub_scene == 1 and \
-			gcommon.isMapFreePos(ObjMgr.myShip.x+ 7, ObjMgr.myShip.y +7) == False:
+			gcommon.isMapFreePos(ObjMgr.myShip.x+ 9, ObjMgr.myShip.y +7) == False:
 			self.my_broken()
 			return
 	
@@ -836,6 +838,7 @@ class MainGame:
 			[baseOffset +1014, SetMapScroll, 1.0, 0.0],
 			[baseOffset +2800, SetMapScroll, 0.5, 0.25],
 			[baseOffset +3280, SetMapScroll, 0.25, 0.0],
+			[baseOffset +6200, SetMapScroll, 0.5, 0.0],
 		]
 
 
@@ -868,20 +871,24 @@ class MainGame:
 def parseCommandLine():
 	idx = 0
 	while(idx < len(sys.argv)):
-		arg = sys.argv[idx]
-		if arg.upper() == "-TIMER":
+		arg = sys.argv[idx].upper()
+		if arg == "-TIMER":
 			if idx+1<len(sys.argv):
 				gcommon.START_GAME_TIMER = int(sys.argv[idx+1])
 				print("set START_GAME_TIMER = " + str(gcommon.START_GAME_TIMER))
-		elif arg.upper() == "-DEBUG":
+		elif arg == "-DEBUG":
 			print("set Debug")
 			gcommon.DebugMode = True
-		elif arg.upper() == "-SHOWCOLLISION":
+		elif arg == "-SHOWCOLLISION":
 			print("set Show Collision")
 			gcommon.ShowCollision = True
-		elif arg.upper() == "-CUSTOMNORMAL":
+		elif arg == "-CUSTOMNORMAL":
 			print("set Custom Normal")
 			gcommon.CustomNormal = True
+		elif arg == "-STAGE":
+			if idx+1<len(sys.argv):
+				gcommon.START_STAGE = sys.argv[idx+1]
+				print("set START_STAGE = " + gcommon.START_STAGE)
 		idx+=1
 
 
@@ -904,11 +911,14 @@ class App:
 		rm = ranking.RankingManager()
 		rm.load()
 
-		#self.scene = MainGame()
-		self.nextScene = None
-		self.scene = None
-		self.stage = 0
-		self.startTitle()
+		if gcommon.START_STAGE != None:
+			GameSession.init(Settings.difficulty, Settings.playerStock, gcommon.GAMEMODE_CUSTOM, gcommon.START_STAGE, 1)
+			self.startNextStage(gcommon.START_STAGE)
+		else:
+			self.nextScene = None
+			self.scene = None
+			self.stage = None
+			self.startTitle()
 		pyxel.run(self.update, self.draw)
 
 	def startTitle(self):
