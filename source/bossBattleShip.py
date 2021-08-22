@@ -12,6 +12,7 @@ from objMgr import ObjMgr
 from gameSession import GameSession
 from audio import BGM
 from enemy import CountMover
+from enemyArmored import Walker2
 import story
 
 
@@ -90,6 +91,8 @@ class BossBattleShip(enemy.EnemyBase):
         #self.stater = enemy.CountStater2(self, __class__.stateTable0, False, True)
 
         self.hatch = BossBattleShipHatch(self, (38-__class__.TILE_LEFT) *8, (42 -__class__.TILE_TOP)*8)
+        # 隔壁
+        self.barrierWall = None
         self.storyManager = story.StoryManager(self, storyList)
         self.batteryList = []
         self.missileLauncherList = []
@@ -135,14 +138,26 @@ class BossBattleShip(enemy.EnemyBase):
             # ハッチ爆発待ち
             self.storyManager.doStory()
             if self.hatch.removeFlag:
+                # ハッチが破壊されるとstoryList3を実行
                 gcommon.debugPrint("storyList3")
                 self.removeMissileLauncher()
+                enemy.removeEnemyShot()
+                self.enemyShotCollision = True
                 self.hatch = None
                 self.storyManager = story.StoryManager(self, storyList3, loopFlag=False, diffTime=True)
                 self.nextState()
         elif self.state == 2:
             # ハッチから侵入
             self.storyManager.doStory()
+            if self.barrierWall != None and self.barrierWall.removeFlag:
+                gcommon.debugPrint("storyList4")
+                self.storyManager = story.StoryManager(self, storyList4, loopFlag=False, diffTime=True)
+                ObjMgr.addObj(BossBattleShipCore(self, (89 -__class__.TILE_LEFT)*8, (27 -__class__.TILE_TOP)*8))
+                self.nextState()
+        elif self.state == 3:
+            self.storyManager.doStory()
+
+            
 
         # self.stater.update()
         # if self.stater.state == 1:
@@ -307,6 +322,12 @@ storyList2 = [
 storyList3 = [
     [0, BossBattleShip.setScroll, 0.5, -0.25],
     [360, BossBattleShip.setScroll, 0.75, 0.0],
+    [200, BossBattleShip.setScroll, 0.5, 0.0],
+]
+
+storyList4 = [
+    [0, BossBattleShip.setScroll, 1.0, 0.0],
+    [480, BossBattleShip.setScroll, 0.5, 0.0],
 ]
 
 # エンジン
@@ -819,7 +840,20 @@ class BossBattleShipHatch(enemy.EnemyBase):
                 enemy.create_explosion(cx, cy, gcommon.C_LAYER_EXP_SKY, gcommon.C_EXPTYPE_SKY_M)
             if self.cnt > 60:
                 pyxel.tilemap(1).copy(37, 26, 1, 37, 61, 97-37+1, 76-61+1)
-                ObjMgr.addObj(BossBattleShipBarrierWall(self.parent, (66 -BossBattleShip.TILE_LEFT)*8, (31-BossBattleShip.TILE_TOP)*8))
+                # 隔壁生成
+                self.parent.barrierWall = ObjMgr.addObj(BossBattleShipBarrierWall(self.parent, (66 -BossBattleShip.TILE_LEFT)*8, (31-BossBattleShip.TILE_TOP)*8))
+                ObjMgr.addObj(Walker2(self.parent, (64 -BossBattleShip.TILE_LEFT)*8, (38-BossBattleShip.TILE_TOP)*8,   \
+                    [
+                        [128, CountMover.MOVE, -1.0, 0.0],
+                        [60, CountMover.STOP, 0.0, 0.0],
+                        [64, CountMover.MOVE, 1.0, 0.0],
+                        [60, CountMover.STOP, 0.0, 0.0],
+                        [64, CountMover.MOVE, -1.0, 0.0],
+                        [60, CountMover.STOP, 0.0, 0.0],
+                        [128, CountMover.MOVE, 1.0, 0.0],
+                        [1, CountMover.STOP, 0.0, 0.0],
+                    ]
+                ))
                 self.remove()
 
     def draw(self):
@@ -859,3 +893,34 @@ class BossBattleShipBarrierWall(enemy.EnemyBase):
 
     def draw(self):
         pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 40, 88, 3, 5, 2)
+
+
+# コア
+class BossBattleShipCore(enemy.EnemyBase):
+    def __init__(self, parent, ox, oy):
+        super(__class__, self).__init__()
+        self.parent = parent
+        self.x = self.parent.x + ox
+        self.y = self.parent.y + oy
+        self.offsetX = ox
+        self.offsetY = oy
+        self.left = 0
+        self.top = 0
+        self.right = 8 * 8 -1
+        self.bottom = 8 * 13 -1
+        self.hitcolor1 = 12
+        self.hitcolor2 = 7
+        self.layer = gcommon.C_LAYER_SKY
+        self.exptype = gcommon.C_EXPTYPE_SKY_M
+        self.hp = 1000
+        self.ground = False
+        self.hitCheck = True
+        self.shotHitCheck = True
+        gcommon.debugPrint("Core")
+
+    def update(self):
+        self.x = self.parent.x + self.offsetX
+        self.y = self.parent.y + self.offsetY
+
+    def draw(self):
+        pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 54, 84, 8, 13, 2)

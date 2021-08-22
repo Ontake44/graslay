@@ -223,11 +223,16 @@ class CountMover:
 	SET_DEG = 10
 	ACCEL_MAX = 11
 	SET_INDEX = 100
-	def __init__(self, obj, table, loopFlag):
+	def __init__(self, obj, table, loopFlag, selfMove=True):
 		self.obj = obj
 		self.table = table
 		self.tableIndex = 0
 		self.loopFlag = loopFlag
+		self.selfMove = selfMove
+		if self.selfMove == False:
+			self.obj = self
+			self.x = obj.x
+			self.y = obj.y
 		self.isEnd = False
 		self.cycleCount = 0
 		self.cycleFlag = False
@@ -236,13 +241,15 @@ class CountMover:
 		self.dy = 0.0
 		self.rad = 0.0
 		self.deg = 0.0
+		self.mode = 0
 
 	def update(self):
 		self.cycleFlag = False
 		if self.isEnd:
 			return
 		item = self.table[self.tableIndex]
-		if item[1] == 5:
+		self.mode = item[1]
+		if self.mode == 5:
 			# 移動先座標指定
 			if item[2] == -9999:
 				# X座標変化なし
@@ -272,7 +279,7 @@ class CountMover:
 				self.nextTable()
 
 		elif self.cnt <= item[0]:
-			mode = item[1]
+			mode = self.mode
 			if mode == 0:
 				self.dx = item[2]
 				self.dy = item[3]
