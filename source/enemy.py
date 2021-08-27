@@ -136,6 +136,10 @@ class EnemyBase:
 		else:
 			return gcommon.check_collision(self, ObjMgr.myShip)
 
+	# 敵と敵弾との当たり判定
+	def checkEnemyShotCollision(self, shot):
+		return gcommon.check_collision(self, shot)
+
 	def drawLayer(self, layer):
 		self.draw()
 
@@ -3873,13 +3877,9 @@ class ContinuousShot(EnemyBase):
 
 # 画面の敵弾を消去する
 def removeEnemyShot():
-	newObjs = []
 	for obj in ObjMgr.objs:
 		if obj.removeFlag == False and obj.layer == gcommon.C_LAYER_E_SHOT:
 			obj.remove()
-		else:
-			newObjs.append(obj)
-	ObjMgr.objs = newObjs
 
 class BattleShip1(EnemyBase):
 	def __init__(self, t):

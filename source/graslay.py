@@ -670,13 +670,13 @@ class MainGame:
 				continue
 			if wallObj.enemyShotCollision == False:
 				continue
-			for obj in ObjMgr.objs:
-				if obj.removeFlag:
+			for shot in ObjMgr.objs:
+				if shot.removeFlag:
 					continue
-				if obj.layer != gcommon.C_LAYER_E_SHOT:
+				if shot.layer != gcommon.C_LAYER_E_SHOT:
 					continue
-				if gcommon.check_collision(wallObj, obj):
-					obj.removeFlag = True
+				if wallObj.checkEnemyShotCollision(shot):
+					shot.removeFlag = True
 					break
 
 		# my ship & enemy

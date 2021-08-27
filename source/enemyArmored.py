@@ -53,19 +53,25 @@ class Armored1(EnemyBase):
 
 
 class Walker2(EnemyBase):
-	def __init__(self, parent, x, y, moveTable):
+	# position : 1:下  -1：上
+	def __init__(self, parent, x, y, moveTable, position):
 		super(__class__, self).__init__()
 		self.parent = parent
 		self.x = x
 		self.y = y
 		self.mover = enemy.CountMover(self, moveTable, loopFlag=False, selfMove=False)
-		self.left = 5
-		self.top = 3
+		self.position = position
+		self.left = 4
 		self.right = 12
-		self.bottom = 15
+		if self.position == 1:
+			self.top = 3
+			self.bottom = 15
+		else:
+			self.top = 0
+			self.bottom = 12
 		self.layer = gcommon.C_LAYER_SKY
 		self.exptype = gcommon.C_EXPTYPE_SKY_S
-		self.hp = 20
+		self.hp = 50
 		self.hitcolor1 = 5
 		self.hitcolor2 = 12
 		self.hitCheck = True
@@ -82,7 +88,10 @@ class Walker2(EnemyBase):
 		if self.mover.mode == CountMover.STOP:
 			if self.mover.cnt == 20:
 				enemy_shot(self.x + (self.right -self.left)/2, self.y + (self.bottom -self.top)/2, 2, 0)
-		self.fdx = 1 if self.mover.dx < 0 else -1
+		if self.mover.dx < 0.0:
+			self.fdx = 1
+		elif self.mover.dx > 0.0:
+			self.fdx = -1
 		self.x = self.parent.x + self.mover.x
 		self.y = self.parent.y + self.mover.y
 		#gcommon.debugPrint(str(self.x) + " " + str(self.y))
@@ -91,5 +100,5 @@ class Walker2(EnemyBase):
 		n = 0
 		if abs(self.mover.dx) > 0.1:
 			n = 1 + (self.cnt>>2) & 3
-		pyxel.blt(self.x, self.y, 1, 56 + n * 16, 208, 16 * self.fdx, 16, 0)
+		pyxel.blt(self.x, self.y, 1, 56 + n * 16, 208, 16 * self.fdx, 16 * self.position, 0)
 
