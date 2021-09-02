@@ -1,5 +1,5 @@
 
-from typing import Coroutine
+from typing import Coroutine, get_origin
 import pyxel
 import math
 import random
@@ -119,15 +119,20 @@ class EnemyBase:
 	# 当たった場合の破壊処理
 	# 破壊した場合True
 	def doShotCollision(self, shot):
-		self.hp -= shot.shotPower
-		if self.hp <= 0:
-			self.broken()
-			return True
-		else:
+		if self.hp == gcommon.HP_NODAMAGE:
 			if shot.effect and self.shotEffect:
 				shot.doEffect(self.shotEffectSound)
-			self.hit = True
 			return False
+		else:
+			self.hp -= shot.shotPower
+			if self.hp <= 0:
+				self.broken()
+				return True
+			else:
+				if shot.effect and self.shotEffect:
+					shot.doEffect(self.shotEffectSound)
+				self.hit = True
+				return False
 
 	# 自機と敵との当たり判定
 	def checkMyShipCollision(self):
@@ -163,6 +168,9 @@ class EnemyBase:
 		
 		create_explosion2(self.x+(self.right+self.left+1)/2, self.y+(self.bottom+self.top+1)/2, layer, self.exptype, self.expsound)
 		self.remove()
+
+	def getCenterPos(self):
+		return gcommon.getCenterPos(self)
 
 # [0] to cnt
 # [1] mode

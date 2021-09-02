@@ -175,6 +175,8 @@ DUMMY_BLOCK_NO = 64
 
 # 壊れないもの
 HP_UNBREAKABLE = 999999
+# ダメージすら受けない
+HP_NODAMAGE = -999999
 
 # 64 direction table
 atan_table = []
@@ -970,7 +972,7 @@ def sint(n):
 	if n > 0:
 		return int(n)
 	else:
-		return int(n -1.0)
+		return int(n -0.5)
 
 def debugPrint(s):
 	if DebugMode:

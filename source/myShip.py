@@ -12,6 +12,9 @@ from audio import BGM
 
 # 自機
 class MyShipBase:
+	# １点で当たり判定を行う場合のオフセット
+	CENTER_X = 9
+	CENTER_Y = 7
 	missileCycles = (10, 10, 20)
 	def __init__(self, parent):
 		super().__init__()
@@ -38,6 +41,9 @@ class MyShipBase:
 		self.setStartPosition()
 		self.mouseManager = parent.mouseManager
 		self.setWeapon(GameSession.weaponSave)
+
+	def getCenterPos(self):
+		return [self.x + __class__.CENTER_X, self.y + __class__.CENTER_Y]
 
 	def update(self):
 		if gcommon.sync_map_y != 0:

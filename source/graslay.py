@@ -834,11 +834,11 @@ class MainGame:
 			[0, StartBGM, BGM.STAGE5],
 			[0, StartMapDrawBattleShip],
 			[0, SetMapScroll, 1.0, 0.0],
-			[baseOffset +520, SetMapScroll, 1.0, -0.25],
-			[baseOffset +1014, SetMapScroll, 1.0, 0.0],
-			[baseOffset +2800, SetMapScroll, 0.5, 0.25],
-			[baseOffset +3280, SetMapScroll, 0.25, 0.0],
-			[baseOffset +6200, SetMapScroll, 0.5, 0.0],
+			#[baseOffset +520, SetMapScroll, 1.0, -0.25],
+			#[baseOffset +1014, SetMapScroll, 1.0, 0.0],
+			#[baseOffset +2800, SetMapScroll, 0.5, 0.25],
+			#[baseOffset +3280, SetMapScroll, 0.25, 0.0],
+			#[baseOffset +6200, SetMapScroll, 0.5, 0.0],
 		]
 
 
