@@ -981,7 +981,7 @@ class MapDrawBattileShip:
 		pass
 	
 	def init(self):
-		gcommon.map_x = -48 * 8
+		gcommon.map_x = 0			#-48 * 8
 		gcommon.map_y = 50*  8
 		gcommon.mapHeight = 8 * 256
 		gcommon.back_map_x = -32 * 8/2
@@ -1006,8 +1006,8 @@ class MapDrawBattileShip:
 					doMapCharacter(n, mx, my)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
-		if gcommon.map_x > 146 * 8:
-			gcommon.map_x -= (146 -38) * 8
+		if gcommon.map_x > 128 * 8:
+			gcommon.map_x -= 128 * 8
 		gcommon.back_map_x += gcommon.cur_scroll_x/2
 
 	def drawBackground(self):
@@ -1019,19 +1019,23 @@ class MapDrawBattileShip:
 		# 	pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, gcommon.TP_COLOR)
 
 	def draw(self):
-		#pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, (int)((gcommon.map_x % 2048)/8),  (int)(gcommon.map_y/8),33,25, 3)
-		# 上下ループマップなのでややこしい
-		if gcommon.map_x < 0:
-			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, 3)
-		else:
-			tm = int(gcommon.map_x/4096)
-			moffset = (int(gcommon.map_x/2048) & 1) * 128
-			w = int((gcommon.map_x %2048)/8)
-			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, 3)
-			if w >= 224:
-				tm2 = int((gcommon.map_x+256)/4096)
-				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
-				pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, 3)
+		pyxel.bltm((int(gcommon.map_x)>>2) % 8 * -1, 0, 0, ((int(gcommon.map_x)>>2) % 2048)/8, 39, 33, 25, 3)
+		pyxel.bltm(-1 * (int(gcommon.map_x) % 8), 50*8 -gcommon.map_y+22*8,	\
+			0, (int)((gcommon.map_x % 2048)/8), 72, 33, 2, 3)
+		
+		# #pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, (int)((gcommon.map_x % 2048)/8),  (int)(gcommon.map_y/8),33,25, 3)
+		# # 上下ループマップなのでややこしい
+		# if gcommon.map_x < 0:
+		# 	pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, 3)
+		# else:
+		# 	tm = int(gcommon.map_x/4096)
+		# 	moffset = (int(gcommon.map_x/2048) & 1) * 128
+		# 	w = int((gcommon.map_x %2048)/8)
+		# 	pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, 3)
+		# 	if w >= 224:
+		# 		tm2 = int((gcommon.map_x+256)/4096)
+		# 		moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
+		# 		pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, 3)
 
 	def draw2(self):
 		pass

@@ -85,8 +85,8 @@ class BossBattleShip(enemy.EnemyBase):
         [80, 62-35, 80, 166, 10, 13, 3*8, 5*8, 6*8-1, 8*8-1, 1000],
     ]
     staticObjectTableInHangar = [
-        [64, 72-35, 64, 94, 6, 3, 0, 0, 6*8-1, 3*8-1, gcommon.HP_NODAMAGE],
-        [64, 62-35, 64, 84, 6, 3, 0, 0, 6*8-1, 3*8-1, gcommon.HP_NODAMAGE],
+        [64, 72-35, 64, 94, 4, 3, 0, 0, 3*8-1, 3*8-1, gcommon.HP_NODAMAGE],
+        [64, 62-35, 64, 84, 4, 3, 0, 0, 3*8-1, 3*8-1, gcommon.HP_NODAMAGE],
     ]
     # stateTable0 = [
     #     [699, 0],
@@ -149,7 +149,7 @@ class BossBattleShip(enemy.EnemyBase):
         self.barrierWall = None
         # コア
         self.coreObj = None
-        self.storyManager = story.StoryManager(self, storyList)
+        self.storyManager = story.StoryManager(self, __class__.storyList1)
         self.batteryList = []
         self.missileLauncherList = []
         self.breakableObjectList = []
@@ -189,7 +189,7 @@ class BossBattleShip(enemy.EnemyBase):
         if self.state == 0:
             self.storyManager.doStory()
             if self.storyManager.isEnd:
-                self.storyManager = story.StoryManager(self, storyList2, loopFlag=True, diffTime=True)
+                self.storyManager = story.StoryManager(self, __class__.storyList2, loopFlag=True, diffTime=True)
                 self.nextState()
         elif self.state == 1:
             # ハッチ爆発待ち
@@ -201,13 +201,13 @@ class BossBattleShip(enemy.EnemyBase):
                 enemy.removeEnemyShot()
                 self.enemyShotCollision = True
                 self.hatch = None
-                self.storyManager = story.StoryManager(self, storyList3, loopFlag=False, diffTime=True)
+                self.storyManager = story.StoryManager(self, self.storyList3, loopFlag=False, diffTime=True)
                 # ハンガー状態の戦闘機配置
                 self.createHangeredFighter3()
                 # 中身スケスケ
                 pyxel.tilemap(1).copy(37, 26, 1, 37, 61, 97-37+1, 76-61+1)
                 # 隔壁生成
-                self.barrierWall = ObjMgr.addObj(BossBattleShipBarrierWall(self, (66 -BossBattleShip.TILE_LEFT)*8, (31-BossBattleShip.TILE_TOP)*8))
+                self.barrierWall = ObjMgr.addObj(BossBattleShipBarrierWall(self, (65 -BossBattleShip.TILE_LEFT)*8, (31-BossBattleShip.TILE_TOP)*8))
                 # Walker2が出てくる壁
                 self.createStaticObjects(__class__.staticObjectTableInHangar, layer=gcommon.C_LAYER_UPPER_SKY)
                 self.nextState()
@@ -224,7 +224,7 @@ class BossBattleShip(enemy.EnemyBase):
             if self.barrierWall != None and self.barrierWall.removeFlag:
                 # 壁が破壊される
                 gcommon.debugPrint("storyList4")
-                self.storyManager = story.StoryManager(self, storyList4, loopFlag=False, diffTime=True)
+                self.storyManager = story.StoryManager(self, self.storyList4, loopFlag=False, diffTime=True)
                 # 機関室？のオブジェクト生成
                 self.createStaticObjectsInEngineRoom()
                 # コア生成
@@ -310,7 +310,7 @@ class BossBattleShip(enemy.EnemyBase):
     def drawLayer(self, layer):
         if layer == gcommon.C_LAYER_GRD:
             pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 4, 15, 134-4, 45-15, 2)
-            gcommon.Text2(200, 184, str(self.cnt), 7, 0)
+            #gcommon.Text2(200, 184, str(self.cnt), 7, 0)
         elif layer == gcommon.C_LAYER_UPPER_SKY:
             pyxel.bltm(gcommon.sint(self.x +(121 -__class__.TILE_LEFT) *8), gcommon.sint(self.y + (26 -__class__.TILE_TOP)*8), 1, 16, 91, 9, 2, 2)
             pyxel.bltm(gcommon.sint(self.x +(121 -__class__.TILE_LEFT) *8), gcommon.sint(self.y + (28 -__class__.TILE_TOP)*8), 1, 16, 91, 9, 2, 2)
@@ -354,84 +354,82 @@ class BossBattleShip(enemy.EnemyBase):
         no = self.getTileData(mx, my)
         return gcommon.mapAttribute2[no >> 5][no & 31] == "1"
 
-storyList = [
-	[520 -400, BossBattleShip.setScroll, 1.0, -0.25],
-	[1014 -400, BossBattleShip.setScroll, 1.0, 0.0],
-    [700, BossBattleShip.missileLauncher, 33, 0, 56],
-    [720, BossBattleShip.missileLauncher, 33, 1, 56],
-    [740, BossBattleShip.missileLauncher, 33, 2, 56],
-    [760, BossBattleShip.missileLauncher, 33, 3, 56],
-    [1130, BossBattleShip.missileLauncher, 61, 0, 56],
-    [1150, BossBattleShip.missileLauncher, 61, 1, 56],
-    [1170, BossBattleShip.missileLauncher, 61, 2, 56],
-    [1190, BossBattleShip.missileLauncher, 61, 3, 56],
-    [1500, BossBattleShip.laserCannon, 0],
-    [1800, BossBattleShip.missileLauncher, 102, 0, 56],
-    [1820, BossBattleShip.missileLauncher, 102, 1, 56],
-    [1840, BossBattleShip.missileLauncher, 102, 2, 56],
-    [1860, BossBattleShip.missileLauncher, 102, 3, 56],
-    [2070, BossBattleShip.missileLauncher, 102, 0, 0],
-    [2090, BossBattleShip.missileLauncher, 102, 1, 0],
-    [2110, BossBattleShip.missileLauncher, 102, 2, 0],
-    [2130, BossBattleShip.missileLauncher, 102, 3, 0],
-	[2800 -400, BossBattleShip.setScroll, 0.5, 0.25],
-    [2400, BossBattleShip.torpedoLauncher, (126-BossBattleShip.TILE_LEFT), (26-BossBattleShip.TILE_TOP), 0],
-    [2460, BossBattleShip.torpedoLauncher, (126-BossBattleShip.TILE_LEFT), (28-BossBattleShip.TILE_TOP), 0],
-    [2520, BossBattleShip.torpedoLauncher, (127-BossBattleShip.TILE_LEFT), (32-BossBattleShip.TILE_TOP), 1],
-    [2600, BossBattleShip.torpedoLauncher, (126-BossBattleShip.TILE_LEFT), (28-BossBattleShip.TILE_TOP), 0],
-    [2630, BossBattleShip.torpedoLauncher, (127-BossBattleShip.TILE_LEFT), (32-BossBattleShip.TILE_TOP), 1],
-    [2700, BossBattleShip.torpedoLauncher, (126-BossBattleShip.TILE_LEFT), (26-BossBattleShip.TILE_TOP), 0],
-	[3280 -400, BossBattleShip.setScroll, 0.25, 0.0],
-    [3200, BossBattleShip.missileLauncher, 102, 3, 16],
-    [3220, BossBattleShip.missileLauncher, 102, 2, 16],
-    [3350, BossBattleShip.missileLauncher, 102, 3, 16],
-    [3370, BossBattleShip.missileLauncher, 102, 2, 16],
-    [3390, BossBattleShip.missileLauncher, 102, 1, 16],
-    [3410, BossBattleShip.missileLauncher, 102, 0, 16],
-    [3680, BossBattleShip.spark, (105-BossBattleShip.TILE_LEFT)*8+3, (43-BossBattleShip.TILE_TOP)*8+7, 180],
-    [3680, BossBattleShip.spark, (102-BossBattleShip.TILE_LEFT)*8+3, (43-BossBattleShip.TILE_TOP)*8+7, 180],
-    [3680, BossBattleShip.spark, (99-BossBattleShip.TILE_LEFT)*8+3, (43-BossBattleShip.TILE_TOP)*8+7, 180],
-    [3800, BossBattleShip.laserCannon, 1],
-    [3808, BossBattleShip.upperBackFire, 200, 9],
-    [4200, BossBattleShip.missileLauncher, 102, 1, 16],
-    [4208, BossBattleShip.upperBackFire, 120, 9],
-    [4220, BossBattleShip.missileLauncher, 102, 0, 16],
-    [4500, BossBattleShip.missileLauncher, 61, 3, 16],
-    [4520, BossBattleShip.missileLauncher, 61, 2, 16],
-    [4600, BossBattleShip.laserCannon, 1],
-    [4700, BossBattleShip.missileLauncher, 61, 3, 16],
-    [4720, BossBattleShip.missileLauncher, 61, 1, 16],
-    [4900, BossBattleShip.missileLauncher, 61, 0, 16],
-    [4920, BossBattleShip.missileLauncher, 61, 2, 16],
-    [5200, BossBattleShip.missileLauncher, 61, 0, 16],
-    [5220, BossBattleShip.missileLauncher, 61, 1, 16],
-    [5240, BossBattleShip.missileLauncher, 61, 2, 16],
-    [5260, BossBattleShip.missileLauncher, 61, 3, 16],
-    [5400, BossBattleShip.missileLauncher, 33, 3, 16],
-    [5440, BossBattleShip.missileLauncher, 33, 2, 16],
-    [5540, BossBattleShip.missileLauncher, 61, 1, 16],
-    [5580, BossBattleShip.missileLauncher, 61, 0, 16],
-	[6200 -400, BossBattleShip.setScroll, 0.5, 0.0],
-]
+    storyList1 = [
+        [520 -400, setScroll, 1.0, -0.25],
+        [1014 -400, setScroll, 1.0, 0.0],
+        [700, missileLauncher, 33, 0, 56],
+        [720, missileLauncher, 33, 1, 56],
+        [740, missileLauncher, 33, 2, 56],
+        [760, missileLauncher, 33, 3, 56],
+        [1130, missileLauncher, 61, 0, 56],
+        [1150, missileLauncher, 61, 1, 56],
+        [1170, missileLauncher, 61, 2, 56],
+        [1190, missileLauncher, 61, 3, 56],
+        [1500, laserCannon, 0],
+        [1800, missileLauncher, 102, 0, 56],
+        [1820, missileLauncher, 102, 1, 56],
+        [1840, missileLauncher, 102, 2, 56],
+        [1860, missileLauncher, 102, 3, 56],
+        [2070, missileLauncher, 102, 0, 0],
+        [2090, missileLauncher, 102, 1, 0],
+        [2110, missileLauncher, 102, 2, 0],
+        [2130, missileLauncher, 102, 3, 0],
+        [2800 -400, setScroll, 0.5, 0.25],
+        [2400, torpedoLauncher, (126-TILE_LEFT), (26-TILE_TOP), 0],
+        [2460, torpedoLauncher, (126-TILE_LEFT), (28-TILE_TOP), 0],
+        [2520, torpedoLauncher, (127-TILE_LEFT), (32-TILE_TOP), 1],
+        [2600, torpedoLauncher, (126-TILE_LEFT), (28-TILE_TOP), 0],
+        [2630, torpedoLauncher, (127-TILE_LEFT), (32-TILE_TOP), 1],
+        [2700, torpedoLauncher, (126-TILE_LEFT), (26-TILE_TOP), 0],
+        [3280 -400, setScroll, 0.25, 0.0],
+        [3200, missileLauncher, 102, 3, 16],
+        [3220, missileLauncher, 102, 2, 16],
+        [3350, missileLauncher, 102, 3, 16],
+        [3370, missileLauncher, 102, 2, 16],
+        [3390, missileLauncher, 102, 1, 16],
+        [3410, missileLauncher, 102, 0, 16],
+        [3680, spark, (105-TILE_LEFT)*8+3, (43-TILE_TOP)*8+7, 180],
+        [3680, spark, (102-TILE_LEFT)*8+3, (43-TILE_TOP)*8+7, 180],
+        [3680, spark, (99-TILE_LEFT)*8+3, (43-TILE_TOP)*8+7, 180],
+        [3800, laserCannon, 1],
+        [3808, upperBackFire, 200, 9],
+        [4200, missileLauncher, 102, 1, 16],
+        [4208, upperBackFire, 120, 9],
+        [4220, missileLauncher, 102, 0, 16],
+        [4500, missileLauncher, 61, 3, 16],
+        [4520, missileLauncher, 61, 2, 16],
+        [4600, laserCannon, 1],
+        [4700, missileLauncher, 61, 3, 16],
+        [4720, missileLauncher, 61, 1, 16],
+        [4900, missileLauncher, 61, 0, 16],
+        [4920, missileLauncher, 61, 2, 16],
+        [5200, missileLauncher, 61, 0, 16],
+        [5220, missileLauncher, 61, 1, 16],
+        [5240, missileLauncher, 61, 2, 16],
+        [5260, missileLauncher, 61, 3, 16],
+        [5400, missileLauncher, 33, 3, 16],
+        [5440, missileLauncher, 33, 2, 16],
+        [5540, missileLauncher, 61, 1, 16],
+        [5580, missileLauncher, 61, 0, 16],
+        [6200 -400, setScroll, 0.5, 0.0],
+    ]
+    storyList2 = [
+        [90, missileLauncher, 33, 1, 16],
+        [90, missileLauncher, 33, 3, 16],
+        [120, None],
+        [90, missileLauncher, 33, 2, 16],
+        [90, missileLauncher, 33, 0, 16],
+    ]
+    storyList3 = [
+        [0, setScroll, 0.5, -0.25],
+        [360, setScroll, 0.75, 0.0],
+        [200, setScroll, 0.5, 0.0],
+    ]
+    storyList4 = [
+        [0, setScroll, 0.75, 0.0],
+        [976, setScroll, 0.5, 0.0],
+    ]
 
-storyList2 = [
-    [90, BossBattleShip.missileLauncher, 33, 1, 16],
-    [90, BossBattleShip.missileLauncher, 33, 3, 16],
-    [120, None],
-    [90, BossBattleShip.missileLauncher, 33, 2, 16],
-    [90, BossBattleShip.missileLauncher, 33, 0, 16],
-]
-
-storyList3 = [
-    [0, BossBattleShip.setScroll, 0.5, -0.25],
-    [360, BossBattleShip.setScroll, 0.75, 0.0],
-    [200, BossBattleShip.setScroll, 0.5, 0.0],
-]
-
-storyList4 = [
-    [0, BossBattleShip.setScroll, 0.75, 0.0],
-    [960, BossBattleShip.setScroll, 0.5, 0.0],
-]
 
 # エンジン
 class BossBattleShipEngine(enemy.EnemyBase):
@@ -1078,15 +1076,19 @@ class BossBattleShipCore(enemy.EnemyBase):
         self.ground = False
         self.hitCheck = True
         self.shotHitCheck = True
+        self.lightningShutterPos = 0
         #gcommon.debugPrint("Core")
 
     # 1: 待ち
-    # 2: 雷発射前びりびり
-    # 3: 雷発射
+    # 2: 開く
+    # 3: 雷発射前びりびり
+    # 4: 雷発射
+    # 5: 閉じる
     def update(self):
         self.x = self.parent.x + self.offsetX
         self.y = self.parent.y + self.offsetY
         if self.state == 1:
+            self.lightningShutterPos = 0
             # 上下雷
             # if self.cnt == 0:
             #     gcommon.debugPrint("Core state 1")
@@ -1100,17 +1102,33 @@ class BossBattleShipCore(enemy.EnemyBase):
             if self.cnt > 30:
                 self.nextState()
         elif self.state == 2:
+            # 開く
+            self.lightningShutterPos = self.cnt>>1
+            if self.cnt > 20:
+                self.nextState()
+        elif self.state == 3:
             # 雷発射前びりびり
             if self.cnt > 40:
                 self.nextState()
-        elif self.state == 3:
+        elif self.state == 4:
             if self.cnt % 40 == 0:
                 x = self.parent.x + (90 -BossBattleShip.TILE_LEFT)*8+3
                 y = self.parent.y + (33-BossBattleShip.TILE_TOP)*8+3
                 ObjMgr.addObj(BossBattleShipLightning(x, y))
             if self.cnt > 240:
+                self.nextState()
+        elif self.state == 5:
+            # 閉じる
+            self.lightningShutterPos = 10 -(self.cnt>>1)
+            if self.cnt > 20:
+                self.nextState()
+        elif self.state == 6:
+            if self.cnt == 0:
+                ObjMgr.addObj(BossBattleShipThunderShooter(self.parent, (91 -BossBattleShip.TILE_LEFT)*8, (62-35-BossBattleShip.TILE_TOP)*8))
+            if self.cnt > 360:
                 self.setState(1)
         elif self.state == 100:
+            # 破壊状態
             if self.cnt % 10 == 0:
                 pos = gcommon.getCenterPos(self)
                 enemy.create_explosion2(pos[0] + random.randrange(-30, 30), pos[1] + random.randrange(-30, 30), self.layer, gcommon.C_EXPTYPE_SKY_M, -1)
@@ -1122,8 +1140,12 @@ class BossBattleShipCore(enemy.EnemyBase):
                 enemy.create_explosion2(pos[0] + random.randrange(-30, 30), pos[1] + random.randrange(-30, 30), self.layer, gcommon.C_EXPTYPE_SKY_M, -1)
                 n = int(self.cnt/10)
                 if n >= 16:
-                    self.remove()
-                    self.parent.remove()
+                    self.nextState()
+                    ObjMgr.objs.append(boss.BossExplosion(pos[0], pos[1], gcommon.C_LAYER_EXP_SKY))
+        elif self.state == 102:
+            if self.cnt > 120:
+                self.remove()
+                self.parent.remove()
 
         if self.state >= 1 and self.state < 100:
             if self.frameCount % 120 == 0:
@@ -1138,17 +1160,19 @@ class BossBattleShipCore(enemy.EnemyBase):
             drawing.Drawing.setBrightnessWithoutBlack(n)
             pyxel.blt(gcommon.sint(self.x +8), gcommon.sint(self.y+ 3*8), 2, 96, 176, 6*8, 7*8, 3)
             pyxel.pal()
-            if self.state == 2:
+            pyxel.blt(gcommon.sint(self.x), gcommon.sint(self.y+ 24 -self.lightningShutterPos), 2, 144, 176, 5*8, 28, 3)
+            pyxel.blt(gcommon.sint(self.x), gcommon.sint(self.y+ 52 +self.lightningShutterPos), 2, 144, 204, 5*8, 28, 3)
+            if self.state == 3:
                 n = (self.cnt>>1) & 3
                 if n in (0, 1):
                     fy = (self.cnt>>3) & 1
                     pyxel.blt(gcommon.sint(self.x +4), gcommon.sint(self.y+ 44), 1, 128 + n*16, 80, 16, 16 if fy == 0 else -16, 0)
-        else:
-            n = int(self.cnt/10)
-            if n > 15:
-                n = 15
-            for y in range(0, 6):
-                pyxel.bltm(0, y*32, 1, 0, 100+n*4, 32, 4, 2)
+        # else:
+        #     n = int(self.cnt/10)
+        #     if n > 15:
+        #         n = 15
+        #     for y in range(0, 6):
+        #         pyxel.bltm(0, y*32, 1, 0, 100+n*4, 32, 4, 2)
 
 
 
@@ -1182,26 +1206,36 @@ class BossBattleShipCore(enemy.EnemyBase):
 
 
 class BossBattleShipThunderShooter(enemy.EnemyBase):
+    moveTable = [
+                    [5*8, CountMover.MOVE, -2.0, 0.0],
+                    [60, CountMover.STOP, 0.0, 0.0],
+                    [5*8, CountMover.MOVE, -2.0, 0.0],
+                    [60, CountMover.STOP, 0.0, 0.0],
+                    [3*8, CountMover.MOVE, 2.0, 0.0],
+                    [60, CountMover.STOP, 0.0, 0.0],
+                    [5*8, CountMover.MOVE, 2.0, 0.0],
+                    [60, CountMover.STOP, 0.0, 0.0],
+                    [10*8, CountMover.MOVE, -2.0, 0.0],
+                    [1, CountMover.STOP, 0.0, 0.0],
+    ]
     def __init__(self, parent, ox, oy):
         super(__class__, self).__init__()
         self.parent = parent        # parent は戦艦
         self.x = ox
         self.y = oy
-        self.offsetX = ox
-        self.offsetY = oy
-        self.left = 0
-        self.top = 0
-        self.right = 15
-        self.bottom = 15
+        self.left = 4
+        self.top = 16
+        self.right = 11
+        self.bottom = 16+8*9-1
         self.hitcolor1 = 12
         self.hitcolor2 = 7
         self.layer = gcommon.C_LAYER_SKY
         self.exptype = gcommon.C_EXPTYPE_SKY_M
         self.hp = gcommon.HP_UNBREAKABLE
         self.ground = False
-        self.hitCheck = True
+        self.hitCheck = False
         self.shotHitCheck = False
-        self.mover = enemy.CountMover(self, walker2MoveTable, loopFlag=False, selfMove=False)
+        self.mover = enemy.CountMover(self, __class__.moveTable, loopFlag=False, selfMove=False)
         gcommon.debugPrint("BossBattleShipThunderShooter")
 
     def update(self):
@@ -1209,11 +1243,20 @@ class BossBattleShipThunderShooter(enemy.EnemyBase):
         if self.mover.isEnd:
             self.remove()
             return
+        if self.mover.mode == CountMover.STOP:
+            self.hitCheck = True
+        else:
+            self.hitCheck = False
         self.x = self.parent.x + self.mover.x
         self.y = self.parent.y + self.mover.y
         #gcommon.debugPrint(str(self.x) + " " + str(self.y))
     def draw(self):
-        pyxel.blt(gcommon.sint(self.x), gcommon.sint(self.y), 1, 128, 64, 16, 16, 0)
+        pyxel.blt(gcommon.sint(self.x), gcommon.sint(self.y), 1, 128, 64, 16, -16, 0)
+        pyxel.blt(gcommon.sint(self.x), gcommon.sint(self.y +11*8), 1, 128, 64, 16, 16, 0)
+        if self.mover.mode == CountMover.STOP:
+            for i in range(3):
+                pyxel.blt(gcommon.sint(self.x+4), gcommon.sint(self.y + 16 + i*24), 1, 224 + random.randrange(0, 3) * 8, 128, 8, 24, 0)
+
 
 
 class BossBattleShipLightning(enemy.EnemyBase):
