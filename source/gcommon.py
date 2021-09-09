@@ -345,6 +345,12 @@ class Rect:
 	def contains(self, x, y):
 		return self.left <= x and self.top <= y and x <= self.right and y <= self.bottom
 
+	def shift(self, dx, dy):
+		self.left += dx
+		self.top += dy
+		self.right += dx
+		self.bottom += dy
+
 class RectObj:
 	def __init__(self, x, y, left, top, right, bottom):
 		self.x = x

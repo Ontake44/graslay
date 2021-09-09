@@ -164,3 +164,16 @@ class OneUpItem1(enemy.EnemyBase):
 		else:	# 3
 			pyxel.blt(self.x -7.5, self.y -7.5 +4 -(self.cnt>>1), 0, 0, 216, 16, 8, 0)
 
+class OneUpItem2(OneUpItem1):
+	def __init__(self, parent, ox, oy, hide=False):
+		super(__class__, self).__init__(0, 0, hide)
+		self.parent = parent
+		self.offsetX = ox
+		self.offsetY = oy
+		self.ground = False
+	
+	def update(self):
+		super().update()
+		self.x = self.parent.x + self.offsetX
+		self.y = self.parent.y + self.offsetY
+

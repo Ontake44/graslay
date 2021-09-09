@@ -8,6 +8,8 @@ import enemyOthers
 import enemyShot
 import boss
 import drawing
+import audio
+import item
 from objMgr import ObjMgr
 from gameSession import GameSession
 from audio import BGM
@@ -124,12 +126,6 @@ class BossBattleShip(enemy.EnemyBase):
         self.y = 0
         self.moveTable = __class__.moveTable0
         self.mover = CountMover(self, self.moveTable, True)
-        self.left = -12
-        self.top = -12
-        self.right = 12
-        self.bottom = 12
-        self.hitcolor1 = 10
-        self.hitcolor2 = 7
         self.layer = gcommon.C_LAYER_GRD | gcommon.C_LAYER_UPPER_SKY
         self.exptype = gcommon.C_EXPTYPE_SKY_M
         self.ground = True
@@ -170,19 +166,27 @@ class BossBattleShip(enemy.EnemyBase):
         self.appendBattery(111, 21, 0)
         self.appendBattery(109, 42, 1)
         self.appendBattery(94, 42, 1)
+        self.children = []
 
     def appendBattery(self, mx, my, direction):
         self.batteryList.append(BattleShipBattery(self, (mx -__class__.TILE_LEFT)*8, (my -__class__.TILE_TOP)*8, direction))
 
     def appended(self):
-        ObjMgr.addObj(self.bridge)
-        ObjMgr.addObj(self.engine1)
-        ObjMgr.addObj(self.engine2)
-        ObjMgr.addObj(self.engine3)
-        ObjMgr.addObj(self.hatch)
+        # 戦艦が追加された後に以下を追加する
+        self.addChild(self.bridge)
+        self.addChild(self.engine1)
+        self.addChild(self.engine2)
+        self.addChild(self.engine3)
+        self.addChild(self.hatch)
         for obj in self.batteryList:
-            obj.remove_min_x = -128*8
-            ObjMgr.addObj(obj)
+            self.addChild(obj)
+            #obj.remove_min_x = -128*8
+            #ObjMgr.addObj(obj)
+
+    def addChild(self, obj):
+        self.children.append(ObjMgr.addObj(obj))
+        return obj
+
 
     def update(self):
         self.mover.update()
@@ -205,9 +209,13 @@ class BossBattleShip(enemy.EnemyBase):
                 # ハンガー状態の戦闘機配置
                 self.createHangeredFighter3()
                 # 中身スケスケ
-                pyxel.tilemap(1).copy(37, 26, 1, 37, 61, 97-37+1, 76-61+1)
+                pyxel.tilemap(1).copy(35, 26, 1, 35, 61, 97-35+1, 76-61+1)
+
+                # 1UPアイテム
+                self.addChild(item.OneUpItem2(self, (36 -BossBattleShip.TILE_LEFT)*8 +7.5, (27-BossBattleShip.TILE_TOP)*8+7.5, False))
+
                 # 隔壁生成
-                self.barrierWall = ObjMgr.addObj(BossBattleShipBarrierWall(self, (65 -BossBattleShip.TILE_LEFT)*8, (31-BossBattleShip.TILE_TOP)*8))
+                self.barrierWall = self.addChild(BossBattleShipBarrierWall(self, (65 -BossBattleShip.TILE_LEFT)*8, (31-BossBattleShip.TILE_TOP)*8))
                 # Walker2が出てくる壁
                 self.createStaticObjects(__class__.staticObjectTableInHangar, layer=gcommon.C_LAYER_UPPER_SKY)
                 self.nextState()
@@ -224,11 +232,12 @@ class BossBattleShip(enemy.EnemyBase):
             if self.barrierWall != None and self.barrierWall.removeFlag:
                 # 壁が破壊される
                 gcommon.debugPrint("storyList4")
+                BGM.play(BGM.BOSS)
                 self.storyManager = story.StoryManager(self, self.storyList4, loopFlag=False, diffTime=True)
                 # 機関室？のオブジェクト生成
                 self.createStaticObjectsInEngineRoom()
                 # コア生成
-                self.coreObj = ObjMgr.addObj(BossBattleShipCore(self, (89 -__class__.TILE_LEFT)*8, (27 -__class__.TILE_TOP)*8))
+                self.coreObj = self.addChild(BossBattleShipCore(self, (89 -__class__.TILE_LEFT)*8, (27 -__class__.TILE_TOP)*8))
                 self.nextState()
         elif self.state == 3:
             # storyList4
@@ -243,6 +252,12 @@ class BossBattleShip(enemy.EnemyBase):
         elif self.state == 4:
             pass
 
+    def remove(self):
+        super().remove()
+        for obj in self.children:
+            if obj != None and obj.removeFlag == False:
+                obj.remove()
+
     def isBreakableObjectAllBroken(self):
         if len(self.breakableObjectList) == 0:
             gcommon.debugPrint("zero!")
@@ -256,28 +271,32 @@ class BossBattleShip(enemy.EnemyBase):
     # 機関室？のオブジェクト生成
     def createStaticObjectsInEngineRoom(self):
         for p in __class__.staticObjectTableInEngineRoom:
-            self.breakableObjectList.append(ObjMgr.addObj(BossBattleShipStaticPart(self, (p[0]- __class__.TILE_LEFT)*8, (p[1]- __class__.TILE_TOP)*8, p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10])))
+            self.breakableObjectList.append(self.addChild(BossBattleShipStaticPart(self, (p[0]- __class__.TILE_LEFT)*8, (p[1]- __class__.TILE_TOP)*8, p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10])))
 
     def createStaticObjects(self, table, layer=0):
+        first = True
         for p in table:
-            obj = ObjMgr.addObj(BossBattleShipStaticPart(self, (p[0]- __class__.TILE_LEFT)*8, (p[1]- __class__.TILE_TOP)*8, p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10]))
+            obj = self.addChild(BossBattleShipStaticPart(self, (p[0]- __class__.TILE_LEFT)*8, (p[1]- __class__.TILE_TOP)*8, p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10]))
+            if first:
+                obj.test = True
+                first = False
             if layer != 0:
                 obj.layer = layer
 
 
     def createHangeredFighter3(self):
         for pos in hangeredFighter3Table:
-            ObjMgr.addObj(BossBattleShipHangeredFighter3(self, (pos[0] -__class__.TILE_LEFT)*8, (pos[1] -__class__.TILE_TOP)*8))
+            self.addChild(BossBattleShipHangeredFighter3(self, (pos[0] -__class__.TILE_LEFT)*8, (pos[1] -__class__.TILE_TOP)*8))
 
     def createWalker2(self, position):
         y = (38-BossBattleShip.TILE_TOP)*8 if position == 1 else (27-BossBattleShip.TILE_TOP)*8
-        ObjMgr.addObj(Walker2(self, (64 -BossBattleShip.TILE_LEFT)*8, y, walker2MoveTable, position))            
+        self.addChild(Walker2(self, (64 -BossBattleShip.TILE_LEFT)*8, y, walker2MoveTable, position))            
 
     def missileLauncher(self, params):
         baseMx = params[2]
         p = params[3]
         dr64 = params[4]
-        obj = ObjMgr.addObj(BattleShipMissileLauncher1(self, (baseMx-__class__.TILE_LEFT + p*5)*8, (32- __class__.TILE_TOP)*8, baseMx +p*5, 32, dr64))
+        obj = self.addChild(BattleShipMissileLauncher1(self, (baseMx-__class__.TILE_LEFT + p*5)*8, (32- __class__.TILE_TOP)*8, baseMx +p*5, 32, dr64))
         self.missileLauncherList.append(obj)
         
 
@@ -288,24 +307,24 @@ class BossBattleShip(enemy.EnemyBase):
         self.missileLauncherList = []
 
     def laserCannon(self, params):
-        ObjMgr.addObj(BossBattleShipLaserCannon(self, (91-__class__.TILE_LEFT)*8, (31-__class__.TILE_TOP)*8, params[2]))
+        self.addChild(BossBattleShipLaserCannon(self, (91-__class__.TILE_LEFT)*8, (31-__class__.TILE_TOP)*8, params[2]))
 
     def torpedoLauncher(self, params):
         omx = params[2]
         omy = params[3]
         launcherType = params[4]
-        ObjMgr.addObj(Torpedo1Launcher1(self, omx, omy, launcherType))
+        self.addChild(Torpedo1Launcher1(self, omx, omy, launcherType))
 
     def upperBackFire(self, params):
         time = params[2]
         pos = params[3]
-        ObjMgr.addObj(BossBattleShipUpperBackFire(self, (98-__class__.TILE_LEFT)*8, (42 -__class__.TILE_TOP)*8, time))
-        ObjMgr.addObj(BossBattleShipUpperBackFire(self, (101-__class__.TILE_LEFT)*8, (42 -__class__.TILE_TOP)*8, time))
-        ObjMgr.addObj(BossBattleShipUpperBackFire(self, (104-__class__.TILE_LEFT)*8, (42 -__class__.TILE_TOP)*8, time))
+        self.addChild(BossBattleShipUpperBackFire(self, (98-__class__.TILE_LEFT)*8, (42 -__class__.TILE_TOP)*8, time))
+        self.addChild(BossBattleShipUpperBackFire(self, (101-__class__.TILE_LEFT)*8, (42 -__class__.TILE_TOP)*8, time))
+        self.addChild(BossBattleShipUpperBackFire(self, (104-__class__.TILE_LEFT)*8, (42 -__class__.TILE_TOP)*8, time))
 
     def spark(self, params):
         gcommon.debugPrint("BossBattleShipSpark")
-        ObjMgr.addObj(BossBattleShipSpark(self, params[2], params[3], params[4]))
+        self.addChild(BossBattleShipSpark(self, params[2], params[3], params[4]))
 
     def drawLayer(self, layer):
         if layer == gcommon.C_LAYER_GRD:
@@ -453,7 +472,7 @@ class BossBattleShipEngine(enemy.EnemyBase):
         self.shotHitCheck = True
         self.hp = 300
         self.score = 500
-        self.fire = BossBattleShipBackFire(self, 0, 0)
+        self.fire = BossBattleShipBackFire(self, 0, 15.5)
 
     def appended(self):
         ObjMgr.addObj(self.fire)
@@ -477,6 +496,7 @@ class BossBattleShipEngine(enemy.EnemyBase):
         pyxel.tilemap(1).copy(4 +int(self.offsetX/8), 15 +int(self.offsetY/8), 1, 4 +int(self.offsetX/8), 50 +int(self.offsetY/8), 3, 4)
 
 # エンジンバックファイア
+#   右真ん中原点
 class BossBattleShipBackFire(enemy.EnemyBase):
     def __init__(self, parent, ox, oy):
         super(__class__, self).__init__()
@@ -485,10 +505,13 @@ class BossBattleShipBackFire(enemy.EnemyBase):
         self.y = self.parent.y + oy
         self.offsetX = ox
         self.offsetY = oy
-        self.left = -12*8
-        self.top = 0
-        self.right = -1
-        self.bottom = 31
+        self.collisionRects = gcommon.Rect.createFromList([
+			[-92, -1.5, -78, 1.5], [-77, -4.5, -57, 4.5],[-56, -7.5, -30, 7.5], [-29, -11.5, -1, 11.5]
+		])
+        # self.left = -12*8
+        # self.top = -15.5
+        # self.right = -1
+        # self.bottom = 15.5
         self.hitcolor1 = 10
         self.hitcolor2 = 7
         self.layer = gcommon.C_LAYER_GRD
@@ -521,9 +544,9 @@ class BossBattleShipBackFire(enemy.EnemyBase):
             dy = 32
         fy = 1 if self.cnt & 4 == 0 else -1
         if self.cnt & 2 == 0:
-            pyxel.blt(gcommon.sint(self.x -dx), gcommon.sint(self.y), 1, sx, sy, dx, dy *fy, 0)
+            pyxel.blt(gcommon.sint(self.x -dx), gcommon.sint(self.y -dy/2), 1, sx, sy, dx, dy *fy, 0)
         else:
-            pyxel.blt(gcommon.sint(self.x -dx), gcommon.sint(self.y), 1, sx, sy+32, dx, dy *fy, 0)
+            pyxel.blt(gcommon.sint(self.x -dx), gcommon.sint(self.y -dy/2), 1, sx, sy+32, dx, dy *fy, 0)
 
 # 砲台
 class BattleShipBattery(enemy.Battery0):
@@ -537,6 +560,8 @@ class BattleShipBattery(enemy.Battery0):
         self.hp = 50
         self.interval = int(60 / GameSession.enemy_shot_rate)
         self.first = int(60 / GameSession.enemy_shot_rate)
+        # 削除されるX座標
+        self.remove_min_x = -128*8
 
     def update(self):
         self.x = self.parent.x + self.offsetX
@@ -546,8 +571,8 @@ class BattleShipBattery(enemy.Battery0):
             self.shotFlag = True
         elif self.direction == 1 and self.y < (ObjMgr.myShip.y +20):
             self.shotFlag = True
-
         super(__class__, self).update()
+
 
 class BattleShipHomingMissile1(enemy.EnemyBase):
     directionTable = [
@@ -852,6 +877,11 @@ class BossBattleShipUpperBackFire(enemy.EnemyBase):
         self.parent = parent
         self.x = self.parent.x + ox
         self.y = self.parent.y + oy
+        self.collisionRects = gcommon.Rect.createFromList([
+			[11, 24, 15, 28], [16, 18, 21, 23],[22, 11, 28, 17], [27, 6, 33, 12], [32, 0, 39, 7]
+		])
+        for rect in self.collisionRects:
+            rect.shift(-39+12, 4)
         self.offsetX = ox
         self.offsetY = oy
         self.time = time
@@ -860,19 +890,22 @@ class BossBattleShipUpperBackFire(enemy.EnemyBase):
         self.layer = gcommon.C_LAYER_GRD
         self.exptype = gcommon.C_EXPTYPE_SKY_M
         self.ground = False
-        self.hitCheck = False
+        self.hitCheck = True
         self.shotHitCheck = False
 
     def update(self):
         self.x = self.parent.x + self.offsetX
         self.y = self.parent.y + self.offsetY
         if self.state == 0:
+            self.hitCheck = False
             if self.cnt > 60:
                 self.nextState()
         elif self.state == 1:
+            self.hitCheck = True
             if self.cnt > self.time:
                 self.nextState()
         elif self.state == 2:
+            self.hitCheck = False
             if self.cnt > 40:
                 self.remove()
 
@@ -927,7 +960,7 @@ class BossBattleShipHatch(enemy.EnemyBase):
         self.hitcolor1 = 12
         self.hitcolor2 = 7
         self.layer = gcommon.C_LAYER_SKY
-        self.hp = 100       #1000
+        self.hp = 1000      #1000
         self.ground = False
         self.hitCheck = True
         self.shotHitCheck = True
@@ -1011,7 +1044,7 @@ class BossBattleShipHangeredFighter3(enemy.EnemyBase):
         self.y = self.parent.y + self.offsetY
 
     def draw(self):
-        pyxel.blt(gcommon.sint(self.x), gcommon.sint(self.y), 1, 184, 176, 24, 16, 3)
+        pyxel.blt(gcommon.sint(self.parent.x) + self.offsetX, gcommon.sint(self.parent.y)+ self.offsetY, 1, 184, 176, 24, 16, 3)
 
 # 静的オブジェクト
 class BossBattleShipStaticPart(enemy.EnemyBase):
@@ -1038,13 +1071,16 @@ class BossBattleShipStaticPart(enemy.EnemyBase):
         self.ground = False
         self.hitCheck = True
         self.shotHitCheck = True
+        self.test = False
 
     def update(self):
         self.x = self.parent.x + self.offsetX
         self.y = self.parent.y + self.offsetY
+        #if self.test:
+        #    gcommon.debugPrint(str(self.x) + " " + str(self.parent.x))
 
     def draw(self):
-        pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, self.mx, self.my, self.mwidth, self.mheight, 2)
+        pyxel.bltm(gcommon.sint(self.parent.x)  + self.offsetX, gcommon.sint(self.y), 1, self.mx, self.my, self.mwidth, self.mheight, 2)
 
 
 
@@ -1077,6 +1113,7 @@ class BossBattleShipCore(enemy.EnemyBase):
         self.hitCheck = True
         self.shotHitCheck = True
         self.lightningShutterPos = 0
+        self.thunderShooter = None
         #gcommon.debugPrint("Core")
 
     # 1: 待ち
@@ -1115,7 +1152,7 @@ class BossBattleShipCore(enemy.EnemyBase):
                 x = self.parent.x + (90 -BossBattleShip.TILE_LEFT)*8+3
                 y = self.parent.y + (33-BossBattleShip.TILE_TOP)*8+3
                 ObjMgr.addObj(BossBattleShipLightning(x, y))
-            if self.cnt > 240:
+            if self.cnt > 270:
                 self.nextState()
         elif self.state == 5:
             # 閉じる
@@ -1124,7 +1161,7 @@ class BossBattleShipCore(enemy.EnemyBase):
                 self.nextState()
         elif self.state == 6:
             if self.cnt == 0:
-                ObjMgr.addObj(BossBattleShipThunderShooter(self.parent, (91 -BossBattleShip.TILE_LEFT)*8, (62-35-BossBattleShip.TILE_TOP)*8))
+                self.thunderShooter = ObjMgr.addObj(BossBattleShipThunderShooter(self.parent, (91 -BossBattleShip.TILE_LEFT)*8, (62-35-BossBattleShip.TILE_TOP)*8))
             if self.cnt > 360:
                 self.setState(1)
         elif self.state == 100:
@@ -1199,6 +1236,9 @@ class BossBattleShipCore(enemy.EnemyBase):
         return gcommon.mapAttribute2[no >> 5][no & 31] == "1"
 
     def broken(self):
+        if self.thunderShooter != None and self.thunderShooter.removeFlag == False:
+            self.thunderShooter.remove()
+            self.thunderShooter = None
         self.setState(100)
         self.shotHitCheck = False
         self.hitCheck = False
@@ -1208,13 +1248,13 @@ class BossBattleShipCore(enemy.EnemyBase):
 class BossBattleShipThunderShooter(enemy.EnemyBase):
     moveTable = [
                     [5*8, CountMover.MOVE, -2.0, 0.0],
-                    [60, CountMover.STOP, 0.0, 0.0],
+                    [90, CountMover.STOP, 0.0, 0.0],
                     [5*8, CountMover.MOVE, -2.0, 0.0],
                     [60, CountMover.STOP, 0.0, 0.0],
                     [3*8, CountMover.MOVE, 2.0, 0.0],
-                    [60, CountMover.STOP, 0.0, 0.0],
+                    [90, CountMover.STOP, 0.0, 0.0],
                     [5*8, CountMover.MOVE, 2.0, 0.0],
-                    [60, CountMover.STOP, 0.0, 0.0],
+                    [90, CountMover.STOP, 0.0, 0.0],
                     [10*8, CountMover.MOVE, -2.0, 0.0],
                     [1, CountMover.STOP, 0.0, 0.0],
     ]
@@ -1236,6 +1276,7 @@ class BossBattleShipThunderShooter(enemy.EnemyBase):
         self.hitCheck = False
         self.shotHitCheck = False
         self.mover = enemy.CountMover(self, __class__.moveTable, loopFlag=False, selfMove=False)
+        self.thunder = False
         gcommon.debugPrint("BossBattleShipThunderShooter")
 
     def update(self):
@@ -1243,9 +1284,11 @@ class BossBattleShipThunderShooter(enemy.EnemyBase):
         if self.mover.isEnd:
             self.remove()
             return
-        if self.mover.mode == CountMover.STOP:
+        if self.mover.mode == CountMover.STOP and self.mover.cnt >= 30 and self.mover.cnt < 60:
+            self.thunder = True
             self.hitCheck = True
         else:
+            self.thunder = False
             self.hitCheck = False
         self.x = self.parent.x + self.mover.x
         self.y = self.parent.y + self.mover.y
@@ -1253,7 +1296,7 @@ class BossBattleShipThunderShooter(enemy.EnemyBase):
     def draw(self):
         pyxel.blt(gcommon.sint(self.x), gcommon.sint(self.y), 1, 128, 64, 16, -16, 0)
         pyxel.blt(gcommon.sint(self.x), gcommon.sint(self.y +11*8), 1, 128, 64, 16, 16, 0)
-        if self.mover.mode == CountMover.STOP:
+        if self.thunder:
             for i in range(3):
                 pyxel.blt(gcommon.sint(self.x+4), gcommon.sint(self.y + 16 + i*24), 1, 224 + random.randrange(0, 3) * 8, 128, 8, 24, 0)
 

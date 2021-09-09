@@ -1006,8 +1006,8 @@ class MapDrawBattileShip:
 					doMapCharacter(n, mx, my)
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
-		if gcommon.map_x > 128 * 8:
-			gcommon.map_x -= 128 * 8
+		if gcommon.map_x > 256 * 8:
+			gcommon.map_x -= 256 * 8
 		gcommon.back_map_x += gcommon.cur_scroll_x/2
 
 	def drawBackground(self):
@@ -1019,9 +1019,11 @@ class MapDrawBattileShip:
 		# 	pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, gcommon.TP_COLOR)
 
 	def draw(self):
+		# 遠景
 		pyxel.bltm((int(gcommon.map_x)>>2) % 8 * -1, 0, 0, ((int(gcommon.map_x)>>2) % 2048)/8, 39, 33, 25, 3)
+		# 下の岩
 		pyxel.bltm(-1 * (int(gcommon.map_x) % 8), 50*8 -gcommon.map_y+22*8,	\
-			0, (int)((gcommon.map_x % 2048)/8), 72, 33, 2, 3)
+			0, (int)((gcommon.map_x % 1024)/8), 72, 33, 2, 3)
 		
 		# #pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, (int)((gcommon.map_x % 2048)/8),  (int)(gcommon.map_y/8),33,25, 3)
 		# # 上下ループマップなのでややこしい
