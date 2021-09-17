@@ -474,4 +474,10 @@ class Drawing:
         for i in range(len(points)-1):
             pyxel.line(points[i][0], points[i][1], points[i+1][0], points[i+1][1], clr)
 
+    @classmethod
+    def blt(cls, x, y, img, u, v, w, h, colkey=-1):
+        pyxel.blt(gcommon.sint(x), gcommon.sint(y), img, u, v, w, h, colkey)
 
+    @classmethod
+    def bltm(cls, x, y, tm, u, v, w, h, colkey=-1):
+        pyxel.bltm(gcommon.sint(x), gcommon.sint(y), tm, u, v, w, h, colkey)

@@ -826,6 +826,7 @@ class MainGame:
 			[baseOffset +1720,SetMapScroll, 0.0, 0.50],
 			[baseOffset +2728,SetMapScroll, 0.50, 0.0],
 			[baseOffset +6000,StartBGM, BGM.BOSS],
+			[baseOffset +6552,SetMapScroll, 0.0, 0.0],
 		]
 
 	def initEventBattileShip(self):

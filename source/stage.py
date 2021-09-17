@@ -241,6 +241,7 @@ class Stage:
         elif stage == "4B":
             # 迷宮
             pyxel.image(1).load(0,0,"assets/stage_labyrinth.png")
+            pyxel.image(2).load(0,0,"assets/stage_labyrinth2.png")
             gcommon.sync_map_y = 0
             gcommon.long_map = True
             gcommon.draw_star = True

@@ -235,6 +235,9 @@ class CountMover:
 	SET_DEG = 10
 	ACCEL_MAX = 11
 	SET_INDEX = 100
+	LOOP_START = 101
+	LOOP_END = 102
+	NO_MOVE = -8888
 	def __init__(self, obj, table, loopFlag, selfMove=True):
 		self.obj = obj
 		self.table = table
@@ -254,6 +257,8 @@ class CountMover:
 		self.rad = 0.0
 		self.deg = 0.0
 		self.mode = 0
+		self.loopCounterArray = []
+		self.loopTableIndexArray = []
 
 	def update(self):
 		self.cycleFlag = False
@@ -267,7 +272,6 @@ class CountMover:
 				# X座標変化なし
 				self.dx = 0
 				self.dy = item[4]
-				self.obj.x += self.dx
 				self.obj.y += self.dy
 				xx = 0
 				yy = item[3] -self.obj.y
@@ -276,7 +280,20 @@ class CountMover:
 				self.dx = item[4]
 				self.dy = 0
 				self.obj.x += self.dx
+				xx = item[2] -self.obj.x
+				yy = 0
+			elif item[2] == __class__.NO_MOVE:
+				# X座標変化なし
+				self.dx = 0
+				self.dy = item[4] if self.obj.y < item[3] else -1 * item[4]
 				self.obj.y += self.dy
+				xx = 0
+				yy = item[3] -self.obj.y
+			elif item[3] == __class__.NO_MOVE:
+				# Y座標変化なし
+				self.dx = item[4] if self.obj.x < item[2] else -1 * item[4]
+				self.dy = 0
+				self.obj.x += self.dx
 				xx = item[2] -self.obj.x
 				yy = 0
 			else:
@@ -368,9 +385,23 @@ class CountMover:
 						self.dy = item[5]
 				self.obj.x += self.dx
 				self.obj.y += self.dy
-			elif mode == 100:
+			elif mode == __class__.SET_INDEX:
 				self.tableIndex = item[2]
 				self.cnt = 0
+			elif mode == __class__.LOOP_START:
+				self.loopCounterArray.append(item[2])	# loop count
+				self.loopTableIndexArray.append(self.tableIndex+1)
+			elif mode == __class__.LOOP_END:
+				# 最後の値
+				cnt = self.loopCounterArray[-1]
+				cnt -= 1
+				if cnt <= 0:
+					self.loopCounterArray.pop(-1)
+					self.loopTableIndexArray.pop(-1)
+					self.nextTable()
+				else:
+					self.loopCounterArray[-1] = cnt
+					self.tableIndex = self.loopTableIndexArray[-1]
 			elif mode == -1:
 				# 停止
 				self.dx = 0.0

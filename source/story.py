@@ -16,6 +16,7 @@ import bossWarehouse
 import bossCave
 import bossFire
 import bossBattleShip
+import bossLabyrinth
 from enemyBattery import MovableBattery1
 from enemyBattery import ContainerCarrier1
 from enemyBattery import Tractor1
@@ -940,6 +941,7 @@ class Story:
 					[32, 0, 0.0, 2.0], [300, 0, -2.0, 0.0]
 				],
 			],
+			[6650, bossLabyrinth.BossLabyrinth, 0, 0 ],
 		]
 
 	@classmethod
