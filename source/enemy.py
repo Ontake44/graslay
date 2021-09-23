@@ -78,7 +78,7 @@ class EnemyBase:
 		self.top = 0
 		self.right = 0
 		self.bottom = 0
-		self.collisionRects = None		# 当たり判定矩形リスト
+		self.collisionRects = None		# 当たり判定矩形リスト（Rectクラスのarray）
 		self.hp = 0						# HP
 		self.state = 0					# 状態
 		self.cnt = 0					# 汎用カウント

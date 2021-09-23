@@ -272,7 +272,8 @@ class BossLabyrinthBeam1(enemy.EnemyBase):
         self.rad = rad
         self.beamTime = beamTime
         self.layer = gcommon.C_LAYER_E_SHOT
-        self.shotHitCheck = True
+        self.hitCheck = True
+        self.shotHitCheck = False
         self.polygonList1 = []
         self.polygonList1.append(gcommon.Polygon(__class__.beamPoints, 10))
         self.xpolygonList1 = None
@@ -333,14 +334,17 @@ class BossLabyrinth2(enemy.EnemyBase):
     #     [0, CountMover.SET_POS, 256+48, 96.0],  # 0
     #     [104, CountMover.MOVE, -1.0, 0.0],      # 1
     # ]
+    bodyRect1 = gcommon.Rect(-6*8-3.5, -15.5, -15.5, 15.5)
+    bodyRect2 = gcommon.Rect(-14.5, -21.5, 39.5, 21.5)
     def __init__(self):
         super(__class__, self).__init__()
         self.x = 200
         self.y = 96
-        self.left = -45
-        self.top = -45
-        self.right = 45
-        self.bottom = 45
+        # 自機弾との当たり判定
+        self.left = -6*8-3.5
+        self.top = -15.5
+        self.right = 32
+        self.bottom = 15.5
         self.hp = 7000
         self.layer = gcommon.C_LAYER_UNDER_GRD
         self.score = 2000
@@ -381,15 +385,14 @@ class BossLabyrinth2(enemy.EnemyBase):
                     y = self.y+23.5 -16 +48 - n * 16 +11
                     ObjMgr.addObj(BossLabyrinthShot1(self.x -22, y, -4, spreadTime=30))
                 else:
-                    ObjMgr.addObj(BossLabyrinthShot1(self.x -64, self.y, -4, spreadTime=30))
-                if n == 3:
-                    gcommon.debugPrint("arm1 " + str(self.arm1Pos) + " arm2 " + str(self.arm2Pos))
+                    ObjMgr.addObj(BossLabyrinthShot1(self.x -58, self.y -13, -4, spreadTime=30))
+                    ObjMgr.addObj(BossLabyrinthShot1(self.x -58, self.y +13, -4, spreadTime=30))
                     self.nextState()
         elif self.state == 5:
             self.arm1Pos -= 1
             self.arm2Pos += 1
             if self.arm2Pos >= 48:
-                gcommon.debugPrint("arm1 " + str(self.arm1Pos) + " arm2 " + str(self.arm2Pos))
+                #gcommon.debugPrint("arm1 " + str(self.arm1Pos) + " arm2 " + str(self.arm2Pos))
                 self.nextState()
         elif self.state == 6:
             # ダイアモンドビーム
@@ -448,6 +451,16 @@ class BossLabyrinth2(enemy.EnemyBase):
             if math.fabs(self.y -96) < 1.0:
                 self.y = 96.0
                 self.setState(2)
+        self.collisionRects = []
+        self.collisionRects.append(__class__.bodyRect1)
+        self.collisionRects.append(__class__.bodyRect2)
+        self.collisionRects.append(gcommon.Rect.createWH(-31.5 +14, -39.5 +6 -self.arm1Pos, 30, 8))
+        self.collisionRects.append(gcommon.Rect.createWH(-31.5 +14, 24.5 +2 +self.arm1Pos, 30, 8))
+        self.collisionRects.append(gcommon.Rect.createWH(+16.5+4, -39.5 +4 -self.arm2Pos/3, 25, 12))
+        self.collisionRects.append(gcommon.Rect.createWH(+16.5+4, 24.5 +self.arm2Pos/3, 25, 12))
+        if self.arm1Pos > 0:
+            self.collisionRects.append(gcommon.Rect.createWH(-31.5 +28, -39.5 +16 -self.arm1Pos, 11, self.arm1Pos))
+            self.collisionRects.append(gcommon.Rect.createWH(-31.5 +28, 24.5, 11, self.arm1Pos))
 
     def chaseToMyShip(self):
         y = ObjMgr.myShip.y + myShip.MyShipBase.CENTER_Y
@@ -484,12 +497,12 @@ class BossLabyrinth2(enemy.EnemyBase):
             pyxel.blt(self.x -63.5, self.y-39.5, 2, 144, 112, 14*8, 80, 3)
             pyxel.pal()
         else:
-            # アーム前上
+            # アーム前上の隠れている箇所
             y = self.y-39.5 +16 -self.arm1Pos
             while(y < self.y-23.5):
                 pyxel.blt(self.x -15.5, y, 2, 16, 72, 24, 16, 3)
                 y += 16
-            # アーム前下
+            # アーム前下の隠れている箇所
             y = self.y+23.5 -16 +self.arm1Pos
             while(y > self.y+7.5):
                 pyxel.blt(self.x -15.5, y, 2, 16, 72, 24, -16, 3)
@@ -505,13 +518,23 @@ class BossLabyrinth2(enemy.EnemyBase):
             # while(y > self.y+7.5):
             #     pyxel.blt(self.x +24.5, y, 2, 64, 72, 16, -16, 3)
             #     y -= 16
-
-            # 中心
+            # アーム部
             pyxel.blt(self.x -31.5, self.y-39.5 -self.arm1Pos, 2, 0, 56, 48, 16, 3)
-            pyxel.blt(self.x -31.5, self.y+23.5 +self.arm1Pos, 2, 0, 56, 48, -16, 3)
+            pyxel.blt(self.x -31.5, self.y+24.5 +self.arm1Pos, 2, 0, 56, 48, -16, 3)
             pyxel.blt(self.x +16.5, self.y-39.5 -self.arm2Pos/3, 2, 56, 56, 32, 32, 3)
             pyxel.blt(self.x +16.5, self.y+24.5 -16 +self.arm2Pos/3, 2, 56, 56, 32, -32, 3)
+
+            # 中心
             pyxel.blt(self.x -63.5, self.y-23.5, 2, 16, 128, 14*8, 48, 3)
+
+            # 前カバー
+            p = self.arm1Pos -24
+            if p <= 0:
+                p = 0
+            elif p >= 10:
+                p = 10
+            pyxel.blt(self.x -63.5, self.y-23.5 -p, 2, 16, 184, 50, 17, 3)
+            pyxel.blt(self.x -63.5, self.y+ 8.5 +p, 2, 16, 208, 50, 17, 3)
 
     def broken(self):
         self.shotHitCheck = False
@@ -523,7 +546,12 @@ class BossLabyrinth2(enemy.EnemyBase):
         enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
         ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
 
-
+    # 自機弾と敵との当たり判定
+    def checkShotCollision(self, shot):
+        if shot.removeFlag == False and gcommon.check_collision(self, shot):
+            return True
+        else:
+            return False
 
 # 回転した後、自機狙いのダイアモンドビーム
 class BossLabyrinthBeam2(enemy.EnemyBase):

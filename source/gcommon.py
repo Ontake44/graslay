@@ -308,29 +308,19 @@ class Pos:
 		return p
 
 class Rect:
-	def __init__(self):
-		self.left = 0
-		self.top = 0
-		self.right = 0
-		self.bottom = 0
+	def __init__(self, left, top, right, bottom):
+		self.left = left
+		self.top = top
+		self.right = right
+		self.bottom = bottom
 
 	@classmethod
 	def create(cls, left, top, right, bottom):
-		rect = Rect()
-		rect.left = left
-		rect.top = top
-		rect.right = right
-		rect.bottom = bottom
-		return rect
+		return Rect(left, top, right, bottom)
 
 	@classmethod
 	def createWH(cls, left, top, width, height):
-		rect = Rect()
-		rect.left = left
-		rect.top = top
-		rect.right = left + width -1
-		rect.bottom = top + height -1
-		return rect
+		return Rect(left, top, left + width -1, top + height -1)
 
 	@classmethod
 	def createFromList(cls, list):
