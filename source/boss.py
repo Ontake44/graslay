@@ -413,3 +413,58 @@ class DelayedShotLaser1(enemy.EnemyBase):
 			pyxel.line(x1-1, y1, x2-1, y2, 9)
 			pyxel.line(x1+1, y1, x2+1, y2, 9)
 			pyxel.line(x1, y1, x2, y2, 10)
+
+# 波動砲発射前の、あの吸い込むようなやつ
+class BeamEffectStar:
+	def __init__(self, x, y, a):
+		self.x = x
+		self.y = y
+		self.a = a
+		self.removeFlag = False
+
+# 艦首ビーム発射前の吸い込むようなやつ
+class BeamPrepareEffect1(enemy.EnemyBase):
+	def __init__(self, parent, ox, oy):
+		super(__class__, self).__init__()
+		self.parent = parent
+		self.offsetX = ox
+		self.offsetY = oy
+		self.layer = gcommon.C_LAYER_GRD
+		self.hitCheck = False
+		self.shotHitCheck = False
+		self.enemyShotCollision = False
+		self.tbl = []
+		self.imageSourceX = 160
+		self.imageSourceY = 64
+		self.starMax = 1
+
+	def update(self):
+		self.x = self.parent.x + self.offsetX
+		self.y = self.parent.y + self.offsetY
+		for i in range(self.starMax):
+			x = 50 + random.random() * 30
+			y = random.random() * 6
+			a = random.random() * 0.007
+			if self.cnt & 1 == 1:
+				a *= -1
+			self.tbl.append(BeamEffectStar(x, y, a))
+
+		newTbl = []
+		for s in self.tbl:
+			s.x -= 2
+			if s.x>=0:
+				newTbl.append(s)
+		self.tbl = newTbl
+		self.starMax = 1 + int(self.cnt/20)
+		if self.starMax > 6:
+			self.starMax = 6
+			
+
+	def draw(self):
+		if self.cnt & 3 == 0:
+			pyxel.blt(self.x -22, self.y-7.5, 2, self.imageSourceX, self.imageSourceY, 24, 16, 0)
+		elif self.cnt & 3 == 1:
+			pyxel.blt(self.x -22, self.y-7.5, 2, self.imageSourceX, self.imageSourceY+16, 24, 16, 0)
+		for s in self.tbl:
+			y = s.x* s.x * s.a
+			pyxel.pset(self.x -s.x, self.y -y, 7)
