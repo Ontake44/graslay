@@ -552,7 +552,7 @@ class MainGame:
 		#pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(ObjMgr.myShip.x, ObjMgr.myShip.y)), 7)
 		# マップ位置表示
-		pyxel.text(200, 184, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
+		#pyxel.text(200, 184, str(gcommon.map_x) + " " +str(gcommon.map_y), 7)
 
 		if self.pauseMode == gcommon.PAUSE_PAUSE:
 			self.drawPauseMenu()

@@ -61,7 +61,7 @@ class StageLinkManager:
         stage4A = StageInfo("4A", 4, True, [stage5A, stage5B])
         stage4A.setImage(3, 0)
         stage4B = StageInfo("4B", 4, True, [stage5A, stage5B])
-        stage4B.setImage(3, 2)
+        stage4B.setImage(0, 2)
         # stage4C = StageInfo("4C", 4, False, [stage5C, stage5D])
         # stage4D = StageInfo("4D", 4, False, [stage5D, stage5E])
 
@@ -70,7 +70,7 @@ class StageLinkManager:
         stage3B = StageInfo("3B", 3, True, [stage4A, stage4B])
         stage3B.setImage(2, 2)
         stage3C = StageInfo("3C", 3, True, [stage4A, stage4B])
-        stage3C.setImage(2, 2)
+        stage3C.setImage(3, 2)
 
         stage2A = StageInfo("2A", 2, True, [stage3A, stage3B, stage3C])
         stage2A.setImage(1, 0)
