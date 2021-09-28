@@ -24,7 +24,7 @@ import story
 from objMgr import ObjMgr
 from optionMenu import OptionMenuScene
 from title import TitleScene
-from mapDraw import MapDraw1, MapDrawBattileShip, MapDrawLabirinth
+from mapDraw import MapDraw1, MapDrawBattileShip, MapDrawEnemyBase, MapDrawLabirinth
 from mapDraw import MapDraw2
 from mapDraw import MapDrawCave
 from mapDraw import MapDrawWarehouse
@@ -197,6 +197,13 @@ class StartMapDrawLabyrinth:
 class StartMapDrawBattleShip:
 	def __init__(self, t):
 		ObjMgr.setDrawMap(MapDrawBattileShip())
+
+	def do(self):
+		pass
+
+class StartMapDrawEnemyBase:
+	def __init__(self, t):
+		ObjMgr.setDrawMap(MapDrawEnemyBase())
 
 	def do(self):
 		pass
@@ -714,7 +721,10 @@ class MainGame:
 			self.initEventFire()
 		elif self.stage == "6A":
 			self.initEventLast()
-	
+		elif self.stage == "6B":
+			self.initEventEnemyBase()
+
+
 	def initEvent1(self):
 		self.eventTable =[ \
 			#[0, StartBGM, BGM.STAGE1],
@@ -842,7 +852,13 @@ class MainGame:
 			#[baseOffset +6200, SetMapScroll, 0.5, 0.0],
 		]
 
-
+	def initEventEnemyBase(self):
+		baseOffset = 0
+		self.eventTable =[
+			[0, StartBGM, BGM.STAGE5],
+			[0, StartMapDrawEnemyBase],
+			[0, SetMapScroll, 0.5, 0.0],
+		]
 
 	def initStory(self):
 		if self.stage == "1A":
@@ -867,6 +883,8 @@ class MainGame:
 			self.story = story.Story.getStoryFire()
 		elif self.stage == "6A":
 			self.story = story.Story.getStoryLast()
+		elif self.stage == "6B":
+			self.story = story.Story.getStoryEnemyBase()
 
 
 def parseCommandLine():
@@ -1035,11 +1053,6 @@ class App:
 		self.setScene(customStartMenu.CustomStartMenuScene())
 
 	def update(self):
-		if pyxel.btnp(pyxel.KEY_Q):
-			for obj in ObjMgr.objs:
-				gcommon.debugPrint(str(obj))
-			pyxel.quit()
-
 		if self.nextScene != None:
 			self.nextScene.init()
 			self.scene = self.nextScene
@@ -1047,7 +1060,6 @@ class App:
 		self.scene.update()
 
 	def draw(self):
-
 		self.scene.draw()
 
 App()

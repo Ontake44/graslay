@@ -28,6 +28,7 @@ import enemyFighter
 import enemyMine
 import enemyOthers
 import enemyCreature
+import enemyArmored
 
 class StoryManager:
 
@@ -1026,4 +1027,18 @@ class Story:
 						[900, 0, 3.0, 0.0]
 					], 30
 				], 15, 5],
+		]
+	
+	@classmethod
+	def getStoryEnemyBase(cls):
+		baseOffset = 1200
+		return [
+			[540, enemyArmored.Ducker1, 1],
+			[570, enemyArmored.Ducker1, -1],
+			[660, enemyArmored.Ducker1, 1],
+			[690, enemyArmored.Ducker1, -1],
+			[780, enemyArmored.Ducker1, 1],
+			[810, enemyArmored.Ducker1, -1],
+			[900, enemyArmored.Ducker1, 1],
+			[930, enemyArmored.Ducker1, -1],
 		]

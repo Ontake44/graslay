@@ -43,15 +43,17 @@ class StageLinkManager:
     def __init__(self):
         stage6A = StageInfo("6A", 6, True, None)
         stage6A.setImage(1, 1)
+        stage6B = StageInfo("6B", 6, True, None)
+        stage6B.setImage(1, 1)
         # stage6B = StageInfo("6B", 6, False, None)
         # stage6C = StageInfo("6C", 6, False, None)
         # stage6D = StageInfo("6D", 6, False, None)
         # stage6E = StageInfo("6E", 6, False, None)
         # stage6F = StageInfo("6F", 6, False, None)
 
-        stage5A = StageInfo("5A", 5, True, [stage6A])
+        stage5A = StageInfo("5A", 5, True, [stage6A, stage6B])
         stage5A.setImage(0, 1)
-        stage5B = StageInfo("5B", 5, True, [stage6A])
+        stage5B = StageInfo("5B", 5, True, [stage6A, stage6B])
         stage5B.setImage(0, 3)
         # stage5B = StageInfo("5B", 5, False, [stage6B, stage6C])
         # stage5C = StageInfo("5C", 5, False, [stage6C, stage6D])
@@ -101,7 +103,9 @@ class StageLinkManager:
         stage5B.x = stage4A.x +dx 
         stage5B.y = self.stageRoot.y +12
         stage6A.x = stage5A.x +dx 
-        stage6A.y = self.stageRoot.y
+        stage6A.y = stage5A.y
+        stage6B.x = stage5B.x +dx 
+        stage6B.y = stage5B.y
 
     def getFirstStage(self):
         return self.stageRoot
@@ -277,7 +281,7 @@ class Stage:
             pyxel.tilemap(0).refimg = 1
             pyxel.tilemap(2).refimg = 1
         elif stage == "6A":
-            # 最終ステージ
+            # 最終ステージＡ
             pyxel.image(1).load(0,0,"assets/graslay_last.png")
             pyxel.image(2).load(0,0,"assets/graslay_last-1.png")
             #pyxel.image(2).load(0,0,"assets/graslay_last-2.png")
@@ -289,6 +293,17 @@ class Stage:
             MapData.loadMapData(1, "assets/graslay_lastb.pyxmap")
             MapData.loadMapAttribute("assets/graslay_last.mapatr")
             pyxel.tilemap(1).refimg = 1
+        elif stage == "6B":
+            # 最終ステージＢ
+            pyxel.image(1).load(0,0,"assets/stage_enemybase.png")
+            #pyxel.image(2).load(0,0,"assets/graslay_last-2.png")
+            gcommon.sync_map_y = 0
+            gcommon.long_map = True
+            gcommon.draw_star = True
+            gcommon.eshot_sync_scroll = False
+            MapData.loadMapData(0, "assets/stage_enemybase.pyxmap")
+            MapData.loadMapAttribute("assets/stage_enemybase.mapatr")
+            #pyxel.tilemap(1).refimg = 1
         #elif self.stage == 3:
         #	pyxel.image(1).load(0,0,"assets\gra-den3a.png")
         #	pyxel.image(2).load(0,0,"assets\gra-den3b.png")
