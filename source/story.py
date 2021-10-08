@@ -20,6 +20,7 @@ import bossLabyrinth
 from enemyBattery import MovableBattery1
 from enemyBattery import ContainerCarrier1
 from enemyBattery import Tractor1
+from enemyBattery import HorizonBattery1
 from enemyArmored import Armored1
 from gameSession import GameSession
 from objMgr import ObjMgr
@@ -1033,12 +1034,49 @@ class Story:
 	def getStoryEnemyBase(cls):
 		baseOffset = 1200
 		return [
-			[540, enemyArmored.Ducker1, 1],
-			[570, enemyArmored.Ducker1, -1],
-			[660, enemyArmored.Ducker1, 1],
-			[690, enemyArmored.Ducker1, -1],
-			[780, enemyArmored.Ducker1, 1],
-			[810, enemyArmored.Ducker1, -1],
-			[900, enemyArmored.Ducker1, 1],
-			[930, enemyArmored.Ducker1, -1],
+			[150, enemy.Fan1Group, 8, 10, 6, True],		\
+			[270, enemy.Fan1Group, 170, 10, 6, True],		\
+			[330, enemy.Fan1Group, 8, 10, 6],		\
+			[370, enemy.Fighter2, 256, 120, 230, -1],	\
+			[400, enemy.Fighter2, 256, 30, 190, 1],	\
+			[400, enemy.Fan1Group, 170, 10, 6],		\
+			[520, enemy.Fighter2, 256, 20, 190, 1],	\
+			[580, enemy.Fighter2, 256, 150, 190, -1],	\
+			[800, enemyOthers.BarrierWallV1, 2, 34, 2],
+			[800, HorizonBattery1, 0, 31, [
+					[40, CountMover.MOVE, 0.0, -2.0],
+					[20, CountMover.STOP],
+					[20, CountMover.MOVE, 0.0, 2.0],
+					[10, CountMover.STOP],
+					[10, CountMover.MOVE, 0.0, -2.0],
+					[20, CountMover.STOP],
+					[30, CountMover.MOVE, 0.0, 2.0],
+					[10, CountMover.STOP],
+				]
+			],
+			[800, HorizonBattery1, 0, 38, [
+					[40, CountMover.MOVE, 0.0, 2.0],
+					[10, CountMover.STOP],
+					[20, CountMover.MOVE, 0.0, -2.0],
+					[20, CountMover.STOP],
+					[10, CountMover.MOVE, 0.0, 2.0],
+					[10, CountMover.STOP],
+					[30, CountMover.MOVE, 0.0, -2.0],
+					[20, CountMover.STOP],
+				]
+			],
+			[baseOffset+ 540, enemyArmored.Ducker1, 1],
+			[baseOffset+ 570, enemyArmored.Ducker1, -1],
+			[baseOffset+ 660, enemyArmored.Ducker1, 1],
+			[baseOffset+ 690, enemyArmored.Ducker1, -1],
+			[baseOffset+ 780, enemyArmored.Ducker1, 1],
+			[baseOffset+ 810, enemyArmored.Ducker1, -1],
+			[baseOffset+ 900, enemyArmored.Ducker1, 1],
+			[baseOffset+ 930, enemyArmored.Ducker1, -1],
+			[baseOffset+ 1000, enemyArmored.Ducker1, -1],
+			[baseOffset+ 1040, enemyArmored.Ducker1, 1],
+			[baseOffset+ 1100, enemyArmored.Ducker1, -1],
+			[baseOffset+ 1170, enemyArmored.Ducker1, 1],
+			[baseOffset+ 1200, enemyOthers.Lift2Appear, 115, 0, 1.0, 4000],
+			[baseOffset+ 1200, enemyOthers.Lift2Appear, 154, 51, -1.0, 4800],
 		]

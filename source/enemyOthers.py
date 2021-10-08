@@ -650,3 +650,89 @@ class Smoke1(enemy.EnemyBase):
         dx = 1 if self.cnt & 1 == 0 else -1
         dy = 1 if self.cnt & 2 == 0 else -1
         pyxel.blt(self.x -7.5, self.y -7.5, 1, 32 + self.index*16, 240, 16 * dx, 16 * dy, 0)
+
+class Lift2(enemy.EnemyBase):
+    def __init__(self, x, y, dy):
+        super(__class__, self).__init__()
+        self.x = x
+        self.y = y
+        self.dy = dy
+        self.left = 0
+        self.top = 0
+        self.right = 63
+        self.bottom = 23
+        self.layer = gcommon.C_LAYER_UNDER_GRD
+        self.ground = True
+        self.hitCheck = True
+        self.shotHitCheck = True
+        self.enemyShotCollision = False
+        self.hp = gcommon.HP_UNBREAKABLE
+
+    def update(self):
+        self.y += self.dy
+        # if self.x < -64 or self.x >= 256:
+        #     self.remove()
+        #     return
+        if self.dy > 0 and self.y >= gcommon.SCREEN_MAX_Y:
+            self.remove()
+            return
+        elif self.dy < 0 and self.y < gcommon.SCREEN_MIN_Y -24:
+            self.remove()
+            return
+
+    
+    def draw(self):
+        pyxel.blt(self.x, self.y, 2, 0, 0, 64, 24, 3)
+
+class Lift2Appear(enemy.EnemyBase):
+    def __init__(self, t):
+        super(__class__, self).__init__()
+        self.mx = t[2]
+        self.my = t[3]
+        self.dy = t[4]
+        self.removeTime = t[5]
+        self.ground = False
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.enemyShotCollision = False
+
+    def update(self):
+        if gcommon.game_timer >= self.removeTime:
+            self.remove()
+            return
+        if self.cnt % 120 == 0:
+            pos = gcommon.mapPosToScreenPos(self.mx, self.my)
+            ObjMgr.addObj(Lift2(pos[0], pos[1], self.dy))
+
+
+
+class BarrierWallV1(enemy.EnemyBase):
+    def __init__(self, t):
+        super(__class__, self).__init__()
+        pos = gcommon.mapPosToScreenPos(t[2], t[3])
+        self.x = pos[0]
+        self.y = pos[1]
+        self.size = t[4]        # ２以上
+        self.left = 0
+        self.top = 0
+        self.right = 15
+        self.bottom = 16 * self.size -1
+        self.layer = gcommon.C_LAYER_GRD
+        self.exptype = gcommon.C_EXPTYPE_GRD_M
+        self.ground = True
+        self.hitCheck = True
+        self.shotHitCheck = True
+        self.enemyShotCollision = False
+        self.hp = 500
+
+    def update(self):
+        if self.x < -16:
+             self.remove()
+             return
+    
+    def draw(self):
+        pyxel.blt(self.x, self.y, 1, 240, 0, 16, 16, 0)
+        for i in range(self.size-2):
+            pyxel.blt(self.x, self.y +16 + 16*i, 1, 240, 8, 16, 16, 0)
+        pyxel.blt(self.x, self.y+ 16*(self.size-1), 1, 240, 16, 16, 16, 0)
+

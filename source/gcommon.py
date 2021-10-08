@@ -241,6 +241,7 @@ long_map = False
 
 breakableMapData = False
 
+
 # 現在未使用（パワーアップ無いので）
 #power = START_MY_POWER
 
@@ -268,6 +269,9 @@ mapAttribute2 = []
 
 
 waterSurface_y = 0.0
+
+getMapDataByMapPosHandler = None
+
 
 # ====================================================================
 
@@ -655,6 +659,7 @@ def getMapData(x, y):
 		my = int((map_y +y)/8)
 	return getMapDataByMapPos(mx, my)
 
+
 # 倉庫ステージ等に使う
 def getMapDataPage(page, x, y):
 	global map_x
@@ -668,6 +673,10 @@ def getMapDataPage(page, x, y):
 	return getMapDataByMapPosPage(page, mx, my)
 
 def getMapDataByMapPos(mx, my):
+	#return getMapDataByMapPosHandler(mx, my)
+	return getMapDataByMapPosimplement(mx, my)
+
+def getMapDataByMapPosimplement(mx, my):
 	global map_x
 	global map_y
 	global long_map
@@ -689,6 +698,31 @@ def getMapDataByMapPos(mx, my):
 				return pyxel.tilemap(0).get(mx, my)
 			else:
 				return -1
+
+# 6Bステージなどの
+def getMapDataByMapPosimplement2(mx, my):
+	global map_x
+	global map_y
+	global long_map
+	#print("--mx = " + str(mx) + " my=" + str(my))
+	if ObjMgr.drawMap == None:
+		return -1
+	else:
+		if long_map:
+			# 2 * 3 = 6画面分
+			if mx>=0 and mx<256*6 and my>=0 and my<128:
+				tm = int(mx/512)
+				moffset = (int(mx/256) & 1) * 128
+				return pyxel.tilemap(tm).get(mx & 255, (my + moffset) & 255)
+			else:
+				#print("mx = " + str(mx) + " my=" + str(my))
+				return -3
+		else:
+			if mx>=0 and mx<256 and my>=0 and my<256:
+				return pyxel.tilemap(0).get(mx, my)
+			else:
+				return -1
+
 
 def getMapDataByMapPosPage(page, mx, my):
 	global map_x
@@ -728,6 +762,30 @@ def setMapData(x, y, p):
 				tm = int(mx/512)
 				moffset = (int(mx/256) & 1) * 128
 				pyxel.tilemap(tm).set(mx & 255, (my + moffset) & 255, p)
+			else:
+				return
+		else:
+			my = int((map_y +y)/8)
+			if mx>=0 and mx<256 and my>=0 and my<256:
+				pyxel.tilemap(0).set(mx, my, p)
+			else:
+				return
+
+def clearMapData(x, y):
+	global map_x
+	global map_y
+	global long_map
+	if ObjMgr.drawMap == None:
+		return
+	else:
+		mx = int((map_x +x)/8)
+		if long_map:
+			my = int((map_y +y)/8) & 127
+			# 2 * 3 = 6画面分
+			if mx>=0 and mx<256*6 and my>=0 and my<128:
+				tm = int(mx/512)
+				moffset = (int(mx/256) & 1) * 128
+				pyxel.tilemap(tm).set(mx & 255, (my + moffset) & 255, pyxel.tilemap(tm+4).get(mx & 255, (my + moffset) & 255))
 			else:
 				return
 		else:
@@ -993,3 +1051,8 @@ def breakObjects(objs):
 		for obj in objs:
 			if obj != None and obj.removeFlag == False:
 				obj.broken()
+
+def setGetMapDataByMapPosHandler(handler):
+	global getMapDataByMapPosHandler
+	getMapDataByMapPosHandler = handler
+

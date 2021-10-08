@@ -151,6 +151,11 @@ class Stage:
         pyxel.tilemap(0).refimg = 1
         gcommon.waterSurface_y = 256 * 8.0
 
+        # タイルマップクリア
+        MapData.loadMapData(0, "assets/zero.pyxmap")
+        for tm in range(1, 8):
+            pyxel.tilemap(tm).copy(0, 0, 0, 0, 0, 256, 256)
+
         if stage == "1A":
             #pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
             pyxel.image(1).load(0,0,"assets/graslay1.png")
@@ -296,14 +301,17 @@ class Stage:
         elif stage == "6B":
             # 最終ステージＢ
             pyxel.image(1).load(0,0,"assets/stage_enemybase.png")
+            pyxel.image(2).load(0,0,"assets/stage_enemybase-2.png")
             #pyxel.image(2).load(0,0,"assets/graslay_last-2.png")
             gcommon.sync_map_y = 0
             gcommon.long_map = True
             gcommon.draw_star = True
             gcommon.eshot_sync_scroll = False
+            gcommon.breakableMapData = True
             MapData.loadMapData(0, "assets/stage_enemybase.pyxmap")
+            MapData.loadMapData(4, "assets/stage_enemybase-4.pyxmap")
             MapData.loadMapAttribute("assets/stage_enemybase.mapatr")
-            #pyxel.tilemap(1).refimg = 1
+            pyxel.tilemap(4).refimg = 1
         #elif self.stage == 3:
         #	pyxel.image(1).load(0,0,"assets\gra-den3a.png")
         #	pyxel.image(2).load(0,0,"assets\gra-den3b.png")

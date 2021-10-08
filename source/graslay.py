@@ -857,7 +857,18 @@ class MainGame:
 		self.eventTable =[
 			[0, StartBGM, BGM.STAGE5],
 			[0, StartMapDrawEnemyBase],
-			[0, SetMapScroll, 0.5, 0.0],
+			[0, SetMapScroll, 0.0, 0.0],
+			[1000, SetMapScroll, 0.5, 0.0],
+			[3160, SetMapScroll, 0.0, 0.0],
+			[3240, SetMapScroll, 0.0, -0.5],
+			[3560, SetMapScroll, 0.5, 0.0],
+			[4180, SetMapScroll, 0.0, 0.0],
+			[4300, SetMapScroll, 0.0, 0.5],
+			[4640, SetMapScroll, 0.5, 0.0],
+			[5840, SetMapScroll, 0.0, 0.0],
+			[5960, SetMapScroll, 0.0, 0.5],
+			[6500, SetMapScroll, 0.0, 0.0],
+			[6620, SetMapScroll, 0.5, 0.0],
 		]
 
 	def initStory(self):
@@ -927,6 +938,8 @@ class App:
 		gcommon.init_atan_table()
 		gcommon.initStar()
 		
+		gcommon.setGetMapDataByMapPosHandler(gcommon.getMapDataByMapPosimplement)
+
 		rm = ranking.RankingManager()
 		rm.load()
 
@@ -1053,6 +1066,10 @@ class App:
 		self.setScene(customStartMenu.CustomStartMenuScene())
 
 	def update(self):
+		if pyxel.btnp(pyxel.KEY_Q):
+			for obj in ObjMgr.objs:
+				gcommon.debugPrint(str(obj))
+			pyxel.quit()
 		if self.nextScene != None:
 			self.nextScene.init()
 			self.scene = self.nextScene

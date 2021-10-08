@@ -7,6 +7,7 @@ import item
 import enemyBattery
 import enemyCreature
 import enemyOthers
+import enemyMine
 from objMgr import ObjMgr
 from gameSession import GameSession
 from drawing import Drawing
@@ -388,12 +389,14 @@ class MapDraw3:
 					if n in (390, 391):
 						# 砲台
 						gcommon.setMapDataByMapPos(mx, my, 0)
-						obj = enemy.Battery1([0,0,mx, my, 0])
+						#obj = enemy.Battery1([0,0,mx, my, 0])
+						if n == 390:
+							obj = enemy.Battery1a(mx, my, 0, 0, 0)
+						else:
+							obj = enemy.Battery1a(mx, my, 1, 0, 0)
 						if GameSession.isHard():
 							obj.first = 20
 							obj.shot_speed = 3
-						if n == 391:
-							obj.mirror = 1
 						ObjMgr.addObj(obj)
 					elif n in (394,395):
 						# シャッター
@@ -1063,10 +1066,31 @@ class MapDrawEnemyBase:
 				my = 127 -i
 				mx = gcommon.screenPosToMapPosX(256)
 				n = gcommon.getMapDataByMapPos(mx, my)
-				if n in (390, 391, 392, 393):
+				if n in (390, 391):
 					# 砲台
 					gcommon.setMapDataByMapPos(mx, my, 0)
-					ObjMgr.addObj(enemy.Battery1([0,0,mx, my, n -390]))
+					first = int(80 / GameSession.enemy_shot_rate)
+					interval = int(80 / GameSession.enemy_shot_rate)
+					ObjMgr.addObj(enemy.Battery1a(mx, my, n -390, first=first, interval=interval))
+				elif n == 395:
+					# 機雷
+					gcommon.setMapDataByMapPos(mx, my, 0)
+					pos = gcommon.mapPosToScreenPos(mx, my)
+					ObjMgr.addObj(enemyMine.Mine2(pos[0], pos[1]))
+				elif n in (396,397):
+					# シャッター
+					size = gcommon.getMapDataByMapPos(mx+1, my) -576
+					speed = (gcommon.getMapDataByMapPos(mx+2, my) -576) * 0.5
+					param1 = (gcommon.getMapDataByMapPos(mx+3, my) -576) * 20
+					param2 = 60 * 1000
+					for i in range(5):
+						gcommon.setMapDataByMapPos(mx +i, my, 0)
+					pos = gcommon.mapPosToScreenPos(mx, my)
+					if n == 396:
+						obj = enemy.Shutter1(pos[0], pos[1] +16*size, -1, size, 0, speed, param1, param2)
+					else:
+						obj = enemy.Shutter1(pos[0], pos[1] -32*size +8, 1, size, 0, speed, param1, param2)
+					ObjMgr.addObj(obj)
 				else:
 					# 共通のマップキャラクタ処理
 					doMapCharacter(n, mx, my)
@@ -1083,18 +1107,22 @@ class MapDrawEnemyBase:
 		# 	pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, gcommon.TP_COLOR)
 
 	def draw(self):
+		self.drawMap(4)
+		self.drawMap(0)
+
+	def draw2(self):
+		pass
+
+	def drawMap(self, tmOffset):
 		# 上下ループマップなのでややこしい
 		if gcommon.map_x < 0:
-			pyxel.bltm(gcommon.sint(-1 * int(gcommon.map_x)), gcommon.sint(-1 * (int(gcommon.map_y) % 8)), 0, 0, (int)(gcommon.map_y/8),33,33, 15)
+			pyxel.bltm(gcommon.sint(-1 * int(gcommon.map_x)), gcommon.sint(-1 * (int(gcommon.map_y) % 8)), tmOffset, 0, (int)(gcommon.map_y/8),33,33, 15)
 		else:
-			tm = int(gcommon.map_x/4096)
+			tm = int(gcommon.map_x/4096) +tmOffset
 			moffset = (int(gcommon.map_x/2048) & 1) * 128
 			w = int((gcommon.map_x %2048)/8)
 			pyxel.bltm(gcommon.sint(-1 * (int(gcommon.map_x) % 8)), gcommon.sint(-1 * (int(gcommon.map_y) % 8)), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, 15)
 			if w >= 224:
-				tm2 = int((gcommon.map_x+256)/4096)
+				tm2 = int((gcommon.map_x+256)/4096) +tmOffset
 				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
 				pyxel.bltm(gcommon.sint((256-w)*8 -1 * (int(gcommon.map_x) % 8)), gcommon.sint(-1 * (int(gcommon.map_y) % 8)), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, 15)
-
-	def draw2(self):
-		pass

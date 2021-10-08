@@ -7,7 +7,7 @@ import gcommon
 import enemy
 import item
 from objMgr import ObjMgr
-from enemy import EnemyBase
+from enemy import EnemyBase, enemy_shot
 from enemy import CountMover
 from gameSession import GameSession
 
@@ -380,3 +380,34 @@ class FireBattery1(enemy.Battery0):
 		self.imageSourceIndex = 2
 		self.imageSourceX = 0
 		self.imageSourceY = 80
+
+class HorizonBattery1(EnemyBase):
+	def __init__(self, t):
+		super(__class__, self).__init__()
+		pos = gcommon.mapPosToScreenPos(t[2], t[3])
+		self.x = pos[0]
+		self.y = pos[1]
+		self.moveTable = t[4]
+		self.left = 8
+		self.top = 2
+		self.right = 15
+		self.bottom = 23-2
+		self.layer = gcommon.C_LAYER_GRD
+		self.hp = 200
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+		self.ground = True
+		self.score = 200
+		self.mover = CountMover(self, self.moveTable, True)
+
+	def update(self):
+		if self.x < -16:
+			self.remove()
+			return
+		self.mover.update()
+		if self.cnt % 25 == 0:
+			enemy_shot(self.x, self.y +12, 3, 0)
+
+	def draw(self):
+		pyxel.blt(self.x, self.y, 2, 0, 24, 26, 24, 3)

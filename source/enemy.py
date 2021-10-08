@@ -855,7 +855,7 @@ class RollingFighter1Group(EnemyBase):
 # 砲台
 class Battery0(EnemyBase):
 	# direction  0:上  1:下  2:右  3:左
-	def __init__(self, x, y, direction):
+	def __init__(self, x, y, direction, first=0, interval=0):
 		super(__class__, self).__init__()
 		self.x = x		# screen x
 		self.y = y		# screen y
@@ -887,8 +887,14 @@ class Battery0(EnemyBase):
 		self.hitcolor1 = 8
 		self.hitcolor2 = 14
 		self.exptype = gcommon.C_EXPTYPE_GRD_S
-		self.interval = int(120 / GameSession.enemy_shot_rate)
-		self.first = int(120 / GameSession.enemy_shot_rate)
+		if first == 0:
+			self.first = int(120 / GameSession.enemy_shot_rate)
+		else:
+			self.first = first
+		if interval == 0:
+			self.interval = int(120 / GameSession.enemy_shot_rate)
+		else:
+			self.interval = interval
 		self.shot_speed = 2
 		self.remove_min_x = -16
 		self.imageSourceX = 0
@@ -1013,6 +1019,12 @@ class Battery1(Battery0):
 	def __init__(self, t):
 		pos = gcommon.mapPosToScreenPos(t[2], t[3])
 		super(Battery1, self).__init__(pos[0], pos[1], t[4])
+#
+# 砲台
+class Battery1a(Battery0):
+	def __init__(self, mx, my, direction, first, interval):
+		pos = gcommon.mapPosToScreenPos(mx, my)
+		super(__class__, self).__init__(pos[0], pos[1], direction, first, interval)
 
 
 class SplashItem:

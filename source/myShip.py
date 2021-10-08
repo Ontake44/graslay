@@ -520,7 +520,7 @@ def checkShotMapCollision(obj, px, py):
 	if gcommon.breakableMapData:
 		if no in (4, 5, 6):
 			obj.remove()
-			gcommon.setMapData(px, py, 0)
+			gcommon.clearMapData(px, py)
 			return True
 	if no >= 0 and gcommon.isMapFree(no) == False:
 		obj.remove()
@@ -532,8 +532,9 @@ def checkShotMapCollisionPerfonate(px, py):
 	no = gcommon.getMapData(px, py)
 	if gcommon.breakableMapData:
 		if no in (4, 5, 6):
-			gcommon.setMapData(px, py, 0)
-			return False
+			gcommon.clearMapData(px, py)
+			no = gcommon.getMapData(px, py)
+			return not gcommon.isMapFree(no)
 	if no >= 0 and gcommon.isMapFree(no) == False:
 		return True
 	return False
@@ -544,7 +545,7 @@ def clearDeletableMapData(px, py, width):
 	for i in range(width):
 		no = gcommon.getMapData(px + i*8, py)
 		if no in (4, 5, 6):
-			gcommon.setMapData(px + i*8, py, 0)
+			gcommon.clearMapData(px + i*8, py)
 
 class MyShotBase:
 	def __init__(self, x, y):

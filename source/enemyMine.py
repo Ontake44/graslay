@@ -83,3 +83,42 @@ class Mine1(EnemyBase):
         enemy.enemy_shot_dr_multi(self.x + 8, self.y + 3, 2, 0, dr, count, angle)
         super(Mine1, self).broken()
 
+
+
+class Mine2(EnemyBase):
+    def __init__(self, x, y):
+        super(__class__, self).__init__()
+        self.x = x
+        self.y = y
+        self.left = 4
+        self.top = 4
+        self.right = 10
+        self.bottom = 10
+        self.layer = gcommon.C_LAYER_SKY
+        self.hp = 1
+        self.ground = True
+        self.hitCheck = True
+        self.shotHitCheck = True
+        self.enemyShotCollision = False
+        self.score = 100
+        self.speed = 1.0
+
+    def update(self):
+        if self.state == 0:
+            if abs(self.x - ObjMgr.myShip.x) < 150 and abs(self.y - ObjMgr.myShip.y) < 50:
+                self.nextState()
+        elif self.state == 1:
+            if self.cnt % 10 == 0:
+                n = gcommon.get_atan_no_to_ship(self.x+7, self.y+7)
+                self.speed += 0.1
+                if self.speed > 2.0:
+                    self.speed = 2.0
+                self.dx = gcommon.cos_table[n] * self.speed
+                self.dy = gcommon.sin_table[n] * self.speed
+            self.x += self.dx
+            self.y += self.dy
+            if self.cnt > 360:
+                self.remove()
+
+    def draw(self):
+        pyxel.blt(self.x, self.y, 1, 0, 128, 16, 16, 2)
