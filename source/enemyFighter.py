@@ -9,6 +9,7 @@ from enemy import EnemyBase
 from enemy import CountMover
 import enemy
 from gameSession import GameSession
+import drawing
 
 # 蝙蝠みたい？
 class Fighter4(EnemyBase):
@@ -196,5 +197,102 @@ class FireBird1Group(EnemyBase):
         
     def draw(self):
         pass
+
+
+class Fighter5(EnemyBase):
+    def __init__(self, t):
+        super(__class__, self).__init__()
+        self.x = 256
+        self.y = t[2]
+        self.left = 4
+        self.top = 4
+        self.right = 13
+        self.bottom = 13
+        self.layer = gcommon.C_LAYER_SKY
+        self.hp = 100
+        self.hitCheck = True
+        self.shotHitCheck = True
+        self.enemyShotCollision = False
+        self.dx = -3
+        self.score = 100
+        self.brakeX = 240
+        self.gunWidth = 32
+        self.gunHeight = 32
+        self.image = [None]* self.gunWidth
+        self.work = [None]* self.gunHeight
+        for y in range(self.gunWidth):
+            self.image[y] = [0]*self.gunHeight
+        img = pyxel.image(2)
+        for y in range(self.gunWidth):
+            for x in range(self.gunHeight):
+                self.image[y][x] = img.get(x +0, y +48)
+        self.rad = math.pi
+
+    def update(self):
+        if self.state == 0:
+            self.x += self.dx
+            if self.x <= self.brakeX:
+                self.dx += 0.1
+                if self.dx >= -0.1:
+                    self.nextState()
+        elif self.state == 1:
+            self.rad = gcommon.getRadToShip(self.x, self.y, self.rad, math.pi/90)
+            if self.cnt % 40 == 0:
+                enemy.enemy_shot_multi(self.x, self.y, 2, 0, 4, 3)
+            if self.cnt > 120:
+                self.nextState()
+        elif self.state == 2:
+            self.rad = gcommon.getRadToRad(self.rad, math.pi, math.pi/90)
+            if self.dx > -3.0:
+                self.dx -= 0.1
+            self.x += self.dx
+            if self.x <= -32:
+                self.remove()
+
+    def draw(self):
+        drawing.Drawing.setRotateImage(0, 80, 2, self.work, self.image, -self.rad +math.pi, 3)
+        pyxel.blt(gcommon.sint(self.x -15.5), gcommon.sint(self.y -15.5), 2, 0, 80, self.gunWidth, self.gunHeight, 3)
+
+
+
+class Fighter6(EnemyBase):
+    imageTable = [
+        [0, -1, 1], [1, -1, -1], [2, -1, -1], [3, -1, -1],
+        [4, 1, -1], [3, 1, -1], [2, 1, -1], [1, 1, -1],
+        [0, 1, 1], [1, 1, 1], [2, 1, 1], [3, 1, 1],
+        [4, 1, 1], [3, -1, 1], [2, -1, 1], [1, -1, 1]
+    ]
+    def __init__(self, t):
+        super(__class__, self).__init__()
+        pos = gcommon.mapPosToScreenPos(t[2], t[3])
+        self.x = pos[0] + 7.5
+        self.y = pos[1] + 7.5
+        self.moveTable = t[4]
+        self.left = -7
+        self.top = -7
+        self.right = 7
+        self.bottom = 7
+        self.layer = gcommon.C_LAYER_SKY
+        self.hp = 200
+        self.ground = True
+        self.hitCheck = True
+        self.shotHitCheck = True
+        self.enemyShotCollision = False
+        self.score = 100
+        self.mover = CountMover(self, self.moveTable, False)
+        self.startTimer = str(gcommon.game_timer)
+
+    def update(self):
+        self.mover.update()
+        if self.x < -32 or self.x >= (gcommon.SCREEN_MAX_X+32) or self.y < -32 or self.y >= (gcommon.SCREEN_MAX_Y+32):
+            self.remove()
+
+    def draw(self):
+        deg = gcommon.degNormalize(self.mover.deg +11.25)
+        n = int(deg/22.5)
+        t = __class__.imageTable[n]
+        pyxel.blt(gcommon.sint(self.x -15.5), gcommon.sint(self.y -15.5), 2, t[0]*32, 48, 32 *t[1], 32 *t[2], 3)
+        if gcommon.DebugMode:
+            pyxel.text(self.x +16, self.y-16, self.startTimer, 7)
 
 

@@ -201,6 +201,11 @@ direction_map = [		\
 [0,1],[0.701,0.701]]
 
 # 上下は通常
+#       6
+#    5     7
+#  4         0
+#    3     1
+#       2
 direction_map2 = [		\
 [1.0, 0.0], [0.701, 0.701],	\
 [0.0, 1.0], [-0.701, 0.701],	\
@@ -437,6 +442,21 @@ def degNormalize(deg):
 def getRadToShip(x, y, rad, omega):
 	tempDr = get_atan_rad_to_ship(x, y)
 	rr = radNormalize(tempDr - rad)
+	if rr == 0.0:
+		pass
+	elif  rr > 0.0 and abs(rr) >= omega:
+		rad += omega
+		if rad >= math.pi*2:
+			rad -= math.pi*2
+	elif abs(rr) >= omega:
+		rad -= omega
+		if rad <= 0.0:
+			rad += math.pi*2
+	return rad
+
+# 指定したラジアンから、ターゲットラジアン方向にomega回転した値を返す
+def getRadToRad(rad, targetRad, omega):
+	rr = radNormalize(targetRad - rad)
 	if rr == 0.0:
 		pass
 	elif  rr > 0.0 and abs(rr) >= omega:

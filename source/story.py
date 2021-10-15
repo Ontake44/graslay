@@ -1037,11 +1037,9 @@ class Story:
 			[150, enemy.Fan1Group, 8, 10, 6, True],		\
 			[270, enemy.Fan1Group, 170, 10, 6, True],		\
 			[330, enemy.Fan1Group, 8, 10, 6],		\
-			[370, enemy.Fighter2, 256, 120, 230, -1],	\
-			[400, enemy.Fighter2, 256, 30, 190, 1],	\
+			[370, enemyFighter.Fighter5, 120],
+			[400, enemyFighter.Fighter5, 30],
 			[400, enemy.Fan1Group, 170, 10, 6],		\
-			[520, enemy.Fighter2, 256, 20, 190, 1],	\
-			[580, enemy.Fighter2, 256, 150, 190, -1],	\
 			[800, enemyOthers.BarrierWallV1, 2, 34, 2],
 			[800, HorizonBattery1, 0, 31, [
 					[40, CountMover.MOVE, 0.0, -2.0],
@@ -1079,4 +1077,189 @@ class Story:
 			[baseOffset+ 1170, enemyArmored.Ducker1, 1],
 			[baseOffset+ 1200, enemyOthers.Lift2Appear, 115, 0, 1.0, 4000],
 			[baseOffset+ 1200, enemyOthers.Lift2Appear, 154, 51, -1.0, 4800],
+			[baseOffset+ 1170, enemyArmored.Ducker1, 1],
+			[baseOffset+ 5800, enemyFighter.Fighter6, 13+256, 184-128,
+				# 上から出てくる
+				[
+					[0, CountMover.SET_DEG, 270],
+					[47, CountMover.MOVE, 0.0, 1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[31, CountMover.MOVE, -1.0, 0.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[63, CountMover.MOVE, 0.0, 1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[100, CountMover.MOVE, -1.0, 0.0],
+				]
+				],
+			[baseOffset+ 5830, enemyFighter.Fighter6, 17+256, 212-128,
+				# 下から出てくる
+				[
+					[0, CountMover.SET_DEG, 90],
+					[47, CountMover.MOVE, 0.0, -1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[31, CountMover.MOVE, 1.0, 0.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[63, CountMover.MOVE, 0.0, -1.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[256, CountMover.MOVE, -1.0, 0.0],
+				]
+				],
+			[baseOffset+ 5890, enemyFighter.Fighter6, 13+256, 184-128,
+				# 上から出てくる
+				[
+					[0, CountMover.SET_DEG, 270],
+					[47, CountMover.MOVE, 0.0, 1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[31, CountMover.MOVE, -1.0, 0.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[63, CountMover.MOVE, 0.0, 1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[100, CountMover.MOVE, -1.0, 0.0],
+				]
+				],
+			[baseOffset+ 5940, enemyFighter.Fighter6, 17+256, 212-128,
+				# 下から出てくる
+				[
+					[0, CountMover.SET_DEG, 90],
+					[47, CountMover.MOVE, 0.0, -1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[31, CountMover.MOVE, 1.0, 0.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[63, CountMover.MOVE, 0.0, -1.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[256, CountMover.MOVE, -1.0, 0.0],
+				]
+				],
+			[baseOffset+ 6060, enemyFighter.Fighter6, 17+256, 212-128,
+				# 下から出てくる
+				[
+					[0, CountMover.SET_DEG, 90],
+					[47, CountMover.MOVE, 0.0, -1.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[95, CountMover.MOVE, -1.0, 0.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[63, CountMover.MOVE, 0.0, -1.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[256, CountMover.MOVE, -1.0, 0.0],
+				]
+				],
+			[baseOffset+ 6090, enemyFighter.Fighter6, 37+256, 184-128,
+				# 上から出てくる
+				[
+					[0, CountMover.SET_DEG, 270],
+					[47, CountMover.MOVE, 0.0, 1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[63, CountMover.MOVE, -1.0, 0.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[31, CountMover.MOVE, 0.0, 1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[63, CountMover.MOVE, -1.0, 0.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[31, CountMover.MOVE, 0.0, -1.0],
+				]
+				],
+			[baseOffset+ 6120, enemyFighter.Fighter6, 17+256, 212-128,
+				# 下から出てくる
+				[
+					[0, CountMover.SET_DEG, 90],
+					[47, CountMover.MOVE, 0.0, -1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[31, CountMover.MOVE, 1.0, 0.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[63, CountMover.MOVE, 0.0, -1.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[256, CountMover.MOVE, -1.0, 0.0],
+				]
+				],
+			[baseOffset+ 6180, enemyFighter.Fighter6, 37+256, 184-128,
+				# 上から出てくる
+				[
+					[0, CountMover.SET_DEG, 270],
+					[47, CountMover.MOVE, 0.0, 1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[63, CountMover.MOVE, -1.0, 0.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[31, CountMover.MOVE, 0.0, 1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[63, CountMover.MOVE, -1.0, 0.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[31, CountMover.MOVE, 0.0, -1.0],
+				]
+				],
+			[baseOffset+ 6220, enemyFighter.Fighter6, 41+256, 212-128,
+				# 下から出てくる
+				[
+					[0, CountMover.SET_DEG, 90],
+					[47, CountMover.MOVE, 0.0, -1.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[256, CountMover.MOVE, -1.0, 0.0],
+				]
+				],
+			[baseOffset+ 6300, enemyFighter.Fighter6, 41+256, 212-128,
+				# 下から出てくる
+				[
+					[0, CountMover.SET_DEG, 90],
+					[111, CountMover.MOVE, 0.0, -1.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[256, CountMover.MOVE, -1.0, 0.0],
+				]
+				],
+			[baseOffset+ 6300, enemyFighter.Fighter6, 37+256, 184-128,
+				# 上から出てくる
+				[
+					[0, CountMover.SET_DEG, 270],
+					[47, CountMover.MOVE, 0.0, 1.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[31, CountMover.MOVE, 1.0, 0.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[63, CountMover.MOVE, 0.0, 1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[95, CountMover.MOVE, -1.0, 0.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+				]
+				],
+			[baseOffset+ 6300, enemyFighter.Fighter6, 49+256, 184-128,
+				# 上から出てくる
+				[
+					[0, CountMover.SET_DEG, 270],
+					[175, CountMover.MOVE, 0.0, 1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[256, CountMover.MOVE, -1.0, 0.0],
+				]
+				],
+			[baseOffset+ 6450, enemyFighter.Fighter6, 41+256, 212-128,
+				# 下から出てくる
+				[
+					[0, CountMover.SET_DEG, 90],
+					[47, CountMover.MOVE, 0.0, -1.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[95, CountMover.MOVE, -1.0, 0.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[63, CountMover.MOVE, 0.0, -1.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[256, CountMover.MOVE, -1.0, 0.0],
+				]
+				],
+			[baseOffset+ 6480, enemyFighter.Fighter6, 49+256, 184-128,
+				# 上から出てくる
+				[
+					[0, CountMover.SET_DEG, 270],
+					[175, CountMover.MOVE, 0.0, 1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[256, CountMover.MOVE, -1.0, 0.0],
+				]
+				],
+			[baseOffset+ 6800, enemyFighter.Fighter6, 57+256, 184-128,
+				# 上から出てくる
+				[
+					[0, CountMover.SET_DEG, 270],
+					[47, CountMover.MOVE, 0.0, 1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[63, CountMover.MOVE, -1.0, 0.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[175, CountMover.MOVE, 0.0, 1.0],
+					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
+					[256, CountMover.MOVE, -1.0, 0.0],
+				]
+				],
 		]

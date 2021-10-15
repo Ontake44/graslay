@@ -211,6 +211,10 @@ class EnemyBase:
 #    [2] 初期角度
 #    [3] 角速度
 #    [4] 速度
+#  mode = 9 : ROTATE_DEG2
+#    回転移動（度数指定）
+#    [2] 角速度
+#    [3] 速度
 #  mode = 11 : ACCEL_MAX
 #    最大加速移動
 #    [2] ax
@@ -410,6 +414,7 @@ class CountMover:
 				print("CountMover mode is invalid :" +str(item[1]))
 			self.cnt += 1
 		else:
+			#gcommon.debugPrint("cnt=" + str(self.cnt) + " " +str(self.obj.y))
 			self.nextTable()
 
 	def nextTable(self):
