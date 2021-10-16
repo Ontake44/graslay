@@ -21,7 +21,7 @@ from enemyBattery import MovableBattery1
 from enemyBattery import ContainerCarrier1
 from enemyBattery import Tractor1
 from enemyBattery import HorizonBattery1
-from enemyArmored import Armored1
+from enemyArmored import Armored1, CylinderCrab2
 from gameSession import GameSession
 from objMgr import ObjMgr
 from enemy import CountMover
@@ -1262,4 +1262,5 @@ class Story:
 					[256, CountMover.MOVE, -1.0, 0.0],
 				]
 				],
+			[baseOffset+ 7000, enemyArmored.CylinderCrab2],
 		]

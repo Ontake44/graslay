@@ -1121,7 +1121,7 @@ class MapDrawEnemyBase:
 			tm = int(gcommon.map_x/4096) +tmOffset
 			moffset = (int(gcommon.map_x/2048) & 1) * 128
 			w = int((gcommon.map_x %2048)/8)
-			pyxel.bltm(gcommon.sint(-1 * (int(gcommon.map_x) % 8)), gcommon.sint(-1 * (int(gcommon.map_y) % 8)), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, 15)
+			pyxel.bltm(gcommon.sint(-1 * (math.fmod(gcommon.map_x, 8))), gcommon.sint(-1 * (int(gcommon.map_y) % 8)), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, 15)
 			if w >= 224:
 				tm2 = int((gcommon.map_x+256)/4096) +tmOffset
 				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128

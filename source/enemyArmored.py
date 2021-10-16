@@ -238,3 +238,157 @@ class Ducker1(EnemyBase):
 		else:
 			pyxel.blt(self.x -8, self.y-8, 1, ((self.cnt>>2) & 3) *16, 112, 16 *self.direction, 16 * self.position, 3)
 
+class CylinderCrab2(EnemyBase):
+	STOP = 0,
+	MOVE_LEFT = 1,
+	MOVE_RIGHT = 2,
+	moveTable = [
+		[500, MOVE_LEFT],
+		[900, MOVE_RIGHT],
+	]
+	# state
+	#  0: 
+	def __init__(self, t):
+		super(__class__, self).__init__()
+		self.x = 256+32
+		self.y = 10*8
+		self.left = -6
+		self.right = 6
+		self.top = -6
+		self.bottom = 6
+		self.layer = gcommon.C_LAYER_SKY
+		self.hp = 50000
+		self.hitCheck = True
+		self.shotHitCheck = True
+		self.enemyShotCollision = False
+		self.ground = True
+		self.score = 200
+		self.foregroundLegX = -6 *8
+		self.foregroundLegY = 5 * 8
+		self.backgroundLegX = 0
+		self.backgroundLegY = 5 * 8
+
+		# self.foregroundLegX = 5 * 8
+		# self.backgroundLegX = 0
+		self.moveIndex = 0
+		self.moveCnt = 0
+		self.dx = 1
+		self.speed = 1.5
+
+	def update(self):
+		if self.moveIndex >= len(__class__.moveTable):
+			pass
+		else:
+			t = __class__.moveTable[self.moveIndex]
+			cmd = t[1]
+			if cmd == __class__.STOP:
+				# 停止
+				pass
+			elif cmd == __class__.MOVE_LEFT:
+				# 左に移動
+				self.dx = 1
+			elif cmd == __class__.MOVE_RIGHT:
+				# 右に移動
+				self.dx = -1
+			self.moveCnt += 1
+			if self.moveCnt >= t[0]:
+				self.moveIndex +=1
+				self.moveCnt = 0
+		if self.state == 0:
+			# ボディ部の移動
+			self.x -= self.speed * self.dx
+			self.foregroundLegX += self.speed * self.dx
+			self.backgroundLegX += self.speed * self.dx
+			if (self.dx == 1 and self.foregroundLegX >= 0) or \
+			  (self.dx == -1 and self.foregroundLegX <= 0):
+				self.nextState()
+		elif self.state == 1:
+			# 奥側の脚を上げる
+			self.backgroundLegY -= 1
+			if self.backgroundLegY == 0:
+				self.nextState()
+		elif self.state == 2:
+			# 奥側の脚を進める
+			self.backgroundLegX -= self.speed * self.dx
+			if (self.dx == 1 and self.backgroundLegX <= -6 * 8) or \
+				(self.dx == -1 and self.backgroundLegX >= 6 * 8):
+				self.nextState()
+		elif self.state == 3:
+			# 奥側の脚を下げる
+			self.backgroundLegY += 1
+			if self.backgroundLegY == 5 * 8:
+				self.nextState()
+		elif self.state == 4:
+			# ボディ部の移動
+			self.x -= self.speed * self.dx
+			self.foregroundLegX += self.speed * self.dx
+			self.backgroundLegX += self.speed * self.dx
+			if (self.dx == 1 and self.backgroundLegX >= 0) or \
+				(self.dx == -1 and self.backgroundLegX <= 0):
+				self.nextState()
+		elif self.state == 5:
+			# 手前の脚を上げる
+			self.foregroundLegY -= 1
+			if self.foregroundLegY == 0:
+				self.nextState()
+		elif self.state == 6:
+			# 手前の脚を進める
+			self.foregroundLegX -= self.speed * self.dx
+			if (self.dx == 1 and self.foregroundLegX <= -6 * 8) or \
+				(self.dx == -1 and self.foregroundLegX >= 6 * 8):
+				self.nextState()
+		elif self.state == 7:
+			self.foregroundLegY += 1
+			if self.foregroundLegY == 5 * 8:
+				self.setState(0)
+
+
+	def draw(self):
+		# ボディ
+		pyxel.blt(self.x, self.y, 2, 0, 112, 80, 32, 3)
+
+		# 下側奥側シリンダー左
+		self.drawLegLower2(self.backgroundLegX, self.backgroundLegY, True)
+		self.drawLegUpper2(self.backgroundLegX, self.backgroundLegY, True)
+
+		# 下側手前シリンダー左
+		self.drawLegLower2(self.foregroundLegX, self.foregroundLegY, False)
+		self.drawLegUpper2(self.foregroundLegX, self.foregroundLegY, False)
+
+		## 下側手前シリンダー右
+		#pyxel.blt(self.x + self.foregroundLegX -8+8*10, self.y +32, 2, 80, 112, 16, 24, 3)
+
+	def drawLegLower2(self, legX, legY, backSide):
+		# 下側スライド部
+		pyxel.blt(self.x + legX -16, self.y +32, 2, 0, 152 if backSide else 144, 112, 8, 3)
+		self.drawLegLower(legX, legY, -16)
+		self.drawLegLower(legX, legY, 80)
+
+	def drawLegUpper2(self, legX, legY, backSide):
+		# 上側スライド部
+		pyxel.blt(self.x + legX -16, self.y -8, 2, 0, 152 if backSide else 144, 112, 8, 3)
+		self.drawLegUpper(legX, legY, -16)
+		self.drawLegUpper(legX, legY, 80)
+
+	def drawLegLower(self, legX, legY, offsetX):
+		# シリンダー
+		pyxel.blt(self.x + legX +offsetX, self.y +40+legY, 2, 128, 112, 16, 16, 3)
+		pyxel.blt(self.x + legX +offsetX, self.y +40+(legY*0.66), 2, 112, 112, 16, 16, 3)
+		pyxel.blt(self.x + legX +offsetX, self.y +40+(legY/3), 2, 96, 112, 16, 16, 3)
+		# シリンダー下端
+		pyxel.blt(self.x + legX +offsetX, self.y +56+legY, 2, 96, 128, 16, 8, 3)
+		# シリンダー上端
+		pyxel.blt(self.x + legX +offsetX, self.y +32, 2, 80, 112, 16, 24, 3)
+
+	def drawLegUpper(self, legX, legY, offsetX):
+		# シリンダー
+		pyxel.blt(self.x + legX +offsetX, self.y -24-legY, 2, 128, 112, 16, 16, 3)
+		pyxel.blt(self.x + legX +offsetX, self.y -24-(legY*0.66), 2, 112, 112, 16, 16, 3)
+		pyxel.blt(self.x + legX +offsetX, self.y -24-(legY/3), 2, 96, 112, 16, 16, 3)
+		# シリンダー上端
+		pyxel.blt(self.x + legX +offsetX, self.y -32-legY, 2, 96, 128, 16, -8, 3)
+		# シリンダー下端
+		pyxel.blt(self.x + legX +offsetX, self.y -24, 2, 80, 112, 16, -24, 3)
+
+
+
