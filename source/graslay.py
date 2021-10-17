@@ -869,6 +869,7 @@ class MainGame:
 			[5960, SetMapScroll, 0.0, 0.5],
 			[6500, SetMapScroll, 0.0, 0.0],
 			[6620, SetMapScroll, 0.5, 0.0],
+			[8100, StartBGM, BGM.STAGE6_3],
 			[8100, SetMapScroll, 0.25, 0.0],
 		]
 
