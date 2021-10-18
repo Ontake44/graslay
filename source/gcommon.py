@@ -679,6 +679,16 @@ def getMapData(x, y):
 		my = int((map_y +y)/8)
 	return getMapDataByMapPos(mx, my)
 
+def getMapPos(x, y):
+	global map_x
+	global map_y
+	global long_map
+	mx = int((map_x +x)/8)
+	if long_map:
+		my = int((map_y +y)/8) & 127
+	else:
+		my = int((map_y +y)/8)
+	return [mx, my]
 
 # 倉庫ステージ等に使う
 def getMapDataPage(page, x, y):

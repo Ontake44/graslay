@@ -111,14 +111,15 @@ class Ducker1(EnemyBase):
 		super(__class__, self).__init__()
 		self.x = -16
 		self.position = t[2]		# 1:下 -1:上
-		self.y = self.getInitialY(self.position) -8
+		self.y = self.getInitialY(self.position)
+		gcommon.debugPrint("inity=" +str(self.y) +" " + str(gcommon.game_timer))
 		self.left = -6
 		self.right = 6
 		self.top = -6
 		self.bottom = 6
 		self.layer = gcommon.C_LAYER_GRD
 		self.exptype = gcommon.C_EXPTYPE_GRD_S
-		self.hp = 50
+		self.hp = 1
 		self.hitcolor1 = 5
 		self.hitcolor2 = 12
 		self.hitCheck = True
@@ -134,6 +135,8 @@ class Ducker1(EnemyBase):
 		y = 96
 		if pos == 1:
 			while(True):
+				pos = gcommon.getMapPos(-16, y)
+				gcommon.debugPrint("mx=" + str(pos[0]) + " my=" +str(pos[1]))
 				n = gcommon.getMapData(-16, y)
 				if n == 0:
 					y += 8
@@ -229,6 +232,7 @@ class Ducker1(EnemyBase):
 			self.move()
 		if self.x > 256 or self.x < -32:
 			self.remove()
+			gcommon.debugPrint("cnt=" + str(self.frameCount) + " " + str(self.y))
 			return
 
 	def draw(self):
@@ -243,6 +247,13 @@ class CylinderCrab2(EnemyBase):
 	MOVE_LEFT = 1,
 	MOVE_RIGHT = 2,
 	moveTable = [
+		[450, MOVE_LEFT],
+		[850, MOVE_RIGHT],
+		[180, MOVE_LEFT],
+		[530, MOVE_RIGHT],
+		[900, MOVE_LEFT],
+	]
+	moveTableXX = [
 		[400, MOVE_LEFT],
 		[800, MOVE_RIGHT],
 		[180, MOVE_LEFT],
@@ -390,7 +401,24 @@ class CylinderCrab2(EnemyBase):
 			# 	self.foregroundLegYArray[i] += 1
 			# 	if self.foregroundLegYArray[i] == 5 * 8:
 			# 		self.setState(0)
-
+		# コリジョン更新
+		rects = []
+		rects.append(gcommon.Rect.create(5, 2, 79-5, 31-2))
+		# バー
+		rects.append(gcommon.Rect.createWH(self.backgroundLegX -16, -8, 112, 8))
+		rects.append(gcommon.Rect.createWH(self.backgroundLegX -16, +32, 112, 8))
+		rects.append(gcommon.Rect.createWH(self.foregroundLegX -16, -8, 112, 8))
+		rects.append(gcommon.Rect.createWH(self.foregroundLegX -16, +32, 112, 8))
+		# シリンダー
+		rects.append(gcommon.Rect.createWH(self.backgroundLegX -16+4, -32-self.backgroundLegYArray[0],  8, self.backgroundLegYArray[0] +24))
+		rects.append(gcommon.Rect.createWH(self.backgroundLegX +80+4, -32-self.backgroundLegYArray[1],  8, self.backgroundLegYArray[1] +24))
+		rects.append(gcommon.Rect.createWH(self.backgroundLegX -16+4, 40,  8, self.backgroundLegYArray[2] +24))
+		rects.append(gcommon.Rect.createWH(self.backgroundLegX +80+4, 40,  8, self.backgroundLegYArray[3] +24))
+		rects.append(gcommon.Rect.createWH(self.foregroundLegX -16+4, -32-self.foregroundLegYArray[0],  8, self.foregroundLegYArray[0] +24))
+		rects.append(gcommon.Rect.createWH(self.foregroundLegX +80+4, -32-self.foregroundLegYArray[1],  8, self.foregroundLegYArray[1] +24))
+		rects.append(gcommon.Rect.createWH(self.foregroundLegX -16+4, 40,  8, self.foregroundLegYArray[2] +24))
+		rects.append(gcommon.Rect.createWH(self.foregroundLegX +80+4, 40,  8, self.foregroundLegYArray[3] +24))
+		self.collisionRects = rects
 
 	def draw(self):
 		# ボディ
