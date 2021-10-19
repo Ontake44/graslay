@@ -5,7 +5,7 @@ import gcommon
 from objMgr import ObjMgr
 from audio import BGM
 from drawing import Drawing
-from enemy import EnemyBase
+from enemy import EnemyBase, enemy_shot
 from enemy import CountMover
 import enemy
 from gameSession import GameSession
@@ -295,4 +295,7 @@ class Fighter6(EnemyBase):
         if gcommon.DebugMode:
             pyxel.text(self.x +16, self.y-16, self.startTimer, 7)
 
+    def broken(self):
+        super().broken()
+        enemy.enemy_shot(self.x, self.y, 2, 0)
 

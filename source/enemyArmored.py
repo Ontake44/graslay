@@ -112,7 +112,7 @@ class Ducker1(EnemyBase):
 		self.x = -16
 		self.position = t[2]		# 1:下 -1:上
 		self.y = self.getInitialY(self.position)
-		gcommon.debugPrint("inity=" +str(self.y) +" " + str(gcommon.game_timer))
+		#gcommon.debugPrint("inity=" +str(self.y) +" " + str(gcommon.game_timer))
 		self.left = -6
 		self.right = 6
 		self.top = -6
@@ -136,7 +136,7 @@ class Ducker1(EnemyBase):
 		if pos == 1:
 			while(True):
 				pos = gcommon.getMapPos(-16, y)
-				gcommon.debugPrint("mx=" + str(pos[0]) + " my=" +str(pos[1]))
+				#gcommon.debugPrint("mx=" + str(pos[0]) + " my=" +str(pos[1]))
 				n = gcommon.getMapData(-16, y)
 				if n == 0:
 					y += 8
@@ -232,7 +232,7 @@ class Ducker1(EnemyBase):
 			self.move()
 		if self.x > 256 or self.x < -32:
 			self.remove()
-			gcommon.debugPrint("cnt=" + str(self.frameCount) + " " + str(self.y))
+			#gcommon.debugPrint("cnt=" + str(self.frameCount) + " " + str(self.y))
 			return
 
 	def draw(self):
@@ -419,6 +419,8 @@ class CylinderCrab2(EnemyBase):
 		rects.append(gcommon.Rect.createWH(self.foregroundLegX -16+4, 40,  8, self.foregroundLegYArray[2] +24))
 		rects.append(gcommon.Rect.createWH(self.foregroundLegX +80+4, 40,  8, self.foregroundLegYArray[3] +24))
 		self.collisionRects = rects
+		if self.x < -160:
+			self.remove()
 
 	def draw(self):
 		# ボディ

@@ -386,8 +386,12 @@ def initStar():
 		star_ary.append(o)
 
 def drawStar(star_pos):
-	for i in range(0,96):
+	for i in range(0,96,3):
 		pyxel.pset(((int)(star_ary[i][0] +star_pos))&255, i*2, star_ary[i][1])
+	for i in range(1,96,3):
+		pyxel.pset(((int)(star_ary[i][0] +(int(star_pos)<<1)))&255, i*2, star_ary[i][1])
+	for i in range(2,96,3):
+		pyxel.pset(((int)(star_ary[i][0] +(star_pos)*3))&255, i*2, star_ary[i][1])
 
 def resource_path(relative_path):
     try:
