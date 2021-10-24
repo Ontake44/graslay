@@ -871,6 +871,9 @@ class MainGame:
 			[6620, SetMapScroll, 0.5, 0.0],
 			[8100, StartBGM, BGM.STAGE6_3],
 			[8100, SetMapScroll, 0.25, 0.0],
+			[10300, SetMapScroll, 0.5, 0.0],
+			[10300, StartBGM, BGM.BOSS],
+			[11100, SetMapScroll, 0.0, 0.0],
 		]
 
 	def initStory(self):

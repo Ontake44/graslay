@@ -540,8 +540,8 @@ def checkShotMapCollisionPerfonate(px, py):
 	return False
 
 def clearDeletableMapData(px, py, width):
-	if gcommon.app.stage != 4:
-		return
+	# if gcommon.app.stage != 4:
+	# 	return
 	for i in range(width):
 		no = gcommon.getMapData(px + i*8, py)
 		if no in (4, 5, 6):
@@ -727,6 +727,10 @@ class MyShotBLaser(MyShotBase):
 			self.right += 8
 		else:
 			self.x += 8
+		# if self.x + self.right >= 256:
+		# 	self.right = 256 -self.x
+		# 	if self.right < 0:
+		# 		self.right = 0
 		if self.x <= -8 or self.x >= 256:
 			self.remove()
 		elif self.y <= -8 or self.y >= 192:

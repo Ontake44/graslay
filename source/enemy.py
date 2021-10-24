@@ -215,12 +215,18 @@ class EnemyBase:
 #    回転移動（度数指定）
 #    [2] 角速度
 #    [3] 速度
+#  mode = 10 : SET_DEG
+#    角度指定
+#    [2] 角度
 #  mode = 11 : ACCEL_MAX
 #    最大加速移動
 #    [2] ax
 #    [3] ay
 #    [4] dx最大
 #    [5] dy最大
+#  mode = 12 : ANGLE_DEG
+#    回転（度数指定）
+#    [2] 角度
 #  mode = 100 : SET_INDEX
 #    指定インデックスに移動
 #    [2] インデックス
@@ -238,6 +244,7 @@ class CountMover:
 	ROTATE_DEG2 = 9
 	SET_DEG = 10
 	ACCEL_MAX = 11
+	ANGLE_DEG = 12
 	SET_INDEX = 100
 	LOOP_START = 101
 	LOOP_END = 102
@@ -389,6 +396,8 @@ class CountMover:
 						self.dy = item[5]
 				self.obj.x += self.dx
 				self.obj.y += self.dy
+			elif mode == __class__.ANGLE_DEG:
+				self.deg += item[2]
 			elif mode == __class__.SET_INDEX:
 				self.tableIndex = item[2]
 				self.cnt = 0

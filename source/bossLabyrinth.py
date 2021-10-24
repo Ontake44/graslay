@@ -44,7 +44,7 @@ class BossLabyrinth(enemy.EnemyBase):
         self.top = -45
         self.right = 45
         self.bottom = 45
-        self.hp = 1000
+        self.hp = 4000
         self.layer = gcommon.C_LAYER_UNDER_GRD
         self.score = 5000
         self.hitcolor1 = 9
@@ -345,7 +345,7 @@ class BossLabyrinth2(enemy.EnemyBase):
         self.top = -15.5
         self.right = 32
         self.bottom = 15.5
-        self.hp = 7000
+        self.hp = 6000
         self.layer = gcommon.C_LAYER_UNDER_GRD
         self.score = 2000
         self.hitcolor1 = 8

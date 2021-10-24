@@ -946,6 +946,36 @@ def mapYToScreenY(y):
 	return y - map_y
 
 
+# ２ベクトルのなす角を返す
+def getVectorAngle(a, b):
+	return math.acos((a[0]*b[0] +a[1]*b[1])/(math.sqrt(a[0]*a[0] + a[1]*a[1])*math.sqrt(b[0]*b[0]+b[1]*b[1])))
+
+# 内積を返す
+def getInnerProduct(a, b):
+	return (a[0]*b[0]+a[1]*b[1])
+
+# ２ベクトルの足し算
+def getVectorPlus(a, b):
+	return [a[0]+b[0], a[1]+b[1]]
+
+# 楕円内側に反射するベクトル取得
+# cx,cy,a,b 楕円
+# px,py 楕円上の点
+# f 入力ベクトル
+def getEllipseReflectionVector(cx, cy, a, b, px, py, f):
+	# 法線ベクトルN nx,ny
+	nx = -2 * (px -cx)/(a*a)
+	ny = -2 * (py -cy)/(b*b)
+	l = math.sqrt(nx*nx + ny*ny)
+	# 単位ベクトル
+	n = [nx/l, ny/l]
+
+	# 内積x
+	x = -getInnerProduct(f, n)
+	r = getVectorPlus(f, [2 * x * n[0], 2 * x * n[1]])
+	return r
+
+
 # destPos   [x,y]
 # points    [[x0,y0],[x1,y1],...]
 # offsetPos [x,y]

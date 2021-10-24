@@ -30,6 +30,7 @@ import enemyMine
 import enemyOthers
 import enemyCreature
 import enemyArmored
+import bossEnemybase
 
 class StoryManager:
 
@@ -1192,7 +1193,9 @@ class Story:
 					[0, CountMover.SET_DEG, 90],
 					[47, CountMover.MOVE, 0.0, -1.0],
 					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
-					[256, CountMover.MOVE, -1.0, 0.0],
+					[95, CountMover.MOVE, -1.0, 0.0],
+					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
+					[256, CountMover.MOVE, 0.0, 1.0],
 				]
 				],
 			[baseOffset+ 6300, enemyFighter.Fighter6, 41+256, 212-128,
@@ -1253,11 +1256,7 @@ class Story:
 				# 上から出てくる
 				[
 					[0, CountMover.SET_DEG, 270],
-					[47, CountMover.MOVE, 0.0, 1.0],
-					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
-					[63, CountMover.MOVE, -1.0, 0.0],
-					[19, CountMover.ROTATE_DEG2, 4.5, 0.0],
-					[175, CountMover.MOVE, 0.0, 1.0],
+					[111, CountMover.MOVE, 0.0, 1.0],
 					[19, CountMover.ROTATE_DEG2, -4.5, 0.0],
 					[256, CountMover.MOVE, -1.0, 0.0],
 				]
@@ -1277,4 +1276,5 @@ class Story:
 			[baseOffset+ 8030, enemyArmored.Ducker1, 1],
 			[baseOffset+ 8100, enemyArmored.Ducker1, -1],
 			[baseOffset+ 8130, enemyArmored.Ducker1, 1],
+			[baseOffset+ 9400, bossEnemybase.BossEnemybase],
 		]
