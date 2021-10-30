@@ -17,33 +17,52 @@ class BossEnemybase(enemy.EnemyBase):
     def __init__(self, t):
         super(__class__, self).__init__()
         pos = gcommon.mapPosToScreenPos(172+256, 187-128)
-        self.x = pos[0] +127.5
-        self.y = pos[1] +95.5
+        self.x = 127.5
+        self.y = 95.5
         self.left = 5
         self.top = 5
         self.right = 17
         self.bottom = 17
         self.hp = gcommon.HP_UNBREAKABLE
-        self.layer = gcommon.C_LAYER_GRD
+        self.layer = gcommon.C_LAYER_GRD | gcommon.C_LAYER_UNDER_GRD
         self.hitCheck = False
         self.shotHitCheck = False
         self.enemyShotCollision = False
         self.ground = True
         pyxel.image(2).load(0,0,"assets/stage_enemybase-3.png")
-        ObjMgr.addObj(BossEnemybaseBody(self.x + 128-16, self.y))
 
     def update(self):
-        pass
+        if self.cnt == 90:
+            ObjMgr.addObj(BossEnemybaseBody())
 
-    def draw(self):
-        pyxel.blt(self.x-127.5, self.y -95.5, 2, 0, 0, 128, 96, 3)
-        pyxel.blt(self.x-127.5, self.y +0.5, 2, 0, 0, 128, -96, 3)
-        pyxel.blt(self.x+0.5, self.y -95.5, 2, 0, 0, -128, 96, 3)
-        pyxel.blt(self.x+0.5, self.y +0.5, 2, 0, 0, -128, -96, 3)
+    def drawLayer(self, layer):
+        if self.cnt < 90:
+            #x = 1.0 - math.sin(self.cnt*math.pi*0.5/90.0)
+            x = math.pow(1 - (self.cnt/90.0), 3)
+        else:
+            x = 0.0
+        if layer == gcommon.C_LAYER_UNDER_GRD:
+            pyxel.blt(self.x-127.5 -127.5*x, self.y -95.5, 2, 128, 96, 128, 96, 3)
+            pyxel.blt(self.x-127.5 -127.5*x, self.y +0.5, 2, 128, 96, 128, -96, 3)
+            pyxel.blt(self.x+0.5 +127.5*x, self.y -95.5, 2, 128, 96, -128, 96, 3)
+            pyxel.blt(self.x+0.5 +127.5*x, self.y +0.5, 2, 128, 96, -128, -96, 3)
+
+            pyxel.blt(self.x-127.5, self.y -95.5 -95.5*x, 2, 128, 0, 128, 96, 3)
+            pyxel.blt(self.x+0.5, self.y -95.5 -95.5*x, 2, 128, 0, -128, 96, 3)
+            pyxel.blt(self.x-127.5, self.y +0.5 +95.5*x, 2, 128, 0, 128, -96, 3)
+            pyxel.blt(self.x+0.5, self.y +0.5 +95.5*x, 2, 128, 0, -128, -96, 3)
+        else:
+            pyxel.blt(self.x-127.5 -127.5*x, self.y -95.5 -95.5*x, 2, 0, 0, 128, 96, 3)
+            pyxel.blt(self.x-127.5 -127.5*x, self.y +0.5 +95.5*x, 2, 0, 0, 128, -96, 3)
+            pyxel.blt(self.x+0.5 +127.5*x, self.y -95.5 -95.5*x, 2, 0, 0, -128, 96, 3)
+            pyxel.blt(self.x+0.5 +127.5*x, self.y +0.5 +95.5*x, 2, 0, 0, -128, -96, 3)
 
 
 class BossEnemybaseBody(enemy.EnemyBase):
     moveTable0 = [
+        [0, CountMover.MOVE_TO, 127.5+120, 95.5, 1],
+    ]
+    moveTable1 = [
         [60, CountMover.STOP],
         [40, CountMover.ANGLE_DEG, 1.0],
         [80, CountMover.ANGLE_DEG, -1.0],
@@ -51,21 +70,21 @@ class BossEnemybaseBody(enemy.EnemyBase):
         [20, CountMover.ANGLE_DEG, -1.0],
         #[50, CountMover.ANGLE_DEG, 1.0],
     ]
-    moveTable1 = [
+    moveTable2 = [
         [120, CountMover.ANGLE_DEG, 1.0],
         [240, CountMover.ANGLE_DEG, -1.0],
         [120, CountMover.ANGLE_DEG, 1.0],
         #[50, CountMover.ANGLE_DEG, 1.0],
     ]
-    moveTable2 = [
+    moveTable3 = [
         [360, CountMover.ANGLE_DEG, -1.0],
     ]
 
 
-    def __init__(self, x, y):
+    def __init__(self):
         super(__class__, self).__init__()
-        self.x = x
-        self.y = y
+        self.x = 256+64
+        self.y = 95.5
         self.left = -31.5
         self.top = -31.5
         self.right = 31.5
@@ -85,7 +104,7 @@ class BossEnemybaseBody(enemy.EnemyBase):
         img = pyxel.image(2)
         for y in range(self.gunWidth):
             for x in range(self.gunHeight):
-                self.image[y][x] = img.get(x +0, y +176)
+                self.image[y][x] = img.get(x +0, y +192)
         self.rad = 0.0
         self.mode = 0
         self.mover = None
@@ -100,9 +119,11 @@ class BossEnemybaseBody(enemy.EnemyBase):
         #self.testRad = math.fmod(self.testRad + math.pi/180, math.pi*2)
 
     def update0(self):
-        pass
         if self.state == 0:
-            if self.cnt > 540:
+            if self.cnt == 0:
+                self.mover = CountMover(self, __class__.moveTable0, False, True)
+            self.mover.update()
+            if self.mover.isEnd:
                 self.nextMode()
 
     def update1xxxx(self):
@@ -113,7 +134,7 @@ class BossEnemybaseBody(enemy.EnemyBase):
     def update1(self):
         if self.state == 0:
             if self.cnt == 0:
-                self.mover = CountMover(self, __class__.moveTable0, False)
+                self.mover = CountMover(self, __class__.moveTable1, False)
                 ObjMgr.addObj(BossEnemybaseBeam1(self, -32.0, 0,beamTime=360))
             self.mover.update()
             self.rad = math.radians(self.mover.deg)
@@ -123,7 +144,7 @@ class BossEnemybaseBody(enemy.EnemyBase):
                 self.nextState()
         elif self.state == 1:
             if self.cnt == 0:
-                self.mover = CountMover(self, __class__.moveTable1, False)
+                self.mover = CountMover(self, __class__.moveTable2, False)
             self.mover.update()
             self.rad = math.radians(self.mover.deg)
             if self.cnt % 7 == 0:
@@ -176,9 +197,9 @@ class BossEnemybaseBody(enemy.EnemyBase):
 
     def draw(self):
         if self.radSave != self.rad:
-            drawing.Drawing.setRotateImage(64, 176, 2, self.work, self.image, -self.rad, 3)
+            drawing.Drawing.setRotateImage(64, 192, 2, self.work, self.image, -self.rad, 3)
             self.radSave = self.rad
-        pyxel.blt(gcommon.sint(self.x -31.5), gcommon.sint(self.y -31.5), 2, 64, 176, self.gunWidth, self.gunHeight, 3)
+        pyxel.blt(gcommon.sint(self.x -31.5), gcommon.sint(self.y -31.5), 2, 64, 192, self.gunWidth, self.gunHeight, 3)
 
     def test(self):
         x = 120 * math.cos(self.testRad)
@@ -326,5 +347,5 @@ class BossEnemybaseShot1(enemy.EnemyBase):
             self.dy = v[1]
 
     def draw(self):
-        pyxel.blt(gcommon.sint(self.x -7.5), gcommon.sint(self.y -7.5), 2, 0, 240, 16, 16, 3)
+        pyxel.blt(gcommon.sint(self.x -7.5), gcommon.sint(self.y -7.5), 2, 128, 192, 16, 16, 3)
 

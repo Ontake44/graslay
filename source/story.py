@@ -1276,5 +1276,5 @@ class Story:
 			[baseOffset+ 8030, enemyArmored.Ducker1, 1],
 			[baseOffset+ 8100, enemyArmored.Ducker1, -1],
 			[baseOffset+ 8130, enemyArmored.Ducker1, 1],
-			[baseOffset+ 9400, bossEnemybase.BossEnemybase],
+			[baseOffset+ 9460, bossEnemybase.BossEnemybase],
 		]

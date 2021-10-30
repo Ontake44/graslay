@@ -554,7 +554,7 @@ class MainGame:
 		if gcommon.DebugMode:
 			gcommon.Text2(121, 184, str(gcommon.game_timer), 7, 0)
 			gcommon.Text2(160, 184, str(len(ObjMgr.objs)), 7, 0)
-			#gcommon.Text2(160, 184, str(gcommon.map_y), 7, 0)
+			gcommon.Text2(0, 184, str(gcommon.map_x) + " " + str(gcommon.map_y), 7, 0)
 			#pyxel.text(160, 184, str(len(ObjMgr.shots)), 7)
 		#pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(ObjMgr.myShip.x, ObjMgr.myShip.y)), 7)
@@ -873,7 +873,7 @@ class MainGame:
 			[8100, SetMapScroll, 0.25, 0.0],
 			[10300, SetMapScroll, 0.5, 0.0],
 			[10300, StartBGM, BGM.BOSS],
-			[11100, SetMapScroll, 0.0, 0.0],
+			[10588, SetMapScroll, 0.0, 0.0],
 		]
 
 	def initStory(self):
