@@ -161,7 +161,7 @@ class EnemyBase:
 	# 破壊されたとき
 	def broken(self):
 		layer = gcommon.C_LAYER_EXP_SKY
-		if self.layer in (gcommon.C_LAYER_GRD, gcommon.C_LAYER_UNDER_GRD):
+		if ((self.layer & gcommon.C_LAYER_GRD) != 0 or (self.layer & gcommon.C_LAYER_UNDER_GRD) != 0):
 			layer = gcommon.C_LAYER_GRD
 		
 		GameSession.addScore(self.score)
@@ -633,6 +633,14 @@ class Explosion(EnemyBase):
 			ptn[3] -(self.cnt &4) * ptn[3]/2,
 		0)
 
+	@classmethod
+	def drawExplosion(cls, x, y, fx, fy, no):
+		ptn = Explosion.patternTable[no]
+		pyxel.blt(x-ptn[2]/2, y-ptn[3]/2, 0, ptn[0], ptn[1],
+			fx * ptn[2],
+			fy * ptn[3],
+		0)
+	
 	def draw(self):
 		if self.size==1:
 			#pyxel.circb(self.x, self.y, self.cnt*2+1, 10)
@@ -1081,6 +1089,7 @@ class Splash(EnemyBase):
 		ObjMgr.addObj(obj)
 
 	@classmethod
+	# dr : ラジアン
 	def appendDr(cls, x, y, layer, dr, angle, count):
 		obj = Splash(x, y, layer)
 		obj.direction = dr
@@ -1089,6 +1098,7 @@ class Splash(EnemyBase):
 		ObjMgr.addObj(obj)
 
 	@classmethod
+	# dr : ラジアン
 	def appendDr2(cls, x, y, layer, dr, angle, speed, count):
 		obj = Splash(x, y, layer)
 		obj.direction = dr
