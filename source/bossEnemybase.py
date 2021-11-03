@@ -26,10 +26,11 @@ class BossEnemybase(enemy.EnemyBase):
         self.bottom = 17
         self.hp = gcommon.HP_UNBREAKABLE
         self.layer = gcommon.C_LAYER_GRD | gcommon.C_LAYER_UNDER_GRD
-        self.hitCheck = False
-        self.shotHitCheck = False
+        self.hitCheck = True
+        self.shotHitCheck = True
         self.enemyShotCollision = False
         self.ground = True
+        self.shotEffect = False
         pyxel.image(2).load(0,0,"assets/stage_enemybase-3.png")
 
     def update(self):
@@ -58,6 +59,32 @@ class BossEnemybase(enemy.EnemyBase):
             pyxel.blt(self.x+0.5 +127.5*x, self.y -95.5 -95.5*x, 2, 0, 0, -128, 96, 3)
             pyxel.blt(self.x+0.5 +127.5*x, self.y +0.5 +95.5*x, 2, 0, 0, -128, -96, 3)
 
+    def getEllipseCollision(self, px, py):
+        x = px -127.5
+        y = py -95.5
+        a = x*x/(120*120) + y*y/(88*88)
+        return a > 1.0
+
+    # 自機弾と敵との当たり判定
+    def checkShotCollision(self, shot):
+        if self.cnt <= 90:
+            return False
+        else:
+            y = gcommon.getCenterY(shot)
+            if self.getEllipseCollision(shot.x +shot.left, y):
+                return True
+            elif self.getEllipseCollision(shot.x +shot.right, y):
+                return True
+            else:
+                return False
+
+    # 自機と敵との当たり判定
+    def checkMyShipCollision(self):
+        if self.cnt <= 90:
+            return False
+        else:
+            pos = gcommon.getCenterPos(ObjMgr.myShip)
+            return self.getEllipseCollision(pos[0], pos[1])
 
 class BossEnemybaseBody(enemy.EnemyBase):
     moveTable0 = [

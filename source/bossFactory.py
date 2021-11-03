@@ -480,8 +480,15 @@ class BossFactory(enemy.EnemyBase):
 	def checkShotCollision(self, shot):
 		if shot.removeFlag:
 			return False
-		pos = gcommon.getCenterPos(shot)
-		return math.hypot(self.x+39.5-pos[0], self.y+39.5 -pos[1]) <40
+		# pos = gcommon.getCenterPos(shot)
+		# return math.hypot(self.x+39.5-pos[0], self.y+39.5 -pos[1]) <40
+		y = gcommon.getCenterY(shot)
+		if math.hypot(self.x+39.5-shot.x-shot.left, self.y+39.5 -y) <40:
+			return True
+		elif math.hypot(self.x+39.5-shot.x-shot.right, self.y+39.5 -y) <40:
+			return True
+		else:
+			return False
 
 	# def doShotCollision(self, shot):
 	# 	rad = math.atan2(shot.dy, shot.dx)
