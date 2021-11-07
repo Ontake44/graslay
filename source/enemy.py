@@ -2438,8 +2438,8 @@ class Particle1(EnemyBase):
 			self.tbl.append(s)
 
 	@classmethod
-	def append(cls, x, y, rad):
-		return ObjMgr.addObj(Particle1(x, y, rad, 8, 50))
+	def append(cls, x, y, rad, count=8, life=50):
+		return ObjMgr.addObj(Particle1(x, y, rad, count, life))
 
 	@classmethod
 	def appendPos(cls, pos, rad):
@@ -3953,7 +3953,7 @@ class ContinuousShot(EnemyBase):
 # 画面の敵弾を消去する
 def removeEnemyShot():
 	for obj in ObjMgr.objs:
-		if obj.removeFlag == False and obj.layer == gcommon.C_LAYER_E_SHOT:
+		if obj.removeFlag == False and (obj.layer & gcommon.C_LAYER_E_SHOT !=0):
 			obj.remove()
 
 class BattleShip1(EnemyBase):

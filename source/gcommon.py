@@ -1120,3 +1120,8 @@ def setGetMapDataByMapPosHandler(handler):
 	global getMapDataByMapPosHandler
 	getMapDataByMapPosHandler = handler
 
+def setScroll(x, y):
+	global cur_scroll_x
+	global cur_scroll_y
+	cur_scroll_x = x
+	cur_scroll_y = y
