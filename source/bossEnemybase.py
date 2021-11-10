@@ -197,6 +197,9 @@ class BossEnemybaseBody(enemy.EnemyBase):
             ObjMgr.addObj(BossEnemybaseShot1(self.x, self.y, rad, 2))
 
     def update1(self):
+        if gcommon.START_GAME_TIMER > 0:
+            self.broken()
+            return
         if self.state == 0:
             if self.cnt == 0:
                 self.mover = CountMover(self, __class__.moveTable1, False)
@@ -335,6 +338,8 @@ class BossEnemybaseBody(enemy.EnemyBase):
         enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
         self.parent.setState(1)
         ObjMgr.objs.append(enemy.Delay(BossEnemybaseBody2, [0, None, self.x, self.y], 90))
+        gcommon.map_x = 524 * 8
+        gcommon.map_y = 87 * 8
 
 
 # ビーーーーム！！！
@@ -601,12 +606,36 @@ class BossEnemybaseBody2(enemy.EnemyBase):
     ]
     moveTable10 = [
         [0, CountMover.MOVE_TO, 127.5+64, 30, 1],
-        [0, CountMover.MOVE_TO, 127.5+64, 170, 1],
+        [60, CountMover.STOP],
+        [0, CountMover.MOVE_TO, 127.5+64, 160, 1],
+        [60, CountMover.STOP],
+        [0, CountMover.MOVE_TO, 127.5+64, 30, 1],
+        [60, CountMover.STOP],
+        [0, CountMover.MOVE_TO, 127.5+64, 160, 1],
+        [60, CountMover.STOP],
+        [0, CountMover.MOVE_TO, 127.5+64, 30, 1],
+        [60, CountMover.STOP],
+        [0, CountMover.MOVE_TO, 127.5+64, 160, 1],
+        [60, CountMover.STOP],
+        [0, CountMover.MOVE_TO, 127.5+64, 12, 1],
+        [60, CountMover.STOP],
+        [0, CountMover.MOVE_TO, 127.5+96, 12, 1],
+        [60, CountMover.STOP],
+    ]
+    moveTable20 = [
+        [0, CountMover.MOVE_TO, 127.5+96, 184, 1],
+        [0, CountMover.MOVE_TO, 127.5+96, 12, 1],
+        [0, CountMover.MOVE_TO, 127.5+96, 184, 1],
+        [0, CountMover.MOVE_TO, 127.5+96, 12, 1],
     ]
     def __init__(self, t):
         super(__class__, self).__init__()
         self.x = t[2]
         self.y = t[3]
+        self.left = -6
+        self.top = -6
+        self.right = 6
+        self.bottom = 6
         self.hp = gcommon.HP_UNBREAKABLE
         self.layer = gcommon.C_LAYER_GRD | gcommon.C_LAYER_UNDER_GRD
         self.hitCheck = True
@@ -617,43 +646,97 @@ class BossEnemybaseBody2(enemy.EnemyBase):
         self.coreBrightness = 0
         self.mode = 0
         self.rad = 0.0
+        self.beamObj = None
+        self.beamDirection = 1  # 1 or -1
         gcommon.debugPrint("BossEnemybaseBody2")
 
     def update(self):
         if self.mode == 0:
             self.update0()
-        else:
+        elif self.mode == 1:
             self.update1()
+        else:
+            self.update2()
 
-    def setScrollLoop(self):
-        if gcommon.map_y <= 20*8:
-            gcommon.map_y += 16*8
+    #def setScrollLoop(self):
+    #    if gcommon.map_y <= 4*8:
+    #        gcommon.map_y += 32*8
 
     def update0(self):
         if self.state == 0:
-            if self.cnt == 0:
-                gcommon.setScroll(0.0, -0.5)
+            # 指定位置まで移動
             self.mover.update()
             if self.mover.isEnd:
                 self.nextState()
         elif self.state == 1:
             # 合体
             if self.cnt == 90:
+                #gcommon.setScroll(0.0, -0.5)
+                gcommon.scrollController.nextIndex()
                 self.nextState()
         elif self.state == 2:
+            # 合体後のピカーン
             if self.cnt == 60:
                 self.nextMode()
-        self.setScrollLoop()
 
     def update1(self):
         if self.cnt == 0:
-            self.mover = CountMover(self, __class__.moveTable10, True, True)
+            self.left = -15.5
+            self.top = -15.5
+            self.right = 15.5
+            self.bottom = 15.5
+            self.mover = CountMover(self, __class__.moveTable10, False, True)
         self.mover.update()
         self.rad += math.pi * 0.5 /180
-        if self.cnt % 240 == 0:
-            ObjMgr.addObj(BossEnemybaseBeam2(self, -10, 0, math.pi/180))
-            ObjMgr.addObj(BossEnemybaseBeam2(self, -10, 0, -math.pi/180))
-        self.setScrollLoop()
+        if self.cnt % 30 == 0:
+            if self.beamObj == None or self.beamObj.removeFlag:
+                self.beamObj = ObjMgr.addObj(BossEnemybaseBeam2(self, -10, 0, self.beamDirection * math.pi*0.7/180))
+                self.beamDirection = -self.beamDirection
+            #ObjMgr.addObj(BossEnemybaseBeam2(self, -10, 0, -math.pi/180))
+        #self.setScrollLoop()
+        if self.cnt % 60 == 0:
+            enemy.enemy_shot_dr_multi(self.x -10, self.y, 2, 0, 32, 5, 2)
+        if self.mover.isEnd:
+            self.nextMode()
+
+    # 横スクロールになってから
+    def update2(self):
+        if self.state == 0:
+            # 下方向に移動
+            if self.cnt == 0:
+                self.ground = True
+            if gcommon.isMapFreePos(self.x, self.y +10) == False:
+                self.nextState()
+            else:
+                self.y += 1
+            if self.cnt % 30 == 0:
+                if self.beamObj == None or self.beamObj.removeFlag:
+                    self.beamObj = ObjMgr.addObj(BossEnemybaseBeam2(self, -10, 0, 0.0))
+                    self.beamDirection = -self.beamDirection
+        elif self.state == 1:
+            if gcommon.isMapFreePos(self.x +20, self.y) == False or self.x>gcommon.SCREEN_MAX_X:
+                self.nextState()
+            else:
+                self.x += 1.25
+        elif self.state == 2:
+            # 上方向に移動
+            if gcommon.isMapFreePos(self.x, self.y -10) == False or self.y +10 >gcommon.SCREEN_MAX_Y:
+                self.nextState()
+            else:
+                self.y -= 1
+            if self.cnt % 30 == 0:
+                if self.beamObj == None or self.beamObj.removeFlag:
+                    self.beamObj = ObjMgr.addObj(BossEnemybaseBeam2(self, -10, 0, 0.0))
+                    self.beamDirection = -self.beamDirection
+        elif self.state == 3:
+            if gcommon.isMapFreePos(self.x +20, self.y) == False or self.x>gcommon.SCREEN_MAX_X:
+                self.setState(0)
+            else:
+                self.x += 1.25
+        if self.frameCount % 60 == 0:
+            enemy.enemy_shot_multi(self.x -10, self.y, 2, 0, 5, 2)
+            #enemy.enemy_shot_dr_multi(self.x -10, self.y, 2, 0, 32, 5, 2)
+
 
     def nextMode(self):
         self.mode += 1
@@ -701,7 +784,7 @@ class BossEnemybaseBody2(enemy.EnemyBase):
 # ビーーーーム！！！
 class BossEnemybaseBeam2(enemy.EnemyBase):
     # x,y 弾の中心を指定
-    def __init__(self, parent, ox, oy, omega, beamTime=90):
+    def __init__(self, parent, ox, oy, omega, beamTime=300):
         super(__class__, self).__init__()
         self.parent = parent
         self.x = parent.x + ox
@@ -720,8 +803,10 @@ class BossEnemybaseBeam2(enemy.EnemyBase):
         self.size = 0.0
         if self.omega > 0:
             self.rad = math.pi*0.4
-        else:
+        elif self.omega < 0:
             self.rad = math.pi*1.6
+        else:
+            self.rad = math.pi
         self.headX = 0
         self.headY = 0
         self.beamPoints = [[0,0],[5,-4],[300,-4],[300,4],[5,4]]
@@ -732,6 +817,9 @@ class BossEnemybaseBeam2(enemy.EnemyBase):
             self.remove()
             return
         elif self.omega < 0 and self.rad < math.pi*0.4:
+            self.remove()
+            return
+        if self.cnt > self.beamTime:
             self.remove()
             return
 

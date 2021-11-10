@@ -278,6 +278,9 @@ class MainGame:
 			ObjMgr.updateDrawMap0(True)
 			ObjMgr.updateDrawMap(True)
 			self.ExecuteStory()
+			if gcommon.scrollController != None:
+				gcommon.scrollController.update()
+				gcommon.scrollController.cnt += 1
 			self.updateEnemy()
 			gcommon.game_timer = gcommon.game_timer + 1	
 		#for obj in ObjMgr.objs:
@@ -394,7 +397,10 @@ class MainGame:
 				gcommon.star_pos += 255
 
 		self.ExecuteEvent()
-
+		if gcommon.scrollController != None:
+			gcommon.scrollController.update()
+			gcommon.scrollController.cnt += 1
+		
 		# マップ処理０
 		if gcommon.scroll_flag:
 			ObjMgr.updateDrawMap0(False)
@@ -857,23 +863,23 @@ class MainGame:
 		self.eventTable =[
 			[0, StartBGM, BGM.STAGE5],
 			[0, StartMapDrawEnemyBase],
-			[0, SetMapScroll, 0.0, 0.0],
-			[1000, SetMapScroll, 0.5, 0.0],
-			[3160, SetMapScroll, 0.0, 0.0],
-			[3240, SetMapScroll, 0.0, -0.5],
-			[3560, SetMapScroll, 0.5, 0.0],
-			[4180, SetMapScroll, 0.0, 0.0],
-			[4300, SetMapScroll, 0.0, 0.5],
-			[4640, SetMapScroll, 0.5, 0.0],
-			[5840, SetMapScroll, 0.0, 0.0],
-			[5960, SetMapScroll, 0.0, 0.5],
-			[6500, SetMapScroll, 0.0, 0.0],
-			[6620, SetMapScroll, 0.5, 0.0],
+			# [0, SetMapScroll, 0.0, 0.0],
+			# [1000, SetMapScroll, 0.5, 0.0],
+			# [3160, SetMapScroll, 0.0, 0.0],
+			# [3240, SetMapScroll, 0.0, -0.5],
+			# [3560, SetMapScroll, 0.5, 0.0],
+			# [4180, SetMapScroll, 0.0, 0.0],
+			# [4300, SetMapScroll, 0.0, 0.5],
+			# [4640, SetMapScroll, 0.5, 0.0],
+			# [5840, SetMapScroll, 0.0, 0.0],
+			# [5960, SetMapScroll, 0.0, 0.5],
+			# [6500, SetMapScroll, 0.0, 0.0],
+			# [6620, SetMapScroll, 0.5, 0.0],
 			[8100, StartBGM, BGM.STAGE6_3],
-			[8100, SetMapScroll, 0.25, 0.0],
-			[10300, SetMapScroll, 0.5, 0.0],
+			# [8100, SetMapScroll, 0.25, 0.0],
+			# [10300, SetMapScroll, 0.5, 0.0],
 			[10300, StartBGM, BGM.BOSS],
-			[10588, SetMapScroll, 0.0, 0.0],
+			# [10588, SetMapScroll, 0.0, 0.0],
 		]
 
 	def initStory(self):

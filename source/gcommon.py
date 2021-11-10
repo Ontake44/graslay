@@ -246,6 +246,7 @@ long_map = False
 
 breakableMapData = False
 
+scrollController = None
 
 # 現在未使用（パワーアップ無いので）
 #power = START_MY_POWER

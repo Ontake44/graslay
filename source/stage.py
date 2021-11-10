@@ -3,6 +3,7 @@ import gcommon
 from mapDraw import MapData
 from gameSession import GameSession
 from audio import BGM
+from enemyOthers import ScrollController1
 
 class StageInfo:
 
@@ -145,12 +146,38 @@ class StageLinkManager:
 
 
 class Stage:
+    scrollTable6B = [
+        [0, ScrollController1.SET_SCROLL, 0.0, 0.0],
+        [1000, ScrollController1.SET_SCROLL, 0.5, 0.0],
+        [3160, ScrollController1.SET_SCROLL, 0.0, 0.0],
+        [3240, ScrollController1.SET_SCROLL, 0.0, -0.5],
+        [3560, ScrollController1.SET_SCROLL, 0.5, 0.0],
+        [4180, ScrollController1.SET_SCROLL, 0.0, 0.0],
+        [4300, ScrollController1.SET_SCROLL, 0.0, 0.5],
+        [4640, ScrollController1.SET_SCROLL, 0.5, 0.0],
+        [5840, ScrollController1.SET_SCROLL, 0.0, 0.0],
+        [5960, ScrollController1.SET_SCROLL, 0.0, 0.5],
+        [6500, ScrollController1.SET_SCROLL, 0.0, 0.0],
+        [6620, ScrollController1.SET_SCROLL, 0.5, 0.0],
+        [8100, ScrollController1.SET_SCROLL, 0.25, 0.0],
+        [10300, ScrollController1.SET_SCROLL, 0.5, 0.0],
+        [10588, ScrollController1.SET_SCROLL, 0.0, 0.0],
+        [10588, ScrollController1.WAIT],
+        [0, ScrollController1.SET_SCROLL, 0.0, -0.5],
+        #[0, ScrollController1.LOOP_Y, 64*8, 32*8],
+        [0, ScrollController1.MOVE_TO, (12+512)*8, 5*8, 0.0, -0.5],
+        [0, ScrollController1.STOP, 120],
+        [0, ScrollController1.MOVE_TO, (512+40)*8, 5*8, 0.5, 0.0],
+        [0, ScrollController1.LOOP_X, (512+40)*8, (512+104)*8],
+        #[0, ScrollController1.SET_SCROLL, 0.5, 0.0],
+    ]
+
     @classmethod
     def initStage(cls, stage, restart):
         gcommon.breakableMapData = False
         pyxel.tilemap(0).refimg = 1
         gcommon.waterSurface_y = 256 * 8.0
-
+        gcommon.scrollController = None
         # タイルマップクリア
         MapData.loadMapData(0, "assets/zero.pyxmap")
         for tm in range(1, 8):
@@ -308,9 +335,12 @@ class Stage:
             gcommon.draw_star = True
             gcommon.eshot_sync_scroll = False
             gcommon.breakableMapData = True
+            gcommon.scrollController = ScrollController1(__class__.scrollTable6B)
             MapData.loadMapData(0, "assets/stage_enemybase.pyxmap")
-            MapData.loadMapData(4, "assets/stage_enemybase-4.pyxmap")
+            MapData.loadMapData(1, "assets/stage_enemybase-2.pyxmap")
+            #MapData.loadMapData(4, "assets/stage_enemybase-4.pyxmap")
             MapData.loadMapAttribute("assets/stage_enemybase.mapatr")
+            pyxel.tilemap(1).refimg = 1
             pyxel.tilemap(4).refimg = 1
         #elif self.stage == 3:
         #	pyxel.image(1).load(0,0,"assets\gra-den3a.png")

@@ -1107,7 +1107,7 @@ class MapDrawEnemyBase:
 		# 	pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, gcommon.TP_COLOR)
 
 	def draw(self):
-		self.drawMap(4)
+		#self.drawMap(4)
 		self.drawMap(0)
 
 	def draw2(self):

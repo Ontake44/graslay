@@ -736,3 +736,93 @@ class BarrierWallV1(enemy.EnemyBase):
             pyxel.blt(self.x, self.y +16 + 16*i, 1, 240, 8, 16, 16, 0)
         pyxel.blt(self.x, self.y+ 16*(self.size-1), 1, 240, 16, 16, 16, 0)
 
+
+
+# [100, SET_SCROLL, 0.5, 0.0],
+# [0, LOOP_Y, start, end]
+#  0  1        2     3     4   5
+# [0, MOVE_TO, MAPX, MAPY, DX, DY]
+class ScrollController1(enemy.EnemyBase):
+    SET_SCROLL = 0
+    LOOP_X = 5
+    LOOP_Y = 1
+    WAIT = 2
+    MOVE_TO = 3
+    STOP = 4
+
+    def __init__(self, t):
+        super(__class__, self).__init__()
+        self.table = t
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.enemyShotCollision = False
+        self.tableIndex = 0
+
+    def update(self):
+        while(True):
+            if self.tableIndex >= len(self.table):
+                return
+            t = self.table[self.tableIndex]
+            n = t[1]
+            if n == __class__.LOOP_Y:
+                start = t[2]
+                end = t[3]
+                if gcommon.cur_scroll_y > 0.0:
+                    if gcommon.map_y >= end:
+                        gcommon.map_y = start
+                else:
+                    if gcommon.map_y <= end:
+                        gcommon.map_y = start
+                return
+            elif n == __class__.LOOP_X:
+                start = t[2]
+                end = t[3]
+                if gcommon.cur_scroll_x > 0.0:
+                    if gcommon.map_x >= end:
+                        gcommon.map_x = start
+                else:
+                    if gcommon.map_x <= end:
+                        gcommon.map_x = start
+                return
+            elif n == __class__.WAIT:
+                return
+            elif n == __class__.MOVE_TO:
+                gcommon.cur_scroll_x = t[4]
+                gcommon.cur_scroll_y = t[5]
+                indexFlag = False
+                if gcommon.cur_scroll_x > 0.0:
+                    if gcommon.map_x >= t[2]:
+                        indexFlag = True
+                elif gcommon.cur_scroll_x < 0.0:
+                    if gcommon.map_y <= t[2]:
+                        indexFlag = True
+                if gcommon.cur_scroll_y > 0.0:
+                    if gcommon.map_y >= t[3]:
+                        indexFlag = True
+                elif gcommon.cur_scroll_y < 0.0:
+                    if gcommon.map_y <= t[3]:
+                        indexFlag = True
+                if indexFlag:
+                    self.nextIndex()
+                else:
+                    return
+            elif n == __class__.STOP:
+                gcommon.cur_scroll_x = 0.0
+                gcommon.cur_scroll_y = 0.0
+                if self.cnt >= t[2]:
+                    gcommon.debugPrint("STOP NEXT")
+                    self.nextIndex()
+                else:
+                    return
+            else:
+                if t[0] == 0 or gcommon.game_timer == t[0]:
+                    gcommon.setScroll(t[2], t[3])
+                    self.nextIndex()
+                    return
+                else:
+                    return
+        
+    def nextIndex(self):
+        self.cnt = 0
+        if self.tableIndex < len(self.table) -1:
+            self.tableIndex += 1
