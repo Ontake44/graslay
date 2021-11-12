@@ -42,8 +42,16 @@ def enemy_shot_offset(x, y, speed, shotType, offsetDr):
 		ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, offsetDr))
 
 def enemy_shot_multi(x, y, speed, shotType, count, angleDr):
-	for i in range(count):
-		ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, int(angleDr * (count/2 -i))))
+	if count & 1 == 0:
+		# 偶数
+		for i in range(int(count/2)):
+			ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, int(angleDr/2 + angleDr * i)))
+			ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, -int(angleDr/2 + angleDr * i)))
+	else:
+		ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, 0))
+		for i in range(int(count/2)):
+			ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, int(angleDr * (i+1))))
+			ObjMgr.objs.append(EnemyShot.createToMyShip(x, y, speed, shotType, -int(angleDr * (i+1))))
 
 def enemy_shot_dr(x, y, speed, shotType, dr):
 	ObjMgr.objs.append(EnemyShot.createSpecifiedDirection(x, y, speed, shotType, dr))

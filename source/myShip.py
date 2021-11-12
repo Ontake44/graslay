@@ -24,7 +24,7 @@ class MyShipBase:
 		self.sprite = 1
 		self.shotMax = 4
 		self.missleMax = 2
-		self.left = 3
+		self.left = 5
 		self.top = 7
 		self.right = 10
 		self.bottom = 8
