@@ -297,5 +297,6 @@ class Fighter6(EnemyBase):
 
     def broken(self):
         super().broken()
-        enemy.enemy_shot(self.x, self.y, 2, 0)
+        if GameSession.difficulty == gcommon.DIFFICULTY_HARD:
+            enemy.enemy_shot(self.x, self.y, 2, 0)
 

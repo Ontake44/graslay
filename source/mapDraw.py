@@ -1054,7 +1054,7 @@ class MapDrawEnemyBase:
 		gcommon.map_y = 8 * 24
 		gcommon.mapHeight = 8 * 256
 		gcommon.back_map_x = -32 * 8/2
-		gcommon.back_map_y = 0
+		gcommon.back_map_y = 64 * 8
 
 	def update0(self, skip):
 		pass
@@ -1069,8 +1069,8 @@ class MapDrawEnemyBase:
 				if n in (390, 391):
 					# 砲台
 					gcommon.setMapDataByMapPos(mx, my, 0)
-					first = int(80 / GameSession.enemy_shot_rate)
-					interval = int(80 / GameSession.enemy_shot_rate)
+					first = int(40 / GameSession.enemy_shot_rate)
+					interval = int(60 / GameSession.enemy_shot_rate)
 					ObjMgr.addObj(enemy.Battery1a(mx, my, n -390, first=first, interval=interval))
 				elif n == 395:
 					# 機雷
@@ -1097,14 +1097,18 @@ class MapDrawEnemyBase:
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 		gcommon.back_map_x += gcommon.cur_scroll_x/2
+		gcommon.back_map_y += gcommon.cur_scroll_y/2
+		if gcommon.back_map_x >= 8*64:
+			gcommon.back_map_x -= 8*32
 
 	def drawBackground(self):
-		pass
-		# if gcommon.back_map_x < 0:
-		# 	pyxel.bltm(-1 * int(gcommon.back_map_x), 0, 1, 0, 24,33,33, gcommon.TP_COLOR)
-		# else:
-		# 	mx = (int)(gcommon.back_map_x/8)
-		# 	pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, gcommon.TP_COLOR)
+		if gcommon.back_map_x >= 8:
+			if gcommon.back_map_x < 16:
+				Drawing.setBrightnessMinus1()
+			mx = (int)(gcommon.back_map_x/8)
+			pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), -1 * (int(gcommon.back_map_y) % 8), 7, mx, gcommon.back_map_y/8,33,33, 15)
+			if gcommon.back_map_x < 16:
+				pyxel.pal()
 
 	def draw(self):
 		#self.drawMap(4)
