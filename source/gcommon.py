@@ -1095,7 +1095,7 @@ def checkMouseMenuPos(rects):
 # 符号付整数化
 # sint(-1.5) -> -2
 def sint(n):
-	if n > 0:
+	if n >= 0:
 		return int(n)
 	else:
 		return int(n -0.5)

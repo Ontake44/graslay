@@ -147,28 +147,28 @@ class StageLinkManager:
 
 class Stage:
     scrollTable6B = [
-        [0, ScrollController1.SET_SCROLL, 0.0, 0.0],
-        [1000, ScrollController1.SET_SCROLL, 0.5, 0.0],
-        [3160, ScrollController1.SET_SCROLL, 0.0, 0.0],
-        [3240, ScrollController1.SET_SCROLL, 0.0, -0.5],
-        [3560, ScrollController1.SET_SCROLL, 0.5, 0.0],
-        [4180, ScrollController1.SET_SCROLL, 0.0, 0.0],
-        [4300, ScrollController1.SET_SCROLL, 0.0, 0.5],
-        [4640, ScrollController1.SET_SCROLL, 0.5, 0.0],
-        [5840, ScrollController1.SET_SCROLL, 0.0, 0.0],
-        [5960, ScrollController1.SET_SCROLL, 0.0, 0.5],
-        [6500, ScrollController1.SET_SCROLL, 0.0, 0.0],
-        [6620, ScrollController1.SET_SCROLL, 0.5, 0.0],
-        [8100, ScrollController1.SET_SCROLL, 0.25, 0.0],
-        [10300, ScrollController1.SET_SCROLL, 0.5, 0.0],
-        [10588, ScrollController1.SET_SCROLL, 0.0, 0.0],
-        [10588, ScrollController1.WAIT],
-        [0, ScrollController1.SET_SCROLL, 0.0, -0.5],
-        #[0, ScrollController1.LOOP_Y, 64*8, 32*8],
-        [0, ScrollController1.MOVE_TO, (12+512)*8, 5*8, 0.0, -0.5],
-        [0, ScrollController1.STOP, 120],
-        [0, ScrollController1.MOVE_TO, (512+40)*8, 5*8, 0.5, 0.0],
-        [0, ScrollController1.LOOP_X, (512+40)*8, (512+104)*8],
+        [0, ScrollController1.SET_SCROLL, 0.0, 0.0],        # 0
+        [1000, ScrollController1.SET_SCROLL, 0.5, 0.0],     # 1
+        [3160, ScrollController1.SET_SCROLL, 0.0, 0.0],     # 2
+        [3240, ScrollController1.SET_SCROLL, 0.0, -0.5],    # 3
+        [3560, ScrollController1.SET_SCROLL, 0.5, 0.0],     # 4
+        [4180, ScrollController1.SET_SCROLL, 0.0, 0.0],     # 5
+        [4300, ScrollController1.SET_SCROLL, 0.0, 0.5],     # 6
+        [4640, ScrollController1.SET_SCROLL, 0.5, 0.0],     # 7
+        [5840, ScrollController1.SET_SCROLL, 0.0, 0.0],     # 8
+        [5960, ScrollController1.SET_SCROLL, 0.0, 0.5],     # 9
+        [6500, ScrollController1.SET_SCROLL, 0.0, 0.0],     # 10
+        [6620, ScrollController1.SET_SCROLL, 0.5, 0.0],     # 11
+        [8100, ScrollController1.SET_SCROLL, 0.25, 0.0],    # 12
+        [10300, ScrollController1.SET_SCROLL, 0.5, 0.0],    # 13
+        [10588, ScrollController1.SET_SCROLL, 0.0, 0.0],    # 14
+        [10588, ScrollController1.WAIT],                    # 15
+        [0, ScrollController1.SET_SCROLL, 0.0, -0.5],       # 16
+        [0, ScrollController1.MOVE_TO, (12+512)*8, 5*8, 0.0, -0.5], # 17 
+        [0, ScrollController1.STOP, 120],                           # 18
+        [0, ScrollController1.MOVE_TO, (512+40)*8, 5*8, 0.5, 0.0],  # 19
+        [0, ScrollController1.LOOP_X, (512+40)*8, (512+104)*8],     # 20
+        [0, ScrollController1.LOOP_X, (512+152)*8, (512+160)*8],    # 21
         #[0, ScrollController1.SET_SCROLL, 0.5, 0.0],
     ]
 

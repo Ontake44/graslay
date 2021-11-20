@@ -826,3 +826,37 @@ class ScrollController1(enemy.EnemyBase):
         self.cnt = 0
         if self.tableIndex < len(self.table) -1:
             self.tableIndex += 1
+
+    def setIndex(self, index):
+        self.cnt = 0
+        self.tableIndex = index
+
+class Spark1(enemy.EnemyBase):
+    def __init__(self, parent, ox, oy, layer):
+        super(__class__, self).__init__()
+        self.parent = parent
+        if self.parent != None:
+            self.offsetX = ox
+            self.offsetY = oy
+        else:
+            self.x = ox
+            self.y = oy
+        self.layer = layer
+        self.ground = False
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.enemyShotCollision = False
+
+    @classmethod
+    def create(cls, parent, x, y, layer):
+        ObjMgr.addObj(Spark1(parent, x, y, layer))
+
+    def update(self):
+        if self.parent != None:
+            self.x = self.parent.x + self.offsetX
+            self.y = self.parent.y + self.offsetY
+        if self.cnt >= 8:
+            self.remove()
+
+    def draw(self):
+        pyxel.blt(self.x -7.5, self.y -7.5, 0, (self.cnt>>1) * 16, 160, 16, 16, 0)

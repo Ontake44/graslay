@@ -235,6 +235,10 @@ class EnemyBase:
 #  mode = 12 : ANGLE_DEG
 #    回転（度数指定）
 #    [2] 角度
+#  mode = 13 : EAGING1
+#    イージング移動
+#    [2] 移動先座標X
+#    [3] 移動先座標Y
 #  mode = 100 : SET_INDEX
 #    指定インデックスに移動
 #    [2] インデックス
@@ -253,6 +257,7 @@ class CountMover:
 	SET_DEG = 10
 	ACCEL_MAX = 11
 	ANGLE_DEG = 12
+	EAGING1 = 13
 	SET_INDEX = 100
 	LOOP_START = 101
 	LOOP_END = 102
@@ -276,6 +281,8 @@ class CountMover:
 		self.rad = 0.0
 		self.deg = 0.0
 		self.mode = 0
+		self.sx = 0		# 初期座標保存用
+		self.sy = 0		# 初期座標保存用
 		self.loopCounterArray = []
 		self.loopTableIndexArray = []
 
@@ -285,7 +292,7 @@ class CountMover:
 			return
 		item = self.table[self.tableIndex]
 		self.mode = item[1]
-		if self.mode == 5:
+		if self.mode == __class__.MOVE_TO:
 			# 移動先座標指定
 			if item[2] == -9999:
 				# X座標変化なし
@@ -406,6 +413,17 @@ class CountMover:
 				self.obj.y += self.dy
 			elif mode == __class__.ANGLE_DEG:
 				self.deg += item[2]
+			elif mode == __class__.EAGING1:
+				if self.cnt == 0:
+					self.sx = self.obj.x
+					self.sy = self.obj.y
+				x = self.cnt/item[0]
+				if x < 0.5:
+					a = 4 * x * x * x
+				else:
+					a = 1 - pow(-2 * x + 2, 3) / 2
+				self.obj.x = self.sx + (item[2] -self.sx) * a
+				self.obj.y = self.sy + (item[3] -self.sy) * a
 			elif mode == __class__.SET_INDEX:
 				self.tableIndex = item[2]
 				self.cnt = 0

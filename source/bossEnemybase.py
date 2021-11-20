@@ -146,7 +146,7 @@ class BossEnemybaseBody(enemy.EnemyBase):
         self.top = -15.5
         self.right = 15.5
         self.bottom = 15.5
-        self.hp = 300
+        self.hp = 3000
         self.layer = gcommon.C_LAYER_UPPER_SKY
         self.exptype = gcommon.C_EXPTYPE_SKY_L
         self.hitCheck = True
@@ -722,9 +722,10 @@ class BossEnemybaseBody2(enemy.EnemyBase):
             #ObjMgr.addObj(BossEnemybaseBeam2(self, -10, 0, -math.pi/180))
         #self.setScrollLoop()
         if self.cnt % 60 == 0:
-            enemy.enemy_shot_dr_multi(self.x -10, self.y, 2, 0, 32, 5, 2)
+            enemy.enemy_shot_dr_multi(self.x -10, self.y, 2, 0, 32, 5, 3)
         if self.mover.isEnd:
             self.nextMode()
+            self.frameCount = 0
             if self.beamObj != None and self.beamObj.removeFlag == False:
                 self.beamObj.endBeam()
 
@@ -734,6 +735,7 @@ class BossEnemybaseBody2(enemy.EnemyBase):
             # 下方向に移動
             if self.cnt == 0:
                 self.ground = True
+                self.hp = 200
             if gcommon.isMapFreePos(self.x, self.y +10) == False:
                 self.nextState()
             else:
@@ -757,8 +759,10 @@ class BossEnemybaseBody2(enemy.EnemyBase):
             else:
                 self.x += 1.25
         if self.frameCount % 60 == 0:
-            enemy.enemy_shot_multi(self.x -10, self.y, 2, 0, 5, 2)
+            enemy.enemy_shot_multi(self.x -10, self.y, 2, 0, 5, 3)
             #enemy.enemy_shot_dr_multi(self.x -10, self.y, 2, 0, 32, 5, 2)
+        if self.frameCount > 20*60:
+            self.broken()
 
     def horizonBeam(self):
         if self.beamObj == None or self.beamObj.removeFlag:
@@ -781,7 +785,7 @@ class BossEnemybaseBody2(enemy.EnemyBase):
 
     def drawCore(self):
         Drawing.setBrightnessWithoutBlack(self.coreBrightness)
-        pyxel.blt(gcommon.sint(self.x -8.5), gcommon.sint(self.y -8.5), 1, 88, 40, 18, 18, 3)
+        pyxel.blt(gcommon.sint(self.x -7.5), gcommon.sint(self.y -7.5), 1, 88, 40, 16, 16, 3)
         if self.cnt & 3 == 0:
             if self.coreBrightState == 0:
                 self.coreBrightness += 1
@@ -823,6 +827,19 @@ class BossEnemybaseBody2(enemy.EnemyBase):
             pyxel.blt(gcommon.sint(self.x -31.5), gcommon.sint(self.y -31.5), 2, 0, 128, 64, 64, 3)
             pyxel.blt(gcommon.sint(self.x -15.5), gcommon.sint(self.y -15.5), 2, 80, 144, 48, 32, 3)
             pyxel.blt(gcommon.sint(self.x -15.5), gcommon.sint(self.y -15.5), 2, 64, 192, self.gunWidth, self.gunHeight, 3)
+
+    def broken(self):
+        self.remove()
+        enemy.removeEnemyShot()
+        if self.beamObj != None and self.beamObj.removeFlag == False:
+            self.beamObj.remove()
+        ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
+        GameSession.addScore(self.score)
+        BGM.sound(gcommon.SOUND_LARGE_EXP)
+        enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
+        gcommon.map_x = (512+152) * 8 + math.fmod(gcommon.map_x, 4*8)
+        gcommon.scrollController.setIndex(21)
+        ObjMgr.objs.append(enemy.Delay(BossEnemybaseBody3, [0, None, self.x, self.y], 90))
 
 # ビーーーーム！！！
 class BossEnemybaseBeam2(enemy.EnemyBase):
@@ -956,3 +973,291 @@ class BossEnemybaseBeam2(enemy.EnemyBase):
         if gcommon.checkCollisionPointAndPolygon(pos, self.xpolygonList2.polygons[0].points):
             return True
         return False
+
+class BossEnemybaseBeam3(enemy.EnemyBase):
+    # x,y 弾の中心を指定
+    def __init__(self, parent, ox, oy, slowFlag):
+        super(__class__, self).__init__()
+        self.parent = parent
+        self.offsetX = ox
+        self.offsetY = oy
+        self.x = parent.x +ox
+        self.y = parent.y +oy
+        self.firstX = self.x
+        self.slowFlag = slowFlag
+        self.left = -8
+        self.top = -1.5
+        self.right = 8
+        self.bottom = 1.5
+        self.layer = gcommon.C_LAYER_GRD
+        self.hitCheck = True
+        self.shotHitCheck = False
+        self.dx = -3.0
+
+    def update(self):
+        self.x += self.dx
+        if self.x >= self.firstX -20:
+            self.y = self.parent.y +self.offsetY
+        if self.cnt == 8:
+            self.layer = gcommon.C_LAYER_E_SHOT
+        
+        if self.x < -12:
+            self.remove()
+            return
+        if self.slowFlag and self.dx < -1.5:
+            self.dx *= 0.98
+
+    def draw(self):
+        if self.cnt % 3 == 0:
+            pyxel.blt(gcommon.sint(self.x) -11.5, gcommon.sint(self.y) -1.5, 2, 0, 208, 24, 4, 3)
+        else:
+            pyxel.blt(gcommon.sint(self.x) -11.5, gcommon.sint(self.y) -1.5, 2, 0, 212, 24, 4, 3)
+
+class BossEnemybaseArcBeam1(enemy.EnemyBase):
+    # x,y 弾の中心を指定
+    def __init__(self, x, y, directionFlag):
+        super(__class__, self).__init__()
+        self.x = x
+        self.y = y
+        self.left = -8
+        self.top = -1.5
+        self.right = 8
+        self.bottom = 1.5
+        self.layer = gcommon.C_LAYER_E_SHOT
+        self.hitCheck = True
+        self.shotHitCheck = False
+        self.xpolygonListA1 = None
+        self.xpolygonListA2 = None
+        self.xpolygonListB1 = None
+        self.xpolygonListB2 = None
+        self.size = 0.2
+        self.rad = math.pi
+        self.headX = 0
+        self.headY = 0
+        self.omega = 20.0 if directionFlag else -20.0
+        #                   0     1       2       3      4      5
+        self.beamPoints = [[0,0],[3, -3],[5, -3],[8, 0],[5, 3],[3, 3]]
+
+    def update(self):
+        self.x -= 1
+        if self.x < -40:
+            self.remove()
+            return
+        self.beamPoints[2][0] = 5 * self.size
+        self.beamPoints[3][0] = 5 * self.size + 3
+        self.beamPoints[4][0] = 5 * self.size
+        polygonList1 = []
+        polygonList1.append(gcommon.Polygon(self.beamPoints, 10))
+        self.xpolygonListA1 = gcommon.getAnglePolygons2([self.x, self.y], polygonList1, [-2 * self.size, 0], self.rad, 1.0, 1.0)
+        self.xpolygonListA2 = gcommon.getAnglePolygons2([self.x, self.y], polygonList1, [-2 * self.size, 0], self.rad, 1.0, 0.5)
+        self.xpolygonListB1 = gcommon.getAnglePolygons2([self.x, self.y], polygonList1, [-2 * self.size, 0], self.rad +math.pi, 1.0, 1.0)
+        self.xpolygonListB2 = gcommon.getAnglePolygons2([self.x, self.y], polygonList1, [-2 * self.size, 0], self.rad +math.pi, 1.0, 0.5)
+        self.rad += math.pi * self.omega/180
+        self.size += 0.1
+        if self.size> 8.0:
+            self.size = 8.0
+        self.omega *= 0.97
+        if self.omega > 0:
+            if self.omega < 2.0:
+                self.omega = 2.0
+        else:
+            if self.omega > -2.0:
+                self.omega = -2.0
+    
+    def draw(self):
+        if self.cnt & 2 == 0:
+            self.xpolygonListA1.polygons[0].clr = 9
+            self.xpolygonListA2.polygons[0].clr = 10
+            self.xpolygonListB1.polygons[0].clr = 9
+            self.xpolygonListB2.polygons[0].clr = 10
+        else:
+            self.xpolygonListA1.polygons[0].clr = 10
+            self.xpolygonListA2.polygons[0].clr = 7
+            self.xpolygonListB1.polygons[0].clr = 10
+            self.xpolygonListB2.polygons[0].clr = 7
+        Drawing.drawPolygons(self.xpolygonListA1)
+        Drawing.drawPolygons(self.xpolygonListA2)
+        Drawing.drawPolygons(self.xpolygonListB1)
+        Drawing.drawPolygons(self.xpolygonListB2)
+
+
+    # 自機と敵との当たり判定
+    def checkMyShipCollision(self):
+        pos = gcommon.getCenterPos(ObjMgr.myShip)
+        if gcommon.checkCollisionPointAndPolygon(pos, self.xpolygonListA1.polygons[0].points):
+            return True
+        if gcommon.checkCollisionPointAndPolygon(pos, self.xpolygonListB1.polygons[0].points):
+            return True
+        return False
+
+class BossEnemybaseBody3(enemy.EnemyBase):
+    moveTable0 = [
+        [60, CountMover.STOP],
+        [0, CountMover.MOVE_TO, 127.5+52, 95.5, 1],
+    ]
+    moveTable10 = [
+        [90, CountMover.EAGING1, 127.5 +52, 40],
+        [90, CountMover.EAGING1, 127.5 +52, 152],
+    ]
+    moveTable11 = [
+        [90, CountMover.MOVE_TO, -9999, 40, -1],
+        [90, CountMover.MOVE_TO, -9999, 152, 1],
+    ]
+    def __init__(self, t):
+        super(__class__, self).__init__()
+        self.x = t[2]
+        self.y = t[3]
+        self.left = -6
+        self.top = -6
+        self.right = 6
+        self.bottom = 6
+        self.hp = gcommon.HP_UNBREAKABLE
+        self.layer = gcommon.C_LAYER_SKY
+        self.hitCheck = True
+        self.shotHitCheck = True
+        self.enemyShotCollision = False
+        self.mover = CountMover(self, __class__.moveTable0, False, True)
+        self.coreBrightState = 0
+        self.coreBrightness = 0
+        self.mode = 0
+        self.beamFlag = False
+        pyxel.image(2).load(0,0,"assets/stage_enemybase-4.png")
+
+    def update(self):
+        if self.mode == 0:
+            self.update0()
+        elif self.mode == 1:
+            self.update1()
+        elif self.mode == 2:
+            self.update2()
+
+    def update0(self):
+        if self.state == 0:
+            #gcommon.debugPrint("x:" + str(self.x) + " y:" +str(self.y))
+            # 指定位置まで移動
+            self.mover.update()
+            if self.mover.isEnd and self.cnt > 150:
+                self.nextState()
+        elif self.state == 1:
+            # カバーを格納
+            if self.cnt == 90:
+                self.nextMode()
+
+    def update1(self):
+        if self.state == 0:
+            if self.cnt == 0:
+                self.left = -24
+                self.top = -16
+                self.right = 56
+                self.bottom = 16
+                self.mover = CountMover(self, __class__.moveTable10, True, True)
+            self.mover.update()
+            if self.mover.cycleCount > 2:
+                self.nextState()
+            if self.cnt % 100 == 0 or self.cnt % 100 == 40:
+                self.shotBeam(False)
+        elif self.state == 1:
+            if self.cnt == 0:
+                self.mover = CountMover(self, __class__.moveTable11, True, True)
+            self.mover.update()
+            if self.mover.cycleCount > 1:
+                self.nextMode()
+            if self.cnt != 0 and self.cnt % 45 == 0:
+                self.shotBeam(False)
+
+    # ぐるぐるビーム
+    def update2(self):
+        if self.state == 0:
+            if self.cnt == 0:
+                self.mover = CountMover(self, __class__.moveTable11, True, True)
+            self.mover.update()
+            if self.cnt % 90 == 0:
+                ObjMgr.addObj(BossEnemybaseArcBeam1(self.x, self.y, self.beamFlag))
+                self.beamFlag = not self.beamFlag
+            if self.cnt % 140 == 0:
+                enemy.enemy_shot_multi(self.x -10, self.y, 2, 0, 5, 3)
+            if self.mover.cycleCount > 3:
+                self.nextState()
+        elif self.state == 1:
+            if self.cnt > 90:
+                self.setMode(1)
+
+    def shotBeam(self, flag):
+        f = self.beamFlag if flag else not self.beamFlag
+
+        ObjMgr.addObj(BossEnemybaseBeam3(self, 10, -35, self.beamFlag))
+        ObjMgr.addObj(BossEnemybaseBeam3(self, -5, -20, f))
+        ObjMgr.addObj(BossEnemybaseBeam3(self, -30, 0, self.beamFlag))
+        ObjMgr.addObj(BossEnemybaseBeam3(self, -5, +20, f))
+        ObjMgr.addObj(BossEnemybaseBeam3(self, 10, +35, self.beamFlag))
+        enemyOthers.Spark1.create(self, 0, -35, gcommon.C_LAYER_E_SHOT)
+        enemyOthers.Spark1.create(self, -15, -20, gcommon.C_LAYER_E_SHOT)
+        enemyOthers.Spark1.create(self, -40, 0, gcommon.C_LAYER_E_SHOT)
+        enemyOthers.Spark1.create(self, -15, 20, gcommon.C_LAYER_E_SHOT)
+        enemyOthers.Spark1.create(self, 0, +35, gcommon.C_LAYER_E_SHOT)
+        self.beamFlag = not self.beamFlag
+
+    def nextMode(self):
+        self.mode += 1
+        self.setState(0)
+    
+    def setMode(self, mode):
+        self.mode = mode
+        self.setState(0)
+
+    def drawCore(self):
+        Drawing.setBrightnessWithoutBlack(self.coreBrightness)
+        pyxel.blt(gcommon.sint(self.x) -7.5, gcommon.sint(self.y -55.5)+55.5 -7.5, 1, 88, 40, 16, 16, 3)
+        if self.cnt & 3 == 0:
+            if self.coreBrightState == 0:
+                self.coreBrightness += 1
+                if self.coreBrightness >= 4:
+                    self.coreBrightState = 1
+            else:
+                self.coreBrightness -= 1
+                if self.coreBrightness <= -3:
+                    self.coreBrightState = 0
+        pyxel.pal()
+    
+    def drawCover(self, px, py, x):
+        # 左
+        pyxel.blt(gcommon.sint(px -50.5+24 -x*16), py -7.5, 2, 0, 120, 24, 16, 3)
+        # 右
+        pyxel.blt(gcommon.sint(px -50.5+56 +x*16), py -7.5, 2, 32, 120, 24, 16, 3)
+        # 上
+        pyxel.blt(gcommon.sint(px -50.5+40), py -55.5+40 -x*16, 2, 72, 112, 24, 16, 3)
+        # 下
+        pyxel.blt(gcommon.sint(px -50.5+40), py -55.5+56 +x*16, 2, 72, 128, 24, 16, 3)
+
+    def drawNormal(self):
+        # 本体
+        pyxel.blt(gcommon.sint(self.x -50.5), gcommon.sint(self.y -55.5), 2, 0, 0, 128, 112, 3)
+        self.drawCore()
+        pyxel.blt(gcommon.sint(self.x -50.5+24), gcommon.sint(self.y -55.5)+40, 2, 0, 144, 49, 32, 3)
+
+    def draw(self):
+        if self.mode == 0:
+            if self.state == 0:
+                x = 1.0
+                if self.cnt >60 and self.cnt < 150:
+                    x = math.pow(1 - ((self.cnt-60)/90.0), 3)
+                elif self.cnt >= 150:
+                    x = 0.0
+                pyxel.blt(gcommon.sint(127.5 +52 -50.5 +x*150), gcommon.sint(95.5 -55.5), 2, 0, 0, 128, 112, 3)
+                px = 127.5 +52 +x*150
+                py = 95.5
+                x = 1.0
+                self.drawCover(px, py, x)
+                self.drawCore()
+            elif self.state == 1:
+                x = 0.0
+                if self.cnt < 60:
+                    x = math.pow(1 - (self.cnt/60.0), 3)
+                px = 127.5 +52
+                py = 95.5
+                # 本体
+                pyxel.blt(gcommon.sint(px -50.5), gcommon.sint(py -55.5), 2, 0, 0, 128, 112, 3)
+                self.drawCore()
+                self.drawCover(px, py, x)
+        elif self.mode in (1, 2):
+            self.drawNormal()
