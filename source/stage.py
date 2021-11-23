@@ -169,6 +169,8 @@ class Stage:
         [0, ScrollController1.MOVE_TO, (512+40)*8, 5*8, 0.5, 0.0],  # 19
         [0, ScrollController1.LOOP_X, (512+40)*8, (512+104)*8],     # 20
         [0, ScrollController1.LOOP_X, (512+152)*8, (512+160)*8],    # 21
+        [0, ScrollController1.ACCEL_SCROLL_X, 6.0, 0.03125],       # 22
+        [0, ScrollController1.LOOP_X, (512+152)*8, (512+160)*8],    # 23
         #[0, ScrollController1.SET_SCROLL, 0.5, 0.0],
     ]
 

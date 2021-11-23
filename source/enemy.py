@@ -242,6 +242,9 @@ class EnemyBase:
 #  mode = 100 : SET_INDEX
 #    指定インデックスに移動
 #    [2] インデックス
+#  mode = 103 : SET_STATE
+#    指定状態に設定
+#    [2] STATE値
 class CountMover:
 	STOP = -1
 	MOVE = 0
@@ -261,6 +264,7 @@ class CountMover:
 	SET_INDEX = 100
 	LOOP_START = 101
 	LOOP_END = 102
+	SET_STATE = 103
 	NO_MOVE = -8888
 	def __init__(self, obj, table, loopFlag, selfMove=True):
 		self.obj = obj
@@ -283,6 +287,7 @@ class CountMover:
 		self.mode = 0
 		self.sx = 0		# 初期座標保存用
 		self.sy = 0		# 初期座標保存用
+		self.state = 0		# 移動とは関係ないが状態変数
 		self.loopCounterArray = []
 		self.loopTableIndexArray = []
 
@@ -421,7 +426,7 @@ class CountMover:
 				if x < 0.5:
 					a = 4 * x * x * x
 				else:
-					a = 1 - pow(-2 * x + 2, 3) / 2
+					a = 1 - pow(-2 * x + 2, 2) / 2
 				self.obj.x = self.sx + (item[2] -self.sx) * a
 				self.obj.y = self.sy + (item[3] -self.sy) * a
 			elif mode == __class__.SET_INDEX:
@@ -441,6 +446,8 @@ class CountMover:
 				else:
 					self.loopCounterArray[-1] = cnt
 					self.tableIndex = self.loopTableIndexArray[-1]
+			elif mode == __class__.SET_STATE:
+				self.state = item[2]
 			elif mode == -1:
 				# 停止
 				self.dx = 0.0
@@ -870,6 +877,9 @@ class RollingFighter1(EnemyBase):
 
 	def update(self):
 		self.x = self.x -1.5
+		if self.x < -16:
+			self.remove()
+			return
 		self.y = self.y + self.dy
 		self.dy = gcommon.sin_table[self.dr] * 2.0
 		self.dr = (self.dr + 1) & 63
@@ -1106,13 +1116,13 @@ class Splash(EnemyBase):
 	# 全方位にパーティクル
 	@classmethod
 	def append(cls, x, y, layer):
-		ObjMgr.addObj(Splash(x, y, layer))
+		return ObjMgr.addObj(Splash(x, y, layer))
 
 	@classmethod
 	def append2(cls, x, y, layer, count):
 		obj = Splash(x, y, layer)
 		obj.count = count
-		ObjMgr.addObj(obj)
+		return ObjMgr.addObj(obj)
 
 	@classmethod
 	# dr : ラジアン
@@ -1121,7 +1131,7 @@ class Splash(EnemyBase):
 		obj.direction = dr
 		obj.angle = angle
 		obj.count = count
-		ObjMgr.addObj(obj)
+		return ObjMgr.addObj(obj)
 
 	@classmethod
 	# dr : ラジアン
@@ -1131,7 +1141,7 @@ class Splash(EnemyBase):
 		obj.angle = angle
 		obj.count = count
 		obj.speed = speed
-		ObjMgr.addObj(obj)
+		return ObjMgr.addObj(obj)
 
 	@classmethod
 	def appendDr3(cls, x, y, layer, dr, angle, speed, lifeMin, lifeMax, count):
@@ -1142,7 +1152,7 @@ class Splash(EnemyBase):
 		obj.speed = speed
 		obj.lifeMin = lifeMin
 		obj.lifeMax = lifeMax
-		ObjMgr.addObj(obj)
+		return ObjMgr.addObj(obj)
 
 	@classmethod
 	def appendParam(cls, x, y, layer, dr, angle, speed=6, lifeMin=100, lifeMax=200, count=200, ground=False, color=7):
@@ -1155,7 +1165,7 @@ class Splash(EnemyBase):
 		obj.lifeMax = lifeMax
 		obj.ground = ground
 		obj.color = color
-		ObjMgr.addObj(obj)
+		return ObjMgr.addObj(obj)
 
 	def update(self):
 		if self.cnt == 0:

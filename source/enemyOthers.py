@@ -742,13 +742,16 @@ class BarrierWallV1(enemy.EnemyBase):
 # [0, LOOP_Y, start, end]
 #  0  1        2     3     4   5
 # [0, MOVE_TO, MAPX, MAPY, DX, DY]
+# [0, ACCEL_SCROLL_X, 2.0, 0.03125]
 class ScrollController1(enemy.EnemyBase):
     SET_SCROLL = 0
     LOOP_X = 5
     LOOP_Y = 1
-    WAIT = 2
+    WAIT = 2        # これが来ると外からnextIndex等をされるまで次に遷移しない
     MOVE_TO = 3
     STOP = 4
+    ACCEL_SCROLL_X = 6
+    WAIT_TIME = 7   # 指定した時間[2]次のindexに遷移しない
 
     def __init__(self, t):
         super(__class__, self).__init__()
@@ -786,6 +789,12 @@ class ScrollController1(enemy.EnemyBase):
                 return
             elif n == __class__.WAIT:
                 return
+            elif n == __class__.WAIT_TIME:
+                if self.cnt >= t[2]:
+                    #gcommon.debugPrint("STOP NEXT")
+                    self.nextIndex()
+                else:
+                    return
             elif n == __class__.MOVE_TO:
                 gcommon.cur_scroll_x = t[4]
                 gcommon.cur_scroll_y = t[5]
@@ -810,7 +819,17 @@ class ScrollController1(enemy.EnemyBase):
                 gcommon.cur_scroll_x = 0.0
                 gcommon.cur_scroll_y = 0.0
                 if self.cnt >= t[2]:
-                    gcommon.debugPrint("STOP NEXT")
+                    #gcommon.debugPrint("STOP NEXT")
+                    self.nextIndex()
+                else:
+                    return
+            elif n == __class__.ACCEL_SCROLL_X:
+                gcommon.cur_scroll_x += t[3]
+                if t[2] > 0 and gcommon.cur_scroll_x >= t[2]:
+                    gcommon.cur_scroll_x = t[2]
+                    self.nextIndex()
+                elif t[2] < 0 and gcommon.cur_scroll_x <= t[2]:
+                    gcommon.cur_scroll_x = t[2]
                     self.nextIndex()
                 else:
                     return

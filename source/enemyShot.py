@@ -41,12 +41,13 @@ class BossFactoryShot2(enemy.EnemyBase):
 			pyxel.blt(self.x -4.0, self.y -4.0, 2, 16, 144, 9, 9, 2)
 
 class HomingBeam1(enemy.EnemyBase):
-	colorTable = (1,5,12,6,7)
-	def __init__(self, x, y, dr):
+	colorTables = [(1,5,12,6,7),(2,4,9,10,7)]
+	def __init__(self, x, y, dr, homingTime=45,colorTableNo=0):
 		super(HomingBeam1, self).__init__()
 		self.x = x
 		self.y = y
 		self.dr = dr
+		self.homingTime = homingTime
 		self.left = -2
 		self.top = -2
 		self.right = 2
@@ -57,7 +58,7 @@ class HomingBeam1(enemy.EnemyBase):
 		self.shotHitCheck = False
 		self.enemyShotCollision = False
 		self.speed = 3.0
-		self.homingTime = 45
+		self.colorTable = __class__.colorTables[colorTableNo]
 		# 角速度
 		self.omega = math.pi/60
 		self.posList = []
@@ -100,7 +101,7 @@ class HomingBeam1(enemy.EnemyBase):
 
 	def draw(self):
 		for i, pos in enumerate(self.posList):
-			pyxel.pal(7, __class__.colorTable[(i>>2) % len(__class__.colorTable)])
+			pyxel.pal(7, self.colorTable[(i>>2) % len(self.colorTable)])
 			pyxel.blt(pos[0] -3, pos[1] -3, 0, 0, 40, 7, 7, 0)
 		pyxel.pal()
 		pyxel.blt(self.x -3, self.y -3, 0, 0, 40, 7, 7, 0)

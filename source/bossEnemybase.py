@@ -10,8 +10,9 @@ import gameSession
 from objMgr import ObjMgr
 from gameSession import GameSession
 from audio import BGM
-from enemy import CountMover, DockArm
+from enemy import CountMover, DockArm, EnemyShot
 import enemyOthers
+import enemyShot
 import drawing
 from drawing import Drawing
 
@@ -838,8 +839,9 @@ class BossEnemybaseBody2(enemy.EnemyBase):
         BGM.sound(gcommon.SOUND_LARGE_EXP)
         enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
         gcommon.map_x = (512+152) * 8 + math.fmod(gcommon.map_x, 4*8)
-        gcommon.scrollController.setIndex(21)
         ObjMgr.objs.append(enemy.Delay(BossEnemybaseBody3, [0, None, self.x, self.y], 90))
+        gcommon.scrollController.setIndex(21)
+        BGM.play(BGM.BOSS_LAST)
 
 # ビーーーーム！！！
 class BossEnemybaseBeam2(enemy.EnemyBase):
@@ -1092,7 +1094,15 @@ class BossEnemybaseArcBeam1(enemy.EnemyBase):
 
 class BossEnemybaseBody3(enemy.EnemyBase):
     moveTable0 = [
-        [60, CountMover.STOP],
+        [40, CountMover.STOP],
+        [0, CountMover.MOVE_TO, 127.5+52, 95.5, 1],
+        [40, CountMover.STOP],
+        [0, CountMover.SET_STATE, 1],
+        [0, CountMover.SET_STATE, 2],
+        [0, CountMover.MOVE_TO, 256+32, 95.5, 8],   # 画面外に移動
+    ]
+    moveTable01 = [
+        [120, CountMover.STOP],
         [0, CountMover.MOVE_TO, 127.5+52, 95.5, 1],
     ]
     moveTable10 = [
@@ -1100,8 +1110,14 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         [90, CountMover.EAGING1, 127.5 +52, 152],
     ]
     moveTable11 = [
-        [90, CountMover.MOVE_TO, -9999, 40, -1],
-        [90, CountMover.MOVE_TO, -9999, 152, 1],
+        [0, CountMover.MOVE_TO, CountMover.NO_MOVE, 40, 1],
+        [0, CountMover.MOVE_TO, CountMover.NO_MOVE, 152, 1],
+    ]
+    moveTable30 = [
+        [0, CountMover.MOVE_TO, CountMover.NO_MOVE, 96, 1],
+    ]
+    moveTable40 = [
+        [0, CountMover.MOVE_TO, CountMover.NO_MOVE, 40, 1],
     ]
     def __init__(self, t):
         super(__class__, self).__init__()
@@ -1111,7 +1127,7 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         self.top = -6
         self.right = 6
         self.bottom = 6
-        self.hp = gcommon.HP_UNBREAKABLE
+        self.hp = 5000
         self.layer = gcommon.C_LAYER_SKY
         self.hitCheck = True
         self.shotHitCheck = True
@@ -1121,6 +1137,7 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         self.coreBrightness = 0
         self.mode = 0
         self.beamFlag = False
+        self.roundBeamCoverPos = 0
         pyxel.image(2).load(0,0,"assets/stage_enemybase-4.png")
 
     def update(self):
@@ -1130,17 +1147,39 @@ class BossEnemybaseBody3(enemy.EnemyBase):
             self.update1()
         elif self.mode == 2:
             self.update2()
+        elif self.mode == 3:
+            self.update3()
 
     def update0(self):
         if self.state == 0:
             #gcommon.debugPrint("x:" + str(self.x) + " y:" +str(self.y))
             # 指定位置まで移動
+            #gcommon.scrollController.setIndex(22)
             self.mover.update()
-            if self.mover.isEnd and self.cnt > 150:
+            if self.mover.state == 1:
+                obj = enemy.Splash.appendDr(self.x, self.y -8, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
+                obj.ground = True
+                obj = enemy.Splash.appendDr(self.x -16, self.y, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
+                obj.ground = True
+                obj = enemy.Splash.appendDr(self.x, self.y +8, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
+                obj.ground = True
+            if self.mover.isEnd:
                 self.nextState()
         elif self.state == 1:
+            if self.cnt == 0:
+                self.mover = CountMover(self, __class__.moveTable01, False, True)
+                # スクロール加速
+                gcommon.scrollController.setIndex(22)
+            self.mover.update()
+            if self.mover.isEnd:
+                self.nextState()
+        elif self.state == 2:
+            # この間に本体がやってくる
+            if self.cnt > 90:
+                self.nextState()
+        elif self.state == 3:
             # カバーを格納
-            if self.cnt == 90:
+            if self.cnt == 70:
                 self.nextMode()
 
     def update1(self):
@@ -1153,7 +1192,7 @@ class BossEnemybaseBody3(enemy.EnemyBase):
                 self.mover = CountMover(self, __class__.moveTable10, True, True)
             self.mover.update()
             if self.mover.cycleCount > 2:
-                self.nextState()
+                self.nextMode()
             if self.cnt % 100 == 0 or self.cnt % 100 == 40:
                 self.shotBeam(False)
         elif self.state == 1:
@@ -1172,15 +1211,28 @@ class BossEnemybaseBody3(enemy.EnemyBase):
                 self.mover = CountMover(self, __class__.moveTable11, True, True)
             self.mover.update()
             if self.cnt % 90 == 0:
-                ObjMgr.addObj(BossEnemybaseArcBeam1(self.x, self.y, self.beamFlag))
+                ObjMgr.addObj(BossEnemybaseArcBeam1(self.x +30, self.y, self.beamFlag))
                 self.beamFlag = not self.beamFlag
             if self.cnt % 140 == 0:
                 enemy.enemy_shot_multi(self.x -10, self.y, 2, 0, 5, 3)
             if self.mover.cycleCount > 3:
                 self.nextState()
         elif self.state == 1:
-            if self.cnt > 90:
-                self.setMode(1)
+            if self.cnt > 30:
+                self.nextMode()
+
+    def update3(self):
+        if self.cnt == 0:
+            self.mover = CountMover(self, __class__.moveTable30, False, True)
+        self.mover.update()
+        if self.cnt != 0 and self.cnt % 60 == 0:
+            ObjMgr.addObj(enemyShot.HomingBeam1(self.x, self.y -20, -math.pi*150/180,homingTime=45,colorTableNo=1))
+            ObjMgr.addObj(enemyShot.HomingBeam1(self.x, self.y +20, math.pi*150/180,homingTime=45,colorTableNo=1))
+            ObjMgr.addObj(enemyShot.HomingBeam1(self.x+32, self.y -40, -math.pi*120/180,homingTime=45,colorTableNo=1))
+            ObjMgr.addObj(enemyShot.HomingBeam1(self.x+32, self.y +40, math.pi*120/180,homingTime=45,colorTableNo=1))
+        if self.cnt > 500:
+            self.setMode(1)
+    
 
     def shotBeam(self, flag):
         f = self.beamFlag if flag else not self.beamFlag
@@ -1218,8 +1270,12 @@ class BossEnemybaseBody3(enemy.EnemyBase):
                 if self.coreBrightness <= -3:
                     self.coreBrightState = 0
         pyxel.pal()
-    
-    def drawCover(self, px, py, x):
+
+    def drawRoundBeamCover(self, px, py):
+        pyxel.blt(gcommon.sint(px -50.5)+64, gcommon.sint(py -55.5) +40 -self.roundBeamCoverPos, 2, 104, 112, 40, 16, 3)
+        pyxel.blt(gcommon.sint(px -50.5)+64, gcommon.sint(py -55.5) +56 +self.roundBeamCoverPos, 2, 104, 128, 40, 16, 3)
+
+    def drawMainCover(self, px, py, x):
         # 左
         pyxel.blt(gcommon.sint(px -50.5+24 -x*16), py -7.5, 2, 0, 120, 24, 16, 3)
         # 右
@@ -1232,24 +1288,28 @@ class BossEnemybaseBody3(enemy.EnemyBase):
     def drawNormal(self):
         # 本体
         pyxel.blt(gcommon.sint(self.x -50.5), gcommon.sint(self.y -55.5), 2, 0, 0, 128, 112, 3)
+        self.drawRoundBeamCover(self.x, self.y)
         self.drawCore()
         pyxel.blt(gcommon.sint(self.x -50.5+24), gcommon.sint(self.y -55.5)+40, 2, 0, 144, 49, 32, 3)
 
     def draw(self):
         if self.mode == 0:
-            if self.state == 0:
+            if self.state in (0,1):
+                self.drawCore()
+            elif self.state == 2:
                 x = 1.0
-                if self.cnt >60 and self.cnt < 150:
-                    x = math.pow(1 - ((self.cnt-60)/90.0), 3)
-                elif self.cnt >= 150:
+                if self.cnt < 90:
+                    x = math.pow(1 - (self.cnt/90.0), 3)
+                elif self.cnt >= 90:
                     x = 0.0
                 pyxel.blt(gcommon.sint(127.5 +52 -50.5 +x*150), gcommon.sint(95.5 -55.5), 2, 0, 0, 128, 112, 3)
                 px = 127.5 +52 +x*150
                 py = 95.5
                 x = 1.0
-                self.drawCover(px, py, x)
+                self.drawRoundBeamCover(px, py)
+                self.drawMainCover(px, py, x)
                 self.drawCore()
-            elif self.state == 1:
+            elif self.state == 3:
                 x = 0.0
                 if self.cnt < 60:
                     x = math.pow(1 - (self.cnt/60.0), 3)
@@ -1257,7 +1317,16 @@ class BossEnemybaseBody3(enemy.EnemyBase):
                 py = 95.5
                 # 本体
                 pyxel.blt(gcommon.sint(px -50.5), gcommon.sint(py -55.5), 2, 0, 0, 128, 112, 3)
+                self.drawRoundBeamCover(px, py)
                 self.drawCore()
-                self.drawCover(px, py, x)
-        elif self.mode in (1, 2):
+                self.drawMainCover(px, py, x)
+        elif self.mode in (1, 2, 3):
             self.drawNormal()
+
+    def broken(self):
+        self.remove()
+        enemy.removeEnemyShot()
+        ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
+        GameSession.addScore(self.score)
+        BGM.sound(gcommon.SOUND_LARGE_EXP)
+        enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
