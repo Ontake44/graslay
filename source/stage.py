@@ -171,7 +171,8 @@ class Stage:
         [0, ScrollController1.LOOP_X, (512+152)*8, (512+160)*8],    # 21
         [0, ScrollController1.ACCEL_SCROLL_X, 6.0, 0.03125],       # 22
         [0, ScrollController1.LOOP_X, (512+152)*8, (512+160)*8],    # 23
-        #[0, ScrollController1.SET_SCROLL, 0.5, 0.0],
+        [0, ScrollController1.STOP, 240],                           # 18
+        [0, ScrollController1.ACCEL_SCROLL_X, 4.0, 0.03125],       # 25
     ]
 
     @classmethod
@@ -340,9 +341,11 @@ class Stage:
             gcommon.scrollController = ScrollController1(__class__.scrollTable6B)
             MapData.loadMapData(0, "assets/stage_enemybase.pyxmap")
             MapData.loadMapData(1, "assets/stage_enemybase-2.pyxmap")
+            MapData.loadMapData(2, "assets/stage_enemybase-3.pyxmap")
             MapData.loadMapData(7, "assets/stage_enemybaseb.pyxmap")
             MapData.loadMapAttribute("assets/stage_enemybase.mapatr")
             pyxel.tilemap(1).refimg = 1
+            pyxel.tilemap(2).refimg = 1
             pyxel.tilemap(4).refimg = 1
             pyxel.tilemap(7).refimg = 1
         #elif self.stage == 3:

@@ -278,6 +278,7 @@ waterSurface_y = 0.0
 
 getMapDataByMapPosHandler = None
 
+drawBackground = True
 
 # ====================================================================
 

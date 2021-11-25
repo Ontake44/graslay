@@ -32,7 +32,7 @@ class MyShipBase:
 		self.cnt = 0
 		# 移動をかけた場合にTrue
 		self.moveActionFlag = False
-		# 1:ゲーム中 2:爆発中 3:復活中 4:無敵中 5:クリア時
+		# 1:ゲーム中 2:爆発中 3:復活中 4:無敵中 5:クリア時 6:外部コントロール
 		self.sub_scene = 3
 		self.shotCounter = 0
 		self.missileCounter = 0
@@ -41,6 +41,7 @@ class MyShipBase:
 		self.setStartPosition()
 		self.mouseManager = parent.mouseManager
 		self.setWeapon(GameSession.weaponSave)
+		self.afterBurner = False
 
 	def getCenterPos(self):
 		return [self.x + __class__.CENTER_X, self.y + __class__.CENTER_Y]
@@ -48,6 +49,7 @@ class MyShipBase:
 	def update(self):
 		if gcommon.sync_map_y != 0:
 			gcommon.cur_map_dy = 0
+		self.afterBurner = False
 		if self.sub_scene == 1:
 			# ゲーム中
 			self.actionButtonInput()
@@ -85,6 +87,7 @@ class MyShipBase:
 				self.cnt = 0
 				self.sub_scene=1
 		elif self.sub_scene == 5:	# scene == 5
+			self.afterBurner = True
 			# クリア時
 			if self.cnt == 0:
 				BGM.sound(gcommon.SOUND_AFTER_BURNER)
@@ -92,6 +95,8 @@ class MyShipBase:
 				if self.dx < 8:
 					self.dx += 0.25
 				self.x += self.dx
+		elif self.sub_scene == 6:
+			pass
 		else:	# sub_scene = 10
 			# continue確認中
 			pass
@@ -225,8 +230,8 @@ class MyShipBase:
 		elif self.sub_scene in (3,4,5):
 			if self.cnt%2 ==0:
 				self.drawMyShip()
-				if self.sub_scene == 5:
-					pyxel.blt(self.x-32, self.y+4, 0, 72, 8, 32, 8, gcommon.TP_COLOR)
+		if self.afterBurner:
+			pyxel.blt(self.x-32, self.y+4, 0, 72, 8, 32, 8, gcommon.TP_COLOR)
 				
 		# 当たり判定領域描画
 		#pyxel.rect(self.x+ self.left, self.y+self.top, self.right-self.left+1, self.bottom-self.top+1, 8)

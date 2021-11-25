@@ -10,7 +10,7 @@ import gameSession
 from objMgr import ObjMgr
 from gameSession import GameSession
 from audio import BGM
-from enemy import CountMover, DockArm, EnemyShot
+from enemy import CountMover, DockArm, EnemyShot, Explosion
 import enemyOthers
 import enemyShot
 import drawing
@@ -1094,12 +1094,7 @@ class BossEnemybaseArcBeam1(enemy.EnemyBase):
 
 class BossEnemybaseBody3(enemy.EnemyBase):
     moveTable0 = [
-        [40, CountMover.STOP],
         [0, CountMover.MOVE_TO, 127.5+52, 95.5, 1],
-        [40, CountMover.STOP],
-        [0, CountMover.SET_STATE, 1],
-        [0, CountMover.SET_STATE, 2],
-        [0, CountMover.MOVE_TO, 256+32, 95.5, 8],   # 画面外に移動
     ]
     moveTable01 = [
         [120, CountMover.STOP],
@@ -1127,7 +1122,7 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         self.top = -6
         self.right = 6
         self.bottom = 6
-        self.hp = 5000
+        self.hp = 500
         self.layer = gcommon.C_LAYER_SKY
         self.hitCheck = True
         self.shotHitCheck = True
@@ -1156,23 +1151,10 @@ class BossEnemybaseBody3(enemy.EnemyBase):
             # 指定位置まで移動
             #gcommon.scrollController.setIndex(22)
             self.mover.update()
-            if self.mover.state == 1:
-                obj = enemy.Splash.appendDr(self.x, self.y -8, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
-                obj.ground = True
-                obj = enemy.Splash.appendDr(self.x -16, self.y, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
-                obj.ground = True
-                obj = enemy.Splash.appendDr(self.x, self.y +8, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
-                obj.ground = True
             if self.mover.isEnd:
                 self.nextState()
         elif self.state == 1:
-            if self.cnt == 0:
-                self.mover = CountMover(self, __class__.moveTable01, False, True)
-                # スクロール加速
-                gcommon.scrollController.setIndex(22)
-            self.mover.update()
-            if self.mover.isEnd:
-                self.nextState()
+            self.nextState()
         elif self.state == 2:
             # この間に本体がやってくる
             if self.cnt > 90:
@@ -1221,17 +1203,22 @@ class BossEnemybaseBody3(enemy.EnemyBase):
             if self.cnt > 30:
                 self.nextMode()
 
+    # ホーミングビーム
     def update3(self):
-        if self.cnt == 0:
-            self.mover = CountMover(self, __class__.moveTable30, False, True)
-        self.mover.update()
-        if self.cnt != 0 and self.cnt % 60 == 0:
-            ObjMgr.addObj(enemyShot.HomingBeam1(self.x, self.y -20, -math.pi*150/180,homingTime=45,colorTableNo=1))
-            ObjMgr.addObj(enemyShot.HomingBeam1(self.x, self.y +20, math.pi*150/180,homingTime=45,colorTableNo=1))
-            ObjMgr.addObj(enemyShot.HomingBeam1(self.x+32, self.y -40, -math.pi*120/180,homingTime=45,colorTableNo=1))
-            ObjMgr.addObj(enemyShot.HomingBeam1(self.x+32, self.y +40, math.pi*120/180,homingTime=45,colorTableNo=1))
-        if self.cnt > 500:
-            self.setMode(1)
+        if self.state == 0:
+            if self.cnt == 0:
+                self.mover = CountMover(self, __class__.moveTable30, False, True)
+            self.mover.update()
+            if self.cnt != 0 and self.cnt % 60 == 0:
+                ObjMgr.addObj(enemyShot.HomingBeam1(self.x, self.y -20, -math.pi*150/180,homingTime=45,colorTableNo=1))
+                ObjMgr.addObj(enemyShot.HomingBeam1(self.x, self.y +20, math.pi*150/180,homingTime=45,colorTableNo=1))
+                ObjMgr.addObj(enemyShot.HomingBeam1(self.x+32, self.y -40, -math.pi*120/180,homingTime=45,colorTableNo=1))
+                ObjMgr.addObj(enemyShot.HomingBeam1(self.x+32, self.y +40, math.pi*120/180,homingTime=45,colorTableNo=1))
+            if self.cnt > 240:
+                self.nextState()
+        elif self.state == 1:
+            if self.cnt > 120:
+                self.setMode(1)
     
 
     def shotBeam(self, flag):
@@ -1327,6 +1314,37 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         self.remove()
         enemy.removeEnemyShot()
         ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
+        ObjMgr.objs.append(BossEnemybaseAfterBroken())
         GameSession.addScore(self.score)
         BGM.sound(gcommon.SOUND_LARGE_EXP)
         enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
+
+class BossEnemybaseAfterBroken(enemy.EnemyBase):
+    def __init__(self):
+        super(__class__, self).__init__()
+        self.layer = gcommon.C_LAYER_SKY
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.enemyShotCollision = False
+    
+    def update(self):
+        if self.state == 0:
+            if self.cnt == 0:
+                gcommon.scrollController.setIndex(24)
+            if self.cnt > 180 and self.cnt % 20 == 0:
+                ObjMgr.addObj(Explosion(random.randrange(10, 256), 10, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M))
+                ObjMgr.addObj(Explosion(random.randrange(10, 256), gcommon.SCREEN_MAX_Y-10, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M))
+                BGM.sound(gcommon.SOUND_MID_EXP)
+            if self.cnt > 240:
+                self.nextState()
+        elif self.state == 1:
+            gcommon.scrollController.setIndex(25)
+            if self.cnt % 20 == 0:
+                ObjMgr.addObj(Explosion(random.randrange(10, 256), 10, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M))
+                ObjMgr.addObj(Explosion(random.randrange(10, 256), gcommon.SCREEN_MAX_Y-10, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M))
+            if gcommon.map_x > 12032:
+                self.nextState()
+        elif self.state == 2:
+            if self.cnt == 60:
+                ObjMgr.addObj(enemy.StageClear())
+

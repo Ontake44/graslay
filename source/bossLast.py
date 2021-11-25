@@ -271,9 +271,12 @@ class BossLast1(enemy.EnemyBase):
 		elif self.state == 1:
 			# 右の画面外に移動
 			if self.cnt == 1:
-				enemy.Splash.appendDr(self.coreX, self.coreY -8, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
-				enemy.Splash.appendDr(self.coreX -16, self.coreY, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
-				enemy.Splash.appendDr(self.coreX, self.coreY +8, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
+				obj = enemy.Splash.appendDr(self.coreX, self.coreY -8, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
+				obj.ground = True
+				obj = enemy.Splash.appendDr(self.coreX -16, self.coreY, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
+				obj.ground = True
+				obj = enemy.Splash.appendDr(self.coreX, self.coreY +8, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
+				obj.ground = True
 			if self.coreX < 300:
 				self.coreX += 4
 			if self.cnt == 120:

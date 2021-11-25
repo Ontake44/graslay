@@ -1055,6 +1055,7 @@ class MapDrawEnemyBase:
 		gcommon.mapHeight = 8 * 256
 		gcommon.back_map_x = -32 * 8/2
 		gcommon.back_map_y = 64 * 8
+		gcommon.drawBackground = True
 
 	def update0(self, skip):
 		pass
@@ -1102,7 +1103,7 @@ class MapDrawEnemyBase:
 			gcommon.back_map_x -= 8*32
 
 	def drawBackground(self):
-		if gcommon.back_map_x >= 8:
+		if gcommon.drawBackground and gcommon.back_map_x >= 8:
 			if gcommon.back_map_x < 16:
 				Drawing.setBrightnessMinus1()
 			mx = (int)(gcommon.back_map_x/8)
@@ -1123,10 +1124,14 @@ class MapDrawEnemyBase:
 			pyxel.bltm(gcommon.sint(-1 * int(gcommon.map_x)), gcommon.sint(-1 * (int(gcommon.map_y) % 8)), tmOffset, 0, (int)(gcommon.map_y/8),33,33, 15)
 		else:
 			tm = int(gcommon.map_x/4096) +tmOffset
+			if tm >= 3:
+				return
 			moffset = (int(gcommon.map_x/2048) & 1) * 128
 			w = int((gcommon.map_x %2048)/8)
 			pyxel.bltm(gcommon.sint(-1 * (math.fmod(gcommon.map_x, 8))), gcommon.sint(-1 * (int(gcommon.map_y) % 8)), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, 15)
 			if w >= 224:
 				tm2 = int((gcommon.map_x+256)/4096) +tmOffset
+				if tm2 >= 3:
+					return
 				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
 				pyxel.bltm(gcommon.sint((256-w)*8 -1 * (int(gcommon.map_x) % 8)), gcommon.sint(-1 * (int(gcommon.map_y) % 8)), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, 15)

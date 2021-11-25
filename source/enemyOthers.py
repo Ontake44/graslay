@@ -760,6 +760,7 @@ class ScrollController1(enemy.EnemyBase):
         self.shotHitCheck = False
         self.enemyShotCollision = False
         self.tableIndex = 0
+        self.enabled = True
 
     def update(self):
         while(True):
@@ -843,7 +844,7 @@ class ScrollController1(enemy.EnemyBase):
         
     def nextIndex(self):
         self.cnt = 0
-        if self.tableIndex < len(self.table) -1:
+        if self.tableIndex < len(self.table):
             self.tableIndex += 1
 
     def setIndex(self, index):
