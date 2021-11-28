@@ -1108,7 +1108,8 @@ class BossBattleShipCore(enemy.EnemyBase):
         self.hitcolor2 = 7
         self.layer = gcommon.C_LAYER_SKY
         self.exptype = gcommon.C_EXPTYPE_SKY_M
-        self.hp = 300
+        self.hp = boss.BOSS_BATTLESHIP_HP
+        self.score = 15000
         self.ground = False
         self.hitCheck = True
         self.shotHitCheck = True
@@ -1180,9 +1181,10 @@ class BossBattleShipCore(enemy.EnemyBase):
                     self.nextState()
                     ObjMgr.objs.append(boss.BossExplosion(pos[0], pos[1], gcommon.C_LAYER_EXP_SKY))
         elif self.state == 102:
-            if self.cnt > 120:
+            if self.cnt > 110:
                 self.remove()
                 self.parent.remove()
+                ObjMgr.addObj(enemy.Delay(enemy.StageClear,None,120))
 
         if self.state >= 1 and self.state < 100:
             if self.frameCount % 120 == 0:
@@ -1240,6 +1242,7 @@ class BossBattleShipCore(enemy.EnemyBase):
             self.thunderShooter.remove()
             self.thunderShooter = None
         self.setState(100)
+        GameSession.addScore(self.score)
         self.shotHitCheck = False
         self.hitCheck = False
         enemy.removeEnemyShot()

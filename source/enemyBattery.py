@@ -222,35 +222,35 @@ class Freight1(EnemyBase):
 			item.OneUpItem1.createByPos(self.x, self.y)
 
 
-# ※動かない
-# x, yは中心座標 t[2], t[3]はマップ座標
-class Ducker1(EnemyBase):
-	def __init__(self, t):
-		super(Ducker1, self).__init__()
-		pos = gcommon.mapPosToScreenPos(t[2], t[3])
-		self.x = pos[0] + 3.5
-		self.y = pos[1] + 3.5
-		self.firstShot = t[4]
-		self.moveTable = t[5]
-		self.left = -11
-		self.top = -11
-		self.right = 11
-		self.bottom = 11
-		self.layer = gcommon.C_LAYER_GRD
-		self.hp = 100
-		self.shotInterval = int(120 / GameSession.enemy_shot_rate)
-		self.hitCheck = True
-		self.shotHitCheck = True
-		self.enemyShotCollision = False
-		self.mover = CountMover(self, self.moveTable, False)
-		self.ground = True
-		self.score = 500
+# # ※動かない
+# # x, yは中心座標 t[2], t[3]はマップ座標
+# class Ducker1(EnemyBase):
+# 	def __init__(self, t):
+# 		super(Ducker1, self).__init__()
+# 		pos = gcommon.mapPosToScreenPos(t[2], t[3])
+# 		self.x = pos[0] + 3.5
+# 		self.y = pos[1] + 3.5
+# 		self.firstShot = t[4]
+# 		self.moveTable = t[5]
+# 		self.left = -11
+# 		self.top = -11
+# 		self.right = 11
+# 		self.bottom = 11
+# 		self.layer = gcommon.C_LAYER_GRD
+# 		self.hp = 100
+# 		self.shotInterval = int(120 / GameSession.enemy_shot_rate)
+# 		self.hitCheck = True
+# 		self.shotHitCheck = True
+# 		self.enemyShotCollision = False
+# 		self.mover = CountMover(self, self.moveTable, False)
+# 		self.ground = True
+# 		self.score = 500
 
-	def update(self):
-		pass
+# 	def update(self):
+# 		pass
 
-	def draw(self):
-		pass
+# 	def draw(self):
+# 		pass
 
 
 # 植物砲台（大）

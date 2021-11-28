@@ -347,7 +347,7 @@ class BossLabyrinth2(enemy.EnemyBase):
         self.bottom = 15.5
         self.hp = 6000
         self.layer = gcommon.C_LAYER_UNDER_GRD
-        self.score = 2000
+        self.score = 15000
         self.hitcolor1 = 8
         self.hitcolor2 = 14
         self.exptype = gcommon.C_EXPTYPE_SKY_L

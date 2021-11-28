@@ -147,7 +147,8 @@ class BossEnemybaseBody(enemy.EnemyBase):
         self.top = -15.5
         self.right = 15.5
         self.bottom = 15.5
-        self.hp = 3000
+        self.hp = boss.BOSS_ENEMYBASE_1
+        self.score = 5000
         self.layer = gcommon.C_LAYER_UPPER_SKY
         self.exptype = gcommon.C_EXPTYPE_SKY_L
         self.hitCheck = True
@@ -474,6 +475,7 @@ class BossEnemybaseBattery1(enemy.EnemyBase):
         self.right = 6.5
         self.bottom = 6.5
         self.hp = 200
+        self.score = 300
         self.layer = gcommon.C_LAYER_SKY | gcommon.C_LAYER_E_SHOT
         self.hitCheck = True
         self.shotHitCheck = True
@@ -523,6 +525,7 @@ class BossEnemybaseBattery1(enemy.EnemyBase):
             else:
                 pyxel.blt(gcommon.sint(self.x -11.5), gcommon.sint(self.y -11.5), 2, 128, 208, 24, 24, 3)
 
+# オレンジアイスバー？ビームを放つ砲台
 class BossEnemybaseBattery2(enemy.EnemyBase):
     beamPoints = [[0,0],[5,-4],[100,-4],[105, 0], [100,4],[5,4]]
     def __init__(self, parent, direction):
@@ -534,6 +537,7 @@ class BossEnemybaseBattery2(enemy.EnemyBase):
         self.right = 6.5
         self.bottom = 6.5
         self.hp = 200
+        self.score = 300
         self.layer = gcommon.C_LAYER_SKY | gcommon.C_LAYER_E_SHOT
         self.hitCheck = True
         self.shotHitCheck = True
@@ -639,6 +643,7 @@ class BossEnemybaseBody2(enemy.EnemyBase):
         self.right = 6
         self.bottom = 6
         self.hp = gcommon.HP_UNBREAKABLE
+        self.score = 5000
         self.layer = gcommon.C_LAYER_GRD
         self.hitCheck = True
         self.shotHitCheck = True
@@ -736,7 +741,7 @@ class BossEnemybaseBody2(enemy.EnemyBase):
             # 下方向に移動
             if self.cnt == 0:
                 self.ground = True
-                self.hp = 200
+                self.hp = boss.BOSS_ENEMYBASE_2
             if gcommon.isMapFreePos(self.x, self.y +10) == False:
                 self.nextState()
             else:
@@ -1122,7 +1127,8 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         self.top = -6
         self.right = 6
         self.bottom = 6
-        self.hp = 500
+        self.hp = boss.BOSS_ENEMYBASE_3
+        self.score = 50000
         self.layer = gcommon.C_LAYER_SKY
         self.hitCheck = True
         self.shotHitCheck = True

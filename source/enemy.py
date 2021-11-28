@@ -1080,7 +1080,8 @@ class Battery1(Battery0):
 #
 # 砲台
 class Battery1a(Battery0):
-	def __init__(self, mx, my, direction, first, interval):
+	# direction  0:上  1:下  2:右  3:左
+	def __init__(self, mx, my, direction, first=0, interval=0):
 		pos = gcommon.mapPosToScreenPos(mx, my)
 		super(__class__, self).__init__(pos[0], pos[1], direction, first, interval)
 
@@ -2731,7 +2732,7 @@ class Circulator1(EnemyBase):
 		self.direction = direction
 		self.left = 4
 		self.top = 4
-		self.hp = 999999
+		self.hp = gcommon.HP_NODAMAGE
 		self.layer = gcommon.C_LAYER_GRD
 		self.ground = True
 		self.hitCheck = True

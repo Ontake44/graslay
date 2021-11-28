@@ -198,7 +198,7 @@ class FireBird1Group(EnemyBase):
     def draw(self):
         pass
 
-
+# ステージ６Ｂ始めに出てくる無段階回転型
 class Fighter5(EnemyBase):
     def __init__(self, t):
         super(__class__, self).__init__()
@@ -214,7 +214,7 @@ class Fighter5(EnemyBase):
         self.shotHitCheck = True
         self.enemyShotCollision = False
         self.dx = -3
-        self.score = 100
+        self.score = 500
         self.brakeX = 240
         self.gunWidth = 32
         self.gunHeight = 32
@@ -254,7 +254,7 @@ class Fighter5(EnemyBase):
         pyxel.blt(gcommon.sint(self.x -15.5), gcommon.sint(self.y -15.5), 2, 0, 80, self.gunWidth, self.gunHeight, 3)
 
 
-
+# ステージ６Ｂで方向を変えながら移動する
 class Fighter6(EnemyBase):
     imageTable = [
         [0, -1, 1], [1, -1, -1], [2, -1, -1], [3, -1, -1],

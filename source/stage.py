@@ -287,8 +287,10 @@ class Stage:
             gcommon.eshot_sync_scroll = False
             MapData.loadMapData(0, "assets/stage_labyrinth.pyxmap")
             MapData.loadMapData(1, "assets/stage_labyrinth2.pyxmap")
+            MapData.loadMapData(7, "assets/stage_labyrinthb.pyxmap")
             MapData.loadMapAttribute("assets/stage_labyrinth.mapatr")
             pyxel.tilemap(1).refimg = 1
+            pyxel.tilemap(7).refimg = 1
         elif stage == "5A":
             # ファクトリー
             pyxel.image(1).load(0,0,"assets/graslay_factory.png")

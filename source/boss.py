@@ -22,6 +22,9 @@ BOSS_WAREHOUSE_HP = 9000
 BOSS_CAVE_HP = 7000
 BOSS_FIRE_HP = 4000
 BOSS_BATTLESHIP_HP = 4000
+BOSS_ENEMYBASE_1 = 3500
+BOSS_ENEMYBASE_2 = 200
+BOSS_ENEMYBASE_3 = 500
 
 # def remove_all_battery():
 # 	for obj in ObjMgr.objs:
@@ -429,7 +432,7 @@ class BeamPrepareEffect1(enemy.EnemyBase):
 		self.parent = parent
 		self.offsetX = ox
 		self.offsetY = oy
-		self.layer = gcommon.C_LAYER_GRD
+		self.layer = gcommon.C_LAYER_E_SHOT
 		self.hitCheck = False
 		self.shotHitCheck = False
 		self.enemyShotCollision = False

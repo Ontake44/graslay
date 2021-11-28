@@ -122,6 +122,7 @@ class Torpedo1(enemy.EnemyBase):
 		self.shotHitCheck = True
 		self.enemyShotCollision = False
 		self.hp = 50
+		self.score = 300
 		self.ground = True
 		self.speed = 3.0
 		self.imageSourceX = 0

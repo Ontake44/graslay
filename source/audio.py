@@ -29,6 +29,8 @@ class BGM:
         [1.0, "Zonky_Cyber.mp3"],
         [1.0, "Nervousness.mp3"],
         [1.0, "In_Chase.mp3"],
+        [1.0, "R246_Midnight.mp3"],
+        [1.0 ,"Pleasure_In_Survival.mp3"],
     ] 
 
     STAGE1 = 0		#"Dream_Fantasy.mp3"
@@ -52,6 +54,8 @@ class BGM:
     STAGE_FIRE = 17
     STAGE_CAVE = 18
     STAGE_WAREHOUSE = 19
+    STAGE_LABYRINTH = 20
+    STAGE_BATTLESHIP = 21
 
     @classmethod
     def getBgm(cls, no):

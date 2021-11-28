@@ -276,12 +276,8 @@ class MapDrawWarehouse:
 				if n in (390, 391):
 					# 砲台
 					gcommon.setMapDataByMapPosPage(2, mx, my, 0)
-					obj = enemy.Battery1([0,0,mx, my, 0])
-					if GameSession.isHard():
-						obj.first = 20
-						obj.shot_speed = 3
-					if n == 391:
-						obj.mirror = 1
+					firstShot = int(60 / GameSession.enemy_shot_rate)
+					obj = enemy.Battery1a(mx, my, 0 if n==390 else 1, firstShot)
 					ObjMgr.addObj(obj)
 				else:
 					n = gcommon.getMapDataByMapPosPage(5, mx, my)
@@ -907,11 +903,11 @@ class MapDrawLabirinth:
 		pass
 	
 	def init(self):
-		gcommon.map_x = -32 * 8
+		gcommon.map_x = -32 * 8 - 100
 		gcommon.map_y = 8 * 24
 		gcommon.mapHeight = 8 * 256
-		gcommon.back_map_x = -32 * 8/2
-		gcommon.back_map_y = 0
+		gcommon.back_map_x = 0		#-32 * 8/2
+		gcommon.back_map_y = 20 * 8
 
 	def update0(self, skip):
 		pass
@@ -953,13 +949,11 @@ class MapDrawLabirinth:
 		gcommon.map_x += gcommon.cur_scroll_x
 		gcommon.map_y += gcommon.cur_scroll_y
 		gcommon.back_map_x += gcommon.cur_scroll_x/2
+		gcommon.back_map_y += gcommon.cur_scroll_y/2
 
 	def drawBackground(self):
-		if gcommon.back_map_x < 0:
-			pyxel.bltm(-1 * int(gcommon.back_map_x), 0, 1, 0, 24,33,33, gcommon.TP_COLOR)
-		else:
-			mx = (int)(gcommon.back_map_x/8)
-			pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, gcommon.TP_COLOR)
+		mx = (int)(gcommon.back_map_x/8)
+		pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), -1 * (int(gcommon.back_map_y) % 8), 7, mx, gcommon.back_map_y/8,33,33, gcommon.TP_COLOR)
 
 	def draw(self):
 		# 上下ループマップなのでややこしい

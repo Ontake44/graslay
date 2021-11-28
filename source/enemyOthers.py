@@ -724,6 +724,7 @@ class BarrierWallV1(enemy.EnemyBase):
         self.shotHitCheck = True
         self.enemyShotCollision = False
         self.hp = 500
+        self.score = 500
 
     def update(self):
         if self.x < -16:

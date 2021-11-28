@@ -837,8 +837,8 @@ class MainGame:
 	def initEventLabyrinth(self):
 		baseOffset = 200
 		self.eventTable =[
-			[0, StartBGM, BGM.STAGE5],
-			[baseOffset,StartMapDrawLabyrinth],
+			[0, StartBGM, BGM.STAGE_LABYRINTH],
+			[0,StartMapDrawLabyrinth],
 			[baseOffset +1616,SetMapScroll, 0.0, 0.0],
 			[baseOffset +1720,SetMapScroll, 0.0, 0.50],
 			[baseOffset +2728,SetMapScroll, 0.50, 0.0],
@@ -849,7 +849,7 @@ class MainGame:
 	def initEventBattileShip(self):
 		baseOffset = 0
 		self.eventTable =[
-			[0, StartBGM, BGM.STAGE5],
+			[0, StartBGM, BGM.STAGE_BATTLESHIP],
 			[0, StartMapDrawBattleShip],
 			[0, SetMapScroll, 1.0, 0.0],
 			#[baseOffset +520, SetMapScroll, 1.0, -0.25],
@@ -862,7 +862,7 @@ class MainGame:
 	def initEventEnemyBase(self):
 		baseOffset = 0
 		self.eventTable =[
-			[0, StartBGM, BGM.STAGE5],
+			[0, StartBGM, BGM.STAGE6_1],
 			[0, StartMapDrawEnemyBase],
 			# [0, SetMapScroll, 0.0, 0.0],
 			# [1000, SetMapScroll, 0.5, 0.0],
