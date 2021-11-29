@@ -278,7 +278,7 @@ class Fighter6(EnemyBase):
         self.hitCheck = True
         self.shotHitCheck = True
         self.enemyShotCollision = False
-        self.score = 100
+        self.score = 300
         self.mover = CountMover(self, self.moveTable, False)
         self.startTimer = str(gcommon.game_timer)
 
