@@ -10,11 +10,25 @@ import gameSession
 from objMgr import ObjMgr
 from gameSession import GameSession
 from audio import BGM
-from enemy import CountMover, DockArm, EnemyShot, Explosion
+from enemy import CountMover, DockArm, EnemyShot, Explosion, Splash
 import enemyOthers
 import enemyShot
 import drawing
 from drawing import Drawing
+
+def drawCoreCommon(self):
+    Drawing.setBrightnessWithoutBlack(self.coreBrightness)
+    pyxel.blt(gcommon.sint(self.x) -7.5, gcommon.sint(self.y -55.5)+55.5 -7.5, 1, 88, 40, 16, 16, 3)
+    if self.cnt & 3 == 0:
+        if self.coreBrightState == 0:
+            self.coreBrightness += 1
+            if self.coreBrightness >= 4:
+                self.coreBrightState = 1
+        else:
+            self.coreBrightness -= 1
+            if self.coreBrightness <= -3:
+                self.coreBrightState = 0
+    pyxel.pal()
 
 class BossEnemybase(enemy.EnemyBase):
     def __init__(self, t):
@@ -793,23 +807,23 @@ class BossEnemybaseBody2(enemy.EnemyBase):
         self.setState(0)
 
 
-    def drawCore(self):
-        Drawing.setBrightnessWithoutBlack(self.coreBrightness)
-        pyxel.blt(gcommon.sint(self.x -7.5), gcommon.sint(self.y -7.5), 1, 88, 40, 16, 16, 3)
-        if self.cnt & 3 == 0:
-            if self.coreBrightState == 0:
-                self.coreBrightness += 1
-                if self.coreBrightness >= 4:
-                    self.coreBrightState = 1
-            else:
-                self.coreBrightness -= 1
-                if self.coreBrightness <= -3:
-                    self.coreBrightState = 0
-        pyxel.pal()
+    # def drawCore(self):
+    #     Drawing.setBrightnessWithoutBlack(self.coreBrightness)
+    #     pyxel.blt(gcommon.sint(self.x -7.5), gcommon.sint(self.y -7.5), 1, 88, 40, 16, 16, 3)
+    #     if self.cnt & 3 == 0:
+    #         if self.coreBrightState == 0:
+    #             self.coreBrightness += 1
+    #             if self.coreBrightness >= 4:
+    #                 self.coreBrightState = 1
+    #         else:
+    #             self.coreBrightness -= 1
+    #             if self.coreBrightness <= -3:
+    #                 self.coreBrightState = 0
+    #     pyxel.pal()
 
     def draw(self):
         if self.mode == 0:
-            self.drawCore()
+            drawCoreCommon(self)
             if self.state == 1:
                 x = 0.0
                 if self.cnt < 90:
@@ -830,7 +844,7 @@ class BossEnemybaseBody2(enemy.EnemyBase):
                 pyxel.blt(gcommon.sint(self.x -15.5), gcommon.sint(self.y -15.5), 2, 80, 144, 48, 32, 3)
                 pyxel.blt(gcommon.sint(self.x -15.5), gcommon.sint(self.y -15.5), 2, 0, 96, 32, 32, 3)
         else:
-            self.drawCore()
+            drawCoreCommon(self)
             if self.radSave != self.rad:
                 drawing.Drawing.setRotateImage(64, 192, 2, self.work, self.image, -self.rad +math.pi, 3)
                 self.radSave = self.rad
@@ -1000,7 +1014,7 @@ class BossEnemybaseBeam3(enemy.EnemyBase):
         self.top = -1.5
         self.right = 8
         self.bottom = 1.5
-        self.layer = gcommon.C_LAYER_GRD
+        self.layer = gcommon.C_LAYER_GRD | gcommon.C_LAYER_E_SHOT
         self.hitCheck = True
         self.shotHitCheck = False
         self.dx = -3.0
@@ -1019,6 +1033,7 @@ class BossEnemybaseBeam3(enemy.EnemyBase):
             self.dx *= 0.98
 
     def draw(self):
+        # たぶん、２回描いてる（レイヤが|指定なので）
         if self.cnt % 3 == 0:
             pyxel.blt(gcommon.sint(self.x) -11.5, gcommon.sint(self.y) -1.5, 2, 0, 208, 24, 4, 3)
         else:
@@ -1184,6 +1199,7 @@ class BossEnemybaseBody3(enemy.EnemyBase):
     def update1(self):
         if self.state == 0:
             if self.cnt == 0:
+                # 当たり判定変更
                 self.left = -24
                 self.top = -16
                 self.right = 56
@@ -1225,7 +1241,7 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         elif self.state == 2:
             if self.roundBeamCoverPos > 0:
                 self.roundBeamCoverPos -= 1
-            if self.cnt > 30:
+            if self.cnt > 50:
                 self.nextMode()
 
     # ホーミングビーム
@@ -1269,19 +1285,19 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         self.mode = mode
         self.setState(0)
 
-    def drawCore(self):
-        Drawing.setBrightnessWithoutBlack(self.coreBrightness)
-        pyxel.blt(gcommon.sint(self.x) -7.5, gcommon.sint(self.y -55.5)+55.5 -7.5, 1, 88, 40, 16, 16, 3)
-        if self.cnt & 3 == 0:
-            if self.coreBrightState == 0:
-                self.coreBrightness += 1
-                if self.coreBrightness >= 4:
-                    self.coreBrightState = 1
-            else:
-                self.coreBrightness -= 1
-                if self.coreBrightness <= -3:
-                    self.coreBrightState = 0
-        pyxel.pal()
+    # def drawCore(self):
+    #     Drawing.setBrightnessWithoutBlack(self.coreBrightness)
+    #     pyxel.blt(gcommon.sint(self.x) -7.5, gcommon.sint(self.y -55.5)+55.5 -7.5, 1, 88, 40, 16, 16, 3)
+    #     if self.cnt & 3 == 0:
+    #         if self.coreBrightState == 0:
+    #             self.coreBrightness += 1
+    #             if self.coreBrightness >= 4:
+    #                 self.coreBrightState = 1
+    #         else:
+    #             self.coreBrightness -= 1
+    #             if self.coreBrightness <= -3:
+    #                 self.coreBrightState = 0
+    #     pyxel.pal()
 
     def drawRoundBeamCover(self, px, py):
         pyxel.blt(gcommon.sint(px -50.5)+64, gcommon.sint(py -55.5) +40 -self.roundBeamCoverPos, 2, 104, 112, 40, 16, 3)
@@ -1301,13 +1317,13 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         # 本体
         pyxel.blt(gcommon.sint(self.x -50.5), gcommon.sint(self.y -55.5), 2, 0, 0, 128, 112, 3)
         self.drawRoundBeamCover(self.x, self.y)
-        self.drawCore()
+        drawCoreCommon(self)
         pyxel.blt(gcommon.sint(self.x -50.5+24), gcommon.sint(self.y -55.5)+40, 2, 0, 144, 49, 32, 3)
 
     def draw(self):
         if self.mode == 0:
             if self.state in (0,1):
-                self.drawCore()
+                drawCoreCommon(self)
             elif self.state == 2:
                 x = 1.0
                 if self.cnt < 90:
@@ -1320,7 +1336,7 @@ class BossEnemybaseBody3(enemy.EnemyBase):
                 x = 1.0
                 self.drawRoundBeamCover(px, py)
                 self.drawMainCover(px, py, x)
-                self.drawCore()
+                drawCoreCommon(self)
             elif self.state == 3:
                 x = 0.0
                 if self.cnt < 60:
@@ -1330,7 +1346,7 @@ class BossEnemybaseBody3(enemy.EnemyBase):
                 # 本体
                 pyxel.blt(gcommon.sint(px -50.5), gcommon.sint(py -55.5), 2, 0, 0, 128, 112, 3)
                 self.drawRoundBeamCover(px, py)
-                self.drawCore()
+                drawCoreCommon(self)
                 self.drawMainCover(px, py, x)
         elif self.mode in (1, 2, 3):
             self.drawNormal()
@@ -1339,11 +1355,16 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         self.remove()
         enemy.removeEnemyShot()
         ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
-        ObjMgr.objs.append(BossEnemybaseAfterBroken())
+        #ObjMgr.objs.append(BossEnemybaseAfterBroken())
+        ObjMgr.objs.append(enemy.Delay(BossEnemybaseCore, [0, None, self.x, self.y], 120))
+        BGM.stop()
         GameSession.addScore(self.score)
         BGM.sound(gcommon.SOUND_LARGE_EXP)
         enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
 
+# 破壊後の処理
+# ・基地爆発
+# ・スクロール制御
 class BossEnemybaseAfterBroken(enemy.EnemyBase):
     def __init__(self):
         super(__class__, self).__init__()
@@ -1356,7 +1377,7 @@ class BossEnemybaseAfterBroken(enemy.EnemyBase):
         if self.state == 0:
             if self.cnt == 0:
                 gcommon.scrollController.setIndex(24)
-            if self.cnt > 180 and self.cnt % 20 == 0:
+            if self.cnt > 60 and self.cnt % 20 == 0:
                 ObjMgr.addObj(Explosion(random.randrange(10, 256), 10, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M))
                 ObjMgr.addObj(Explosion(random.randrange(10, 256), gcommon.SCREEN_MAX_Y-10, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M))
                 BGM.sound(gcommon.SOUND_MID_EXP)
@@ -1373,3 +1394,44 @@ class BossEnemybaseAfterBroken(enemy.EnemyBase):
             if self.cnt == 60:
                 ObjMgr.addObj(enemy.StageClear())
 
+class BossEnemybaseCore(enemy.EnemyBase):
+    def __init__(self, t):
+        super(__class__, self).__init__()
+        self.x = t[2]
+        self.y = t[3]
+        self.left = -6
+        self.top = -6
+        self.right = 6
+        self.bottom = 6
+        self.hp = gcommon.HP_NODAMAGE
+        self.layer = gcommon.C_LAYER_SKY
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.enemyShotCollision = False
+        self.coreBrightState = 0
+        self.coreBrightness = 0
+        self.interval = 50
+
+    def update(self):
+        if self.state == 0:
+            if self.cnt % self.interval == 0:
+                rad = random.randrange(0, 360) * math.pi/180
+                enemy.Splash.appendDr(self.x, self.y, gcommon.C_LAYER_EXP_SKY, rad, 2.0 * math.pi, 20)
+                pyxel.stop(0)
+                BGM.sound(gcommon.SOUND_SMASH2)
+                self.interval -= 3
+                if self.interval < 5:
+                    self.interval = 5
+                if self.cnt > 300:
+                    BGM.sound(gcommon.SOUND_LARGE_EXP)
+                    enemy.Splash.append2(self.x, self.y, gcommon.C_LAYER_EXP_SKY, 2000)
+                    self.nextState()
+        elif self.state == 1:
+            if self.cnt > 120:
+                ObjMgr.objs.append(BossEnemybaseAfterBroken())
+                BGM.play(BGM.BOSS_LAST)
+                self.remove()
+
+    def draw(self):
+        if self.state == 0:
+            drawCoreCommon(self)

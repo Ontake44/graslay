@@ -83,9 +83,9 @@ class BGM:
     def sound(cls, snd,ch=0):
         if Settings.soundVolume > 0:
             n = pyxel.play_pos(ch)
-            if n >=0:
-                pass
-                #print("snd=" + hex(n))
+            #if n >=0:
+            #    pass
+            #    #print("snd=" + hex(n))
             if (n == -1):
                 pyxel.play(ch, snd)
             else:
