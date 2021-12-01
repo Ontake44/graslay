@@ -5,7 +5,7 @@ from settings import Settings
 
 class BGM:
     #                 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26
-    sound_priority = [0,2,1,4,5,3,6,8,8,1, 0, 6, 6, 1, 6, 6, 6, 1, 0, 5, 0, 0, 0, 0, 0, 0, 0]
+    sound_priority = [0,2,1,4,5,3,6,8,8,1, 0, 6, 6, 1, 6, 6, 6, 1, 0, 5, 0, 5, 0, 3, 0, 0, 0]
 
     bgmList = [
         # volume rate, filename

@@ -26,7 +26,7 @@ class GameSession:
 
 	@classmethod
 	def init(cls, difficulty, playerStock, gameMode, stage, credits):
-		cls.difficulty = difficulty
+		__class__.difficulty = difficulty
 		__class__.playerStock = playerStock
 		__class__.score = 0
 		__class__.scoreCheck = 0

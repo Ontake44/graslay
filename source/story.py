@@ -1029,6 +1029,14 @@ class Story:
 						[900, 0, 3.0, 0.0]
 					], 30
 				], 15, 5],
+			[baseOffset +6120, enemy.EnemyGroup, enemy.Fighter3, 
+				[
+					0, None, 64, 60,
+					[
+						[0, CountMover.CHANGE_LAYER, gcommon.C_LAYER_UNDER_GRD],
+						[40, 0, 0.0, 2.0], [900, 0, 3.0, 0.0],
+					], 30
+				], 15, 5],
 		]
 	
 	@classmethod

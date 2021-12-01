@@ -167,6 +167,7 @@ class BossBattleShip(enemy.EnemyBase):
         self.appendBattery(109, 42, 1)
         self.appendBattery(94, 42, 1)
         self.children = []
+        self.torpedoLauncherMask = False
 
     def appendBattery(self, mx, my, direction):
         self.batteryList.append(BattleShipBattery(self, (mx -__class__.TILE_LEFT)*8, (my -__class__.TILE_TOP)*8, direction))
@@ -277,9 +278,9 @@ class BossBattleShip(enemy.EnemyBase):
         first = True
         for p in table:
             obj = self.addChild(BossBattleShipStaticPart(self, (p[0]- __class__.TILE_LEFT)*8, (p[1]- __class__.TILE_TOP)*8, p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10]))
-            if first:
-                obj.test = True
-                first = False
+            # if first:
+            #     obj.test = True
+            #     first = False
             if layer != 0:
                 obj.layer = layer
 
@@ -315,6 +316,9 @@ class BossBattleShip(enemy.EnemyBase):
         launcherType = params[4]
         self.addChild(Torpedo1Launcher1(self, omx, omy, launcherType))
 
+    def setTorpedoLauncherMask(self, params):
+        self.torpedoLauncherMask = params[2]
+
     def upperBackFire(self, params):
         time = params[2]
         pos = params[3]
@@ -330,7 +334,7 @@ class BossBattleShip(enemy.EnemyBase):
         if layer == gcommon.C_LAYER_GRD:
             pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 4, 15, 134-4, 45-15, 2)
             #gcommon.Text2(200, 184, str(self.cnt), 7, 0)
-        elif layer == gcommon.C_LAYER_UPPER_SKY:
+        elif layer == gcommon.C_LAYER_UPPER_SKY and self.torpedoLauncherMask:
             pyxel.bltm(gcommon.sint(self.x +(121 -__class__.TILE_LEFT) *8), gcommon.sint(self.y + (26 -__class__.TILE_TOP)*8), 1, 16, 91, 9, 2, 2)
             pyxel.bltm(gcommon.sint(self.x +(121 -__class__.TILE_LEFT) *8), gcommon.sint(self.y + (28 -__class__.TILE_TOP)*8), 1, 16, 91, 9, 2, 2)
             pyxel.bltm(gcommon.sint(self.x +(122 -__class__.TILE_LEFT) *8), gcommon.sint(self.y + (32 -__class__.TILE_TOP)*8), 1, 16, 94, 9, 3, 2)
@@ -394,12 +398,14 @@ class BossBattleShip(enemy.EnemyBase):
         [2110, missileLauncher, 102, 2, 0],
         [2130, missileLauncher, 102, 3, 0],
         [2800 -400, setScroll, 0.5, 0.25],
+        [2400, setTorpedoLauncherMask, True],   # 魚雷管マスクON
         [2400, torpedoLauncher, (126-TILE_LEFT), (26-TILE_TOP), 0],
         [2460, torpedoLauncher, (126-TILE_LEFT), (28-TILE_TOP), 0],
         [2520, torpedoLauncher, (127-TILE_LEFT), (32-TILE_TOP), 1],
         [2600, torpedoLauncher, (126-TILE_LEFT), (28-TILE_TOP), 0],
         [2630, torpedoLauncher, (127-TILE_LEFT), (32-TILE_TOP), 1],
         [2700, torpedoLauncher, (126-TILE_LEFT), (26-TILE_TOP), 0],
+        [2730, setTorpedoLauncherMask, False],  # 魚雷管マスクOFF
         [3280 -400, setScroll, 0.25, 0.0],
         [3200, missileLauncher, 102, 3, 16],
         [3220, missileLauncher, 102, 2, 16],
@@ -612,6 +618,12 @@ class BattleShipHomingMissile1(enemy.EnemyBase):
         self.imageSourceX = 32
         self.imageSourceY = 224
         self.speed = 4.5
+        # 追尾時間
+        self.trackingTime = 120
+        if GameSession.isEasy():
+            self.trackingTime = 100
+        elif GameSession.isHard():
+            self.trackingTime = 130
 
     def update(self):
         if self.x < -32 or self.x > (gcommon.SCREEN_MAX_X+32) or self.y <-32 or self.y > (gcommon.SCREEN_MAX_Y+32):
@@ -654,6 +666,16 @@ class BattleShipMissileLauncher1(enemy.EnemyBase):
         [5, 0],
         [5, 4],
     ]
+    stateTable0Easy = [
+        [5, 1],
+        [5, 2],
+        [5, 3],    # 発射
+        [10, 3],    # 発射
+        [5, 2],
+        [5, 1],
+        [5, 0],
+        [5, 4],
+    ]
     def __init__(self, parent, ox, oy, mx, my, direction):
         super(__class__, self).__init__()
         self.parent = parent
@@ -667,7 +689,10 @@ class BattleShipMissileLauncher1(enemy.EnemyBase):
         self.hitCheck = False
         self.shotHitCheck = False
         self.enemyShotCollision = False
-        self.stater = enemy.CountStater(self, __class__.stateTable0, False, False)
+        if GameSession.isEasy():
+            self.stater = enemy.CountStater(self, __class__.stateTable0Easy, False, False)
+        else:
+            self.stater = enemy.CountStater(self, __class__.stateTable0, False, False)
 
     def update(self):
         self.stater.update()
@@ -752,6 +777,11 @@ class BossBattleShipLaserCannon(enemy.EnemyBase):
         self.shotHitCheck = False
         self.rad = 0.0
         self.shotCount = 0
+        self.laserInterval = 10
+        if GameSession.isEasy():
+            self.laserInterval = 14
+        if GameSession.isHard():
+            self.laserInterval = 8
         self.gunWidth = 48
         self.gunHeight = 48
         self.image = [None]* self.gunWidth
@@ -1035,6 +1065,7 @@ class BossBattleShipHangeredFighter3(enemy.EnemyBase):
         self.hitcolor2 = 7
         self.layer = gcommon.C_LAYER_SKY
         self.hp = 10
+        self.score = 100
         self.ground = False
         self.hitCheck = True
         self.shotHitCheck = True
@@ -1115,6 +1146,11 @@ class BossBattleShipCore(enemy.EnemyBase):
         self.shotHitCheck = True
         self.lightningShutterPos = 0
         self.thunderShooter = None
+        self.shotInterval = 120
+        if GameSession.isEasy():
+            self.shotInterval = 240
+        if GameSession.isHard():
+            self.shotInterval = 90
         #gcommon.debugPrint("Core")
 
     # 1: 待ち
@@ -1187,9 +1223,9 @@ class BossBattleShipCore(enemy.EnemyBase):
                 ObjMgr.addObj(enemy.Delay(enemy.StageClear,None,120))
 
         if self.state >= 1 and self.state < 100:
-            if self.frameCount % 120 == 0:
+            if self.frameCount % self.shotInterval == 0:
                 enemy.enemy_shot(self.x + 14, self.y +6, 2.0, 0)
-            if self.frameCount % 120 == 60:
+            if self.frameCount % self.shotInterval == self.shotInterval/2:
                 enemy.enemy_shot(self.x + 14, self.y +8*13 -6, 2.0, 0)
 
     def draw(self):

@@ -4274,7 +4274,7 @@ class Fighter3(EnemyBase):
 		self.y = t[3]
 		self.moveTable = t[4]
 		self.shotFirst = t[5]
-		if self.x > gcommon.SCREEN_MIN_X:
+		if self.x > 100:		#gcommon.SCREEN_MIN_X:
 			self.left = 4
 			self.top = 7
 			self.right = 19

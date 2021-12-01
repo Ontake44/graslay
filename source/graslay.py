@@ -931,19 +931,24 @@ def parseCommandLine():
 			if idx+1<len(sys.argv):
 				gcommon.START_STAGE = sys.argv[idx+1]
 				print("set START_STAGE = " + gcommon.START_STAGE)
+		elif arg == "-DF":
+			if idx+1<len(sys.argv):
+				Settings.difficulty = int(sys.argv[idx+1])
+				print("set DIFFICULTY = " + str(Settings.difficulty))
 		idx+=1
 
 
 class App:
 	def __init__(self):
 		gcommon.app = self
-		# コマンドライン解析
-		parseCommandLine()
 		
 		pygame.mixer.init()
 		pyxel.init(256, 200, caption="GRASLAY", fps=60, quit_key=pyxel.KEY_Q)
 
 		Settings.loadSettings()
+		# コマンドライン解析
+		parseCommandLine()
+		
 		pyxel.load("assets/graslay.pyxres")
 		pyxel.image(0).load(0,0,"assets/graslay0.png")
 		

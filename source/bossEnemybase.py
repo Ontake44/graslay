@@ -34,8 +34,11 @@ class BossEnemybase(enemy.EnemyBase):
 
     def update(self):
         if self.state == 0:
-            if self.cnt == 90:
+            if self.cnt == 0:
+                BGM.sound(gcommon.SOUND_CLOSING)
+            elif self.cnt == 90:
                 ObjMgr.addObj(BossEnemybaseBody(self))
+                BGM.sound(gcommon.SOUND_CLOSED)
         else:
             if self.cnt == 90:
                 self.remove()
@@ -693,6 +696,7 @@ class BossEnemybaseBody2(enemy.EnemyBase):
                 #gcommon.setScroll(0.0, -0.5)
                 gcommon.scrollController.nextIndex()
                 self.nextState()
+                BGM.sound(gcommon.SOUND_COMBINE)
         elif self.state == 2:
             # 合体後のピカーン
             if self.cnt == 60:
@@ -1020,6 +1024,7 @@ class BossEnemybaseBeam3(enemy.EnemyBase):
         else:
             pyxel.blt(gcommon.sint(self.x) -11.5, gcommon.sint(self.y) -1.5, 2, 0, 212, 24, 4, 3)
 
+# ぐるぐるビーム
 class BossEnemybaseArcBeam1(enemy.EnemyBase):
     # x,y 弾の中心を指定
     def __init__(self, x, y, directionFlag):
@@ -1041,6 +1046,11 @@ class BossEnemybaseArcBeam1(enemy.EnemyBase):
         self.rad = math.pi
         self.headX = 0
         self.headY = 0
+        self.lengthRate = 1.0
+        if GameSession.isEasy():
+            self.lengthRate = 0.7
+        elif GameSession.isHard():
+            self.lengthRate = 1.3
         self.omega = 20.0 if directionFlag else -20.0
         #                   0     1       2       3      4      5
         self.beamPoints = [[0,0],[3, -3],[5, -3],[8, 0],[5, 3],[3, 3]]
@@ -1055,10 +1065,10 @@ class BossEnemybaseArcBeam1(enemy.EnemyBase):
         self.beamPoints[4][0] = 5 * self.size
         polygonList1 = []
         polygonList1.append(gcommon.Polygon(self.beamPoints, 10))
-        self.xpolygonListA1 = gcommon.getAnglePolygons2([self.x, self.y], polygonList1, [-2 * self.size, 0], self.rad, 1.0, 1.0)
-        self.xpolygonListA2 = gcommon.getAnglePolygons2([self.x, self.y], polygonList1, [-2 * self.size, 0], self.rad, 1.0, 0.5)
-        self.xpolygonListB1 = gcommon.getAnglePolygons2([self.x, self.y], polygonList1, [-2 * self.size, 0], self.rad +math.pi, 1.0, 1.0)
-        self.xpolygonListB2 = gcommon.getAnglePolygons2([self.x, self.y], polygonList1, [-2 * self.size, 0], self.rad +math.pi, 1.0, 0.5)
+        self.xpolygonListA1 = gcommon.getAnglePolygons2([self.x, self.y], polygonList1, [-2 * self.size, 0], self.rad, self.lengthRate, 1.0)
+        self.xpolygonListA2 = gcommon.getAnglePolygons2([self.x, self.y], polygonList1, [-2 * self.size, 0], self.rad, self.lengthRate, 0.5)
+        self.xpolygonListB1 = gcommon.getAnglePolygons2([self.x, self.y], polygonList1, [-2 * self.size, 0], self.rad +math.pi, self.lengthRate, 1.0)
+        self.xpolygonListB2 = gcommon.getAnglePolygons2([self.x, self.y], polygonList1, [-2 * self.size, 0], self.rad +math.pi, self.lengthRate, 0.5)
         self.rad += math.pi * self.omega/180
         self.size += 0.1
         if self.size> 8.0:
@@ -1169,6 +1179,7 @@ class BossEnemybaseBody3(enemy.EnemyBase):
             # カバーを格納
             if self.cnt == 70:
                 self.nextMode()
+                BGM.sound(gcommon.SOUND_COMBINE)
 
     def update1(self):
         if self.state == 0:
@@ -1198,14 +1209,22 @@ class BossEnemybaseBody3(enemy.EnemyBase):
             if self.cnt == 0:
                 self.mover = CountMover(self, __class__.moveTable11, True, True)
             self.mover.update()
+            self.roundBeamCoverPos += 1
+            if self.roundBeamCoverPos >= 14:
+                self.nextState()
+        elif self.state == 1:
+            self.mover.update()
             if self.cnt % 90 == 0:
-                ObjMgr.addObj(BossEnemybaseArcBeam1(self.x +30, self.y, self.beamFlag))
+                ObjMgr.addObj(BossEnemybaseArcBeam1(self.x +33, self.y, self.beamFlag))
+                enemyOthers.Spark1.create(self, 33, 0, gcommon.C_LAYER_E_SHOT)
                 self.beamFlag = not self.beamFlag
             if self.cnt % 140 == 0:
                 enemy.enemy_shot_multi(self.x -10, self.y, 2, 0, 5, 3)
             if self.mover.cycleCount > 3:
                 self.nextState()
-        elif self.state == 1:
+        elif self.state == 2:
+            if self.roundBeamCoverPos > 0:
+                self.roundBeamCoverPos -= 1
             if self.cnt > 30:
                 self.nextMode()
 
