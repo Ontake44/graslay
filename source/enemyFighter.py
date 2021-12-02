@@ -204,10 +204,10 @@ class Fighter5(EnemyBase):
         super(__class__, self).__init__()
         self.x = 256
         self.y = t[2]
-        self.left = 4
-        self.top = 4
-        self.right = 13
-        self.bottom = 13
+        self.left = -7
+        self.top = -7
+        self.right = 7
+        self.bottom = 7
         self.layer = gcommon.C_LAYER_SKY
         self.hp = 100
         self.hitCheck = True

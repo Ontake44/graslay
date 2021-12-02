@@ -71,12 +71,15 @@ class BossLabyrinth(enemy.EnemyBase):
                         fx = -1
                         dr = 0
                     if self.cnt % 60 == 0:
-                        enemy.enemy_shot_dr_multi(self.x -48 * fx, self.y-20, 3, 0, dr, 4, 3)
-                        enemy.enemy_shot_dr_multi(self.x -48 * fx, self.y+20, 3, 0, dr, 4, 3)
-                        # ObjMgr.addObj(BossLabyrinthShot1(self.x -48, self.y-20-16, 4))
-                        # ObjMgr.addObj(BossLabyrinthShot1(self.x -48, self.y-20, 4))
-                        # ObjMgr.addObj(BossLabyrinthShot1(self.x -48, self.y+20, 4))
-                        # ObjMgr.addObj(BossLabyrinthShot1(self.x -48, self.y+20+16, 4))
+                        if GameSession.isEasy():
+                            enemy.enemy_shot_dr_multi(self.x -48 * fx, self.y-20, 3, 0, dr, 3, 4)
+                            enemy.enemy_shot_dr_multi(self.x -48 * fx, self.y+20, 3, 0, dr, 3, 4)
+                        elif GameSession.isHard():
+                            enemy.enemy_shot_dr_multi(self.x -48 * fx, self.y-20, 3, 0, dr, 6, 2)
+                            enemy.enemy_shot_dr_multi(self.x -48 * fx, self.y+20, 3, 0, dr, 6, 2)
+                        else:
+                            enemy.enemy_shot_dr_multi(self.x -48 * fx, self.y-20, 3, 0, dr, 4, 3)
+                            enemy.enemy_shot_dr_multi(self.x -48 * fx, self.y+20, 3, 0, dr, 4, 3)
         elif self.state == 2:
             if self.mover.tableIndex == 0:
                 # STOP
@@ -190,7 +193,7 @@ class BossLabyrinth(enemy.EnemyBase):
             #Drawing.blt(self.x -15.5, self.y-15.5, 2, 56, 0, 32, 32)
         elif self.state == 101:
             # 中心
-            Drawing.blt(self.x -15.5, self.y-15.5, 2, 56, 0, 32, 32)
+            Drawing.blt(self.x -15.5, self.y-15.5, 2, 56, 0, 32, 32, 3)
 
     def broken(self):
         self.setState(100)
@@ -356,6 +359,7 @@ class BossLabyrinth2(enemy.EnemyBase):
         self.arm2Pos = 0
         self.beamPrepareEffect = None
         self.dx = 0.0
+        self.speadBeamFlag = False
 
     def update(self): 
         if self.state == 0:
@@ -379,14 +383,20 @@ class BossLabyrinth2(enemy.EnemyBase):
             # スプレッドレーザー発射
             if self.cnt % 30 == 0:
                 n = int(self.cnt /30)
-                if n <= 2:
-                    y = self.y-39.5 +16 -48 + n * 16 +3
+                if self.speadBeamFlag:
+                    pos = 3 - n
+                else:
+                    pos = n
+                if pos <= 2:
+                    y = self.y-39.5 +16 -48 + pos * 16 +3
                     ObjMgr.addObj(BossLabyrinthShot1(self.x -22, y, -4, spreadTime=30))
-                    y = self.y+23.5 -16 +48 - n * 16 +11
+                    y = self.y+23.5 -16 +48 - pos * 16 +11
                     ObjMgr.addObj(BossLabyrinthShot1(self.x -22, y, -4, spreadTime=30))
                 else:
                     ObjMgr.addObj(BossLabyrinthShot1(self.x -58, self.y -13, -4, spreadTime=30))
                     ObjMgr.addObj(BossLabyrinthShot1(self.x -58, self.y +13, -4, spreadTime=30))
+                if n >= 3:
+                    self.speadBeamFlag = not self.speadBeamFlag
                     self.nextState()
         elif self.state == 5:
             self.arm1Pos -= 1
@@ -466,9 +476,11 @@ class BossLabyrinth2(enemy.EnemyBase):
         y = ObjMgr.myShip.y + myShip.MyShipBase.CENTER_Y
         if math.fabs(y - self.y) > 2.0:
             if y -self.y < 0:
-                self.y -= 1.0
+                if self.y > 16:
+                    self.y -= 1.0
             else:
-                self.y += 1.0
+                if self.y < gcommon.SCREEN_MAX_Y -16:
+                    self.y += 1.0
 
     def draw(self):
         #pyxel.blt(self.x -15.5, self.y-15.5, 2, 56, 0, 32, 32)

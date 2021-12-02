@@ -825,13 +825,14 @@ def clearMapData(x, y):
 			if mx>=0 and mx<256*6 and my>=0 and my<128:
 				tm = int(mx/512)
 				moffset = (int(mx/256) & 1) * 128
-				pyxel.tilemap(tm).set(mx & 255, (my + moffset) & 255, pyxel.tilemap(tm+4).get(mx & 255, (my + moffset) & 255))
+				#pyxel.tilemap(tm).set(mx & 255, (my + moffset) & 255, pyxel.tilemap(tm+4).get(mx & 255, (my + moffset) & 255))
+				pyxel.tilemap(tm).set(mx & 255, (my + moffset) & 255, 0)
 			else:
 				return
 		else:
 			my = int((map_y +y)/8)
 			if mx>=0 and mx<256 and my>=0 and my<256:
-				pyxel.tilemap(0).set(mx, my, p)
+				pyxel.tilemap(0).set(mx, my, 0)
 			else:
 				return
 

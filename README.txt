@@ -1,6 +1,6 @@
 ------------------------------------------------------
   タイトル：GRASLAY
-  Version ：2.00
+  Version ：2.10
   著 作 者：Ontake44
   動作環境：Windows 7, 8.1, 10 いずれも64bit
   連 絡 先：twitter： https://twitter.com/Ontake441
@@ -31,18 +31,22 @@ graslay.exeを実行してください。
 
 ## ゲームについて
 
-全９ステージですが、分岐がありますので６ステージでクリアです。
+全１２ステージですが、分岐がありますので６ステージでクリアです。
 １ステージは比較的短いです。
+A,B,Cで分岐となります。
 
 1A. 敵前線基地
 2A. 細胞
 2B. 洞窟
 3A. 高速スクロール
 3B. 敵倉庫
+3C. 敵巨大戦艦
 4A. 神殿
+4B. 迷宮
 5A. 工場
 5B. 炎基地
 6A. 敵本拠地
+6B. 敵要塞
 
 ## 武器について
 
@@ -63,7 +67,7 @@ https://twitter.com/Ontake441
 
 ## 動画配信等について
 
-ご自由にどうぞ。
+是非ご自由にどうぞ。
 
 
 ## アンインストール
@@ -85,11 +89,13 @@ https://dova-s.jp/_contents/author/profile295.html
 * ステージ２Ｂ Nervousness
 * ステージ３Ａ Spear
 * ステージ３Ｂ In Chase
+* ステージ３Ｃ Pleasure_In_Survival
+* ステージ４Ｂ R246_Midnight
 * ステージ５Ａ Abstract
 * ステージ５Ｂ Zonky Cyber
-* ステージ６Ａ－１ Break the Wedge
+* ステージ６Ａ－１、６Ｂ－１ Break the Wedge
 * ステージ６Ａ－２ Fantasma
-* ステージ６Ａ－３ In Dark Down
+* ステージ６Ａ－３、６Ｂ－２ In Dark Down
 * ボス Grenade
 * ランキング with silence
 
@@ -151,3 +157,7 @@ Licenesフォルダも参照してください。
 * ３ステージ追加し、２、３、５面を選択分岐するようにした。
 * 従来ステージは1A～6A、追加は2B、3B、5Bとなります。
 * 従来ステージボスの攻撃を若干見直し。
+
+### 2.10
+* ３ステージ追加し、３、４、６面を選択分岐するようにした。
+* 追加ステージは3B、4C、6B。

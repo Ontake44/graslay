@@ -252,10 +252,21 @@ class BossEnemybaseBody(enemy.EnemyBase):
             self.rad = math.radians(self.mover.deg)
             if self.cnt % 40 == 0:
                 self.rad = math.radians(self.mover.deg)
-                if self.cnt % 80 == 0:
-                    self.shotSmall(5)
+                if GameSession.isEasy():
+                    if self.cnt % 80 == 0:
+                        self.shotSmall(3)
+                    else:
+                        self.shotSmall(4)
+                elif GameSession.isHard():
+                    if self.cnt % 80 == 0:
+                        self.shotSmall(7)
+                    else:
+                        self.shotSmall(8)
                 else:
-                    self.shotSmall(6)
+                    if self.cnt % 80 == 0:
+                        self.shotSmall(5)
+                    else:
+                        self.shotSmall(6)
             if self.mover.isEnd:
                 self.nextMode()
                 #self.setState(0)
@@ -746,7 +757,7 @@ class BossEnemybaseBody2(enemy.EnemyBase):
             #ObjMgr.addObj(BossEnemybaseBeam2(self, -10, 0, -math.pi/180))
         #self.setScrollLoop()
         if self.cnt % 60 == 0:
-            enemy.enemy_shot_dr_multi(self.x -10, self.y, 2, 0, 32, 5, 3)
+            self.shotMulti()
         if self.mover.isEnd:
             self.nextMode()
             self.frameCount = 0
@@ -783,10 +794,17 @@ class BossEnemybaseBody2(enemy.EnemyBase):
             else:
                 self.x += 1.25
         if self.frameCount % 60 == 0:
-            enemy.enemy_shot_multi(self.x -10, self.y, 2, 0, 5, 3)
-            #enemy.enemy_shot_dr_multi(self.x -10, self.y, 2, 0, 32, 5, 2)
+            self.shotMulti()
         if self.frameCount > 20*60:
             self.broken()
+
+    def shotMulti(self):
+        if GameSession.isEasy():
+            enemy.enemy_shot_dr_multi(self.x -10, self.y, 2, 0, 32, 3, 3)
+        elif GameSession.isHard():
+            enemy.enemy_shot_dr_multi(self.x -10, self.y, 2, 0, 32, 7, 3)
+        else:
+            enemy.enemy_shot_dr_multi(self.x -10, self.y, 2, 0, 32, 5, 3)
 
     def horizonBeam(self):
         if self.beamObj == None or self.beamObj.removeFlag:

@@ -5,7 +5,7 @@ from settings import Settings
 
 class BGM:
     #                 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26
-    sound_priority = [0,2,1,4,5,3,6,8,8,1, 0, 6, 6, 1, 6, 6, 6, 1, 0, 5, 0, 5, 0, 3, 0, 0, 0]
+    sound_priority = [0,2,1,4,5,3,6,8,8,1, 0, 6, 6, 1, 6, 6, 6, 1, 0, 5, 0, 5, 5, 3, 0, 0, 0]
 
     bgmList = [
         # volume rate, filename
@@ -47,15 +47,15 @@ class BGM:
     GAME_OVER = 11		#"game_maoudamashii_9_jingle07.mp3"
     #TITLE = "Underground_Worship.mp3"
     TITLE = 12		#"idola_cell.mp3"
-    ENDING = 13
-    LAUNCH = 14
-    RANKING = 15
-    STAGE_SELECT = 16
-    STAGE_FIRE = 17
-    STAGE_CAVE = 18
-    STAGE_WAREHOUSE = 19
-    STAGE_LABYRINTH = 20
-    STAGE_BATTLESHIP = 21
+    ENDING = 13     #"Fireworks.mp3"
+    LAUNCH = 14     #"Dream_Fantasy.mp3"
+    RANKING = 15        # "with_silence.mp3"
+    STAGE_SELECT = 16   # "Runners_High.mp3"
+    STAGE_FIRE = 17     # "Zonky_Cyber.mp3"
+    STAGE_CAVE = 18         # "Nervousness.mp3"
+    STAGE_WAREHOUSE = 19    # "In_Chase.mp3"
+    STAGE_LABYRINTH = 20    # "R246_Midnight.mp3"
+    STAGE_BATTLESHIP = 21   # "Pleasure_In_Survival.mp3"
 
     @classmethod
     def getBgm(cls, no):
