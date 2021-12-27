@@ -16,6 +16,7 @@ import bossFactory
 import bossLast
 import pygame.mixer
 import customStartMenu
+import bossRushStartMenu
 import launch
 import ending
 import item
@@ -138,6 +139,24 @@ class StartBGM:
 	def do(self):
 		pass
 
+# # [2] image Index
+# # [3] image Filename
+# class LoadImage:
+# 	def __init__(self, t):
+# 		pyxel.image(t[2]).load(0,0,t[3])
+
+# 	def do(self):
+# 		pass
+
+class InitBossRushManager:
+	def __init__(self, t):
+		gcommon.eventManager = story.BossRushManager()
+		gcommon.eventManager.nextEvent()
+		gcommon.debugPrint("InitBossRushManager")
+
+	def do(self):
+		pass
+
 class StartMapDraw2:
 	def __init__(self, t):
 		ObjMgr.setDrawMap(MapDraw2())
@@ -239,7 +258,8 @@ class MainGame:
 		gcommon.cur_scroll_y = 0.0
 		gcommon.cur_map_dx = 0.0
 		gcommon.cur_map_dy = 0.0
-
+		gcommon.eventManager = None
+		
 		self.story_pos = 0
 		self.event_pos = 0
 		gcommon.drawMap = None
@@ -509,7 +529,7 @@ class MainGame:
 
 		# my shot
 		for shot in ObjMgr.shots:
-		  shot.draw()
+			shot.draw()
 
 		# my ship
 		ObjMgr.myShip.draw()
@@ -561,7 +581,7 @@ class MainGame:
 			gcommon.Text2(121, 184, str(gcommon.game_timer), 7, 0)
 			gcommon.Text2(160, 184, str(len(ObjMgr.objs)), 7, 0)
 			#gcommon.Text2(0, 184, str(gcommon.map_x) + " " + str(gcommon.map_y), 7, 0)
-			gcommon.Text2(0, 184, str(gcommon.back_map_x), 7, 0)
+			#gcommon.Text2(0, 184, str(gcommon.back_map_x), 7, 0)
 			#pyxel.text(160, 184, str(len(ObjMgr.shots)), 7)
 		#pyxel.text(160, 188, str(self.event_pos),7)
 		#pyxel.text(120, 194, str(gcommon.getMapData(ObjMgr.myShip.x, ObjMgr.myShip.y)), 7)
@@ -635,6 +655,7 @@ class MainGame:
 				obj = t(s)			# ここでインスタンス化
 				ObjMgr.addObj(obj)
 			self.story_pos = self.story_pos + 1
+
 
 	def ExecuteEvent(self):
 		while True:
@@ -730,6 +751,8 @@ class MainGame:
 			self.initEventLast()
 		elif self.stage == "6B":
 			self.initEventEnemyBase()
+		elif self.stage == "B1":
+			self.initEventBossRush()
 
 
 	def initEvent1(self):
@@ -883,6 +906,11 @@ class MainGame:
 			# [10588, SetMapScroll, 0.0, 0.0],
 		]
 
+	def initEventBossRush(self):
+		self.eventTable = [
+			[100, InitBossRushManager],
+		]
+
 	def initStory(self):
 		if self.stage == "1A":
 			self.story = story.Story.getStory1()
@@ -908,6 +936,8 @@ class MainGame:
 			self.story = story.Story.getStoryLast()
 		elif self.stage == "6B":
 			self.story = story.Story.getStoryEnemyBase()
+		elif self.stage == "B1":
+			self.story = story.Story.getStoryBossRush()
 
 
 def parseCommandLine():
@@ -935,6 +965,10 @@ def parseCommandLine():
 			if idx+1<len(sys.argv):
 				Settings.difficulty = int(sys.argv[idx+1])
 				print("set DIFFICULTY = " + str(Settings.difficulty))
+		elif arg == "-EVENT":
+			if idx+1<len(sys.argv):
+				gcommon.START_EVENT = int(sys.argv[idx+1])
+				print("set START_EVENT = " + str(gcommon.START_EVENT))
 		idx+=1
 
 
@@ -1015,6 +1049,25 @@ class App:
 		#self.setScene(MainGame(self.stage))
 		self.setScene(stageSelect.CustomStageSelectScene(self))
 
+	def startBossRushGame(self):
+		# debug
+		#stageManager = stage.StageLinkManager()
+		#stageList = stageManager.findStage("3B")
+
+		#print("Difficulty : " + str(difficulty))
+		if gcommon.CustomNormal:
+			# カスタムでも通常にしたい場合（デバッグ）
+			GameSession.init(Settings.difficulty, Settings.playerStock, gcommon.GAMEMODE_NORMAL, Settings.startStage, 1)
+		else:
+			# 通常
+			GameSession.init(Settings.difficulty, Settings.playerStock, gcommon.GAMEMODE_CUSTOM, Settings.startStage, 1)
+		GameSession.playerStock -= 1
+		GameSession.weaponType = Settings.weaponType
+		GameSession.multipleCount = Settings.multipleCount
+		#self.stage = Settings.startStage
+		#self.setScene(MainGame(self.stage))
+		self.setScene(MainGame("B1"))
+
 	def startStage(self, stage):
 		self.stage = stage
 		GameSession.stage = self.stage
@@ -1081,6 +1134,9 @@ class App:
 
 	def startCustomStartMenu(self):
 		self.setScene(customStartMenu.CustomStartMenuScene())
+
+	def startBossRushStartMenu(self):
+		self.setScene(bossRushStartMenu.BossRushStartMenuScene())
 
 	def update(self):
 		if pyxel.btnp(pyxel.KEY_Q):

@@ -11,6 +11,9 @@ VERSION = "2.10"
 START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 START_STAGE = None
 
+# ボスラッシュ用の開始イベントインデックス
+START_EVENT = 0
+
 DIFFICULTY_EASY = 0
 DIFFICULTY_NORMAL = 1
 DIFFICULTY_HARD = 2
@@ -251,6 +254,8 @@ long_map = False
 breakableMapData = False
 
 scrollController = None
+
+eventManager = None
 
 # 現在未使用（パワーアップ無いので）
 #power = START_MY_POWER

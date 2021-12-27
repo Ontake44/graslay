@@ -379,9 +379,14 @@ class Boss2(enemy.EnemyBase):
 	def __init__(self, t):
 		super(Boss2, self).__init__()
 		self.t = gcommon.T_BOSS1
-		pos = gcommon.mapPosToScreenPos(t[2], t[3])
-		self.x = pos[0]
-		self.y = pos[1]
+		self.isBossRush = t[4]
+		if self.isBossRush:
+			self.x = t[2]
+			self.y = t[3]
+		else:
+			pos = gcommon.mapPosToScreenPos(t[2], t[3])
+			self.x = pos[0]
+			self.y = pos[1]
 		self.left = 16
 		self.top = 9
 		self.right = 63
@@ -417,8 +422,15 @@ class Boss2(enemy.EnemyBase):
 		#self.lowerBase = Boss2Base(self,1)
 		#ObjMgr.addObj(self.upperBase)
 		#ObjMgr.addObj(self.lowerBase)
-		self.bossBase = Boss2Base2(self)
-		ObjMgr.addObj(self.bossBase)
+		if self.isBossRush:
+			self.layer = gcommon.C_LAYER_SKY
+			self.ground = False
+			self.state = 900
+			self.x = 256
+			self.y = 81
+		else:
+			self.bossBase = Boss2Base2(self)
+			ObjMgr.addObj(self.bossBase)
 
 	def update(self):
 		if self.state == 0:
@@ -442,6 +454,7 @@ class Boss2(enemy.EnemyBase):
 				self.dx = 0
 				self.hp = boss.BOSS_2_HP		# ここでHPを入れなおす
 				self.setState(4)
+				gcommon.debugPrint("x=" +str(self.x) + " y=" + str(self.y) + " dx=" + str(self.dx)+ " dy=" + str(self.dy))
 		elif self.state == 4:
 			self.x += self.dx
 			self.y += self.dy
@@ -536,6 +549,13 @@ class Boss2(enemy.EnemyBase):
 				elif self.subcnt == 60 and GameSession.isHard():
 					self.shotBoss2Feeler(self.x +50, self.y+29, math.pi*0.5)
 			self.subcnt+=1
+		elif self.state == 900:
+			self.x -= 1
+			if self.x <= 150:
+				self.dx = 0.0
+				self.dy = 0.0
+				self.hp = boss.BOSS_2_HP
+				self.setState(4)
 
 	def shotBoss2Feeler(self, x, y, rad):
 		self.feelerShots.append(ObjMgr.addObj(Boss2FeelerShot(self, x, y, rad)))
@@ -575,7 +595,11 @@ class Boss2(enemy.EnemyBase):
 		GameSession.addScore(self.score)
 		BGM.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
+		if self.isBossRush:
+			gcommon.debugPrint("Boss2 call NextEvent")
+			ObjMgr.objs.append(enemy.NextEvent([0, None, 240]))
+		else:
+			ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
 
 
 # 触手ロケットパンチ

@@ -8,6 +8,7 @@ from objMgr import ObjMgr
 from gameSession import GameSession
 from audio import BGM
 
+# ボス１の固定台
 class Boss1Base(enemy.EnemyBase):
 	def __init__(self, t):
 		super(Boss1Base, self).__init__()
@@ -31,7 +32,7 @@ class Boss1Base(enemy.EnemyBase):
 			return
 		if self.cnt > 210:
 			if self.posY < 64:
-				 self.posY += 1
+				self.posY += 1
 
 	def draw(self):
 		# 上
@@ -46,6 +47,7 @@ class Boss1(enemy.EnemyBase):
 		super(Boss1, self).__init__()
 		self.x = t[2]
 		self.y = t[3]
+		self.isBossRush = t[4]
 		self.left = 16
 		self.top = 16
 		self.right = 93
@@ -70,6 +72,9 @@ class Boss1(enemy.EnemyBase):
 		self.dy = 0.0
 		self.beamObj = Boss1Beam(self)
 		ObjMgr.addObj(self.beamObj)
+		if self.isBossRush:
+			self.y = 36
+			self.state = 900
 
 	def update(self):
 		# 向き
@@ -96,7 +101,9 @@ class Boss1(enemy.EnemyBase):
 			if self.cnt % 60 == 0:
 				self.shotFix4()
 			if self.cnt > 120:
+				# x=159 y=36
 				self.nextState()
+				gcommon.debugPrint("x = " + str(self.x) + " y = " + str(self.y))
 				self.hp = boss.BOSS_1_HP
 		elif self.state == 3:
 			# ４、８方向ショット
@@ -184,6 +191,15 @@ class Boss1(enemy.EnemyBase):
 			self.beamObj.hitCheck = False
 			if self.beam < 0:
 				self.setState(3)
+
+		elif self.state == 900:
+			# ボスラッシュ時の初期
+			self.x -= 1.0
+			if self.x <= 159:
+				self.hp = boss.BOSS_1_HP
+				self.setState(3)
+
+
 	def draw(self):
 		if self.state == 4:
 			if self.cnt > 20:
@@ -283,7 +299,10 @@ class Boss1(enemy.EnemyBase):
 		self.remove()
 		BGM.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
+		if self.isBossRush:
+			ObjMgr.objs.append(enemy.NextEvent([0, None, 240]))
+		else:
+			ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
 
 
 # 波動砲発射前の、あの吸い込むようなやつ

@@ -10,8 +10,8 @@ from drawing import Drawing
 # ボス処理
 
 BOSS_1_HP = 1200
-BOSS_2_HP = 2800
-BOSS_3_HP = 4000
+BOSS_2_HP = 2800/3
+BOSS_3_HP = 4000/3
 BOSS_4_HP = 3500
 BOSS_FACTORY_HP = 5500
 BOSS_LAST_1 = 2000

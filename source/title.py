@@ -10,8 +10,9 @@ from drawing import Drawing
 
 TITLEMENU_START = 0
 TITLEMENU_CUSTOMSTART = 1
-TITLEMENU_OPTION = 2
-TITLEMENU_EXIT = 3
+TITLEMENU_BOSSRUSHSTART = 2
+TITLEMENU_OPTION = 3
+TITLEMENU_EXIT = 4
 
 #
 #  タイトル表示
@@ -29,6 +30,10 @@ class TitleScene:
 		((2,7),(1,7),(5,7),(12,7),(6,7)),
 	)
 	polyPoints = [[0,0],[24,0],[0,72],[-24,72]]
+
+	title_y = 16
+	menu_top_y = 105
+
 	def __init__(self):
 		gcommon.map_y = 0
 		self.cnt = 0
@@ -52,9 +57,9 @@ class TitleScene:
 		self.credits = Settings.credits
 		self.mouseManager = MouseManager()
 		self.menuRects = []
-		for i in range(4):
+		for i in range(5):
 			self.menuRects.append(gcommon.Rect.create(
-				48, 118 + i * 15,  48 +160-1, 118 + i * 15 + 12 -1))
+				48, __class__.menu_top_y -2 + i * 15,  48 +160-1, __class__.menu_top_y -2 + i * 15 + 12 -1))
 		self.difficultyRects = [
 			gcommon.Rect.createWH(128 -8 -48 -4, 120, 8, 8),
 			gcommon.Rect.createWH(128 +48 +4, 120, 8, 8),
@@ -151,10 +156,10 @@ class TitleScene:
 
 			if gcommon.checkUpP():
 				BGM.sound(gcommon.SOUND_MENUMOVE)
-				self.menuPos = (self.menuPos -1) % 4
+				self.menuPos = (self.menuPos -1) % 5
 			elif gcommon.checkDownP():
 				BGM.sound(gcommon.SOUND_MENUMOVE)
-				self.menuPos = (self.menuPos +1) % 4
+				self.menuPos = (self.menuPos +1) % 5
 			elif pyxel.btnp(pyxel.KEY_T):
 				gcommon.app.startStageSelect()
 				return
@@ -184,6 +189,11 @@ class TitleScene:
 				if gcommon.checkShotKeyRectP(self.menuRects[TITLEMENU_CUSTOMSTART]):
 					BGM.sound(gcommon.SOUND_MENUMOVE)
 					gcommon.app.startCustomStartMenu()
+					return
+			elif self.menuPos == TITLEMENU_BOSSRUSHSTART:
+				if gcommon.checkShotKeyRectP(self.menuRects[TITLEMENU_BOSSRUSHSTART]):
+					BGM.sound(gcommon.SOUND_MENUMOVE)
+					gcommon.app.startBossRushStartMenu()
 					return
 			elif self.menuPos == TITLEMENU_OPTION:
 				if gcommon.checkShotKeyRectP(self.menuRects[TITLEMENU_OPTION]):
@@ -271,7 +281,7 @@ class TitleScene:
 					pyxel.pal(TitleScene.colorTable1[(cc+i) % len(TitleScene.colorTable1)], color)
 			w = (10 -self.subState)
 			for i in range(80):
-				pyxel.blt(((self.rnd.rand() % w) -w/2) * 3, 24 +36 -self.py +i, 1, 0, 40 +i, 256, 1, 0)
+				pyxel.blt(((self.rnd.rand() % w) -w/2) * 3, __class__.title_y +36 -self.py +i, 1, 0, 40 +i, 256, 1, 0)
 		elif self.state == 2:
 			self.drawTitleNormal()
 		elif self.state == 3 or self.state == 4:
@@ -282,10 +292,10 @@ class TitleScene:
 			table = TitleScene.colorTable3[self.subState]
 			for t in table:
 				pyxel.pal(t[0], t[1])
-			pyxel.blt(0, 24, 1, 0, 40, 256, 80, 0)
+			pyxel.blt(0, __class__.title_y, 1, 0, 40, 256, 80, 0)
 		elif self.state == 5:
 			self.drawTitleNormal()
-			self.drawFlash(self.subCnt*8, 24)
+			self.drawFlash(self.subCnt*8, __class__.title_y)
 		elif self.state == 6:
 			self.drawTitleNormal()
 			self.drawMenu(False, self.cnt/20)
@@ -299,7 +309,7 @@ class TitleScene:
 		for c in TitleScene.colorTable1:
 			pyxel.pal(c, 7)
 		pyxel.pal(2, 0)
-		pyxel.blt(0, 24, 1, 0, 40, 256, 80, 0)
+		pyxel.blt(0, __class__.title_y, 1, 0, 40, 256, 80, 0)
 
 	def draw100(self):
 		self.drawStar()
@@ -314,7 +324,7 @@ class TitleScene:
 			table = TitleScene.colorTable3[self.subState]
 			for t in table:
 				pyxel.pal(t[0], t[1])
-			pyxel.blt(0, 24, 1, 0, 40, 256, 80, 0)		# pyxel.pal()
+			pyxel.blt(0, __class__.title_y, 1, 0, 40, 256, 80, 0)		# pyxel.pal()
 		elif self.state == 104:
 			self.drawTitleNormal()
 			self.drawFlash(self.subCnt*8, 32)
@@ -342,7 +352,7 @@ class TitleScene:
 
 	def drawMenu(self, startFlag, rate):
 		pyxel.pal()
-		y = 120
+		y = __class__.menu_top_y
 		if rate < 1.0:
 			gcommon.setMenuColor(0, -1)
 		else:
@@ -364,14 +374,18 @@ class TitleScene:
 
 		y += 15
 		gcommon.setMenuColor(2, self.menuPos)
-		Drawing.showTextRateHCenter(y, "OPTION", rate)
+		Drawing.showTextRateHCenter(y, "BOSS RUSH START", rate)
 
 		y += 15
 		gcommon.setMenuColor(3, self.menuPos)
+		Drawing.showTextRateHCenter(y, "OPTION", rate)
+
+		y += 15
+		gcommon.setMenuColor(4, self.menuPos)
 		Drawing.showTextRateHCenter(y, "EXIT", rate)
 
 		if rate == 1.0:
 			Drawing.setBrightness1()
-			pyxel.blt(48, 118 + self.menuPos * 15, 4, 48, 118 + self.menuPos * 15, 160, 12)
+			pyxel.blt(48, __class__.menu_top_y -2 + self.menuPos * 15, 4, 48, __class__.menu_top_y -2 + self.menuPos * 15, 160, 12)
 			pyxel.pal()
 

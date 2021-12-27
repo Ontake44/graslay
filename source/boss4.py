@@ -39,6 +39,7 @@ class Boss4(enemy.EnemyBase):
 		self.homingMissileCnt = 0
 		self.homingMissileFlag = False
 		self.score = 12000
+		gcommon.debugPrint("Boss4")
 
 	def update(self):
 		if self.state == 0:

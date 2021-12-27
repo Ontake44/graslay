@@ -484,6 +484,47 @@ class MapDraw3:
 	def draw2(self):
 		pass
 
+class MapDraw3rush:
+	def __init__(self):
+		pass
+
+	def init(self):
+		gcommon.map_x = 0		#-32 * 8
+		gcommon.map_y = 24*8
+		gcommon.mapHeight = 8 * 128
+		gcommon.back_map_x = 0		#-32 * 8/4
+		gcommon.back_map_y = 0
+		gcommon.cur_scroll_x = 2.0
+		gcommon.cur_scroll_y = 0.0
+	
+	def update0(self, skip):
+		pass
+
+	def update(self, skip):
+		gcommon.map_x += gcommon.cur_scroll_x
+		gcommon.back_map_x += gcommon.cur_scroll_x/4
+
+	def drawBackground(self):
+		pass
+		# x = -32 * 2 + gcommon.map_x/4
+		# if x < 0:
+		# 	pyxel.bltm(-1 * int(x), 0, 2, 0, 103,33,33, gcommon.TP_COLOR)
+		# else:
+		# 	mx = (int)(x/8)
+		# 	#if mx >= 183:
+		# 	#	mx = 183 + ((mx - 183)%21)
+		# 	pyxel.bltm(-1 * (int(x) % 8), 0, 2, mx, 103,33,33, gcommon.TP_COLOR)
+
+	def draw(self):
+		x = -32 * 8 + gcommon.map_x
+		if x < 0:
+			pyxel.bltm(-1 * int(x), -1 * (int(gcommon.map_y) % 8), 0, 0, int(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+		else:
+			pyxel.bltm(-1 * (int(x) % 8), -1 * (int(gcommon.map_y) % 8), 0, int(x/8), int(gcommon.map_y/8),33,25, gcommon.TP_COLOR)
+
+	def draw2(self):
+		pass
+
 class MapDraw4:
 	def __init__(self):
 		pass

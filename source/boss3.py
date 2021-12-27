@@ -41,6 +41,7 @@ class Boss3(enemy.EnemyBase):
 	shotCycles = (44, 35, 28)
 	def __init__(self, t):
 		super(Boss3, self).__init__()
+		self.isBossRush = t[2]
 		self.x = 256
 		self.y = 8
 		self.left = 16
@@ -71,6 +72,7 @@ class Boss3(enemy.EnemyBase):
 		self.cycleCount = 0
 		self.shotCycle = __class__.shotCycles[GameSession.difficulty]
 		self.mainShotCycle = int(self.shotCycle*0.75)
+		gcommon.debugPrint("Boss3")
 
 	def nextState(self):
 		self.state += 1
@@ -310,7 +312,11 @@ class Boss3(enemy.EnemyBase):
 		ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self.body), gcommon.getCenterY(self.body), gcommon.C_LAYER_EXP_SKY))
 		GameSession.addScore(self.score)
 		BGM.sound(gcommon.SOUND_LARGE_EXP)
-		ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
+		if self.isBossRush:
+			gcommon.scrollController.nextIndex()
+			ObjMgr.objs.append(enemy.NextEvent([0, None, 360]))
+		else:
+			ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
 
 class Boss3Shot(enemy.EnemyBase):
 	# x,y 弾の中心を指定

@@ -3195,11 +3195,11 @@ class Walker1(EnemyBase):
 		if self.lightRound == 1:
 			self.lightRad += math.pi /120
 			if self.lightRad > math.pi + math.pi/4:
-				 self.lightRound = -1
+				self.lightRound = -1
 		elif self.lightRound == -1:
 			self.lightRad -= math.pi /120
 			if self.lightRad < math.pi - math.pi/4:
-				 self.lightRound = 1
+				self.lightRound = 1
 
 	def nextMode(self):
 		self.mode = self.mode + 1
@@ -4480,4 +4480,83 @@ class DummyEnemy(EnemyBase):
 	def update(self):
 		if self.cnt >= self.count:
 			#gcommon.debugPrint("DummyEnemy removed")
+			self.remove()
+
+# バナナ（ネタ用）
+class Banana1(EnemyBase):
+	moveTable = [
+		[0, CountMover.MOVE_TO, 140, 55, 1],
+		[30, CountMover.STOP],
+		[0, CountMover.MOVE_TO, 140, 0, 1],
+		[60, CountMover.STOP],
+		[0, CountMover.MOVE_TO, 140, 100, 1],
+		[60, CountMover.STOP],
+		[0, CountMover.SET_INDEX, 2],
+	]
+	def __init__(self, t):
+		super(__class__, self).__init__()
+		self.x = t[2]
+		self.y = t[3]
+		self.left = 32
+		self.top = 32
+		self.right = 95
+		self.bottom = 70
+		self.hp = 10000
+		self.layer = gcommon.C_LAYER_SKY
+		self.score = 10000
+		self.countMover = CountMover(self, __class__.moveTable, True, True)
+		self.atack = False
+
+	def update(self):
+		self.countMover.update()
+		if self.state == 0:
+			if self.countMover.tableIndex <= 1:
+				self.nextState()
+		elif self.state == 1:
+			if self.cnt > 120:
+				self.atack = True
+				self.nextState()
+		elif self.state == 2:
+			if self.cnt % 30 == 0:
+				if self.cnt % 60 == 0:
+					enemy_shot_dr_multi(self.x, self.y + 58, 3, 1, 32, 5, 3)
+				else:
+					enemy_shot_dr_multi(self.x, self.y + 58, 3, 1, 32, 6, 3)
+			if self.cnt > 120:
+				self.atack = False
+				self.setState(1)
+
+
+	def draw(self):
+		if self.atack == False:
+			pyxel.blt(self.x, self.y, 1, 0,0, 104, 88, 0)
+		else:
+			pyxel.blt(self.x, self.y, 1, 0, 104, 104, 88, 0)
+
+class LoadImage(EnemyBase):
+	def __init__(self, t):
+		super(__class__, self).__init__()
+		self.imageIndex = t[2]
+		self.imageFile = t[3]
+		self.shotHitCheck = False		# 自機弾との当たり判定
+		self.hitCheck = False			# 自機と敵との当たり判定
+		self.enemyShotCollision = False	# 敵弾との当たり判定を行う
+		gcommon.debugPrint("load " + self.imageFile)
+		pyxel.image(self.imageIndex).load(0, 0, self.imageFile)
+	
+	def update(self):
+		gcommon.eventManager.nextEvent()
+		self.remove()
+
+class NextEvent(EnemyBase):
+	def __init__(self, t):
+		super(__class__, self).__init__()
+		self.waitTime = t[2]
+		self.shotHitCheck = False		# 自機弾との当たり判定
+		self.hitCheck = False			# 自機と敵との当たり判定
+		self.enemyShotCollision = False	# 敵弾との当たり判定を行う
+	
+	def update(self):
+		if self.cnt >= self.waitTime:
+			gcommon.eventManager.nextEvent()
 			self.remove()

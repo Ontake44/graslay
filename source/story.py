@@ -24,13 +24,14 @@ from enemyBattery import HorizonBattery1
 from enemyArmored import Armored1, CylinderCrab2
 from gameSession import GameSession
 from objMgr import ObjMgr
-from enemy import CountMover
+from enemy import Banana1, CountMover
 import enemyFighter
 import enemyMine
 import enemyOthers
 import enemyCreature
 import enemyArmored
 import bossEnemybase
+import stage
 
 class StoryManager:
 
@@ -159,7 +160,7 @@ class Story:
 			[4730, enemy.RollingFighter1Group, 110, 15, 4],		\
 			[4830, enemy.MissileShip, 120, 200],		\
 			[4860, enemy.MissileShip, 70, 200],		\
-			[5100, boss1.Boss1, 256, 60],		\
+			[5100, boss1.Boss1, 256, 60, False],		\
 			[5100, boss1.Boss1Base, 256, 60],		\
 			# [5100, enemy.DockArm, 204, 59, 180],		\
 			# [5100, enemy.DockArm, 212, 59, 180],		\
@@ -235,7 +236,7 @@ class Story:
 			[6000, enemy.Worm1, 230, 8, 6, 5, 160],		\
 			[6000, enemy.Worm1, 228, 25, 2, 5, 160],		\
 
-			[6400, boss2.Boss2, 241, 16],		\
+			[6400, boss2.Boss2, 241, 16, False],		\
 		]
 
 	@classmethod
@@ -574,7 +575,7 @@ class Story:
 	@classmethod
 	def getStory3(cls):
 		return [ \
-			[3730+128, boss3.Boss3],		\
+			[3730+128, boss3.Boss3, False],		\
 		]
 
 	@classmethod
@@ -1286,3 +1287,35 @@ class Story:
 			[baseOffset+ 8130, enemyArmored.Ducker1, 1],
 			[baseOffset+ 9460, bossEnemybase.BossEnemybase],
 		]
+	@classmethod
+	def getStoryBossRush(cls):
+		return [
+			#[200, Banana1, 256, 55]
+		]
+
+class BossRushManager:
+	eventTable = [
+		[0, enemy.LoadImage, 1, "assets/graslay1.png"],		# 0
+		[0, boss1.Boss1, 256, 60, True],					# 1
+		[0, enemy.LoadImage, 1, "assets/graslay2.png"],		# 2
+		[0, boss2.Boss2, 256, 60, True],					# 3
+		[0, stage.InitStage3A],								# 4
+		[0, enemy.NextEvent, 120],							# 5
+		[0, boss3.Boss3, True],								# 6
+		[0, stage.InitStage4A],								# 7
+		[0, boss4.Boss4, True],								# 8
+	]
+	def __init__(self):
+		self.eventIndex = gcommon.START_EVENT
+		self.shotHitCheck = False		# 自機弾との当たり判定
+		self.hitCheck = False			# 自機と敵との当たり判定
+		self.enemyShotCollision = False	# 敵弾との当たり判定を行う
+
+	def nextEvent(self):
+		if self.eventIndex < len(__class__.eventTable):
+			s = __class__.eventTable[self.eventIndex]
+			t = s[1]	# [1]はクラス型
+			obj = t(s)			# ここでインスタンス化
+			ObjMgr.addObj(obj)
+			self.eventIndex += 1
+			self.cnt = 0
