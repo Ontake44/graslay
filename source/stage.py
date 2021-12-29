@@ -1,5 +1,7 @@
+from typing import get_origin
 import pyxel
 import gcommon
+import math
 from mapDraw import MapData
 from mapDraw import MapDraw3rush
 from gameSession import GameSession
@@ -179,15 +181,20 @@ class Stage:
     ]
 
     @classmethod
+    def clearTilemap(cls):
+        # タイルマップクリア
+        MapData.loadMapData(0, "assets/zero.pyxmap")
+        for tm in range(1, 8):
+            pyxel.tilemap(tm).copy(0, 0, 0, 0, 0, 256, 256)
+
+    @classmethod
     def initStage(cls, stage, restart):
         gcommon.breakableMapData = False
         pyxel.tilemap(0).refimg = 1
         gcommon.waterSurface_y = 256 * 8.0
         gcommon.scrollController = None
         # タイルマップクリア
-        MapData.loadMapData(0, "assets/zero.pyxmap")
-        for tm in range(1, 8):
-            pyxel.tilemap(tm).copy(0, 0, 0, 0, 0, 256, 256)
+        __class__.clearTilemap()
 
         if stage == "1A":
             #pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
@@ -273,7 +280,7 @@ class Stage:
             # 遺跡
             pyxel.image(1).load(0,0,"assets/graslay4.png")
             gcommon.sync_map_y = 0
-            gcommon.long_map = True
+            gcommon.long_map = False
             gcommon.draw_star = True
             gcommon.eshot_sync_scroll = False
             MapData.loadMapData(0, "assets/graslay4.pyxmap")
@@ -369,49 +376,71 @@ class Stage:
         #	pyxel.image(2).load(0,0,"assets\gra-den3b.png")
         #	gcommon.draw_star = True
 
-bossRushScrollConteroller3A = [
-        [0, ScrollController1.LOOP_X, 64*8, 96*8],     # 0
-        [0, ScrollController1.SET_SCROLL, 2.0, 0.0],     # 1
-]
+# bossRushScrollConteroller3A = [
+#         [0, ScrollController1.LOOP_X, 64*8, 96*8],     # 0
+#         [0, ScrollController1.SET_SCROLL, 2.0, 0.0],     # 1
+# ]
 
-class InitStage3A(EnemyBase):
-    def __init__(self, t):
-        super(__class__, self).__init__()
-        pyxel.image(1).load(0,0,"assets/graslay3.png")
-        gcommon.sync_map_y = 0
-        gcommon.long_map = True
-        gcommon.draw_star = True
-        gcommon.eshot_sync_scroll = False
-        gcommon.breakableMapData = True
-        MapData.loadMapData(0, "assets/graslay3rush.pyxmap")
-        MapData.loadMapData(2, "assets/graslay3b.pyxmap")
-        MapData.loadMapAttribute("assets/graslay3.mapatr")
-        pyxel.tilemap(2).refimg = 1
-        gcommon.scrollController = ScrollController1(bossRushScrollConteroller3A)
-        ObjMgr.setDrawMap(MapDraw3rush())
+# class InitStage3A(EnemyBase):
+#     def __init__(self, t):
+#         super(__class__, self).__init__()
+#         pyxel.image(1).load(0,0,"assets/graslay3.png")
+#         gcommon.sync_map_y = 0
+#         gcommon.long_map = False
+#         gcommon.draw_star = True
+#         gcommon.eshot_sync_scroll = False
+#         gcommon.breakableMapData = False
+#         MapData.loadMapData(0, "assets/graslay3rush.pyxmap")
+#         MapData.loadMapData(2, "assets/graslay3b.pyxmap")
+#         MapData.loadMapAttribute("assets/graslay3.mapatr")
+#         pyxel.tilemap(2).refimg = 1
+#         gcommon.scrollController = ScrollController1(bossRushScrollConteroller3A)
+#         ObjMgr.setDrawMap(MapDraw3rush())
 	
-    def update(self):
-        gcommon.eventManager.nextEvent()
-        self.remove()
+#     def update(self):
+#         gcommon.eventManager.nextEvent()
+#         self.remove()
 
-class InitStage4A(EnemyBase):
-    def __init__(self, t):
-        super(__class__, self).__init__()
-        pyxel.image(1).load(0,0,"assets/graslay4.png")
-        gcommon.sync_map_y = 0
-        gcommon.long_map = False
-        gcommon.draw_star = True
-        gcommon.eshot_sync_scroll = False
-        gcommon.breakableMapData = True
-        MapData.loadMapData(0, "assets/graslay3rush.pyxmap")
-        MapData.loadMapData(2, "assets/graslay3b.pyxmap")
-        MapData.loadMapAttribute("assets/graslay3.mapatr")
-        pyxel.tilemap(2).refimg = 1
-        gcommon.scrollController = None
-        ObjMgr.setDrawMap(None)
-        gcommon.cur_scroll_x = 0.5
-        gcommon.cur_scroll_y = 0.0
+# class EndStage3A(EnemyBase):
+#     def __init__(self, t):
+#         super(__class__, self).__init__()
+#         gcommon.scrollController = None
+#         ObjMgr.setDrawMap(None)
+#         gcommon.cur_scroll_x = 0.5
+#         gcommon.cur_scroll_y = 0.0
 	
-    def update(self):
-        gcommon.eventManager.nextEvent()
-        self.remove()
+#     def update(self):
+#         gcommon.eventManager.nextEvent()
+#         self.remove()
+
+# class InitStage3B(EnemyBase):
+#     def __init__(self, t):
+#         super(__class__, self).__init__()
+#         pyxel.image(1).load(0,0,"assets/stage_warehouse.png")
+#         pyxel.image(2).load(0,0,"assets/stage_warehouse-2.png")
+#         self.layer = gcommon.C_LAYER_UNDER_GRD
+#         gcommon.sync_map_y = 0
+#         gcommon.long_map = False
+#         gcommon.draw_star = True
+#         gcommon.eshot_sync_scroll = False
+#         gcommon.breakableMapData = False
+#         MapData.loadMapData(0, "assets/stage_warehouse-rush.pyxmap")    # 手前に見えるマップ
+#         pyxel.tilemap(0).refimg = 1
+#         ObjMgr.setDrawMap(None)
+#         gcommon.cur_scroll_x = 0.0
+#         gcommon.cur_scroll_y = 0.0
+#         gcommon.map_x = 0
+#         gcommon.map_y = 0
+#         gcommon.debugPrint("InitStage3B")
+
+#     def update(self):
+#         if self.cnt < 90:
+#             pass
+#         else:
+#             gcommon.eventManager.nextEvent()
+#             self.remove()
+    
+#     def draw(self):
+#         if self.state == 0:
+#             x = math.pow(1 - (self.cnt/90.0), 3)
+#             pyxel.bltm(x * 256, 4, 0, 40, 0, 32, 24, 3)

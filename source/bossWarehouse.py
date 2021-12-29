@@ -138,6 +138,7 @@ class BossWarehouse(enemy.EnemyBase):
 	crazyShotIntervalTable = [6, 5, 4]
 	def __init__(self, t):
 		super(BossWarehouse, self).__init__()
+		self.isBossRush = t[2]
 		self.x = 256 + 48
 		self.y = 95.5	#95.5
 		self.layer = gcommon.C_LAYER_GRD | gcommon.C_LAYER_SKY
@@ -301,7 +302,10 @@ class BossWarehouse(enemy.EnemyBase):
 		GameSession.addScore(self.score)
 		BGM.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
+		if self.isBossRush:
+			ObjMgr.objs.append(enemy.NextEvent([0, None, 120]))
+		else:
+			ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
 
 	def shotMainState(self):
 		if self.countMover.cnt > 30 and self.countMover.cnt < 120 and self.countMover.cnt % 10 == 0:
@@ -325,3 +329,48 @@ class BossWarehouse(enemy.EnemyBase):
 	def shot4directions(self):
 		for r in __class__.pos4rads:
 			enemy.enemy_shot_rad(self.gun_cx + math.cos(self.gunRad + r) * 16, self.gun_cy + math.sin(self.gunRad +r) * 16, 3, 0, self.gunRad + r)
+
+class BossWarehouseRail(enemy.EnemyBase):
+	def __init__(self):
+		super(__class__, self).__init__()
+		self.layer = gcommon.C_LAYER_UNDER_GRD
+		self.shotHitCheck = False		# 自機弾との当たり判定
+		self.hitCheck = False			# 自機と敵との当たり判定
+		self.enemyShotCollision = False	# 敵弾との当たり判定を行う
+
+	def update(self):
+		if self.state == 0:
+			# 閉じる
+			if self.cnt >= 90:
+				self.nextState()
+		elif self.state == 1:
+			pass
+			# 閉じた状態
+		elif self.state == 2:
+			# 開く
+			pass
+
+	def draw(self):
+		if self.state == 0:
+			if self.cnt <= 90:
+				# 1 to 0
+				x = math.pow(1 - (self.cnt/90.0), 3)
+			else:
+				x = 0
+			pyxel.bltm(x * 256, -4 +200*x, 0, 40, 33, 32, 25, 3)
+			pyxel.bltm(x * 256, -4 -200*x, 0, 80, 33, 32, 25, 3)
+			pyxel.bltm(x * 256, -4, 0, 40, 1, 32, 25, 3)
+			pyxel.bltm(0, -4 + 200*x, 0, 0, 33, 32, 25, 3)
+		elif self.state == 1:
+			pyxel.bltm(0, -4, 0, 0, 1, 32, 25, 3)
+		elif self.state == 2:
+			if self.cnt <= 90:
+				# 0 to 1
+				x = math.pow(self.cnt/90.0, 3)
+			else:
+				x = 1
+			pyxel.bltm(x * 256, -4 +200*x, 0, 40, 33, 32, 25, 3)
+			pyxel.bltm(x * 256, -4 -200*x, 0, 80, 33, 32, 25, 3)
+			pyxel.bltm(x * 256, -4, 0, 40, 1, 32, 25, 3)
+			pyxel.bltm(0, -4 + 200*x, 0, 0, 33, 32, 25, 3)
+

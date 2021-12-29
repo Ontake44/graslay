@@ -17,6 +17,7 @@ import bossCave
 import bossFire
 import bossBattleShip
 import bossLabyrinth
+from mapDraw import MapData
 from enemyBattery import MovableBattery1
 from enemyBattery import ContainerCarrier1
 from enemyBattery import Tractor1
@@ -25,6 +26,7 @@ from enemyArmored import Armored1, CylinderCrab2
 from gameSession import GameSession
 from objMgr import ObjMgr
 from enemy import Banana1, CountMover
+from mapDraw import MapDraw3rush
 import enemyFighter
 import enemyMine
 import enemyOthers
@@ -569,7 +571,7 @@ class Story:
 					[[11*8, 0, 0.0, -1.0], [100*8, 0, -1.0, 0.0]]
 				], 48, 3
 			],
-			[baseOffset + 7200, bossWarehouse.BossWarehouse],
+			[baseOffset + 7200, bossWarehouse.BossWarehouse, False],
 		]
 
 	@classmethod
@@ -591,7 +593,7 @@ class Story:
 			#[1712, enemy.Fan1bLauncher, 78, 22, 16, 20],	\
 			[2500, enemy.RollingFighter1Group, 120, 15, 4],		\
 			[3300, enemy.RollingFighter1Group, 30, 15, 4],		\
-			[4230 +512, boss4.Boss4, 0, 0],		\
+			[4230 +512, boss4.Boss4, False],		\
 		]
 
 	@classmethod
@@ -612,7 +614,7 @@ class Story:
 			[4600, enemy.Jumper1, 256, 20, 0.05],		\
 			[4630, enemy.Jumper1, 256, 30, 0.05],		\
 			[6700, enemyOthers.ArrowOnScreen, 120, 50, 0, "WARNING!", 180],
-			[6850, bossFactory.BossFactory, 0, 0],		\
+			[6850, bossFactory.BossFactory, False],		\
 		]
 
 	@classmethod
@@ -945,7 +947,7 @@ class Story:
 					[32, 0, 0.0, 2.0], [300, 0, -2.0, 0.0]
 				],
 			],
-			[6650, bossLabyrinth.BossLabyrinth, 0, 0 ],
+			[6650, bossLabyrinth.BossLabyrinth, 0, 0, False ],
 		]
 
 	@classmethod
@@ -1294,28 +1296,103 @@ class Story:
 		]
 
 class BossRushManager:
-	eventTable = [
-		[0, enemy.LoadImage, 1, "assets/graslay1.png"],		# 0
-		[0, boss1.Boss1, 256, 60, True],					# 1
-		[0, enemy.LoadImage, 1, "assets/graslay2.png"],		# 2
-		[0, boss2.Boss2, 256, 60, True],					# 3
-		[0, stage.InitStage3A],								# 4
-		[0, enemy.NextEvent, 120],							# 5
-		[0, boss3.Boss3, True],								# 6
-		[0, stage.InitStage4A],								# 7
-		[0, boss4.Boss4, True],								# 8
-	]
-	def __init__(self):
-		self.eventIndex = gcommon.START_EVENT
-		self.shotHitCheck = False		# 自機弾との当たり判定
-		self.hitCheck = False			# 自機と敵との当たり判定
-		self.enemyShotCollision = False	# 敵弾との当たり判定を行う
+    bossRushScrollConteroller3A = [
+            [0, enemyOthers.ScrollController1.LOOP_X, 64*8, 96*8],     # 0
+            [0, enemyOthers.ScrollController1.SET_SCROLL, 2.0, 0.0],     # 1
+    ]	
+    # eventTable = [
+    # 	[0, enemy.LoadImage, 1, "assets/graslay1.png"],		# 0
+    # 	[0, boss1.Boss1, 256, 60, True],					# 1
+    # 	[0, enemy.LoadImage, 1, "assets/graslay2.png"],		# 2
+    # 	[0, boss2.Boss2, 256, 60, True],					# 3
+    # 	[0, stage.InitStage3A],								# 4  *
+    # 	[0, enemy.NextEvent, 120],							# 5
+    # 	[0, boss3.Boss3, True],								# 6
+    # 	[0, stage.EndStage3A],								# 7
+    # 	[0, stage.InitStage3B],								# 8  *
+    # 	[0, bossWarehouse.BossWarehouse, True],				# 9
+    # 	[0, enemy.LoadImage, 1, "assets/graslay4.png"],		# 10  *
+    # 	[0, boss4.Boss4, True],								# 11
+    # ]
+    def __init__(self):
+        self.eventIndex = gcommon.START_EVENT
+        self.shotHitCheck = False		# 自機弾との当たり判定
+        self.hitCheck = False			# 自機と敵との当たり判定
+        self.enemyShotCollision = False	# 敵弾との当たり判定を行う
+        self.bossWareHouseRail = None
 
-	def nextEvent(self):
-		if self.eventIndex < len(__class__.eventTable):
-			s = __class__.eventTable[self.eventIndex]
-			t = s[1]	# [1]はクラス型
-			obj = t(s)			# ここでインスタンス化
-			ObjMgr.addObj(obj)
-			self.eventIndex += 1
-			self.cnt = 0
+    def nextEvent(self):
+        if self.eventIndex == 0:
+            # Boss 1
+            pyxel.image(1).load(0, 0, "assets/graslay1.png")
+            MapData.loadMapAttribute("assets/zero.mapatr")
+            ObjMgr.addObj(boss1.Boss1([0, None, 256, 60, True]))
+        elif self.eventIndex == 1:
+            # Boss 2A
+            pyxel.image(1).load(0, 0, "assets/graslay2.png")
+            ObjMgr.addObj(boss2.Boss2([0, None, 256, 60, True]))
+        elif self.eventIndex == 2:
+            # Init Boss 3A
+            pyxel.image(1).load(0,0,"assets/graslay3.png")
+            gcommon.sync_map_y = 0
+            gcommon.long_map = False
+            gcommon.draw_star = True
+            gcommon.eshot_sync_scroll = False
+            gcommon.breakableMapData = False
+            MapData.loadMapData(0, "assets/graslay3rush.pyxmap")
+            MapData.loadMapData(2, "assets/graslay3b.pyxmap")
+            #MapData.loadMapAttribute("assets/graslay3.mapatr")
+            pyxel.tilemap(2).refimg = 1
+            gcommon.scrollController = enemyOthers.ScrollController1(__class__.bossRushScrollConteroller3A)
+            ObjMgr.setDrawMap(MapDraw3rush())
+            ObjMgr.addObj(enemy.Delay(boss3.Boss3, [0, None, True], 120))
+        elif self.eventIndex == 3:
+            # End Boss 3A
+            gcommon.scrollController = None
+            ObjMgr.setDrawMap(None)
+            #MapData.loadMapAttribute("assets/zero.mapatr")
+            gcommon.cur_scroll_x = 0.5
+            gcommon.cur_scroll_y = 0.0
+            ObjMgr.addObj(enemy.NextEvent([0, None, 60]))
+        elif self.eventIndex == 4:
+            # Init Boss 3B
+            pyxel.image(1).load(0,0,"assets/stage_warehouse.png")
+            pyxel.image(2).load(0,0,"assets/stage_warehouse-2.png")
+            self.layer = gcommon.C_LAYER_UNDER_GRD
+            gcommon.sync_map_y = 0
+            gcommon.long_map = False
+            gcommon.draw_star = True
+            gcommon.eshot_sync_scroll = False
+            gcommon.breakableMapData = False
+            MapData.loadMapData(0, "assets/stage_warehouse-rush.pyxmap")    # 手前に見えるマップ
+            pyxel.tilemap(0).refimg = 1
+            ObjMgr.setDrawMap(None)
+            gcommon.cur_scroll_x = 0.0
+            gcommon.cur_scroll_y = 0.0
+            gcommon.map_x = 0
+            gcommon.map_y = 0
+            # レール出現
+            self.bossWareHouseRail = ObjMgr.addObj(bossWarehouse.BossWarehouseRail())
+            ObjMgr.addObj(enemy.Delay(bossWarehouse.BossWarehouse,[0, None, True], 120))
+        elif self.eventIndex == 5:
+            # レールが画面外に移動
+            self.bossWareHouseRail.nextState()
+            ObjMgr.addObj(enemy.NextEvent([0, None, 90]))
+        elif self.eventIndex == 6:
+            # Boss 4A
+            gcommon.cur_scroll_x = 0.0
+            gcommon.cur_scroll_y = 0.0
+            pyxel.image(1).load(0,0,"assets/graslay4.png")
+            ObjMgr.addObj(boss4.Boss4([0, None, True]))
+        elif self.eventIndex == 7:
+            # Boss 4B
+            pyxel.image(1).load(0,0,"assets/stage_labyrinth.png")
+            pyxel.image(2).load(0,0,"assets/stage_labyrinth2.png")
+            MapData.loadMapData(0, "assets/stage_labyrinth.pyxmap")
+            ObjMgr.addObj(bossLabyrinth.BossLabyrinth([0, None, 0,0, True]))
+        elif self.eventIndex == 8:
+            # Boss 5A
+            pyxel.image(1).load(0,0,"assets/graslay_factory.png")
+            pyxel.image(2).load(0,0,"assets/graslay_factory-2.png")
+            ObjMgr.addObj(bossFactory.BossFactory([0, None, True]))
+        self.eventIndex += 1

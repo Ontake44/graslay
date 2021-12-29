@@ -40,6 +40,7 @@ class BossLabyrinth(enemy.EnemyBase):
         super(__class__, self).__init__()
         self.x = t[2]
         self.y = t[3]
+        self.isBossRush = t[4]
         self.left = -45
         self.top = -45
         self.right = 45
@@ -47,8 +48,8 @@ class BossLabyrinth(enemy.EnemyBase):
         self.hp = boss.BOSS_LABYRINTH_1
         self.layer = gcommon.C_LAYER_UNDER_GRD
         self.score = 5000
-        self.hitcolor1 = 9
-        self.hitcolor2 = 10
+        self.hitcolor1 = 3
+        self.hitcolor2 = 6
         # 第ｎ形態
         self.state = 0
         self.mover = CountMover(self, self.moveTable0, False)
@@ -118,7 +119,7 @@ class BossLabyrinth(enemy.EnemyBase):
             # 破壊状態
             if self.cnt > 90:
                 self.remove()
-                ObjMgr.addObj(BossLabyrinth2())
+                ObjMgr.addObj(BossLabyrinth2(self.isBossRush))
         if self.state < 100 and self.mover.isEnd:
             if self.state == 0:
                 self.setState(1)
@@ -187,7 +188,7 @@ class BossLabyrinth(enemy.EnemyBase):
             Drawing.blt(self.x -15.5+16 +self.shiftPos, self.y-15.5+32 +self.shiftPos*2, 2, 176, 32, 48, 32, 2)
                         
             # 中心
-            Drawing.blt(self.x -15.5, self.y-15.5, 2, 56, 0, 32, 32)
+            Drawing.blt(self.x -15.5, self.y-15.5, 2, 56, 0, 32, 32, 3)
         elif self.state == 100:
             pyxel.bltm(self.x -47.5, self.y-15.5-32, 0, 0, 0, 12, 12)
             #Drawing.blt(self.x -15.5, self.y-15.5, 2, 56, 0, 32, 32)
@@ -339,8 +340,9 @@ class BossLabyrinth2(enemy.EnemyBase):
     # ]
     bodyRect1 = gcommon.Rect(-6*8-3.5, -15.5, -15.5, 15.5)
     bodyRect2 = gcommon.Rect(-14.5, -21.5, 39.5, 21.5)
-    def __init__(self):
+    def __init__(self, isBossRush):
         super(__class__, self).__init__()
+        self.isBossRush = isBossRush
         self.x = 200
         self.y = 96
         # 自機弾との当たり判定
@@ -556,7 +558,10 @@ class BossLabyrinth2(enemy.EnemyBase):
         self.remove()
         BGM.sound(gcommon.SOUND_LARGE_EXP)
         enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-        ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
+        if self.isBossRush:
+            ObjMgr.objs.append(enemy.NextEvent([0, None, 240]))
+        else:
+            ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
 
     # 自機弾と敵との当たり判定
     def checkShotCollision(self, shot):

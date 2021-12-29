@@ -314,7 +314,7 @@ class Boss3(enemy.EnemyBase):
 		BGM.sound(gcommon.SOUND_LARGE_EXP)
 		if self.isBossRush:
 			gcommon.scrollController.nextIndex()
-			ObjMgr.objs.append(enemy.NextEvent([0, None, 360]))
+			ObjMgr.objs.append(enemy.NextEvent([0, None, 300]))
 		else:
 			ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
 

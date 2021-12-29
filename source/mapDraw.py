@@ -102,43 +102,45 @@ class MapDraw1:
 		pass
 
 class MapDraw2:
-	def __init__(self):
-		pass
-	
-	def init(self):
-		gcommon.map_x = 0
-		gcommon.map_y = 24*8
-		gcommon.mapHeight = 8 * 256
+    def __init__(self):
+        pass
 
-	def update0(self, skip):
-		pass
+    def init(self):
+        gcommon.map_x = 0
+        gcommon.map_y = 24*8
+        gcommon.mapHeight = 8 * 256
 
-	def update(self, skip):
-		if skip == False:
-			# スキップ時はマップデータやオブジェクト追加しない
-			for my in range(0, 128):
-				mx = gcommon.screenPosToMapPosX(256)
-				n = gcommon.getMapDataByMapPos(mx, my)
-				# 共通のマップキャラクタ処理
-				doMapCharacter(n, mx, my)
-		gcommon.map_x += gcommon.cur_scroll_x
-		gcommon.map_y += gcommon.cur_scroll_y
-	
-	def drawBackground(self):
-		dx = -1.0 * (int(gcommon.map_x/2) % 8)
-		sx = (int(gcommon.map_x/16)%3)
-		pyxel.bltm(dx, 0, 0, sx, 128, 33,33, gcommon.TP_COLOR)
+    def update0(self, skip):
+        pass
 
-	def draw(self):
-		if gcommon.game_timer > 7400:
-			return
-		if gcommon.map_x < 0:
-			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
-		else:
-			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, int(gcommon.map_x/8), (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+    def update(self, skip):
+        if skip == False:
+            # スキップ時はマップデータやオブジェクト追加しない
+            for my in range(0, 128):
+                mx = gcommon.screenPosToMapPosX(256)
+                n = gcommon.getMapDataByMapPos(mx, my)
+                # 共通のマップキャラクタ処理
+                doMapCharacter(n, mx, my)
+        gcommon.map_x += gcommon.cur_scroll_x
+        gcommon.map_y += gcommon.cur_scroll_y
+        if gcommon.map_x > (2048.0+48.0):
+            gcommon.map_x -= 48.0
 
-	def draw2(self):
-		pass
+    def drawBackground(self):
+        dx = -1.0 * (int(gcommon.map_x/2) % 8)
+        sx = (int(gcommon.map_x/16)%3)
+        pyxel.bltm(dx, 0, 0, sx, 128, 33,33, gcommon.TP_COLOR)
+
+    def draw(self):
+        if gcommon.game_timer > 7400:
+            return
+        if gcommon.map_x < 0:
+            pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+        else:
+            pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, int(gcommon.map_x/8), (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+
+    def draw2(self):
+        pass
 
 # 洞窟
 class MapDrawCave:
@@ -526,79 +528,81 @@ class MapDraw3rush:
 		pass
 
 class MapDraw4:
-	def __init__(self):
-		pass
-	
-	def init(self):
-		gcommon.map_x = -32 * 8
-		gcommon.map_y = 24*8
-		gcommon.mapHeight = 8 * 256
-		gcommon.back_map_x = -32 * 8/2
-		gcommon.back_map_y = 0
+    def __init__(self):
+        pass
+    
+    def init(self):
+        gcommon.map_x = -32 * 8
+        gcommon.map_y = 24*8
+        gcommon.mapHeight = 8 * 256
+        gcommon.back_map_x = -32 * 8/2
+        gcommon.back_map_y = 0
 
-	def update0(self, skip):
-		pass
+    def update0(self, skip):
+        pass
 
-	def update(self, skip):
-		if skip == False:
-			# スキップ時はマップデータやオブジェクト追加しない
-			for i in range(0, 128):
-				my = 127 -i
-				mx = gcommon.screenPosToMapPosX(256)
-				n = gcommon.getMapDataByMapPos(mx, my)
-				if n == 394:
-					# 柱
-					size = gcommon.getMapDataByMapPos(mx+1, my) -576
-					obj = enemy.RuinPillar1(mx, my, 1, size)
-					ObjMgr.addObj(obj)
-				elif n == 395:
-					# 床
-					size = gcommon.getMapDataByMapPos(mx+1, my) -576
-					obj = enemy.RuinFloor1(mx, my, 1, size)
-					ObjMgr.addObj(obj)
-				if n == 396:
-					# 柱
-					size = gcommon.getMapDataByMapPos(mx+1, my) -576
-					obj = enemy.RuinPillar1(mx, my, -1, size)
-					ObjMgr.addObj(obj)
-				elif n == 397:
-					# 床
-					size = gcommon.getMapDataByMapPos(mx+1, my) -576
-					obj = enemy.RuinFloor1(mx, my, -1, size)
-					ObjMgr.addObj(obj)
-				elif n in (390, 391):
-					# 砲台
-					ObjMgr.addObj(enemy.Battery2(mx, my, 1 if n==390 else -1))
-				else:
-					# 共通のマップキャラクタ処理
-					doMapCharacter(n, mx, my)
-		gcommon.map_x += gcommon.cur_scroll_x
-		gcommon.map_y += gcommon.cur_scroll_y
-		gcommon.back_map_x += gcommon.cur_scroll_x/2
+    def update(self, skip):
+        if skip == False:
+            # スキップ時はマップデータやオブジェクト追加しない
+            for i in range(0, 128):
+                my = 127 -i
+                mx = gcommon.screenPosToMapPosX(256)
+                n = gcommon.getMapDataByMapPos(mx, my)
+                if n == 394:
+                    # 柱
+                    size = gcommon.getMapDataByMapPos(mx+1, my) -576
+                    obj = enemy.RuinPillar1(mx, my, 1, size)
+                    ObjMgr.addObj(obj)
+                elif n == 395:
+                    # 床
+                    size = gcommon.getMapDataByMapPos(mx+1, my) -576
+                    obj = enemy.RuinFloor1(mx, my, 1, size)
+                    ObjMgr.addObj(obj)
+                if n == 396:
+                    # 柱
+                    size = gcommon.getMapDataByMapPos(mx+1, my) -576
+                    obj = enemy.RuinPillar1(mx, my, -1, size)
+                    ObjMgr.addObj(obj)
+                elif n == 397:
+                    # 床
+                    size = gcommon.getMapDataByMapPos(mx+1, my) -576
+                    obj = enemy.RuinFloor1(mx, my, -1, size)
+                    ObjMgr.addObj(obj)
+                elif n in (390, 391):
+                    # 砲台
+                    ObjMgr.addObj(enemy.Battery2(mx, my, 1 if n==390 else -1))
+                else:
+                    # 共通のマップキャラクタ処理
+                    doMapCharacter(n, mx, my)
+        gcommon.map_x += gcommon.cur_scroll_x
+        gcommon.map_y += gcommon.cur_scroll_y
+        gcommon.back_map_x += gcommon.cur_scroll_x/2
 
-	def drawBackground(self):
-		if gcommon.back_map_x < 0:
-			pyxel.bltm(-1 * int(gcommon.back_map_x), 0, 1, 0, 24,33,33, gcommon.TP_COLOR)
-		else:
-			mx = (int)(gcommon.back_map_x/8)
-			pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, gcommon.TP_COLOR)
+    def drawBackground(self):
+        if gcommon.back_map_x < 0:
+            pyxel.bltm(-1 * int(gcommon.back_map_x), 0, 1, 0, 24,33,33, gcommon.TP_COLOR)
+        else:
+            mx = (int)(gcommon.back_map_x/8)
+            pyxel.bltm(-1 * (int(gcommon.back_map_x) % 8), 0, 1, mx, 24,33,33, gcommon.TP_COLOR)
 
-	def draw(self):
-		# 上下ループマップなのでややこしい
-		if gcommon.map_x < 0:
-			pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
-		else:
-			tm = int(gcommon.map_x/4096)
-			moffset = (int(gcommon.map_x/2048) & 1) * 128
-			w = int((gcommon.map_x %2048)/8)
-			pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, gcommon.TP_COLOR)
-			if w >= 224:
-				tm2 = int((gcommon.map_x+256)/4096)
-				moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
-				pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+    def draw(self):
+        # 上下ループマップなのでややこしい
+        if gcommon.map_x < 0:
+            pyxel.bltm(-1 * int(gcommon.map_x), -1 * (int(gcommon.map_y) % 8), 0, 0, (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
+        else:
+            if gcommon.map_x < 2048:
+                pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), 0, (int)((gcommon.map_x % 2048)/8), (int)(gcommon.map_y/8),33,25, gcommon.TP_COLOR)
+            # tm = int(gcommon.map_x/4096)
+            # moffset = (int(gcommon.map_x/2048) & 1) * 128
+            # w = int((gcommon.map_x %2048)/8)
+            # pyxel.bltm(-1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm, (int)((gcommon.map_x % 2048)/8), moffset + (int)(gcommon.map_y/8),33,25, gcommon.TP_COLOR)
+            # if w >= 224:
+            # 	tm2 = int((gcommon.map_x+256)/4096)
+            # 	moffset2 = (int((gcommon.map_x+256)/2048) & 1) * 128
+            # 	pyxel.bltm((256-w)*8 -1 * (int(gcommon.map_x) % 8), -1 * (int(gcommon.map_y) % 8), tm2, 0, moffset2 + (int)(gcommon.map_y/8),33,33, gcommon.TP_COLOR)
 
-	def draw2(self):
-		pass
+    def draw2(self):
+        pass
 
 class MapDrawFactory:
 	def __init__(self):

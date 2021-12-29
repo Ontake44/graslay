@@ -20,6 +20,7 @@ missileTable = [
 class Boss4(enemy.EnemyBase):
 	def __init__(self, t):
 		super(Boss4, self).__init__()
+		self.isBossRush = t[2]
 		self.x = 256
 		self.y = 80
 		self.layer = gcommon.C_LAYER_SKY
@@ -43,7 +44,8 @@ class Boss4(enemy.EnemyBase):
 
 	def update(self):
 		if self.state == 0:
-			self.x -= gcommon.cur_scroll_x
+			#self.x -= gcommon.cur_scroll_x
+			self.x -= 1.0
 			if self.x <= 152:
 				self.nextState()
 		elif self.state == 1:
@@ -252,5 +254,8 @@ class Boss4(enemy.EnemyBase):
 		GameSession.addScore(self.score)
 		BGM.sound(gcommon.SOUND_LARGE_EXP)
 		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
+		if self.isBossRush:
+			ObjMgr.objs.append(enemy.NextEvent([0, None, 240]))
+		else:
+			ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
 

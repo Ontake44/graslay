@@ -1153,14 +1153,14 @@ class BossLastRoundBeam(enemy.EnemyBase):
 			if self.beamRadDelta > -math.pi/120:
 				self.beamRadDelta -= (math.pi/120/30)
 			if self.beamRadStart < math.pi*0.35:
-				 self.beamRadStart += math.pi/200
+				self.beamRadStart += math.pi/200
 			if self.cnt > 150:
 				self.nextState()
 		elif self.state == 3:
 			if self.beamRadDelta < math.pi/120:
 				self.beamRadDelta += (math.pi/120/30)
 			if self.beamRadStart > -math.pi*0.35:
-				 self.beamRadStart -= math.pi/200
+				self.beamRadStart -= math.pi/200
 			if self.cnt > 150:
 				self.stateCycle += 1
 				if self.stateCycle == 3:
