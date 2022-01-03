@@ -30,339 +30,340 @@ class BossLast1Launcher(enemy.EnemyBase):
 
 
 class BossLast1(enemy.EnemyBase):
-	coreTable = [[0,224],[64,224],[128,224],[192,224],[128,192],[64,192]]
-	beamTable = [
-		[[0,156],[0,43],[100,199],[83,0]],
-		[[85,199],[0,38],[0,77],[0,117]],
-		[[0,130],[9,0],[9,199],[0,68]],
-	]
-	launcherTable = [[38,24],[66,128+15],[66,49],[38,128+40]]
-	#launcherDrTable = [32 -5, 32 +2, 32 +2, 32 +5]
-	fallShot2RadTable = [0.6, 0.75, 0.65, 0.7, 0.63, 0.8, 0.72]
-	table8 = [5,3,6,2,1,7,4,0]
-	arrowDrTable = [1.0, 0.8, 1.2, 0.95, 1.1, 0.7, 1.05, 0.9, 1.3, 0.85, 1.15]
-	initHp = boss.BOSS_LAST_1 + boss.BOSS_LAST_2 + boss.BOSS_LAST_3	# 5000		# 2000
-	hp2 = boss.BOSS_LAST_2 + boss.BOSS_LAST_3 # 3500			# 1900
-	hp3 = boss.BOSS_LAST_3	# 1500			# 1700
-	def __init__(self, t):
-		super(BossLast1, self).__init__()
-		self.x = 256
-		self.y = 0
-		self.left = 52
-		self.top = 80
-		self.right = 111
-		self.bottom = 111
-		self.hp = BossLast1.initHp
-		self.layer = gcommon.C_LAYER_UNDER_GRD
-		self.ground = True
-		self.score = 20000
-		self.exptype = gcommon.C_EXPTYPE_GRD_BOSS
-		# 破壊状態
-		self.brokenState = 0
-		self.coreBrightState = 0
-		self.coreBrightness = 0
-		self.shotType = 3
-		self.beamIndex = 0
-		self.cycleCount = 0
-		# 本体ビームカウント
-		self.cycleCount2 = 0
-		self.beam1List = [None] * 4
-		self.beam2 = None
-		self.roundBeam = None
-		# ボスの攻撃形態
-		self.mode = 0
-		self.coreX = self.x +32+16+32
-		self.coreY = self.y +64+16+16
-		# コアの回転角度
-		self.rad = 0.0
-		self.subState = 0
-		self.subCnt = 0
-		self.arrowRad = math.pi
-		self.omega = 0.0
-		self.random = gcommon.ClassicRand()
-		self.fallShot2RadIndex = 0
-		pyxel.image(2).load(0,0,"assets/graslay_last-3.png")
-		# 移動ビーム砲台発射口
-		ObjMgr.addObj(BossLast1Launcher(self.x, self.y, -1))
-		ObjMgr.addObj(BossLast1Launcher(self.x, self.y +176, 1))
+    coreTable = [[0,224],[64,224],[128,224],[192,224],[128,192],[64,192]]
+    beamTable = [
+        [[0,156],[0,43],[100,199],[83,0]],
+        [[85,199],[0,38],[0,77],[0,117]],
+        [[0,130],[9,0],[9,199],[0,68]],
+    ]
+    launcherTable = [[38,24],[66,128+15],[66,49],[38,128+40]]
+    #launcherDrTable = [32 -5, 32 +2, 32 +2, 32 +5]
+    fallShot2RadTable = [0.6, 0.75, 0.65, 0.7, 0.63, 0.8, 0.72]
+    table8 = [5,3,6,2,1,7,4,0]
+    arrowDrTable = [1.0, 0.8, 1.2, 0.95, 1.1, 0.7, 1.05, 0.9, 1.3, 0.85, 1.15]
+    initHp = boss.BOSS_LAST_1 + boss.BOSS_LAST_2 + boss.BOSS_LAST_3	# 5000		# 2000
+    hp2 = boss.BOSS_LAST_2 + boss.BOSS_LAST_3 # 3500			# 1900
+    hp3 = boss.BOSS_LAST_3	# 1500			# 1700
+    def __init__(self, t):
+        super(BossLast1, self).__init__()
+        self.isBossRush = t[2]
+        self.x = 256
+        self.y = 0
+        self.left = 52
+        self.top = 80
+        self.right = 111
+        self.bottom = 111
+        self.hp = BossLast1.initHp
+        self.layer = gcommon.C_LAYER_UNDER_GRD
+        self.ground = True
+        self.score = 20000
+        self.exptype = gcommon.C_EXPTYPE_GRD_BOSS
+        # 破壊状態
+        self.brokenState = 0
+        self.coreBrightState = 0
+        self.coreBrightness = 0
+        self.shotType = 3
+        self.beamIndex = 0
+        self.cycleCount = 0
+        # 本体ビームカウント
+        self.cycleCount2 = 0
+        self.beam1List = [None] * 4
+        self.beam2 = None
+        self.roundBeam = None
+        # ボスの攻撃形態
+        self.mode = 0
+        self.coreX = self.x +32+16+32
+        self.coreY = self.y +64+16+16
+        # コアの回転角度
+        self.rad = 0.0
+        self.subState = 0
+        self.subCnt = 0
+        self.arrowRad = math.pi
+        self.omega = 0.0
+        self.random = gcommon.ClassicRand()
+        self.fallShot2RadIndex = 0
+        pyxel.image(2).load(0,0,"assets/graslay_last-3.png")
+        # 移動ビーム砲台発射口
+        ObjMgr.addObj(BossLast1Launcher(self.x, self.y, -1))
+        ObjMgr.addObj(BossLast1Launcher(self.x, self.y +176, 1))
 
-	def nextState(self):
-		self.state += 1
-		self.cnt = 0
-		self.subState = 0
-		self.subCnt = 0
+    def nextState(self):
+        self.state += 1
+        self.cnt = 0
+        self.subState = 0
+        self.subCnt = 0
 
-	def setState(self, state):
-		self.state = state
-		self.cnt = 0
-		self.subState = 0
-		self.subCnt = 0
+    def setState(self, state):
+        self.state = state
+        self.cnt = 0
+        self.subState = 0
+        self.subCnt = 0
 
-	def nextSubState(self):
-		self.subState += 1
-		self.subCnt = 0
+    def nextSubState(self):
+        self.subState += 1
+        self.subCnt = 0
 
-	def setSubState(self, subState):
-		self.subState = subState
-		self.subCnt = 0
+    def setSubState(self, subState):
+        self.subState = subState
+        self.subCnt = 0
 
-	def update(self):
-		if self.mode == 0:
-			self.updateMode0()
-		elif self.mode == 1:
-			self.updateMode1()
-		else:
-			self.updateMode2()
+    def update(self):
+        if self.mode == 0:
+            self.updateMode0()
+        elif self.mode == 1:
+            self.updateMode1()
+        else:
+            self.updateMode2()
 
-	def updateMode0(self):
-		self.coreX = self.x +32+16+32
-		self.coreY = self.y +64+16+16
-		if self.state == 0:
-			if self.x <= 256-112:
-				# スクロール停止
-				gcommon.scroll_flag = False
-				self.nextState()
-		elif self.state == 1:
-			if self.cnt > 40:
-				self.nextState()
-		elif self.state == 2:
-			if self.cnt % 25 == 1:
-				count = 5
-				n = self.cnt & 3
-				if n == 0:
-					enemy.ContinuousShot.create(self.x + 38, self.y +24, self.shotType, count, 5, 4)
-				elif n == 1:
-					enemy.ContinuousShot.create(self.x + 66, self.y +128+15, self.shotType, count, 5, 4)
-				elif n == 2:
-					enemy.ContinuousShot.create(self.x + 66, self.y +49, self.shotType, count, 5, 4)
-				elif n == 3:
-					enemy.ContinuousShot.create(self.x + 38, self.y +128+40, self.shotType, count, 5, 4)
-				if GameSession.isHard():
-					self.shotType = 1 + (self.shotType + 1) % 3
-			if self.cnt> 100:
-				self.nextState()
-		
-		elif self.state == 3:
-			# ４箇所からのビーム
-			if self.cnt == 1:
-				for i in range(4):
-					start = BossLast1.launcherTable[i]
-					pos = BossLast1.beamTable[self.beamIndex][i]
-					self.beam1List[i] = BossLastBeam1(self.x + start[0], self.y +start[1], pos[0], pos[1])
-					ObjMgr.addObj(self.beam1List[i])
-				self.beamIndex += 1
-				if self.beamIndex >=len(BossLast1.beamTable):
-					self.beamIndex = 0
-			else:
-				if self.beam1List[0].removeFlag:
-					self.nextState()
-		
-		elif self.state == 4:
-			if self.cycleCount % 3 == 2:
-				self.nextState()
-			else:
-				self.setState(2)	
-			self.cycleCount += 1
+    def updateMode0(self):
+        self.coreX = self.x +32+16+32
+        self.coreY = self.y +64+16+16
+        if self.state == 0:
+            if self.x <= 256-112:
+                # スクロール停止
+                gcommon.scroll_flag = False
+                self.nextState()
+        elif self.state == 1:
+            if self.cnt > 40:
+                self.nextState()
+        elif self.state == 2:
+            if self.cnt % 25 == 1:
+                count = 5
+                n = self.cnt & 3
+                if n == 0:
+                    enemy.ContinuousShot.create(self.x + 38, self.y +24, self.shotType, count, 5, 4)
+                elif n == 1:
+                    enemy.ContinuousShot.create(self.x + 66, self.y +128+15, self.shotType, count, 5, 4)
+                elif n == 2:
+                    enemy.ContinuousShot.create(self.x + 66, self.y +49, self.shotType, count, 5, 4)
+                elif n == 3:
+                    enemy.ContinuousShot.create(self.x + 38, self.y +128+40, self.shotType, count, 5, 4)
+                if GameSession.isHard():
+                    self.shotType = 1 + (self.shotType + 1) % 3
+            if self.cnt> 100:
+                self.nextState()
+        
+        elif self.state == 3:
+            # ４箇所からのビーム
+            if self.cnt == 1:
+                for i in range(4):
+                    start = BossLast1.launcherTable[i]
+                    pos = BossLast1.beamTable[self.beamIndex][i]
+                    self.beam1List[i] = BossLastBeam1(self.x + start[0], self.y +start[1], pos[0], pos[1])
+                    ObjMgr.addObj(self.beam1List[i])
+                self.beamIndex += 1
+                if self.beamIndex >=len(BossLast1.beamTable):
+                    self.beamIndex = 0
+            else:
+                if self.beam1List[0].removeFlag:
+                    self.nextState()
+        
+        elif self.state == 4:
+            if self.cycleCount % 3 == 2:
+                self.nextState()
+            else:
+                self.setState(2)	
+            self.cycleCount += 1
 
-		elif self.state == 5:
-			# 本体ビーム
-			if self.cnt == 1:
-				self.beam2 = BossLastBeam2(180, 96, (self.cycleCount2 & 1 != 0))
-				ObjMgr.addObj(self.beam2)
-				self.cycleCount2 += 1
-			else:
-				if self.beam2.removeFlag:
-					if self.cycleCount2 & 2 != 0:
-						self.nextState()
-					else:
-						self.setState(2)	
+        elif self.state == 5:
+            # 本体ビーム
+            if self.cnt == 1:
+                self.beam2 = BossLastBeam2(180, 96, (self.cycleCount2 & 1 != 0))
+                ObjMgr.addObj(self.beam2)
+                self.cycleCount2 += 1
+            else:
+                if self.beam2.removeFlag:
+                    if self.cycleCount2 & 2 != 0:
+                        self.nextState()
+                    else:
+                        self.setState(2)	
 
-		elif self.state == 6:
-			# レーザー砲台射出
-			if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
-				rate = 80
-			elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
-				rate = 60
-			else:
-				rate = 40
-			if self.cnt % rate == 1:
-				ObjMgr.objs.append(BossLastBattery1(156, 192, -1))
-			elif self.cnt % rate == int(rate/2)+1:
-				ObjMgr.objs.append(BossLastBattery1(156, -16, 1))
-			if self.cnt > 200:				
-				self.setState(2)	
-		self.rad = (self.rad + math.pi/60) % (math.pi * 2)
-		
-	def updateMode1(self):
-		self.coreX = self.x +32+16+32
-		self.coreY = self.y +64+16+16
-		if self.state == 0:
-			if self.x <= 256-112:
-				# スクロール停止
-				gcommon.scroll_flag = False
-				self.nextState()
-		elif self.state == 1:
-			if self.cnt > 60:
-				self.nextState()
-		elif self.state == 2:
-			# ダイアモンドショットホーミング射出
-			if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
-				count = 20
-			elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
-				count = 15
-			else:
-				count = 8
-			if self.cnt % count == 0:
-				n = BossLast1.table8[int(self.cnt /8) & 7]
-				ObjMgr.addObj(BossLastDiamondShot(self.x +32+16+32, self.y +64+16+16+8, 24 -n*2))
-				ObjMgr.addObj(BossLastDiamondShot(self.x +32+16+32, self.y +64+16+16-8, 40 +n*2))
-			if self.cnt > 300:
-				self.nextState()
-		elif self.state == 3:
-			if self.cnt > 30:
-				self.nextState()
-				self.fallShot2RadIndex = 0
-		elif self.state == 4:
-			# # 矢型の弾
-			# if self.cnt & 3 == 0:
-			# 	self.arrowRad = math.pi + math.pi * (self.random.rand() % 100 -50)/120
-			# 	ObjMgr.addObj(BossLastArrowShot(self.x +32+16+32, self.y +64+16+16, self.arrowRad))
-			# ひし形弾
-			if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
-				count = 51
-			elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
-				count = 37
-			else:
-				count = 23
-			if self.cnt % count == 0:
-				n = self.cnt % 4
-				pos = __class__.launcherTable[n]
-				if n in (0, 2):
-					rad = math.pi * __class__.fallShot2RadTable[self.fallShot2RadIndex]
-				else:
-					rad = -math.pi * __class__.fallShot2RadTable[self.fallShot2RadIndex]
-				ObjMgr.addObj(BossLastBoundShot(self.x +pos[0], self.y +pos[1], rad))
-				#ObjMgr.addObj(BossLastBoundShot(self.x +pos[0], self.y +pos[1], math.pi))
-				self.fallShot2RadIndex += 1
-				if self.fallShot2RadIndex >= len(__class__.fallShot2RadTable):
-					self.fallShot2RadIndex = 0
-			# if self.cnt % count == 0:
-			# 	speed = 2
-			# 	n = int(self.cnt /count) % 4
-			# 	pos = __class__.launcherTable[n]
-			# 	#enemy.enemy_shot_dr_multi(self.x +pos[0], self.y +pos[1], 2, 0, __class__.launcherDrTable[n], 3, 2)
-			# 	enemy.enemy_shot_multi(self.x +pos[0], self.y +pos[1], speed, 0, 5, 3)
+        elif self.state == 6:
+            # レーザー砲台射出
+            if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
+                rate = 80
+            elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
+                rate = 60
+            else:
+                rate = 40
+            if self.cnt % rate == 1:
+                ObjMgr.objs.append(BossLastBattery1(156, 192, -1))
+            elif self.cnt % rate == int(rate/2)+1:
+                ObjMgr.objs.append(BossLastBattery1(156, -16, 1))
+            if self.cnt > 200:				
+                self.setState(2)	
+        self.rad = (self.rad + math.pi/60) % (math.pi * 2)
+        
+    def updateMode1(self):
+        self.coreX = self.x +32+16+32
+        self.coreY = self.y +64+16+16
+        if self.state == 0:
+            if self.x <= 256-112:
+                # スクロール停止
+                gcommon.scroll_flag = False
+                self.nextState()
+        elif self.state == 1:
+            if self.cnt > 60:
+                self.nextState()
+        elif self.state == 2:
+            # ダイアモンドショットホーミング射出
+            if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
+                count = 20
+            elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
+                count = 15
+            else:
+                count = 8
+            if self.cnt % count == 0:
+                n = BossLast1.table8[int(self.cnt /8) & 7]
+                ObjMgr.addObj(BossLastDiamondShot(self.x +32+16+32, self.y +64+16+16+8, 24 -n*2))
+                ObjMgr.addObj(BossLastDiamondShot(self.x +32+16+32, self.y +64+16+16-8, 40 +n*2))
+            if self.cnt > 300:
+                self.nextState()
+        elif self.state == 3:
+            if self.cnt > 30:
+                self.nextState()
+                self.fallShot2RadIndex = 0
+        elif self.state == 4:
+            # # 矢型の弾
+            # if self.cnt & 3 == 0:
+            # 	self.arrowRad = math.pi + math.pi * (self.random.rand() % 100 -50)/120
+            # 	ObjMgr.addObj(BossLastArrowShot(self.x +32+16+32, self.y +64+16+16, self.arrowRad))
+            # ひし形弾
+            if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
+                count = 51
+            elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
+                count = 37
+            else:
+                count = 23
+            if self.cnt % count == 0:
+                n = self.cnt % 4
+                pos = __class__.launcherTable[n]
+                if n in (0, 2):
+                    rad = math.pi * __class__.fallShot2RadTable[self.fallShot2RadIndex]
+                else:
+                    rad = -math.pi * __class__.fallShot2RadTable[self.fallShot2RadIndex]
+                ObjMgr.addObj(BossLastBoundShot(self.x +pos[0], self.y +pos[1], rad))
+                #ObjMgr.addObj(BossLastBoundShot(self.x +pos[0], self.y +pos[1], math.pi))
+                self.fallShot2RadIndex += 1
+                if self.fallShot2RadIndex >= len(__class__.fallShot2RadTable):
+                    self.fallShot2RadIndex = 0
+            # if self.cnt % count == 0:
+            # 	speed = 2
+            # 	n = int(self.cnt /count) % 4
+            # 	pos = __class__.launcherTable[n]
+            # 	#enemy.enemy_shot_dr_multi(self.x +pos[0], self.y +pos[1], 2, 0, __class__.launcherDrTable[n], 3, 2)
+            # 	enemy.enemy_shot_multi(self.x +pos[0], self.y +pos[1], speed, 0, 5, 3)
 
-			if self.cnt > 300:
-				self.nextState()
-		elif self.state == 5:
-			if self.cnt == 1:
-				self.roundBeam = BossLastRoundBeam(self.x +32+16+32, self.y +64+16+16)
-				ObjMgr.addObj(self.roundBeam)
-			if self.roundBeam != None and self.roundBeam.removeFlag:
-				self.setState(2)
+            if self.cnt > 300:
+                self.nextState()
+        elif self.state == 5:
+            if self.cnt == 1:
+                self.roundBeam = BossLastRoundBeam(self.x +32+16+32, self.y +64+16+16)
+                ObjMgr.addObj(self.roundBeam)
+            if self.roundBeam != None and self.roundBeam.removeFlag:
+                self.setState(2)
 
-		self.rad = (self.rad + math.pi/60) % (math.pi * 2)
+        self.rad = (self.rad + math.pi/60) % (math.pi * 2)
 
-	def updateMode2(self):
-		if self.state == 0:
-			if self.cnt > 120:
-				self.nextState()
-		elif self.state == 1:
-			# 右の画面外に移動
-			if self.cnt == 1:
-				obj = enemy.Splash.appendDr(self.coreX, self.coreY -8, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
-				obj.ground = True
-				obj = enemy.Splash.appendDr(self.coreX -16, self.coreY, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
-				obj.ground = True
-				obj = enemy.Splash.appendDr(self.coreX, self.coreY +8, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
-				obj.ground = True
-			if self.coreX < 300:
-				self.coreX += 4
-			if self.cnt == 120:
-				gcommon.scroll_flag = True
-				# ボスコアを生成
-				ObjMgr.addObj(BossLast1Core(self.coreX, self.coreY))
-				ObjMgr.addObj(enemy.Delay(BossLastBaseExplosion, [], 240))
-				BGM.play(BGM.BOSS_LAST)
-		if self.x <= -160:
-			self.remove()
+    def updateMode2(self):
+        if self.state == 0:
+            if self.cnt > 120:
+                self.nextState()
+        elif self.state == 1:
+            # 右の画面外に移動
+            if self.cnt == 1:
+                obj = enemy.Splash.appendDr(self.coreX, self.coreY -8, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
+                obj.ground = True
+                obj = enemy.Splash.appendDr(self.coreX -16, self.coreY, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
+                obj.ground = True
+                obj = enemy.Splash.appendDr(self.coreX, self.coreY +8, gcommon.C_LAYER_SKY, math.pi, math.pi/6, 20)
+                obj.ground = True
+            if self.coreX < 300:
+                self.coreX += 4
+            if self.cnt == 120:
+                gcommon.scroll_flag = True
+                # ボスコアを生成
+                ObjMgr.addObj(BossLast1Core(self.coreX, self.coreY))
+                ObjMgr.addObj(enemy.Delay(BossLastBaseExplosion, [], 240))
+                BGM.play(BGM.BOSS_LAST)
+        if self.x <= -160:
+            self.remove()
 
-		self.rad = (self.rad + math.pi/30) % (math.pi * 2)
-
-
-	def draw(self):
-		# 上
-		pyxel.blt(self.x, self.y, 2, 96, 0,  160, -64, 3)
-		# 中
-
-		# コア部分
-		if self.brokenState in (1, 2):
-			Drawing.setBrightnessWithoutBlack(self.coreBrightness)
-			BossLast1Core.drawCore(self.coreX, self.coreY, self.rad)
-			pyxel.pal()
-			if self.cnt & 3 == 0:
-				if self.coreBrightState == 0:
-					self.coreBrightness += 1
-					if self.coreBrightness >= 4:
-						self.coreBrightState = 1
-				else:
-					self.coreBrightness -= 1
-					if self.coreBrightness <= -3:
-						self.coreBrightState = 0
-		pyxel.blt(self.x +32, self.y +64, 2, 0, 128, 96, 64, 3)
-		if self.brokenState in (0,1):
-			if self.hit:
-				Drawing.setBrightnessWithoutBlack(1)
-			pyxel.blt(self.x +32, self.y +64, 2, 0, self.brokenState* 64, 96, 64, 3)
-			pyxel.pal()
-		# 下
-		pyxel.blt(self.x, self.y +128, 2, 96, 0, 160, 64, 3)
+        self.rad = (self.rad + math.pi/30) % (math.pi * 2)
 
 
-	def doShotCollision(self, shot):
-		ret = super(BossLast1, self).doShotCollision(shot)
-		if self.mode == 0:
-			if self.brokenState == 0 and self.hp < BossLast1.hp2:
-				# 初期状態⇒先端が欠けた状態
-				self.brokenState = 1
-				enemy.create_explosion(self.x +32+32, self.y +64+16+16, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M)
-				GameSession.addScore(1000)
-			elif self.brokenState == 1 and self.hp < BossLast1.hp3:
-				# 先端が欠けた状態⇒コアむき出し状態
-				self.brokenState = 2
-				self.mode = 1
-				self.setState(0)
-				self.removeAllShot()
-				enemy.create_explosion(self.x +32+32, self.y +64+16+16, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M)
-				enemy.Splash.append(self.x +32+32+24, self.y +64+16+16, gcommon.C_LAYER_EXP_SKY)
-				GameSession.addScore(3000)
-		return ret
+    def draw(self):
+        # 上
+        pyxel.blt(self.x, self.y, 2, 96, 0,  160, -64, 3)
+        # 中
 
-	def broken(self):
-		self.mode = 2
-		self.setState(0)
-		self.hitCheck = False
-		self.shotHitCheck = False
-		self.removeAllShot()
-		enemy.removeEnemyShot()
-		BGM.sound(gcommon.SOUND_LARGE_EXP)
-		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		GameSession.addScore(self.score)
+        # コア部分
+        if self.brokenState in (1, 2):
+            Drawing.setBrightnessWithoutBlack(self.coreBrightness)
+            BossLast1Core.drawCore(self.coreX, self.coreY, self.rad)
+            pyxel.pal()
+            if self.cnt & 3 == 0:
+                if self.coreBrightState == 0:
+                    self.coreBrightness += 1
+                    if self.coreBrightness >= 4:
+                        self.coreBrightState = 1
+                else:
+                    self.coreBrightness -= 1
+                    if self.coreBrightness <= -3:
+                        self.coreBrightState = 0
+        pyxel.blt(self.x +32, self.y +64, 2, 0, 128, 96, 64, 3)
+        if self.brokenState in (0,1):
+            if self.hit:
+                Drawing.setBrightnessWithoutBlack(1)
+            pyxel.blt(self.x +32, self.y +64, 2, 0, self.brokenState* 64, 96, 64, 3)
+            pyxel.pal()
+        # 下
+        pyxel.blt(self.x, self.y +128, 2, 96, 0, 160, 64, 3)
 
-	def removeAllShot(self):
-		enemy.removeEnemyShot()
-		for i in range(len(self.beam1List)):
-			obj = self.beam1List[i]
-			if obj != None and obj.removeFlag == False:
-				self.beam1List[i].remove()
-				self.beam1List[i] = None
-		if self.beam2 != None and self.beam2.removeFlag == False:
-			self.beam2.remove()
-			self.beam2 = None
-		if self.roundBeam != None and self.roundBeam.removeFlag == False:
-			self.roundBeam.remove()
-			self.roundBeam = None
+
+    def doShotCollision(self, shot):
+        ret = super(BossLast1, self).doShotCollision(shot)
+        if self.mode == 0:
+            if self.brokenState == 0 and self.hp < BossLast1.hp2:
+                # 初期状態⇒先端が欠けた状態
+                self.brokenState = 1
+                enemy.create_explosion(self.x +32+32, self.y +64+16+16, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M)
+                GameSession.addScore(1000)
+            elif self.brokenState == 1 and self.hp < BossLast1.hp3:
+                # 先端が欠けた状態⇒コアむき出し状態
+                self.brokenState = 2
+                self.mode = 1
+                self.setState(0)
+                self.removeAllShot()
+                enemy.create_explosion(self.x +32+32, self.y +64+16+16, gcommon.C_LAYER_GRD, gcommon.C_EXPTYPE_GRD_M)
+                enemy.Splash.append(self.x +32+32+24, self.y +64+16+16, gcommon.C_LAYER_EXP_SKY)
+                GameSession.addScore(3000)
+        return ret
+
+    def broken(self):
+        self.mode = 2
+        self.setState(0)
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.removeAllShot()
+        enemy.removeEnemyShot()
+        BGM.sound(gcommon.SOUND_LARGE_EXP)
+        enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
+        GameSession.addScore(self.score)
+
+    def removeAllShot(self):
+        enemy.removeEnemyShot()
+        for i in range(len(self.beam1List)):
+            obj = self.beam1List[i]
+            if obj != None and obj.removeFlag == False:
+                self.beam1List[i].remove()
+                self.beam1List[i] = None
+        if self.beam2 != None and self.beam2.removeFlag == False:
+            self.beam2.remove()
+            self.beam2 = None
+        if self.roundBeam != None and self.roundBeam.removeFlag == False:
+            self.roundBeam.remove()
+            self.roundBeam = None
 
 class BossLastBeam1(enemy.EnemyBase):
 	beamPoints = [[0,0],[6,-6],[300,-6],[300,6],[6,6]]
@@ -1317,4 +1318,24 @@ class BossLastBoundShot(enemy.EnemyBase):
 		for pos in posList:
 			pyxel.blt(pos[0] -7.5, pos[1] -7.5, 2, imageIndex *16, 240, 16, 16, 3)
 			imageIndex -= 1
+
+class BossLastGround(enemy.EnemyBase):
+    def __init__(self):
+        super(__class__, self).__init__()
+        self.layer = gcommon.C_LAYER_GRD
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.enemyShotCollision = False
+        self.ground = True
+        self.offsetY = 0
+
+    def update(self):
+        if self.state == 0:
+            self.offsetY = self.cnt>>2
+            if self.offsetY >= 8:
+                self.nextState()
+
+    def draw(self):
+        pyxel.bltm(self.x, -8 +self.offsetY, 0, 151, 152, 36, 1, 3)
+        pyxel.bltm(self.x, gcommon.SCREEN_MAX_Y +1 -self.offsetY, 0, 151, 175, 36, 1, 3)
 

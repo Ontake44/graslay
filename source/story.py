@@ -878,7 +878,7 @@ class Story:
 			[7300 +baseOffset, enemy.Tank1, -24, 16, 1, 3],	\
 			[7400 +baseOffset, enemy.Tank1, 256, 16, 1, 0],	\
 			[7500 +baseOffset, enemy.Tank1, -24, 16, 1, 3],	\
-			[8400 +baseOffset, bossLast.BossLast1],	\
+			[8400 +baseOffset, bossLast.BossLast1, False],	\
 		]
 
 	@classmethod
@@ -1402,6 +1402,16 @@ class BossRushManager:
             self.bossFireProminence = ObjMgr.addObj(bossFire.BossFireProminence())
             ObjMgr.addObj(enemy.Delay(bossFire.BossFire, [0, None, True], 120))
         elif self.eventIndex == 10:
-            self.bossFireProminence.nextState()
-            self.bossFireProminence = None
+            if self.bossFireProminence != None:
+                self.bossFireProminence.nextState()
+                self.bossFireProminence = None
+            ObjMgr.addObj(enemy.NextEvent([0, None, 150]))
+        elif self.eventIndex == 11:
+            gcommon.cur_scroll_x = 0.5
+            gcommon.cur_scroll_y = 0.0
+            pyxel.image(1).load(0,0,"assets/graslay_last.png")
+            MapData.loadMapData(0, "assets/graslay_last.pyxmap")
+            pyxel.tilemap(0).refimg = 1
+            ObjMgr.addObj(bossLast.BossLastGround())
+            ObjMgr.addObj(enemy.Delay(bossLast.BossLast1, [0, None, True], 60))
         self.eventIndex += 1
