@@ -525,5 +525,8 @@ class BossFactory(enemy.EnemyBase):
         GameSession.addScore(self.score)
         BGM.sound(gcommon.SOUND_LARGE_EXP)
         enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-        ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
+        if self.isBossRush:
+            ObjMgr.objs.append(enemy.NextEvent([0, None, 180]))
+        else:
+            ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
 

@@ -62,6 +62,7 @@ class BossFire(enemy.EnemyBase):
     intervaTable = (45, 30, 24)
     def __init__(self, t):
         super(__class__, self).__init__()
+        self.isBossRush = t[2]
         self.x = 256 +32
         self.y = 60
         self.moveTable = __class__.moveTable0
@@ -265,7 +266,10 @@ class BossFire(enemy.EnemyBase):
         self.remove()
         self.doExplosion()
         enemy.removeEnemyShot()
-        ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 180))
+        if self.isBossRush:
+            ObjMgr.objs.append(enemy.NextEvent([0, None, 120]))
+        else:
+            ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 180))
 
     def doExplosion(self):
         index = 0
@@ -304,3 +308,43 @@ class BossFireExplosion(enemy.EnemyBase):
         tbl = BossFire.imageTable[self.index]
         pyxel.blt(self.x -31.5, self.y -31.5, 2, tbl[0] *64, sy +tbl[1] *64, 64 * tbl[2], 64 * tbl[3], 3)
 
+class BossFireProminence(enemy.EnemyBase):
+    def __init__(self):
+        super(__class__, self).__init__()
+        self.layer = gcommon.C_LAYER_GRD
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.enemyShotCollision = False
+        self.shiftList = []
+        for i in range(32):
+            n = int(5* math.sin(i * math.pi/16))
+            self.shiftList.append(n)
+        self.offsetY = 7 * 8
+
+    def update(self):
+        if self.state == 0:
+            self.offsetY = math.pow(1 - (self.cnt/90.0), 3) * 56
+            if self.cnt >= 90:
+                self.nextState()
+        elif self.state == 1:
+            pass
+        elif self.state == 2:
+            self.offsetY = math.pow(self.cnt/90.0, 3) * 56
+            if self.offsetY >= 90:
+                self.remove()
+
+    def draw(self):
+        tm = 2
+        m = ((self.cnt>>3) % 3) * 7
+        mx = int(gcommon.map_x) & 127
+        pyxel.bltm(-1 * (mx % 8), 0, tm, int(mx/8), m,33, 7, 3)
+        count = 7 *8
+        y = 0
+        while( count > 0 ):
+            #pyxel.blt(0, y -1, 4, 8 + self.shiftList[(int(self.cnt>>3)) & 31], y, 256, 1)
+            offset = 8 + self.shiftList[(y +int(self.cnt>>2)) & 31]
+            pyxel.blt(0, 192- 7*8 + y +self.offsetY, 4, offset, y, 256, 1)
+            pyxel.blt(256 -offset, 192- 7*8 + y +self.offsetY, 4, 0, y, offset, 1)
+            count -=1
+            y += 1
+        pyxel.blt(0, 0, 4, 0, 192 -7*8, 256, -7*8)

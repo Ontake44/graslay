@@ -746,15 +746,7 @@ class Story:
 			
 			[5370, enemyFighter.FireBird1Group, 256, 100, 20, 3, 20],
 			
-			[6000, bossFire.BossFire, 240, 230, 270,
-				[
-					[90, CountMover.MOVE, 0.0, -1.0],
-					[90, CountMover.ROTATE_DEG, 270, -1.0, 1.0],
-					[90, CountMover.ROTATE_DEG, 270-90, 1.0, 1.0],
-					[360, CountMover.MOVE, 0.0, -1.0],
-				],
-				None
-			],
+			[6000, bossFire.BossFire, False],
 		]
 
 	@classmethod
@@ -1320,6 +1312,7 @@ class BossRushManager:
         self.hitCheck = False			# 自機と敵との当たり判定
         self.enemyShotCollision = False	# 敵弾との当たり判定を行う
         self.bossWareHouseRail = None
+        self.bossFireProminence = None
 
     def nextEvent(self):
         if self.eventIndex == 0:
@@ -1377,6 +1370,7 @@ class BossRushManager:
         elif self.eventIndex == 5:
             # レールが画面外に移動
             self.bossWareHouseRail.nextState()
+            self.bossWareHouseRail = None
             ObjMgr.addObj(enemy.NextEvent([0, None, 90]))
         elif self.eventIndex == 6:
             # Boss 4A
@@ -1392,7 +1386,22 @@ class BossRushManager:
             ObjMgr.addObj(bossLabyrinth.BossLabyrinth([0, None, 0,0, True]))
         elif self.eventIndex == 8:
             # Boss 5A
+            gcommon.cur_scroll_x = 0.0
+            gcommon.cur_scroll_y = 0.0
             pyxel.image(1).load(0,0,"assets/graslay_factory.png")
             pyxel.image(2).load(0,0,"assets/graslay_factory-2.png")
             ObjMgr.addObj(bossFactory.BossFactory([0, None, True]))
+        elif self.eventIndex == 9:
+            # Boss 5B
+            gcommon.cur_scroll_x = 0.0
+            gcommon.cur_scroll_y = 0.0
+            pyxel.image(1).load(0,0,"assets/stage_fire.png")
+            pyxel.image(2).load(0,0,"assets/stage_fire2.png")
+            pyxel.tilemap(2).refimg = 1
+            MapData.loadMapData(2, "assets/stage_fire1.pyxmap")    # 火
+            self.bossFireProminence = ObjMgr.addObj(bossFire.BossFireProminence())
+            ObjMgr.addObj(enemy.Delay(bossFire.BossFire, [0, None, True], 120))
+        elif self.eventIndex == 10:
+            self.bossFireProminence.nextState()
+            self.bossFireProminence = None
         self.eventIndex += 1

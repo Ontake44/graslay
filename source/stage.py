@@ -362,7 +362,7 @@ class Stage:
             pyxel.tilemap(7).refimg = 1
         elif stage == "B1":
             #pyxel.load("assets/graslay_vehicle01.pyxres", False, False, True, True)
-            pyxel.image(1).load(0,0,"assets/banana1.png")
+            #pyxel.image(1).load(0,0,"assets/banana1.png")
             gcommon.sync_map_y = 0
             gcommon.long_map = False
             gcommon.draw_star = True
