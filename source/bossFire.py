@@ -91,6 +91,9 @@ class BossFire(enemy.EnemyBase):
             self.cellList.append([self.x, self.y, self.mover.deg])
         pyxel.image(2).load(0,0,"assets/bossFire.png")
         self.fireInterval = __class__.intervaTable[GameSession.difficulty]
+        self.timerObj = None
+        if self.isBossRush:
+            self.timerObj = enemy.Timer1.create(80)
 
     def fire(self, x, y, deg, speed):
         obj = enemyOthers.Fire2(x, y, deg)
@@ -267,6 +270,9 @@ class BossFire(enemy.EnemyBase):
         self.doExplosion()
         enemy.removeEnemyShot()
         if self.isBossRush:
+            if self.timerObj != None:
+                self.timerObj.stop()
+                self.timerObj = None
             ObjMgr.objs.append(enemy.NextEvent([0, None, 120]))
         else:
             ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 180))

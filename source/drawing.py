@@ -6,8 +6,10 @@ import gcommon
 class Drawing:
     hexTable = ['0', '1', '2', '3', '4', '5', '6', '7','8','9','A','B','C','D','E','F']
     
+    # workData : []
+    # srcImage : []
     @classmethod
-    def setRotateImage(cls, imgx :int, imgy :int, img :int, workData :[], srcImage :[], rad:float, backColor:int):
+    def setRotateImage(cls, imgx :int, imgy :int, img :int, workData, srcImage, rad:float, backColor:int):
         width = len(srcImage[0])
         height = len(srcImage)
         dx = math.cos(rad)
@@ -48,7 +50,15 @@ class Drawing:
         l = len(s)
         cls.showTextRate((gcommon.SCREEN_WIDTH -l*8)/2, y, s, rate)
 
-# BOLD
+
+    @classmethod
+    def showTextC(cls, x, y, s, color1, color2):
+        pyxel.pal(7, color1)
+        pyxel.pal(5, color2)
+        cls.showText(x, y, s)
+        pyxel.pal()
+
+    # BOLDフォント
     @classmethod
     def showText(cls, x, y, s):
         for c in s:
@@ -64,9 +74,16 @@ class Drawing:
             elif code >= 0x20 and code <= 0x2F:
                 # スペース - /
                 pyxel.blt(x, y, 0, 80 + (code-0x20)*8, 136, 8, 8, gcommon.TP_COLOR)
+            elif code == 0x40:
+                # @ どくろ
+                pyxel.blt(x, y, 0, 232, 136, 8, 8, gcommon.TP_COLOR)
+            elif code == 0x7D:
+                # 自機
+                pyxel.blt(x, y, 0, 8, 32, 8, 8, gcommon.TP_COLOR)
             x += 8
 
-# rateは 0 - 1
+    # 下から上にあがってくる文字
+    # rateは 0 - 1
     @classmethod
     def showTextRate(cls, x, y, s, rate):
         p = int(8 * rate)
@@ -80,6 +97,22 @@ class Drawing:
                 pyxel.blt(x, y+8-p, 0, (code-48)*8, 136, 8, p, gcommon.TP_COLOR)
             x += 8
 
+    # 上から下にさがってくる文字
+    # rateは 0 - 1
+    @classmethod
+    def showTextRate2(cls, x, y, s, rate):
+        p = int(8 * rate)
+        if p == 0:
+            return
+        for c in s:
+            code = ord(c)
+            if code >= 65 and code <= 90:
+                pyxel.blt(x, y, 0, (code-65)*8, 128 + 8-p, 8, p, gcommon.TP_COLOR)
+            elif code >= 48 and code <= 57:
+                pyxel.blt(x, y, 0, (code-48)*8, 136 + 8-p, 8, p, gcommon.TP_COLOR)
+            x += 8
+
+    # 普通フォント
     @classmethod
     def showText2(cls, x, y, s):
         if x == -999:

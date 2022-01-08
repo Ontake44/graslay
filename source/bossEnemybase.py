@@ -33,6 +33,7 @@ def drawCoreCommon(self):
 class BossEnemybase(enemy.EnemyBase):
     def __init__(self, t):
         super(__class__, self).__init__()
+        self.isBossRush = t[2]
         pos = gcommon.mapPosToScreenPos(172+256, 187-128)
         self.x = 127.5
         self.y = 95.5
@@ -51,7 +52,7 @@ class BossEnemybase(enemy.EnemyBase):
             if self.cnt == 0:
                 BGM.sound(gcommon.SOUND_CLOSING)
             elif self.cnt == 90:
-                ObjMgr.addObj(BossEnemybaseBody(self))
+                ObjMgr.addObj(BossEnemybaseBody(self, self.isBossRush))
                 BGM.sound(gcommon.SOUND_CLOSED)
         else:
             if self.cnt == 90:
@@ -155,9 +156,10 @@ class BossEnemybaseBody(enemy.EnemyBase):
     ]
 
 
-    def __init__(self, parent):
+    def __init__(self, parent, isBossRush):
         super(__class__, self).__init__()
         self.parent = parent
+        self.isBossRush = isBossRush
         self.x = 256+64
         self.y = 95.5
         self.left = -15.5
@@ -190,6 +192,9 @@ class BossEnemybaseBody(enemy.EnemyBase):
         self.batteryCount = 0
         self.batteryList = []
         self.gameTimerSave = gcommon.game_timer
+        self.timerObj = None
+        if self.isBossRush:
+            self.timerObj = enemy.Timer1.create(70)
 
     def update(self):
         if self.mode == 0:
@@ -368,9 +373,13 @@ class BossEnemybaseBody(enemy.EnemyBase):
         BGM.sound(gcommon.SOUND_LARGE_EXP)
         enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
         self.parent.setState(1)
-        ObjMgr.objs.append(enemy.Delay(BossEnemybaseBody2, [0, None, self.x, self.y], 90))
+        ObjMgr.objs.append(enemy.Delay(BossEnemybaseBody2, [0, None, self.x, self.y, self.isBossRush], 90))
         gcommon.map_x = 524 * 8
         gcommon.map_y = 87 * 8
+        if self.isBossRush:
+            if self.timerObj != None:
+                self.timerObj.stop()
+                self.timerObj = None
 
 
 # ビーーーーム！！！
@@ -666,6 +675,7 @@ class BossEnemybaseBody2(enemy.EnemyBase):
         super(__class__, self).__init__()
         self.x = t[2]
         self.y = t[3]
+        self.isBossRush = t[4]
         self.left = -6
         self.top = -6
         self.right = 6
@@ -696,6 +706,9 @@ class BossEnemybaseBody2(enemy.EnemyBase):
         for y in range(self.gunWidth):
             for x in range(self.gunHeight):
                 self.image[y][x] = img.get(x +0, y +96)
+        self.timerObj = None
+        if self.isBossRush:
+            self.timerObj = enemy.Timer1.create(70)
 
     def update(self):
         if self.mode == 0:
@@ -880,9 +893,13 @@ class BossEnemybaseBody2(enemy.EnemyBase):
         BGM.sound(gcommon.SOUND_LARGE_EXP)
         enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
         gcommon.map_x = (512+152) * 8 + math.fmod(gcommon.map_x, 4*8)
-        ObjMgr.objs.append(enemy.Delay(BossEnemybaseBody3, [0, None, self.x, self.y], 90))
+        ObjMgr.objs.append(enemy.Delay(BossEnemybaseBody3, [0, None, self.x, self.y, self.isBossRush], 90))
         gcommon.scrollController.setIndex(21)
         BGM.play(BGM.BOSS_LAST)
+        if self.isBossRush:
+            if self.timerObj != None:
+                self.timerObj.stop()
+                self.timerObj = None
 
 # ビーーーーム！！！
 class BossEnemybaseBeam2(enemy.EnemyBase):
@@ -1166,6 +1183,7 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         super(__class__, self).__init__()
         self.x = t[2]
         self.y = t[3]
+        self.isBossRush = t[4]
         self.left = -6
         self.top = -6
         self.right = 6
@@ -1183,6 +1201,9 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         self.beamFlag = False
         self.roundBeamCoverPos = 0
         pyxel.image(2).load(0,0,"assets/stage_enemybase-4.png")
+        self.timerObj = None
+        if self.isBossRush:
+            self.timerObj = enemy.Timer1.create(90)
 
     def update(self):
         if self.mode == 0:
@@ -1303,20 +1324,6 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         self.mode = mode
         self.setState(0)
 
-    # def drawCore(self):
-    #     Drawing.setBrightnessWithoutBlack(self.coreBrightness)
-    #     pyxel.blt(gcommon.sint(self.x) -7.5, gcommon.sint(self.y -55.5)+55.5 -7.5, 1, 88, 40, 16, 16, 3)
-    #     if self.cnt & 3 == 0:
-    #         if self.coreBrightState == 0:
-    #             self.coreBrightness += 1
-    #             if self.coreBrightness >= 4:
-    #                 self.coreBrightState = 1
-    #         else:
-    #             self.coreBrightness -= 1
-    #             if self.coreBrightness <= -3:
-    #                 self.coreBrightState = 0
-    #     pyxel.pal()
-
     def drawRoundBeamCover(self, px, py):
         pyxel.blt(gcommon.sint(px -50.5)+64, gcommon.sint(py -55.5) +40 -self.roundBeamCoverPos, 2, 104, 112, 40, 16, 3)
         pyxel.blt(gcommon.sint(px -50.5)+64, gcommon.sint(py -55.5) +56 +self.roundBeamCoverPos, 2, 104, 128, 40, 16, 3)
@@ -1374,11 +1381,15 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         enemy.removeEnemyShot()
         ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
         #ObjMgr.objs.append(BossEnemybaseAfterBroken())
-        ObjMgr.objs.append(enemy.Delay(BossEnemybaseCore, [0, None, self.x, self.y], 120))
+        ObjMgr.objs.append(enemy.Delay(BossEnemybaseCore, [0, None, self.x, self.y, self.isBossRush], 120))
         BGM.stop()
         GameSession.addScore(self.score)
         BGM.sound(gcommon.SOUND_LARGE_EXP)
         enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
+        if self.isBossRush:
+            if self.timerObj != None:
+                self.timerObj.stop()
+                self.timerObj = None
 
 # 破壊後の処理
 # ・基地爆発
@@ -1417,6 +1428,7 @@ class BossEnemybaseCore(enemy.EnemyBase):
         super(__class__, self).__init__()
         self.x = t[2]
         self.y = t[3]
+        self.isBossRush = t[4]
         self.left = -6
         self.top = -6
         self.right = 6
@@ -1446,8 +1458,12 @@ class BossEnemybaseCore(enemy.EnemyBase):
                     self.nextState()
         elif self.state == 1:
             if self.cnt > 120:
-                ObjMgr.objs.append(BossEnemybaseAfterBroken())
-                BGM.play(BGM.BOSS_LAST)
+                if self.isBossRush:
+                    ObjMgr.objs.append(enemy.BossRushClear())
+                    BGM.playOnce(BGM.ENDING)
+                else:
+                    ObjMgr.objs.append(BossEnemybaseAfterBroken())
+                    BGM.play(BGM.BOSS_LAST)
                 self.remove()
 
     def draw(self):

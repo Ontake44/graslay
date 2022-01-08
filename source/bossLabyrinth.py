@@ -54,6 +54,9 @@ class BossLabyrinth(enemy.EnemyBase):
         self.state = 0
         self.mover = CountMover(self, self.moveTable0, False)
         self.shiftPos = 0
+        self.timerObj = None
+        if self.isBossRush:
+            self.timerObj = enemy.Timer1.create(70)
 
     def update(self):
         self.mover.update()
@@ -119,7 +122,7 @@ class BossLabyrinth(enemy.EnemyBase):
             # 破壊状態
             if self.cnt > 90:
                 self.remove()
-                ObjMgr.addObj(BossLabyrinth2(self.isBossRush))
+                ObjMgr.addObj(BossLabyrinth2(self.isBossRush, self.timerObj))
         if self.state < 100 and self.mover.isEnd:
             if self.state == 0:
                 self.setState(1)
@@ -340,9 +343,10 @@ class BossLabyrinth2(enemy.EnemyBase):
     # ]
     bodyRect1 = gcommon.Rect(-6*8-3.5, -15.5, -15.5, 15.5)
     bodyRect2 = gcommon.Rect(-14.5, -21.5, 39.5, 21.5)
-    def __init__(self, isBossRush):
+    def __init__(self, isBossRush, timerObj):
         super(__class__, self).__init__()
         self.isBossRush = isBossRush
+        self.timerObj = timerObj
         self.x = 200
         self.y = 96
         # 自機弾との当たり判定
@@ -559,6 +563,9 @@ class BossLabyrinth2(enemy.EnemyBase):
         BGM.sound(gcommon.SOUND_LARGE_EXP)
         enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
         if self.isBossRush:
+            if self.timerObj != None:
+                self.timerObj.stop()
+                self.timerObj = None
             ObjMgr.objs.append(enemy.NextEvent([0, None, 240]))
         else:
             ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))

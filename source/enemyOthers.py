@@ -869,15 +869,19 @@ class Spark1(enemy.EnemyBase):
         self.enemyShotCollision = False
 
     @classmethod
-    def create(cls, parent, x, y, layer):
-        ObjMgr.addObj(Spark1(parent, x, y, layer))
+    def create(cls, parent, ox, oy, layer):
+        ObjMgr.addObj(Spark1(parent, ox, oy, layer))
+
+    @classmethod
+    def create2(cls, x, y, layer):
+        ObjMgr.addObj(Spark1(None, x, y, layer))
 
     def update(self):
         if self.parent != None:
             self.x = self.parent.x + self.offsetX
             self.y = self.parent.y + self.offsetY
-        if self.cnt >= 8:
+        if self.cnt >= 4:
             self.remove()
 
     def draw(self):
-        pyxel.blt(self.x -7.5, self.y -7.5, 0, (self.cnt>>1) * 16, 160, 16, 16, 0)
+        pyxel.blt(self.x -7.5, self.y -7.5, 0, self.cnt * 16, 160, 16, 16, 0)

@@ -26,7 +26,7 @@ stageList = ("1A", "2A", "2B", "3A", "3B", "4A", "5A", "5B", "6A")
 # 機体種別
 class WeaponType:
 	TYPE_A = 0		# Axelay
-	TYPE_B = 1		# Bic Viper
+	TYPE_B = 1		# Vic Viper
 
 
 WEAPON_STRAIGHT = 0
@@ -47,6 +47,7 @@ PAUSE_CONTINUE = 2	# CONTINUE確認中
 
 GAMEMODE_NORMAL = 0
 GAMEMODE_CUSTOM = 1
+GAMEMODE_BOSSRUSH = 2
 
 # defines
 T_COPTER1 = 1
@@ -147,8 +148,8 @@ KEY_PERIOD = 5
 
 START_MY_POWER = 1
 
-SHOT0_POWER = 13 * 3		# 5
-SHOT1_POWER = 5 * 3
+SHOT0_POWER = 13		# 5
+SHOT1_POWER = 5
 SHOT2_POWER = 7
 SHOT_POWERS = (SHOT0_POWER, SHOT1_POWER, SHOT2_POWER)
 
@@ -403,6 +404,23 @@ def drawStar(star_pos):
 		pyxel.pset(((int)(star_ary[i][0] +(int(star_pos)<<1)))&255, i*2, star_ary[i][1])
 	for i in range(2,96,3):
 		pyxel.pset(((int)(star_ary[i][0] +(star_pos)*3))&255, i*2, star_ary[i][1])
+
+starPos0 = 0.0
+starPos1 = 0.0
+starPos2 = 0.0
+
+def drawStar2(starDx):
+    global starPos0, starPos1, starPos2
+    starPos0 = math.fmod(starPos0 + starDx + 256, 256)
+    starPos1 = math.fmod(starPos1 + starDx*0.5 + 256, 256)
+    starPos2 = math.fmod(starPos2 + -1.0 + starDx + 256, 256)
+    for i in range(0,96,3):
+        pyxel.pset(((int)(star_ary[i][0] +starPos0))&255, i*2, star_ary[i][1])
+    for i in range(1,96,3):
+        pyxel.pset(((int)(star_ary[i][0] +starPos1))&255, i*2, star_ary[i][1])
+    for i in range(2,96,3):
+        pyxel.pset(((int)(star_ary[i][0] +starPos2))&255, i*2, star_ary[i][1])
+
 
 def resource_path(relative_path):
     try:

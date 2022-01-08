@@ -86,6 +86,9 @@ class BossLast1(enemy.EnemyBase):
         # 移動ビーム砲台発射口
         ObjMgr.addObj(BossLast1Launcher(self.x, self.y, -1))
         ObjMgr.addObj(BossLast1Launcher(self.x, self.y +176, 1))
+        self.timerObj = None
+        if self.isBossRush:
+            self.timerObj = enemy.Timer1.create(120)
 
     def nextState(self):
         self.state += 1
@@ -170,6 +173,7 @@ class BossLast1(enemy.EnemyBase):
             if self.cnt == 1:
                 self.beam2 = BossLastBeam2(180, 96, (self.cycleCount2 & 1 != 0))
                 ObjMgr.addObj(self.beam2)
+                BGM.sound(gcommon.SOUND_BOSS1BEAM)
                 self.cycleCount2 += 1
             else:
                 if self.beam2.removeFlag:
@@ -283,9 +287,10 @@ class BossLast1(enemy.EnemyBase):
             if self.cnt == 120:
                 gcommon.scroll_flag = True
                 # ボスコアを生成
-                ObjMgr.addObj(BossLast1Core(self.coreX, self.coreY))
-                ObjMgr.addObj(enemy.Delay(BossLastBaseExplosion, [], 240))
-                BGM.play(BGM.BOSS_LAST)
+                ObjMgr.addObj(BossLast1Core(self.coreX, self.coreY, self.isBossRush))
+                if self.isBossRush == False:
+                    ObjMgr.addObj(enemy.Delay(BossLastBaseExplosion, [], 240))
+                    BGM.play(BGM.BOSS_LAST)
         if self.x <= -160:
             self.remove()
 
@@ -350,6 +355,10 @@ class BossLast1(enemy.EnemyBase):
         BGM.sound(gcommon.SOUND_LARGE_EXP)
         enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
         GameSession.addScore(self.score)
+        if self.isBossRush:
+            if self.timerObj != None:
+                self.timerObj.stop()
+                self.timerObj = None
 
     def removeAllShot(self):
         enemy.removeEnemyShot()
@@ -896,222 +905,232 @@ class BossLastFallShotGroup(enemy.EnemyBase):
 
 # ラスボスのコア
 class BossLast1Core(enemy.EnemyBase):
-	def __init__(self, x, y):
-		super(BossLast1Core, self).__init__()
-		self.x = x
-		self.y = y
-		self.left = -8
-		self.top = -8
-		self.right = 8
-		self.bottom = 8
-		self.layer = gcommon.C_LAYER_SKY
-		self.ground = False
-		self.hitCheck = True
-		self.shotHitCheck = True
-		self.enemyShotCollision = False
-		self.hp = boss.BOSS_LAST_CORE_HP
-		self.score = 50000
-		self.rad = 0.0
-		#self.dx = 0.0
-		#self.dy = 0.0
-		self.radY = 0.0
-		self.angle = 0.0
-		self.random = None
-		self.roundRad = 0.0
-		self.roundCount = 0
-		self.cycleCount = 0
-		self.coreBrightState = 0
-		self.coreBrightness = 0
+    def __init__(self, x, y, isBossRush):
+        super(BossLast1Core, self).__init__()
+        self.isBossRush = isBossRush
+        self.x = x
+        self.y = y
+        self.left = -8
+        self.top = -8
+        self.right = 8
+        self.bottom = 8
+        self.layer = gcommon.C_LAYER_SKY
+        self.ground = False
+        self.hitCheck = True
+        self.shotHitCheck = True
+        self.enemyShotCollision = False
+        self.hp = boss.BOSS_LAST_CORE_HP
+        self.score = 50000
+        self.rad = 0.0
+        #self.dx = 0.0
+        #self.dy = 0.0
+        self.radY = 0.0
+        self.angle = 0.0
+        self.random = None
+        self.roundRad = 0.0
+        self.roundCount = 0
+        self.cycleCount = 0
+        self.coreBrightState = 0
+        self.coreBrightness = 0
+        self.timerObj = None
+        if self.isBossRush:
+            self.timerObj = enemy.Timer1.create(80)
 
-	@classmethod
-	def drawLine(cls, cx, cy, r):
-		radius = 14
-		y = cy - radius * math.sin(r)
-		y2 = cy - radius * math.sin(r - math.pi/2.0)
-		if r <= math.pi*0.25:
-			clr = 5
-		elif r <= math.pi*0.5:
-			clr = 12
-		elif r <= math.pi*0.75:
-			clr = 6
-		else:
-			clr = 5
-		pyxel.line(cx -32, cy, cx -8, y, clr)
-		pyxel.line(cx -8, y, cx +8, y, clr)
-		pyxel.line(cx +8, y, cx +32, cy, clr)
-		if r >math.pi*0.75 and r <= math.pi * 1.75:
-			pass
-		else:
-			#if r <= math.pi*0.25:
-			#	clr = 5
-			#elif r <= math.pi*0.5:
-			#	clr = 12
-			#elif r <= math.pi*0.75:
-			#	clr = 6
-			#else:
-			#	clr = 5
-			pyxel.line(cx -8, y, cx -8, y2, clr)
-			pyxel.line(cx +8, y, cx +8, y2, clr)
+    @classmethod
+    def drawLine(cls, cx, cy, r):
+        radius = 14
+        y = cy - radius * math.sin(r)
+        y2 = cy - radius * math.sin(r - math.pi/2.0)
+        if r <= math.pi*0.25:
+            clr = 5
+        elif r <= math.pi*0.5:
+            clr = 12
+        elif r <= math.pi*0.75:
+            clr = 6
+        else:
+            clr = 5
+        pyxel.line(cx -32, cy, cx -8, y, clr)
+        pyxel.line(cx -8, y, cx +8, y, clr)
+        pyxel.line(cx +8, y, cx +32, cy, clr)
+        if r >math.pi*0.75 and r <= math.pi * 1.75:
+            pass
+        else:
+            #if r <= math.pi*0.25:
+            #	clr = 5
+            #elif r <= math.pi*0.5:
+            #	clr = 12
+            #elif r <= math.pi*0.75:
+            #	clr = 6
+            #else:
+            #	clr = 5
+            pyxel.line(cx -8, y, cx -8, y2, clr)
+            pyxel.line(cx +8, y, cx +8, y2, clr)
 
-	@classmethod
-	def drawLineAngle(cls, cx, cy, r, angle):
-		points = []
-		radius = 14
-		y = -radius * math.sin(r)
-		y2 = -radius * math.sin(r - math.pi/2.0)
-		if r <= math.pi*0.25:
-			clr = 5
-		elif r <= math.pi*0.5:
-			clr = 12
-		elif r <= math.pi*0.75:
-			clr = 6
-		else:
-			clr = 5
-		#pyxel.line(cx -32, cy, cx -8, y, clr)
-		#pyxel.line(cx -8, y, cx +8, y, clr)
-		#pyxel.line(cx +8, y, cx +32, cy, clr)
-		points.append([-32, +0])
-		points.append([-8, +y])
-		points.append([+8, +y])
-		points.append([+32, +0])
-		xpoints = gcommon.getAnglePoints([cx, cy], points, [0,0], angle)
-		Drawing.drawConnectedLines(xpoints, clr)
-		if r >math.pi*0.75 and r <= math.pi * 1.75:
-			pass
-		else:
-			#pyxel.line(cx -8, y, cx -8, y2, clr)
-			#pyxel.line(cx +8, y, cx +8, y2, clr)
-			points = [[-8, y], [-8, y2], [+8, y], [+8, y2]]
-			xpoints = gcommon.getAnglePoints([cx, cy], points, [0,0], angle)
-			Drawing.drawLines(xpoints, clr)
+    @classmethod
+    def drawLineAngle(cls, cx, cy, r, angle):
+        points = []
+        radius = 14
+        y = -radius * math.sin(r)
+        y2 = -radius * math.sin(r - math.pi/2.0)
+        if r <= math.pi*0.25:
+            clr = 5
+        elif r <= math.pi*0.5:
+            clr = 12
+        elif r <= math.pi*0.75:
+            clr = 6
+        else:
+            clr = 5
+        #pyxel.line(cx -32, cy, cx -8, y, clr)
+        #pyxel.line(cx -8, y, cx +8, y, clr)
+        #pyxel.line(cx +8, y, cx +32, cy, clr)
+        points.append([-32, +0])
+        points.append([-8, +y])
+        points.append([+8, +y])
+        points.append([+32, +0])
+        xpoints = gcommon.getAnglePoints([cx, cy], points, [0,0], angle)
+        Drawing.drawConnectedLines(xpoints, clr)
+        if r >math.pi*0.75 and r <= math.pi * 1.75:
+            pass
+        else:
+            #pyxel.line(cx -8, y, cx -8, y2, clr)
+            #pyxel.line(cx +8, y, cx +8, y2, clr)
+            points = [[-8, y], [-8, y2], [+8, y], [+8, y2]]
+            xpoints = gcommon.getAnglePoints([cx, cy], points, [0,0], angle)
+            Drawing.drawLines(xpoints, clr)
 
-	@classmethod
-	def drawCore(cls, x, y, rad):
-		BossLast1Core.drawCoreAngle(x, y, rad, 0.0)
+    @classmethod
+    def drawCore(cls, x, y, rad):
+        BossLast1Core.drawCoreAngle(x, y, rad, 0.0)
 
-	@classmethod
-	def drawCoreAngle(cls, x, y, rad, angle):
-		# 玉の後ろ
-		for i in range(4):
-			r = rad + i * math.pi/2.0
-			if r >= math.pi * 2:
-				r -= math.pi * 2
-			if r >= math.pi*0.5 and r < math.pi*1.5:
-				#BossLast1Core.drawLine(x, y, r)
-				BossLast1Core.drawLineAngle(x, y, r, angle)
-		pyxel.blt(x -9, y -9, 2, 0, 192, 18, 18, 3)
-		# 玉の前
-		for i in range(4):
-			r = rad + i * math.pi/2.0
-			if r >= math.pi * 2:
-				r -= math.pi * 2
-			if r < math.pi*0.5 or r >= math.pi*1.5:
-				#BossLast1Core.drawLine(x, y, r)
-				BossLast1Core.drawLineAngle(x, y, r, angle)
+    @classmethod
+    def drawCoreAngle(cls, x, y, rad, angle):
+        # 玉の後ろ
+        for i in range(4):
+            r = rad + i * math.pi/2.0
+            if r >= math.pi * 2:
+                r -= math.pi * 2
+            if r >= math.pi*0.5 and r < math.pi*1.5:
+                #BossLast1Core.drawLine(x, y, r)
+                BossLast1Core.drawLineAngle(x, y, r, angle)
+        pyxel.blt(x -9, y -9, 2, 0, 192, 18, 18, 3)
+        # 玉の前
+        for i in range(4):
+            r = rad + i * math.pi/2.0
+            if r >= math.pi * 2:
+                r -= math.pi * 2
+            if r < math.pi*0.5 or r >= math.pi*1.5:
+                #BossLast1Core.drawLine(x, y, r)
+                BossLast1Core.drawLineAngle(x, y, r, angle)
 
-	def update(self):
-		if self.state == 0:
-			if self.cnt & 7 == 0:
-				gcommon.cur_scroll_x += 0.25
-				if gcommon.cur_scroll_x > 6.0:
-					gcommon.cur_scroll_x = 6.0
-					self.nextState()
-		elif self.state == 1:
-			self.x -= 1
-			if self.x < 220:
-				self.x = 220
-				self.nextState()
-		elif self.state == 2:
-			if self.cnt == 0:
-				self.radY = math.pi/2.0
-				self.random = gcommon.ClassicRand()
-			self.y += 4.2 * math.sin(self.radY)
-			self.radY += math.pi/60
-			if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
-				count = 18
-			elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
-				count = 15
-			else:
-				count = 7
-			if self.cnt % (self.random.rand() % count +3) == 0:
-				ObjMgr.addObj(BossLastStraightBeam(self.x -16, self.y))
-			if self.cnt > 240:
-				self.nextState()
-		elif self.state == 3:
-			# 位置補正
-			if self.cnt == 0:
-				self.angle = 0.0
-			if (96 -self.y) > 2:
-				self.y += 2
-			elif (96 -self.y) < -2:
-				self.y -= 2
-			else:
-				self.nextState()
-		elif self.state == 4:
-			# ぐるぐる自機の周りを回りながら攻撃
-			if self.cnt == 0:
-				self.roundRad = 0.0
-				self.roundCount = 0
-			self.x = 128 + 92 * math.cos(self.roundRad)
-			self.angle = (self.angle + math.pi/20) % (math.pi*2)
-			if self.cycleCount & 1 == 0:
-				self.y = 96 + 80 * math.sin(self.roundRad)
-				workAngle = self.angle
-			else:
-				self.y = 96 - 80 * math.sin(self.roundRad)
-				workAngle = -self.angle
-			self.roundRad +=  math.pi/180
-			if self.roundRad >= math.pi*2:
-				self.roundRad -= math.pi*2
-				self.roundCount += 1
-				if self.roundCount >= 2:
-					self.setState(2)
-					self.angle = 0.0
-					self.cycleCount += 1
-			if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
-				count = 15
-			elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
-				count = 10
-			else:
-				count = 5
-			if self.cnt % count == 0:
-				ObjMgr.addObj(boss.BossLaserBeam1(self.x +math.cos(workAngle)* 24, self.y +math.sin(workAngle) * 24, workAngle))
-				ObjMgr.addObj(boss.BossLaserBeam1(self.x -math.cos(workAngle)* 24, self.y -math.sin(workAngle) * 24, workAngle + math.pi))
-		self.rad = (self.rad + math.pi/30) % (math.pi * 2)
+    def update(self):
+        if self.state == 0:
+            if self.cnt & 7 == 0:
+                gcommon.cur_scroll_x += 0.25
+                if gcommon.cur_scroll_x > 6.0:
+                    gcommon.cur_scroll_x = 6.0
+                    self.nextState()
+        elif self.state == 1:
+            self.x -= 1
+            if self.x < 220:
+                self.x = 220
+                self.nextState()
+        elif self.state == 2:
+            if self.cnt == 0:
+                self.radY = math.pi/2.0
+                self.random = gcommon.ClassicRand()
+            self.y += 4.2 * math.sin(self.radY)
+            self.radY += math.pi/60
+            if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
+                count = 18
+            elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
+                count = 15
+            else:
+                count = 7
+            if self.cnt % (self.random.rand() % count +3) == 0:
+                ObjMgr.addObj(BossLastStraightBeam(self.x -16, self.y))
+            if self.cnt > 240:
+                self.nextState()
+        elif self.state == 3:
+            # 位置補正
+            if self.cnt == 0:
+                self.angle = 0.0
+            if (96 -self.y) > 2:
+                self.y += 2
+            elif (96 -self.y) < -2:
+                self.y -= 2
+            else:
+                self.nextState()
+        elif self.state == 4:
+            # ぐるぐる自機の周りを回りながら攻撃
+            if self.cnt == 0:
+                self.roundRad = 0.0
+                self.roundCount = 0
+            self.x = 128 + 92 * math.cos(self.roundRad)
+            self.angle = (self.angle + math.pi/20) % (math.pi*2)
+            if self.cycleCount & 1 == 0:
+                self.y = 96 + 80 * math.sin(self.roundRad)
+                workAngle = self.angle
+            else:
+                self.y = 96 - 80 * math.sin(self.roundRad)
+                workAngle = -self.angle
+            self.roundRad +=  math.pi/180
+            if self.roundRad >= math.pi*2:
+                self.roundRad -= math.pi*2
+                self.roundCount += 1
+                if self.roundCount >= 2:
+                    self.setState(2)
+                    self.angle = 0.0
+                    self.cycleCount += 1
+            if GameSession.difficulty == gcommon.DIFFICULTY_EASY:
+                count = 15
+            elif GameSession.difficulty == gcommon.DIFFICULTY_NORMAL:
+                count = 10
+            else:
+                count = 5
+            if self.cnt % count == 0:
+                ObjMgr.addObj(boss.BossLaserBeam1(self.x +math.cos(workAngle)* 24, self.y +math.sin(workAngle) * 24, workAngle))
+                ObjMgr.addObj(boss.BossLaserBeam1(self.x -math.cos(workAngle)* 24, self.y -math.sin(workAngle) * 24, workAngle + math.pi))
+        self.rad = (self.rad + math.pi/30) % (math.pi * 2)
 
-	def draw(self):
-		Drawing.setBrightnessWithoutBlack(self.coreBrightness)
-		if self.cycleCount & 1 == 0:
-			BossLast1Core.drawCoreAngle(self.x, self.y, self.rad, self.angle)
-		else:
-			BossLast1Core.drawCoreAngle(self.x, self.y, self.rad, -self.angle)
-		pyxel.pal()
-		if self.cnt & 3 == 0:
-			if self.coreBrightState == 0:
-				self.coreBrightness += 1
-				if self.coreBrightness >= 4:
-					self.coreBrightState = 1
-			else:
-				self.coreBrightness -= 1
-				if self.coreBrightness <= -3:
-					self.coreBrightState = 0		
+    def draw(self):
+        Drawing.setBrightnessWithoutBlack(self.coreBrightness)
+        if self.cycleCount & 1 == 0:
+            BossLast1Core.drawCoreAngle(self.x, self.y, self.rad, self.angle)
+        else:
+            BossLast1Core.drawCoreAngle(self.x, self.y, self.rad, -self.angle)
+        pyxel.pal()
+        if self.cnt & 3 == 0:
+            if self.coreBrightState == 0:
+                self.coreBrightness += 1
+                if self.coreBrightness >= 4:
+                    self.coreBrightState = 1
+            else:
+                self.coreBrightness -= 1
+                if self.coreBrightness <= -3:
+                    self.coreBrightState = 0		
 
-	# def checkShotCollision(self, shot):
-	# 	ret = super(BossLast1Core, self).checkShotCollision(shot)
-	# 	if ret:
-	# 		rad = math.atan2(shot.dy, shot.dx)
-	# 		enemy.Particle1.appendCenter(shot, rad)
+    # def checkShotCollision(self, shot):
+    # 	ret = super(BossLast1Core, self).checkShotCollision(shot)
+    # 	if ret:
+    # 		rad = math.atan2(shot.dy, shot.dx)
+    # 		enemy.Particle1.appendCenter(shot, rad)
 
-	def broken(self):
-		self.setState(100)
-		self.shotHitCheck = False
-		enemy.removeEnemyShot()
-		ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
-		GameSession.addScore(self.score)
-		self.remove()
-		BGM.sound(gcommon.SOUND_LARGE_EXP)
-		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		ObjMgr.addObj(enemy.Delay(enemy.StageClear, None, 240))
+    def broken(self):
+        self.setState(100)
+        self.shotHitCheck = False
+        enemy.removeEnemyShot()
+        ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
+        GameSession.addScore(self.score)
+        self.remove()
+        BGM.sound(gcommon.SOUND_LARGE_EXP)
+        enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
+        if self.isBossRush:
+            if self.timerObj != None:
+                self.timerObj.stop()
+                self.timerObj = None
+            ObjMgr.objs.append(enemy.NextEvent([0, None, 120]))
+        else:
+            ObjMgr.addObj(enemy.Delay(enemy.StageClear, None, 240))
 
 # ぐるぐる螺旋ビーム
 class BossLastRoundBeam(enemy.EnemyBase):

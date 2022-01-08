@@ -31,8 +31,14 @@ class BGM:
         [1.0, "In_Chase.mp3"],
         [1.0, "R246_Midnight.mp3"],
         [1.0 ,"Pleasure_In_Survival.mp3"],
+        [1.0 ,"DANGAN.mp3"],
+        [1.0 ,"漢のステーキタイム.mp3"],
+        [1.0 ,"Fill_It_In_Black.mp3"],
+        [1.0 ,"SAMURAI_PUNK.mp3"],
+        [1.0 ,"The_BEAST.mp3"],
+        [1.0 ,"Dominator.mp3"],
     ] 
-
+    #
     STAGE1 = 0		#"Dream_Fantasy.mp3"
     STAGE2 = 1		#"game_maoudamashii_6_dangeon22.mp3"
     STAGE3 = 2		#"Spear.mp3"
@@ -56,6 +62,12 @@ class BGM:
     STAGE_WAREHOUSE = 19    # "In_Chase.mp3"
     STAGE_LABYRINTH = 20    # "R246_Midnight.mp3"
     STAGE_BATTLESHIP = 21   # "Pleasure_In_Survival.mp3"
+    BOSSRUSH_1 = 22         # DANGAN.mp3
+    BOSSRUSH_2 = 23         # 漢のステーキタイム.mp3
+    BOSSRUSH_3 = 24         # Fill_It_In_Black.mp3
+    BOSSRUSH_4 = 25         # SAMURAI_PUNK.mp3
+    BOSSRUSH_5 = 26         # The_BEAST.mp3
+    BOSSRUSH_6 = 27         # Dominator.mp3
 
     @classmethod
     def getBgm(cls, no):

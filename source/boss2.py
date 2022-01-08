@@ -376,230 +376,223 @@ boss2tbl = [
 	]
 
 class Boss2(enemy.EnemyBase):
-	def __init__(self, t):
-		super(Boss2, self).__init__()
-		self.t = gcommon.T_BOSS1
-		self.isBossRush = t[4]
-		if self.isBossRush:
-			self.x = t[2]
-			self.y = t[3]
-		else:
-			pos = gcommon.mapPosToScreenPos(t[2], t[3])
-			self.x = pos[0]
-			self.y = pos[1]
-		self.left = 16
-		self.top = 9
-		self.right = 63
-		self.bottom = 38
-		self.hp = 999999		# 破壊できない
-		self.layer = gcommon.C_LAYER_GRD
-		self.ground = True
-		self.score = 7000
-		self.subcnt = 0
-		self.dx = 0.5
-		self.dy = 0
-		self.hitcolor1 = 3
-		self.hitcolor2 = 7
-		self.tblIndex = 0
-		self.cycleCount = 0
-		self.brake = False
-		self.feelers = []
-		self.feelers.append(Feeler(self, 50, 29, 8, 6))
-		self.feelers.append(Feeler(self, 16, 29, 24, 6))
-		self.feelers.append(Feeler(self, 16, 8, 40, 6))
-		self.feelers.append(Feeler(self, 50, 8, 56, 6))
-		self.feelerShots = []
-		#self.feelers[0].setMode(1)
-		#self.feelers[1].setMode(1)
-		#self.feelers[2].setMode(1)
-		#self.feelers[3].setMode(1)
-		ObjMgr.addObj(self.feelers[0])
-		ObjMgr.addObj(self.feelers[1])
-		ObjMgr.addObj(self.feelers[2])
-		ObjMgr.addObj(self.feelers[3])
-		self.bossCells = []
-		#self.upperBase = Boss2Base(self,0)
-		#self.lowerBase = Boss2Base(self,1)
-		#ObjMgr.addObj(self.upperBase)
-		#ObjMgr.addObj(self.lowerBase)
-		if self.isBossRush:
-			self.layer = gcommon.C_LAYER_SKY
-			self.ground = False
-			self.state = 900
-			self.x = 256
-			self.y = 81
-		else:
-			self.bossBase = Boss2Base2(self)
-			ObjMgr.addObj(self.bossBase)
+    def __init__(self, t):
+        super(Boss2, self).__init__()
+        self.t = gcommon.T_BOSS1
+        self.isBossRush = t[4]
+        if self.isBossRush:
+            self.x = t[2]
+            self.y = t[3]
+        else:
+            pos = gcommon.mapPosToScreenPos(t[2], t[3])
+            self.x = pos[0]
+            self.y = pos[1]
+        self.left = 16
+        self.top = 9
+        self.right = 63
+        self.bottom = 38
+        self.hp = 999999		# 破壊できない
+        self.layer = gcommon.C_LAYER_GRD
+        self.ground = True
+        self.score = 7000
+        self.subcnt = 0
+        self.dx = 0.5
+        self.dy = 0
+        self.hitcolor1 = 3
+        self.hitcolor2 = 7
+        self.tblIndex = 0
+        self.cycleCount = 0
+        self.brake = False
+        self.feelers = []
+        self.feelers.append(Feeler(self, 50, 29, 8, 6))
+        self.feelers.append(Feeler(self, 16, 29, 24, 6))
+        self.feelers.append(Feeler(self, 16, 8, 40, 6))
+        self.feelers.append(Feeler(self, 50, 8, 56, 6))
+        self.feelerShots = []
+        ObjMgr.addObj(self.feelers[0])
+        ObjMgr.addObj(self.feelers[1])
+        ObjMgr.addObj(self.feelers[2])
+        ObjMgr.addObj(self.feelers[3])
+        self.bossCells = []
+        self.timerObj = None
+        if self.isBossRush:
+            self.layer = gcommon.C_LAYER_SKY
+            self.ground = False
+            self.state = 900
+            self.x = 256
+            self.y = 81
+        else:
+            self.bossBase = Boss2Base2(self)
+            ObjMgr.addObj(self.bossBase)
 
-	def update(self):
-		if self.state == 0:
-			if self.x <= 170:
-				#if self.upperBase.removeFlag == False:
-				#	self.upperBase.broken()
-				#if self.lowerBase.removeFlag == False:
-				#	self.lowerBase.broken()
-				self.nextState()
-		elif self.state == 1:
-			if self.cnt == 80:
-				self.layer = gcommon.C_LAYER_SKY
-				self.ground = False
-				self.dx = 0.05
-				self.dy = 0.0
-				self.nextState()
-		elif self.state == 2:
-			self.x += self.dx
-			self.y += self.dy
-			if self.x > 150:
-				self.dx = 0
-				self.hp = boss.BOSS_2_HP		# ここでHPを入れなおす
-				self.setState(4)
-				gcommon.debugPrint("x=" +str(self.x) + " y=" + str(self.y) + " dx=" + str(self.dx)+ " dy=" + str(self.dy))
-		elif self.state == 4:
-			self.x += self.dx
-			self.y += self.dy
-			self.brake = False
-			mode = boss2tbl[self.tblIndex][0]
-			if mode == 0:
-				if self.subcnt == boss2tbl[self.tblIndex][3]:
-					self.nextTbl()
-			elif mode == 1:
-				if self.x < boss2tbl[self.tblIndex][3]:
-					self.dx *= 0.95
-					self.dy *= 0.95
-					self.brake = True
-					if abs(self.dx) < 0.01:
-						self.dx = 0
-						self.nextTbl()
-				else:
-					self.addDxDy()
-			elif mode == 2:
-				if self.x > boss2tbl[self.tblIndex][3]:
-					self.dx *= 0.95
-					self.dy *= 0.95
-					self.brake = True
-					if abs(self.dx) < 0.01:
-						self.dx = 0
-						self.nextTbl()
-				else:
-					self.addDxDy()
-			elif mode == 3:
-				# 上制限（上移動）
-				if self.y < boss2tbl[self.tblIndex][3]:
-					self.dx *= 0.95
-					self.dy *= 0.95
-					self.brake = True
-					if abs(self.dy) <=0.01:
-						self.nextTbl()
-				else:
-					self.addDxDy()
-			elif mode == 4:
-				# 下制限（下移動）
-				if self.y > boss2tbl[self.tblIndex][3]:
-					self.dx *= 0.95
-					self.dy *= 0.95
-					self.brake = True
-					if abs(self.dy) <= 0.01:
-						self.nextTbl()
-				else:
-					self.addDxDy()
-			elif mode == 5:
-				# 触手伸ばす
-				if self.subcnt == 1:
-					self.feelers[0].subDr = -1
-					self.feelers[1].subDr = 1
-					self.feelers[2].subDr = -1
-					self.feelers[3].subDr = 1
-					self.feelers[0].setMode(1)
-					self.feelers[1].setMode(1)
-					self.feelers[2].setMode(1)
-					self.feelers[3].setMode(1)
-				if self.subcnt == boss2tbl[self.tblIndex][3]:
-					self.feelers[0].setMode(2)
-					self.feelers[1].setMode(2)
-					self.feelers[2].setMode(2)
-					self.feelers[3].setMode(2)
-					self.nextTbl()
-			elif mode == 6:
-				# 触手縮める
-				if self.subcnt == 1:
-					self.feelers[0].setMode(3)
-					self.feelers[1].setMode(3)
-					self.feelers[2].setMode(3)
-					self.feelers[3].setMode(3)
-				if self.subcnt == boss2tbl[self.tblIndex][3]:
-					self.nextTbl()
-			elif mode == 100:
-				# 指定インデックスに移動
-				self.tblIndex = boss2tbl[self.tblIndex][3]
-				self.cycleCount += 1
-				self.subcnt = 0
-			
-			attack = boss2tbl[self.tblIndex][4]
-			if attack == 1:
-				# 触手伸ばす攻撃
-				#if self.cycleCount & 1 == 0:
-				if self.subcnt == 1:
-					self.shotBoss2Feeler(self.x +16, self.y+29, math.pi * 0.75)
-					BGM.sound(gcommon.SOUND_FEELER_GROW)
-				elif self.subcnt == 20:
-					self.shotBoss2Feeler(self.x +16, self.y+8, math.pi * 1.25)
-				elif self.subcnt == 40 and GameSession.isNormalOrMore():
-					self.shotBoss2Feeler(self.x +50, self.y+8, math.pi *1.5)
-				elif self.subcnt == 60 and GameSession.isHard():
-					self.shotBoss2Feeler(self.x +50, self.y+29, math.pi*0.5)
-			self.subcnt+=1
-		elif self.state == 900:
-			self.x -= 1
-			if self.x <= 150:
-				self.dx = 0.0
-				self.dy = 0.0
-				self.hp = boss.BOSS_2_HP
-				self.setState(4)
+    def update(self):
+        if self.state == 0:
+            if self.x <= 170:
+                self.nextState()
+        elif self.state == 1:
+            if self.cnt == 80:
+                self.layer = gcommon.C_LAYER_SKY
+                self.ground = False
+                self.dx = 0.05
+                self.dy = 0.0
+                self.nextState()
+        elif self.state == 2:
+            self.x += self.dx
+            self.y += self.dy
+            if self.x > 150:
+                self.dx = 0
+                self.hp = boss.BOSS_2_HP		# ここでHPを入れなおす
+                self.setState(4)
+                gcommon.debugPrint("x=" +str(self.x) + " y=" + str(self.y) + " dx=" + str(self.dx)+ " dy=" + str(self.dy))
+        elif self.state == 4:
+            self.x += self.dx
+            self.y += self.dy
+            self.brake = False
+            mode = boss2tbl[self.tblIndex][0]
+            if mode == 0:
+                if self.subcnt == boss2tbl[self.tblIndex][3]:
+                    self.nextTbl()
+            elif mode == 1:
+                if self.x < boss2tbl[self.tblIndex][3]:
+                    self.dx *= 0.95
+                    self.dy *= 0.95
+                    self.brake = True
+                    if abs(self.dx) < 0.01:
+                        self.dx = 0
+                        self.nextTbl()
+                else:
+                    self.addDxDy()
+            elif mode == 2:
+                if self.x > boss2tbl[self.tblIndex][3]:
+                    self.dx *= 0.95
+                    self.dy *= 0.95
+                    self.brake = True
+                    if abs(self.dx) < 0.01:
+                        self.dx = 0
+                        self.nextTbl()
+                else:
+                    self.addDxDy()
+            elif mode == 3:
+                # 上制限（上移動）
+                if self.y < boss2tbl[self.tblIndex][3]:
+                    self.dx *= 0.95
+                    self.dy *= 0.95
+                    self.brake = True
+                    if abs(self.dy) <=0.01:
+                        self.nextTbl()
+                else:
+                    self.addDxDy()
+            elif mode == 4:
+                # 下制限（下移動）
+                if self.y > boss2tbl[self.tblIndex][3]:
+                    self.dx *= 0.95
+                    self.dy *= 0.95
+                    self.brake = True
+                    if abs(self.dy) <= 0.01:
+                        self.nextTbl()
+                else:
+                    self.addDxDy()
+            elif mode == 5:
+                # 触手伸ばす
+                if self.subcnt == 1:
+                    self.feelers[0].subDr = -1
+                    self.feelers[1].subDr = 1
+                    self.feelers[2].subDr = -1
+                    self.feelers[3].subDr = 1
+                    self.feelers[0].setMode(1)
+                    self.feelers[1].setMode(1)
+                    self.feelers[2].setMode(1)
+                    self.feelers[3].setMode(1)
+                if self.subcnt == boss2tbl[self.tblIndex][3]:
+                    self.feelers[0].setMode(2)
+                    self.feelers[1].setMode(2)
+                    self.feelers[2].setMode(2)
+                    self.feelers[3].setMode(2)
+                    self.nextTbl()
+            elif mode == 6:
+                # 触手縮める
+                if self.subcnt == 1:
+                    self.feelers[0].setMode(3)
+                    self.feelers[1].setMode(3)
+                    self.feelers[2].setMode(3)
+                    self.feelers[3].setMode(3)
+                if self.subcnt == boss2tbl[self.tblIndex][3]:
+                    self.nextTbl()
+            elif mode == 100:
+                # 指定インデックスに移動
+                self.tblIndex = boss2tbl[self.tblIndex][3]
+                self.cycleCount += 1
+                self.subcnt = 0
+            
+            attack = boss2tbl[self.tblIndex][4]
+            if attack == 1:
+                # 触手伸ばす攻撃
+                #if self.cycleCount & 1 == 0:
+                if self.subcnt == 1:
+                    self.shotBoss2Feeler(self.x +16, self.y+29, math.pi * 0.75)
+                    BGM.sound(gcommon.SOUND_FEELER_GROW)
+                elif self.subcnt == 20:
+                    self.shotBoss2Feeler(self.x +16, self.y+8, math.pi * 1.25)
+                elif self.subcnt == 40 and GameSession.isNormalOrMore():
+                    self.shotBoss2Feeler(self.x +50, self.y+8, math.pi *1.5)
+                elif self.subcnt == 60 and GameSession.isHard():
+                    self.shotBoss2Feeler(self.x +50, self.y+29, math.pi*0.5)
+            self.subcnt+=1
+        elif self.state == 900:
+            self.x -= 1
+            if self.x <= 150:
+                self.dx = 0.0
+                self.dy = 0.0
+                self.timerObj = enemy.Timer1.create(30)
+                self.hp = boss.BOSS_2_HP
+                self.setState(4)
 
-	def shotBoss2Feeler(self, x, y, rad):
-		self.feelerShots.append(ObjMgr.addObj(Boss2FeelerShot(self, x, y, rad)))
+    def shotBoss2Feeler(self, x, y, rad):
+        self.feelerShots.append(ObjMgr.addObj(Boss2FeelerShot(self, x, y, rad)))
 
-	def draw(self):
-		if self.cnt & 16 == 0:
-			pyxel.blt(self.x, self.y, 1, 176, 112, 80, 48, gcommon.TP_COLOR)
-		else:
-			pyxel.blt(self.x, self.y, 1, 176, 160, 80, 48, gcommon.TP_COLOR)
-		pyxel.blt(self.x, self.y, 1, 176, 208, 80, 48, gcommon.TP_COLOR)
+    def draw(self):
+        if self.cnt & 16 == 0:
+            pyxel.blt(self.x, self.y, 1, 176, 112, 80, 48, gcommon.TP_COLOR)
+        else:
+            pyxel.blt(self.x, self.y, 1, 176, 160, 80, 48, gcommon.TP_COLOR)
+        pyxel.blt(self.x, self.y, 1, 176, 208, 80, 48, gcommon.TP_COLOR)
 
-	def nextTbl(self):
-		self.tblIndex +=1
-		if self.tblIndex >= len(boss2tbl):
-			self.tblIndex = 0
-		self.dx = boss2tbl[self.tblIndex][1]
-		self.dy = boss2tbl[self.tblIndex][2]
-		self.subcnt = 0
+    def nextTbl(self):
+        self.tblIndex +=1
+        if self.tblIndex >= len(boss2tbl):
+            self.tblIndex = 0
+        self.dx = boss2tbl[self.tblIndex][1]
+        self.dy = boss2tbl[self.tblIndex][2]
+        self.subcnt = 0
 
-	def addDxDy(self):
-		if abs(self.dx) < 0.5:
-			self.dx +=  boss2tbl[self.tblIndex][1]
-		if abs(self.dy) < 0.5:
-			self.dy +=  boss2tbl[self.tblIndex][2]
+    def addDxDy(self):
+        if abs(self.dx) < 0.5:
+            self.dx +=  boss2tbl[self.tblIndex][1]
+        if abs(self.dy) < 0.5:
+            self.dy +=  boss2tbl[self.tblIndex][2]
 
-	def broken(self):
-		for feeler in self.feelers:
-			feeler.remove()
-		for feelerShot in self.feelerShots:
-			feelerShot.remove()
-		for cell in self.bossCells:
-			if cell.removeFlag == False:
-				cell.remove()
-		self.remove()
-		enemy.removeEnemyShot()
-		ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
-		GameSession.addScore(self.score)
-		BGM.sound(gcommon.SOUND_LARGE_EXP)
-		enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
-		if self.isBossRush:
-			gcommon.debugPrint("Boss2 call NextEvent")
-			ObjMgr.objs.append(enemy.NextEvent([0, None, 240]))
-		else:
-			ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
+    def broken(self):
+        for feeler in self.feelers:
+            feeler.remove()
+        for feelerShot in self.feelerShots:
+            feelerShot.remove()
+        for cell in self.bossCells:
+            if cell.removeFlag == False:
+                cell.remove()
+        self.remove()
+        enemy.removeEnemyShot()
+        ObjMgr.objs.append(boss.BossExplosion(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY))
+        GameSession.addScore(self.score)
+        BGM.sound(gcommon.SOUND_LARGE_EXP)
+        enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
+        if self.isBossRush:
+            gcommon.debugPrint("Boss2 call NextEvent")
+            if self.timerObj != None:
+                self.timerObj.stop()
+                self.timerObj = None
+            ObjMgr.objs.append(enemy.NextEvent([0, None, 240]))
+        else:
+            ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
 
 
 # 触手ロケットパンチ

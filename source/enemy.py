@@ -2225,6 +2225,52 @@ class StageClear(EnemyBase):
 		if self.stage != "6":
 			Drawing.showText(self.x, self.y, self.text)
 
+class BossRushClear(EnemyBase):
+    def __init__(self):
+        super(__class__, self).__init__()
+        self.layer = gcommon.C_LAYER_TEXT
+        self.x = gcommon.SCREEN_MAX_X +1
+        self.y = 90
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.stage = GameSession.stage
+        self.text = "BOSS RUSH CLEAR"
+        BGM.playOnce(BGM.STAGE_CLEAR)
+        ObjMgr.myShip.setSubScene(5)
+
+    def update(self):
+        if self.state == 0:
+            self.x -= 4
+            if self.x < 68:
+                self.x = 68
+                self.nextState()
+        elif self.state == 1:
+            if self.cnt > 720:
+                self.remove()
+                gcommon.app.startGameClear()
+
+    def draw(self):
+        Drawing.showText(self.x, self.y, self.text)
+
+class BossRushStart(EnemyBase):
+    def __init__(self):
+        super(__class__, self).__init__()
+        self.layer = gcommon.C_LAYER_TEXT
+        self.x = 0
+        self.y = 60
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.stage = GameSession.stage
+        self.text = "BOSS RUSH START"
+
+    def update(self):
+        if self.cnt >= 180:
+            self.remove()
+
+    def draw(self):
+        if int(self.cnt/20)% 2 == 0:
+            Drawing.showTextHCenter(self.y, self.text)
+
 class FixedShutter1(EnemyBase):
 	def __init__(self, mx, my, size):
 		super(FixedShutter1, self).__init__()
@@ -3956,35 +4002,37 @@ class Shutter3(EnemyBase):
 			yy += 16
 
 class ContinuousShot(EnemyBase):
-	def __init__(self, x, y, shotType, shotCount, shotInterval, speed):
-		super(ContinuousShot, self).__init__()
-		self.x = x
-		self.y = y
-		self.dr64 = gcommon.get_atan_no_to_ship(self.x, self.y)
-		self.shotType = shotType
-		self.shotCount = shotCount
-		self.shotInterval = shotInterval
-		self.speed = speed
-		# layerをC_LAYER_E_SHOTにすることで、removeEnemyShotで削除される
-		self.layer = gcommon.C_LAYER_E_SHOT
-		self.ground = False
-		self.hitCheck = False
-		self.shotHitCheck = False
-		self.enemyShotCollision = False
+    def __init__(self, x, y, shotType, shotCount, shotInterval, speed):
+        super(ContinuousShot, self).__init__()
+        self.x = x
+        self.y = y
+        self.dr64 = gcommon.get_atan_no_to_ship(self.x, self.y)
+        self.shotType = shotType
+        self.shotCount = shotCount
+        self.shotInterval = shotInterval
+        self.speed = speed
+        # layerをC_LAYER_E_SHOTにすることで、removeEnemyShotで削除される
+        self.layer = gcommon.C_LAYER_E_SHOT
+        self.ground = False
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.enemyShotCollision = False
 
-	@classmethod
-	def create(cls, x, y, shotType, shotCount, shotInterval, speed):
-		ObjMgr.addObj(ContinuousShot(x, y, shotType, shotCount, shotInterval, speed))
+    @classmethod
+    def create(cls, x, y, shotType, shotCount, shotInterval, speed):
+        ObjMgr.addObj(ContinuousShot(x, y, shotType, shotCount, shotInterval, speed))
 
-	def update(self):
-		if self.cnt % self.shotInterval == 0:
-			enemy_shot_dr(self.x, self.y, self.speed, self.shotType, self.dr64)
-			self.shotCount -= 1
-			if self.shotCount == 0:
-				self.remove()
+    def update(self):
+        if self.cnt % self.shotInterval == 0:
+            enemy_shot_dr(self.x, self.y, self.speed, self.shotType, self.dr64)
+            Spark2.create2(self.x, self.y, gcommon.C_LAYER_E_SHOT)
+            BGM.sound(gcommon.SOUND_SHOT2)
+            self.shotCount -= 1
+            if self.shotCount == 0:
+                self.remove()
 
-	def draw(self):
-		pass
+    def draw(self):
+        pass
 
 
 # 画面の敵弾を消去する
@@ -4560,3 +4608,124 @@ class NextEvent(EnemyBase):
 		if self.cnt >= self.waitTime:
 			gcommon.eventManager.nextEvent()
 			self.remove()
+
+class Spark2(EnemyBase):
+    def __init__(self, parent, ox, oy, layer):
+        super(__class__, self).__init__()
+        self.parent = parent
+        if self.parent != None:
+            self.offsetX = ox
+            self.offsetY = oy
+        else:
+            self.x = ox
+            self.y = oy
+        self.layer = layer
+        self.ground = False
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.enemyShotCollision = False
+
+    @classmethod
+    def create(cls, parent, ox, oy, layer):
+        ObjMgr.addObj(Spark2(parent, ox, oy, layer))
+
+    @classmethod
+    def create2(cls, x, y, layer):
+        ObjMgr.addObj(Spark2(None, x, y, layer))
+
+    def update(self):
+        if self.parent != None:
+            self.x = self.parent.x + self.offsetX
+            self.y = self.parent.y + self.offsetY
+        if self.cnt >= 4:
+            self.remove()
+
+    def draw(self):
+        pyxel.blt(self.x -7.5, self.y -7.5, 0, self.cnt * 16, 160, 16, 16, 0)
+
+
+class Timer1(EnemyBase):
+    def __init__(self, timeSeconds):
+        super(__class__, self).__init__()
+        self.timerCount = timeSeconds * 60
+        self.x = 256 - 8*5 -4
+        self.y = 2
+        self.layer = gcommon.C_LAYER_TEXT
+        self.ground = False
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.enemyShotCollision = False
+        self.offsetY = 0
+
+    @classmethod
+    def create(cls, timeSeconds):
+        return ObjMgr.addObj(Timer1(timeSeconds))
+
+    def update(self):
+        if self.state == 0:
+            self.timerCount -= 1
+            if self.timerCount == 0:
+                self.remove()
+        elif self.state == 1:
+            # 単純に下がる
+            if self.offsetY < 10:
+                self.offsetY += 1
+            if self.cnt >= 180:
+                self.nextState()
+                if self.timerCount > 0:
+                    score = int(self.timerCount/6 +0.5) * 100
+                    GameSession.addScore(score)
+                    HeaderBonus.create("BONUS", score)
+        elif self.state == 2:
+            # 下に消えていく
+            if self.cnt >= 20:
+                self.remove()
+
+    def stop(self):
+        self.setState(1)
+
+    def draw(self):
+        if self.state in (0, 1):
+            Drawing.showText(self.x, self.y +self.offsetY, "{:5.1f}".format(self.timerCount/60))
+        else:
+            Drawing.showTextRate(self.x, self.y +self.offsetY, "{:5.1f}".format(self.timerCount/60), (20-self.cnt)/20)
+
+class HeaderBonus(EnemyBase):
+    def __init__(self, text, score):
+        super(__class__, self).__init__()
+        self.text = text
+        self.score = score
+        self.x = 256
+        self.y = 12
+        self.layer = gcommon.C_LAYER_TEXT
+        self.ground = False
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.enemyShotCollision = False
+        self.allText = text + " " + str(score)
+        self.x = 252 - len(self.allText) * 8
+        self.dx = 0.1
+        BGM.sound(gcommon.SOUND_PWUP, 1)
+
+    @classmethod
+    def create(cls, text, score):
+        return ObjMgr.addObj(HeaderBonus(text, score))
+
+    def update(self):
+        if self.state == 0:
+            if self.cnt >= 20:
+                self.nextState()
+        elif self.state == 1:
+            if self.cnt > 60:
+                self.nextState()
+        elif self.state == 2:
+            self.x += self.dx
+            self.dx += 0.1
+            if self.x > gcommon.SCREEN_MAX_X +1:
+                self.remove()
+
+    def draw(self):
+        if self.state == 0:
+            Drawing.showTextRate2(self.x, self.y, self.allText, self.cnt/20)
+        else:
+            Drawing.showText(self.x, self.y, self.allText)

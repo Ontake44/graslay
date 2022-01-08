@@ -109,7 +109,7 @@ class LaunchScene:
 
 	def draw(self):
 		pyxel.cls(0)
-		gcommon.drawStar(gcommon.star_pos)
+		gcommon.drawStar2(self.dx)
 
 		shipx = gcommon.sint(self.x)
 		if self.x > -512:

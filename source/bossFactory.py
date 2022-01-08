@@ -166,11 +166,13 @@ class BossFactory(enemy.EnemyBase):
         self.rolling = True
         self.dr64 = 0
         self.dr64List = [0] * 4
+        self.timerObj = None
         if self.isBossRush:
             self.state = 900
             self.x = 256
             self.y = 50
             self.omega = -math.pi/64
+            self.timerObj = enemy.Timer1.create(35)
 
     def nextState(self):
         self.state += 1
@@ -526,6 +528,9 @@ class BossFactory(enemy.EnemyBase):
         BGM.sound(gcommon.SOUND_LARGE_EXP)
         enemy.Splash.append(gcommon.getCenterX(self), gcommon.getCenterY(self), gcommon.C_LAYER_EXP_SKY)
         if self.isBossRush:
+            if self.timerObj != None:
+                self.timerObj.stop()
+                self.timerObj = None
             ObjMgr.objs.append(enemy.NextEvent([0, None, 180]))
         else:
             ObjMgr.objs.append(enemy.Delay(enemy.StageClear, None, 240))
