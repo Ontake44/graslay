@@ -173,6 +173,8 @@ class BossEnemybaseBody(enemy.EnemyBase):
         self.hitCheck = True
         self.shotHitCheck = True
         self.enemyShotCollision = False
+        self.hitcolor1 = 13
+        self.hitcolor2 = 7
         self.ground = True
         self.gunWidth = 64
         self.gunHeight = 64
@@ -194,7 +196,7 @@ class BossEnemybaseBody(enemy.EnemyBase):
         self.gameTimerSave = gcommon.game_timer
         self.timerObj = None
         if self.isBossRush:
-            self.timerObj = enemy.Timer1.create(70)
+            self.timerObj = enemy.Timer1.create(60)
 
     def update(self):
         if self.mode == 0:
@@ -361,8 +363,10 @@ class BossEnemybaseBody(enemy.EnemyBase):
         if self.radSave != self.rad:
             drawing.Drawing.setRotateImage(64, 192, 2, self.work, self.image, -self.rad, 3)
             self.radSave = self.rad
+        if self.hit:
+            pyxel.pal(self.hitcolor1, self.hitcolor2)
         pyxel.blt(gcommon.sint(self.x -31.5), gcommon.sint(self.y -31.5), 2, 64, 192, self.gunWidth, self.gunHeight, 3)
-
+        pyxel.pal()
         #pyxel.line(127.5, 95.5, 127.5 + 200 * math.cos(self.rad), 95.5 + 200 * math.sin(self.rad), 7)
 
     def broken(self):
@@ -516,6 +520,8 @@ class BossEnemybaseBattery1(enemy.EnemyBase):
         self.layer = gcommon.C_LAYER_SKY | gcommon.C_LAYER_E_SHOT
         self.hitCheck = True
         self.shotHitCheck = True
+        self.hitcolor1 = 5
+        self.hitcolor2 = 7
         if self.angle > 0:
             self.omega = math.pi * 1.0/180
         else:
@@ -686,6 +692,8 @@ class BossEnemybaseBody2(enemy.EnemyBase):
         self.hitCheck = True
         self.shotHitCheck = True
         self.enemyShotCollision = False
+        self.hitcolor1 = 13
+        self.hitcolor2 = 7
         self.mover = CountMover(self, __class__.moveTable0, False, True)
         self.coreBrightState = 0
         self.coreBrightness = 0
@@ -708,7 +716,7 @@ class BossEnemybaseBody2(enemy.EnemyBase):
                 self.image[y][x] = img.get(x +0, y +96)
         self.timerObj = None
         if self.isBossRush:
-            self.timerObj = enemy.Timer1.create(70)
+            self.timerObj = enemy.Timer1.create(45)
 
     def update(self):
         if self.mode == 0:
@@ -837,21 +845,6 @@ class BossEnemybaseBody2(enemy.EnemyBase):
         self.mode = 0
         self.setState(0)
 
-
-    # def drawCore(self):
-    #     Drawing.setBrightnessWithoutBlack(self.coreBrightness)
-    #     pyxel.blt(gcommon.sint(self.x -7.5), gcommon.sint(self.y -7.5), 1, 88, 40, 16, 16, 3)
-    #     if self.cnt & 3 == 0:
-    #         if self.coreBrightState == 0:
-    #             self.coreBrightness += 1
-    #             if self.coreBrightness >= 4:
-    #                 self.coreBrightState = 1
-    #         else:
-    #             self.coreBrightness -= 1
-    #             if self.coreBrightness <= -3:
-    #                 self.coreBrightState = 0
-    #     pyxel.pal()
-
     def draw(self):
         if self.mode == 0:
             drawCoreCommon(self)
@@ -879,9 +872,12 @@ class BossEnemybaseBody2(enemy.EnemyBase):
             if self.radSave != self.rad:
                 drawing.Drawing.setRotateImage(64, 192, 2, self.work, self.image, -self.rad +math.pi, 3)
                 self.radSave = self.rad
+            if self.hit:
+                pyxel.pal(self.hitcolor1, self.hitcolor2)
             pyxel.blt(gcommon.sint(self.x -31.5), gcommon.sint(self.y -31.5), 2, 0, 128, 64, 64, 3)
             pyxel.blt(gcommon.sint(self.x -15.5), gcommon.sint(self.y -15.5), 2, 80, 144, 48, 32, 3)
             pyxel.blt(gcommon.sint(self.x -15.5), gcommon.sint(self.y -15.5), 2, 64, 192, self.gunWidth, self.gunHeight, 3)
+            pyxel.pal()
 
     def broken(self):
         self.remove()
@@ -1194,6 +1190,8 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         self.hitCheck = True
         self.shotHitCheck = True
         self.enemyShotCollision = False
+        self.hitcolor1 = 8
+        self.hitcolor2 = 14
         self.mover = CountMover(self, __class__.moveTable0, False, True)
         self.coreBrightState = 0
         self.coreBrightness = 0
@@ -1203,7 +1201,7 @@ class BossEnemybaseBody3(enemy.EnemyBase):
         pyxel.image(2).load(0,0,"assets/stage_enemybase-4.png")
         self.timerObj = None
         if self.isBossRush:
-            self.timerObj = enemy.Timer1.create(90)
+            self.timerObj = enemy.Timer1.create(70)
 
     def update(self):
         if self.mode == 0:

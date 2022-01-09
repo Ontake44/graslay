@@ -1118,6 +1118,7 @@ class App:
             else:
                 self.startTitle()
         elif GameSession.gameMode == gcommon.GAMEMODE_BOSSRUSH:
+            GameSession.stage = "-1"
             rankingManager = ranking.RankingManager()
             rankingManager.load()
             if rankingManager.inTop10(GameSession):

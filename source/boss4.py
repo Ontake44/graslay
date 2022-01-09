@@ -42,7 +42,7 @@ class Boss4(enemy.EnemyBase):
         self.score = 12000
         self.timerObj = None
         if self.isBossRush:
-            self.timerObj = enemy.Timer1.create(40)
+            self.timerObj = enemy.Timer1.create(35)
         gcommon.debugPrint("Boss4")
 
     def update(self):

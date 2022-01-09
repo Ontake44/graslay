@@ -88,7 +88,7 @@ class BossLast1(enemy.EnemyBase):
         ObjMgr.addObj(BossLast1Launcher(self.x, self.y +176, 1))
         self.timerObj = None
         if self.isBossRush:
-            self.timerObj = enemy.Timer1.create(120)
+            self.timerObj = enemy.Timer1.create(100)
 
     def nextState(self):
         self.state += 1
@@ -934,7 +934,7 @@ class BossLast1Core(enemy.EnemyBase):
         self.coreBrightness = 0
         self.timerObj = None
         if self.isBossRush:
-            self.timerObj = enemy.Timer1.create(80)
+            self.timerObj = enemy.Timer1.create(70)
 
     @classmethod
     def drawLine(cls, cx, cy, r):

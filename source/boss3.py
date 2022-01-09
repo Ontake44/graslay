@@ -70,7 +70,7 @@ class Boss3(enemy.EnemyBase):
         self.mainShotCycle = int(self.shotCycle*0.75)
         self.timerObj = None
         if self.isBossRush:
-            self.timerObj = enemy.Timer1.create(35)
+            self.timerObj = enemy.Timer1.create(40)
         gcommon.debugPrint("Boss3")
 
     def nextState(self):

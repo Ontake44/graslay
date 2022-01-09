@@ -132,20 +132,7 @@ class BossRushStartMenuScene:
 
             elif self.menuPos == MENU_GAME_START:
                 n = -1
-                if self.mouseManager.visible:
-                    n = gcommon.checkMouseMenuPos(self.difficultyRects)
-                if gcommon.checkRightP() or (gcommon.checkShotKeyP() and n == 1):
-                    if self.difficulty < 2:
-                        BGM.sound(gcommon.SOUND_MENUMOVE)
-                        self.difficulty += 1
-                elif gcommon.checkLeftP() or (gcommon.checkShotKeyP() and n == 0):
-                    if self.difficulty > 0:
-                        BGM.sound(gcommon.SOUND_MENUMOVE)
-                        self.difficulty -= 1
-                elif gcommon.checkShotKeyP():
-                    Settings.difficulty = self.difficulty
-                    Settings.startStage = gcommon.stageList[self.stageIndex]
-                    Settings.saveSettings()
+                if gcommon.checkShotKeyP():
                     BGM.stop()
                     BGM.sound(gcommon.SOUND_GAMESTART)
                     self.state = 1
@@ -205,22 +192,19 @@ class BossRushStartMenuScene:
         # 	Drawing.drawUpDownMarker2(x2 -10, self.menuYList[MENU_START_STAGE], 0, len(gcommon.stageList)-1, self.stageIndex)
         idx += 1
 
-        text = gcommon.difficultyText[self.difficulty] + " START"
+        text = "START"
         if self.state == 0:
             if self.state == 0 and self.menuPos == MENU_GAME_START and self.cnt & 16 == 0:
                 pyxel.pal(7, 8)
                 pyxel.pal(5, 4)
             else:
                 self.setOptionColor(MENU_GAME_START)
-            Drawing.showText(x3, self.menuYList[MENU_GAME_START], text)
-            if MENU_GAME_START == self.menuPos:
-                Drawing.drawLeftMarker(x3 -12, self.menuYList[MENU_GAME_START], self.difficulty > 0)
-                Drawing.drawRightMarker(x3 +(6+6)*8 + 4, self.menuYList[MENU_GAME_START], self.difficulty < 2)
+            Drawing.showTextHCenter(self.menuYList[MENU_GAME_START], text)
         else:
             if self.cnt & 2 == 0:
                 pyxel.pal(7, 8)
                 pyxel.pal(5, 4)
-            Drawing.showText(x3, self.menuYList[MENU_GAME_START], text)
+            Drawing.showTextHCenter(self.menuYList[MENU_GAME_START], text)
         pyxel.pal()
         idx += 1
 
