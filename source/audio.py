@@ -64,7 +64,6 @@ class BGM:
     STAGE_BATTLESHIP = 21   # "Pleasure_In_Survival.mp3"
     BOSSRUSH_1 = 22         # DANGAN.mp3
     BOSSRUSH_2 = 23         # 漢のステーキタイム.mp3
-    BOSSRUSH_3 = 24         # Fill_It_In_Black.mp3
     BOSSRUSH_4 = 25         # SAMURAI_PUNK.mp3
     BOSSRUSH_5 = 26         # The_BEAST.mp3
     BOSSRUSH_6 = 27         # Dominator.mp3
