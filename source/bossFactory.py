@@ -113,9 +113,9 @@ class BossFactory(enemy.EnemyBase):
     homingBeamInterval = (50, 45, 40)
     roundShotInterval = (6, 5, 4)
     arcShotInterval = (7, 6, 5)
-    def __init__(self, isBossRush):
+    def __init__(self, t):
         super(BossFactory, self).__init__()
-        self.isBossRush = isBossRush
+        self.isBossRush = t[2]
         self.x = 80
         self.y = -120
         self.layer = gcommon.C_LAYER_SKY

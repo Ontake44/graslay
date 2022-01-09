@@ -2230,7 +2230,7 @@ class BossRushClear(EnemyBase):
         super(__class__, self).__init__()
         self.layer = gcommon.C_LAYER_TEXT
         self.x = gcommon.SCREEN_MAX_X +1
-        self.y = 90
+        self.y = 80
         self.hitCheck = False
         self.shotHitCheck = False
         self.stage = GameSession.stage
@@ -4674,7 +4674,6 @@ class Timer1(EnemyBase):
                 self.nextState()
                 if self.timerCount > 0:
                     score = int(self.timerCount/6 +0.5) * 100
-                    GameSession.addScore(score)
                     HeaderBonus.create("BONUS", score)
         elif self.state == 2:
             # 下に消えていく
@@ -4714,6 +4713,7 @@ class HeaderBonus(EnemyBase):
     def update(self):
         if self.state == 0:
             if self.cnt >= 20:
+                GameSession.addScore(self.score)
                 self.nextState()
         elif self.state == 1:
             if self.cnt > 60:
@@ -4723,6 +4723,36 @@ class HeaderBonus(EnemyBase):
             self.dx += 0.1
             if self.x > gcommon.SCREEN_MAX_X +1:
                 self.remove()
+
+    def draw(self):
+        if self.state == 0:
+            Drawing.showTextRate2(self.x, self.y, self.allText, self.cnt/20)
+        else:
+            Drawing.showText(self.x, self.y, self.allText)
+
+class Bonus1(EnemyBase):
+    def __init__(self, t):
+        super(__class__, self).__init__()
+        self.y = t[2]
+        self.text = t[3]
+        self.score = t[4]
+        self.x = 0
+        self.layer = gcommon.C_LAYER_TEXT
+        self.ground = False
+        self.hitCheck = False
+        self.shotHitCheck = False
+        self.enemyShotCollision = False
+        self.allText = self.text + " " + str(self.score)
+        self.x = 127 - len(self.allText) * 4
+
+    def update(self):
+        if self.state == 0:
+            if self.cnt >= 20:
+                self.nextState()
+                GameSession.addScore(self.score)
+                BGM.sound(gcommon.SOUND_PWUP, 1)
+        elif self.state == 1:
+            pass
 
     def draw(self):
         if self.state == 0:

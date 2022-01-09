@@ -10,7 +10,7 @@ import gameSession
 from objMgr import ObjMgr
 from gameSession import GameSession
 from audio import BGM
-from enemy import CountMover, DockArm, EnemyShot, Explosion, Splash
+from enemy import Bonus1, CountMover, Delay, DockArm, EnemyShot, Explosion, Splash
 import enemyOthers
 import enemyShot
 import drawing
@@ -1458,6 +1458,7 @@ class BossEnemybaseCore(enemy.EnemyBase):
             if self.cnt > 120:
                 if self.isBossRush:
                     ObjMgr.objs.append(enemy.BossRushClear())
+                    ObjMgr.objs.append(enemy.Delay(Bonus1, [0, None, 100, "ALL CLEAR BONUS", 50000], 160))
                     BGM.playOnce(BGM.ENDING)
                 else:
                     ObjMgr.objs.append(BossEnemybaseAfterBroken())

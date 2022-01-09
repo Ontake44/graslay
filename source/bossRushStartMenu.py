@@ -17,7 +17,6 @@ MENU_VALUE_X = 172
 START_X = 80
 
 class BossRushStartMenuScene:
-    # とりあえずのステージ選択
     def __init__(self):
         self.star_pos = 0
         oy = 16
@@ -26,12 +25,6 @@ class BossRushStartMenuScene:
         self.state = 0
         self.cnt = 0
         self.mouseManager = MouseManager()
-        self.difficulty = Settings.difficulty
-        self.stageIndex = 0
-        for index, stg in enumerate(gcommon.stageList):
-            if stg == Settings.startStage:
-                self.stageIndex = index
-                break
 
         self.menuRects = []
         for y in self.menuYList:
@@ -48,14 +41,6 @@ class BossRushStartMenuScene:
         self.multipleRects = [
             gcommon.Rect.createWH(MENU_VALUE_X -10, self.menuYList[MENU_WEAPON_OPTION], 8, 8),
             gcommon.Rect.createWH(MENU_VALUE_X -10+26, self.menuYList[MENU_WEAPON_OPTION], 8, 8)
-        ]
-        # self.startStageRects = [
-        # 	gcommon.Rect.createWH(MENU_VALUE_X -10, self.menuYList[MENU_START_STAGE], 8, 8),
-        # 	gcommon.Rect.createWH(MENU_VALUE_X -10+26, self.menuYList[MENU_START_STAGE], 8, 8)
-        # ]
-        self.difficultyRects = [
-            gcommon.Rect.createWH(START_X -12, self.menuYList[MENU_GAME_START], 8, 8),
-            gcommon.Rect.createWH(START_X +(6+6)*8 + 4, self.menuYList[MENU_GAME_START], 8, 8),
         ]
 
     def init(self):
@@ -135,6 +120,7 @@ class BossRushStartMenuScene:
                 if gcommon.checkShotKeyP():
                     BGM.stop()
                     BGM.sound(gcommon.SOUND_GAMESTART)
+                    Settings.saveSettings()
                     self.state = 1
                     self.cnt = 0
             
