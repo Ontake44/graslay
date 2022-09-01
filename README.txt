@@ -1,6 +1,6 @@
 ------------------------------------------------------
   タイトル：GRASLAY
-  Version ：2.20
+  Version ：2.30
   著 作 者：Ontake44
   動作環境：Windows 7, 8.1, 10 いずれも64bit
   連 絡 先：twitter： https://twitter.com/Ontake441
@@ -13,11 +13,11 @@ GRASLAYはレトロ風横スクロールシューティングゲームです。
 Windows 7,8.1,10の64bit専用です。
 
 Pyxelというレトロゲームエンジンで動作しています。Pyxelに関しては以下のサイトをご覧ください。
-https://github.com/kitao/pyxel/blob/master/README.ja.md
+https://github.com/kitao/pyxel/blob/main/docs/README.ja.md
 
 
 ## 実行方法
-graslay.exeを実行してください。
+Graslay.exeを実行してください。
 
 ## 操作方法
 * カーソルキーで自機が移動します。
@@ -171,4 +171,9 @@ Licenesフォルダも参照してください。
 
 ### 2.20
 * ボスラッシュモードを追加
+
+### 2.30
+アナログコントローラーに対応しました。
+（左スティックで移動です）
+pyxel 1.7.2に変更
 
