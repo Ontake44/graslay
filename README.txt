@@ -1,6 +1,6 @@
 ------------------------------------------------------
   タイトル：GRASLAY
-  Version ：2.10
+  Version ：2.20
   著 作 者：Ontake44
   動作環境：Windows 7, 8.1, 10 いずれも64bit
   連 絡 先：twitter： https://twitter.com/Ontake441
@@ -28,6 +28,7 @@ graslay.exeを実行してください。
 * PCのゲームコントローラでも操作できます。PS4のコントローラもUSB接続で可能です。
 * 難易度はEASYとNORMALがあります。コンティニーでクレジットが無くなってゲームオーバーになるとクレジットが増えるようになります。
 * CUSTOMモードで任意の残機、ステージから開始できます、また追加武装も選択できます。ただし、スコアランキングには登録されません。
+* ボスラッシュモードは10機のボスとだけの戦闘モードです。専用のスコアランキングに記録されます。
 
 ## ゲームについて
 
@@ -98,6 +99,12 @@ https://dova-s.jp/_contents/author/profile295.html
 * ステージ６Ａ－３、６Ｂ－２ In Dark Down
 * ボス Grenade
 * ランキング with silence
+* ボスラッシュ
+  SAMURAI PUNK
+  Dominator
+  The BEAST
+  漢のステーキタイム
+  DANGAN
 
 FLASH☆BEAT様
 https://dova-s.jp/_contents/author/profile266.html
@@ -161,3 +168,7 @@ Licenesフォルダも参照してください。
 ### 2.10
 * ３ステージ追加し、３、４、６面を選択分岐するようにした。
 * 追加ステージは3B、4C、6B。
+
+### 2.20
+* ボスラッシュモードを追加
+
