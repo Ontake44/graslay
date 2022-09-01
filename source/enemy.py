@@ -2442,7 +2442,7 @@ class RuinPillar1(FallingObject):
 		self.enemyShotCollision = True
 
 	def draw(self):
-		pyxel.bltm(gcommon.sint(self.x), self.y, 0, self.bx, 0, 2, self.size * 8, gcommon.TP_COLOR)
+		Drawing.bltm(gcommon.sint(self.x), self.y, 0, self.bx, 0, 2, self.size * 8, gcommon.TP_COLOR)
 		#pyxel.rectb(self.x +self.left, self.y + self.top, self.right -self.left+1, self.bottom -self.top+1, 7)
 
 
@@ -2471,7 +2471,7 @@ class RuinFloor1(FallingObject):
 				return
 
 	def draw(self):
-		pyxel.bltm(gcommon.sint(self.x), self.y, 0, 14, self.by, self.size *2, 2, gcommon.TP_COLOR)
+		Drawing.bltm(gcommon.sint(self.x), self.y, 0, 14, self.by, self.size *2, 2, gcommon.TP_COLOR)
 
 # 遺跡と落ちる砲台
 class Battery2(FallingObject):

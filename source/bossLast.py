@@ -1355,6 +1355,6 @@ class BossLastGround(enemy.EnemyBase):
                 self.nextState()
 
     def draw(self):
-        pyxel.bltm(self.x, -8 +self.offsetY, 0, 151, 152, 36, 1, 3)
-        pyxel.bltm(self.x, gcommon.SCREEN_MAX_Y +1 -self.offsetY, 0, 151, 175, 36, 1, 3)
+        Drawing.bltm(self.x, -8 +self.offsetY, 0, 151, 152, 36, 1, 3)
+        Drawing.bltm(self.x, gcommon.SCREEN_MAX_Y +1 -self.offsetY, 0, 151, 175, 36, 1, 3)
 

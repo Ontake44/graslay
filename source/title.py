@@ -386,6 +386,6 @@ class TitleScene:
 
 		if rate == 1.0:
 			Drawing.setBrightness1()
-			pyxel.blt(48, __class__.menu_top_y -2 + self.menuPos * 15, 4, 48, __class__.menu_top_y -2 + self.menuPos * 15, 160, 12)
+			pyxel.blt(48, __class__.menu_top_y -2 + self.menuPos * 15, pyxel.screen, 48, __class__.menu_top_y -2 + self.menuPos * 15, 160, 12)
 			pyxel.pal()
 

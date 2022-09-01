@@ -10,6 +10,7 @@ from gameSession import GameSession
 from audio import BGM
 from enemy import CountMover
 import enemyOthers
+from drawing import Drawing
 
 class BossFire(enemy.EnemyBase):
     # x, y, dx, dy
@@ -343,14 +344,14 @@ class BossFireProminence(enemy.EnemyBase):
         tm = 2
         m = ((self.cnt>>3) % 3) * 7
         mx = int(gcommon.map_x) & 127
-        pyxel.bltm(-1 * (mx % 8), 0, tm, int(mx/8), m,33, 7, 3)
+        Drawing.bltm(-1 * (mx % 8), 0, tm, int(mx/8), m,33, 7, 3)
         count = 7 *8
         y = 0
         while( count > 0 ):
             #pyxel.blt(0, y -1, 4, 8 + self.shiftList[(int(self.cnt>>3)) & 31], y, 256, 1)
             offset = 8 + self.shiftList[(y +int(self.cnt>>2)) & 31]
-            pyxel.blt(0, 192- 7*8 + y +self.offsetY, 4, offset, y, 256, 1)
-            pyxel.blt(256 -offset, 192- 7*8 + y +self.offsetY, 4, 0, y, offset, 1)
+            pyxel.blt(0, 192- 7*8 + y +self.offsetY, pyxel.screen, offset, y, 256, 1)
+            pyxel.blt(256 -offset, 192- 7*8 + y +self.offsetY, pyxel.screen, 0, y, offset, 1)
             count -=1
             y += 1
-        pyxel.blt(0, 0, 4, 0, 192 -7*8, 256, -7*8)
+        pyxel.blt(0, 0, pyxel.screen, 0, 192 -7*8, 256, -7*8)

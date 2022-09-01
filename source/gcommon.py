@@ -7,7 +7,7 @@ import random
 from enum import Enum
 from objMgr import ObjMgr
 
-VERSION = "2.20"
+VERSION = "2.3"
 START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 START_STAGE = None
 
@@ -155,8 +155,8 @@ SHOT_POWERS = (SHOT0_POWER, SHOT1_POWER, SHOT2_POWER)
 
 B_SHOT0_POWER = 5		# 5
 B_SHOT1_POWER = 5
-B_SHOT2_POWER = 3
-B_SHOT3_POWER = 5
+B_SHOT2_POWER = 2       # LASER
+B_SHOT3_POWER = 0
 B_SHOT_POWERS = (B_SHOT0_POWER, B_SHOT1_POWER, B_SHOT2_POWER)
 
 MISSILE0_POWER = 5
@@ -180,6 +180,12 @@ SCREEN_WIDTH = 256
 SCREEN_HEIGHT = 192
 
 DUMMY_BLOCK_NO = 64
+
+STICK_TURN_UP = 1
+STICK_TURN_DOWN = 2
+STICK_TURN_LEFT = 3
+STICK_TURN_RIGHT = 4
+
 
 # 壊れないもの
 HP_UNBREAKABLE = 999999
@@ -289,6 +295,9 @@ waterSurface_y = 0.0
 getMapDataByMapPosHandler = None
 
 drawBackground = True
+
+# アナログスティックで入力を無視する値
+stickInputIgnore = 16000
 
 # ====================================================================
 
@@ -609,26 +618,26 @@ def is_outof_bound(obj):
 
 
 def checkShotKey():
-	if pyxel.btn(pyxel.KEY_Z) or pyxel.btn(pyxel.GAMEPAD_1_A) or pyxel.btn(pyxel.GAMEPAD_1_Y) or pyxel.btn(pyxel.MOUSE_LEFT_BUTTON):
+	if pyxel.btn(pyxel.KEY_Z) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_A) or pyxel.btn(pyxel.MOUSE_BUTTON_LEFT):
 		return True
 	else:
 		return False
 
 def checkShotKeyP():
-	if pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD_1_A) or pyxel.btnp(pyxel.GAMEPAD_1_Y)  or pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON, KEY_HOLD, KEY_PERIOD):
+	if pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A)  or pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT, KEY_HOLD, KEY_PERIOD):
 		return True
 	else:
 		return False
 
 def checkShotKeyRectP(rect):
-	if pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD_1_A) or pyxel.btnp(pyxel.GAMEPAD_1_Y)  \
-	or (rect.contains(pyxel.mouse_x, pyxel.mouse_y) and pyxel.btnp(pyxel.MOUSE_LEFT_BUTTON)):
+	if pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A)  \
+	or (rect.contains(pyxel.mouse_x, pyxel.mouse_y) and pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)):
 		return True
 	else:
 		return False
 
 def checkOpionKey():
-	if pyxel.btnp(pyxel.KEY_X) or pyxel.btnp(pyxel.GAMEPAD_1_B) or pyxel.btnp(pyxel.GAMEPAD_1_X) or pyxel.btnp(pyxel.MOUSE_RIGHT_BUTTON, KEY_HOLD, KEY_PERIOD):
+	if pyxel.btnp(pyxel.KEY_X) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_B) or pyxel.btnp(pyxel.MOUSE_BUTTON_RIGHT, KEY_HOLD, KEY_PERIOD):
 		return True
 	else:
 		return False
@@ -690,16 +699,16 @@ def bltStripe(x, y, img, u, v, w, h, col, p):
 
 
 def checkLeftP():
-	return pyxel.btnp(pyxel.KEY_LEFT, KEY_HOLD, KEY_PERIOD) or pyxel.btnp(pyxel.GAMEPAD_1_LEFT, KEY_HOLD, KEY_PERIOD)
+	return pyxel.btnp(pyxel.KEY_LEFT, KEY_HOLD, KEY_PERIOD) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_DPAD_LEFT, KEY_HOLD, KEY_PERIOD)
 
 def checkRightP():
-	return pyxel.btnp(pyxel.KEY_RIGHT, KEY_HOLD, KEY_PERIOD) or pyxel.btnp(pyxel.GAMEPAD_1_RIGHT, KEY_HOLD, KEY_PERIOD)
+	return pyxel.btnp(pyxel.KEY_RIGHT, KEY_HOLD, KEY_PERIOD) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT, KEY_HOLD, KEY_PERIOD)
 
 def checkUpP():
-	return pyxel.btnp(pyxel.KEY_UP, KEY_HOLD, KEY_PERIOD) or pyxel.btnp(pyxel.GAMEPAD_1_UP, KEY_HOLD, KEY_PERIOD)
+	return pyxel.btnp(pyxel.KEY_UP, KEY_HOLD, KEY_PERIOD) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_DPAD_UP, KEY_HOLD, KEY_PERIOD) or isStickTurn(STICK_TURN_UP)
 
 def checkDownP():
-	return pyxel.btnp(pyxel.KEY_DOWN, KEY_HOLD, KEY_PERIOD) or pyxel.btnp(pyxel.GAMEPAD_1_DOWN, KEY_HOLD, KEY_PERIOD)
+	return pyxel.btnp(pyxel.KEY_DOWN, KEY_HOLD, KEY_PERIOD) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN, KEY_HOLD, KEY_PERIOD) or isStickTurn(STICK_TURN_DOWN)
 
 def getMapData(x, y):
 	global map_x
@@ -752,39 +761,57 @@ def getMapDataByMapPosimplement(mx, my):
 			if mx>=0 and mx<256*6 and my>=0 and my<128:
 				tm = int(mx/512)
 				moffset = (int(mx/256) & 1) * 128
-				return pyxel.tilemap(tm).get(mx & 255, (my + moffset) & 255)
+				#return pyxel.tilemap(tm).get(mx & 255, (my + moffset) & 255)
+				return getTileMapNumber(tm, mx & 255, (my + moffset) & 255)
 			else:
 				#print("mx = " + str(mx) + " my=" + str(my))
 				return -3
 		else:
 			if mx>=0 and mx<256 and my>=0 and my<256:
-				return pyxel.tilemap(0).get(mx, my)
+				#return getMapNumber(pyxel.tilemap(0).pget(mx, my))
+				return getTileMapNumber(0, mx, my)
+				#return pyxel.tilemap(0).get(mx, my)
 			else:
 				return -1
 
-# 6Bステージなどの
-def getMapDataByMapPosimplement2(mx, my):
-	global map_x
-	global map_y
-	global long_map
-	#print("--mx = " + str(mx) + " my=" + str(my))
-	if ObjMgr.drawMap == None:
-		return -1
-	else:
-		if long_map:
-			# 2 * 3 = 6画面分
-			if mx>=0 and mx<256*6 and my>=0 and my<128:
-				tm = int(mx/512)
-				moffset = (int(mx/256) & 1) * 128
-				return pyxel.tilemap(tm).get(mx & 255, (my + moffset) & 255)
-			else:
-				#print("mx = " + str(mx) + " my=" + str(my))
-				return -3
-		else:
-			if mx>=0 and mx<256 and my>=0 and my<256:
-				return pyxel.tilemap(0).get(mx, my)
-			else:
-				return -1
+def getMapNumber(t):
+	return t[1] * 32 + t[0]
+
+def getMapTuple(n):
+	return (n & 31, n>>5)
+	#return (n>>5, n & 31)
+
+
+def getTileMapNumber(tm, mx, my):
+	return getMapNumber(pyxel.tilemap(tm).pget(mx, my))
+
+def setTileMapNumber(tm, mx, my, n):
+	return pyxel.tilemap(tm).pset(mx, my, getMapTuple(n))
+
+
+# # 6Bステージなどの
+# def getMapDataByMapPosimplement2(mx, my):
+# 	global map_x
+# 	global map_y
+# 	global long_map
+# 	#print("--mx = " + str(mx) + " my=" + str(my))
+# 	if ObjMgr.drawMap == None:
+# 		return -1
+# 	else:
+# 		if long_map:
+# 			# 2 * 3 = 6画面分
+# 			if mx>=0 and mx<256*6 and my>=0 and my<128:
+# 				tm = int(mx/512)
+# 				moffset = (int(mx/256) & 1) * 128
+# 				return pyxel.tilemap(tm).get(mx & 255, (my + moffset) & 255)
+# 			else:
+# 				#print("mx = " + str(mx) + " my=" + str(my))
+# 				return -3
+# 		else:
+# 			if mx>=0 and mx<256 and my>=0 and my<256:
+# 				return pyxel.tilemap(0).get(mx, my)
+# 			else:
+# 				return -1
 
 
 def getMapDataByMapPosPage(page, mx, my):
@@ -800,13 +827,16 @@ def getMapDataByMapPosPage(page, mx, my):
 			if mx>=0 and mx<256*4 and my>=0 and my<128:
 				tm = int(mx/512) + page
 				moffset = (int(mx/256) & 1) * 128
-				return pyxel.tilemap(tm).get(mx & 255, (my + moffset) & 255)
+				#return pyxel.tilemap(tm).get(mx & 255, (my + moffset) & 255)
+				return getTileMapNumber(tm, mx & 255, (my +moffset) & 255)				
 			else:
 				#print("mx = " + str(mx) + " my=" + str(my))
 				return -3
 		else:
 			if mx>=0 and mx<256 and my>=0 and my<256:
-				return pyxel.tilemap(page).get(mx, my)
+				#return pyxel.tilemap(page).get(mx, my)
+				#return getMapNumber(pyxel.tilemap(page).pget(mx, my))
+				return getTileMapNumber(page, mx, my)				
 			else:
 				return -1
 
@@ -824,13 +854,15 @@ def setMapData(x, y, p):
 			if mx>=0 and mx<256*6 and my>=0 and my<128:
 				tm = int(mx/512)
 				moffset = (int(mx/256) & 1) * 128
-				pyxel.tilemap(tm).set(mx & 255, (my + moffset) & 255, p)
+				#pyxel.tilemap(tm).set(mx & 255, (my + moffset) & 255, p)
+				setTileMapNumber(tm, mx & 255, (my +moffset) & 255, p)
 			else:
 				return
 		else:
 			my = int((map_y +y)/8)
 			if mx>=0 and mx<256 and my>=0 and my<256:
-				pyxel.tilemap(0).set(mx, my, p)
+				#pyxel.tilemap(0).set(mx, my, p)
+				setTileMapNumber(0, mx, my, p)
 			else:
 				return
 
@@ -849,13 +881,14 @@ def clearMapData(x, y):
 				tm = int(mx/512)
 				moffset = (int(mx/256) & 1) * 128
 				#pyxel.tilemap(tm).set(mx & 255, (my + moffset) & 255, pyxel.tilemap(tm+4).get(mx & 255, (my + moffset) & 255))
-				pyxel.tilemap(tm).set(mx & 255, (my + moffset) & 255, 0)
+				setTileMapNumber(tm, mx & 255, (my + moffset) & 255, 0)
 			else:
 				return
 		else:
 			my = int((map_y +y)/8)
 			if mx>=0 and mx<256 and my>=0 and my<256:
-				pyxel.tilemap(0).set(mx, my, 0)
+				#pyxel.tilemap(0).set(mx, my, 0)
+				setTileMapNumber(0, mx, my, 0)
 			else:
 				return
 
@@ -874,12 +907,14 @@ def setMapDataByMapPos(mx, my, p):
 			if mx>=0 and mx<256*6 and my>=0 and my<128:
 				tm = int(mx/512)
 				moffset = (int(mx/256) & 1) * 128
-				pyxel.tilemap(tm).set(mx & 255, (my + moffset) & 255, p)
+				#pyxel.tilemap(tm).set(mx & 255, (my + moffset) & 255, p)
+				setTileMapNumber(tm, mx & 255, (my + moffset) & 255, p)
 			else:
 				return
 		else:
 			if mx>=0 and mx<256 and my>=0 and my<256:
-				pyxel.tilemap(0).set(mx, my, p)
+				#pyxel.tilemap(0).set(mx, my, p)
+				setTileMapNumber(0, mx, my, p)
 			else:
 				return
 
@@ -893,12 +928,14 @@ def setMapDataByMapPosPage(page, mx, my, p):
 			if mx>=0 and mx<256*4 and my>=0 and my<128:
 				tm = int(mx/512) + page
 				moffset = (int(mx/256) & 1) * 128
-				pyxel.tilemap(tm).set(mx & 255, (my + moffset) & 255, p)
+				#pyxel.tilemap(tm).set(mx & 255, (my + moffset) & 255, p)
+				setTileMapNumber(tm, mx & 255, (my + moffset) & 255, p)
 			else:
 				return
 		else:
 			if mx>=0 and mx<256 and my>=0 and my<256:
-				pyxel.tilemap(page).set(mx, my, p)
+				#pyxel.tilemap(page).set(mx, my, p)
+				setTileMapNumber(page, mx, my, p)
 			else:
 				return
 
@@ -1155,3 +1192,78 @@ def setScroll(x, y):
 	global cur_scroll_y
 	cur_scroll_x = x
 	cur_scroll_y = y
+
+def isStickLeft():
+    global stickInputIgnore
+    x = pyxel.btnv(pyxel.GAMEPAD1_AXIS_LEFTX)
+    return x < -stickInputIgnore
+
+def isStickRight():
+    global stickInputIgnore
+    x = pyxel.btnv(pyxel.GAMEPAD1_AXIS_LEFTX)
+    return x > stickInputIgnore
+
+def isStickUp():
+    global stickInputIgnore
+    y = pyxel.btnv(pyxel.GAMEPAD1_AXIS_LEFTY)
+    return y < -stickInputIgnore
+
+def isStickDown():
+    global stickInputIgnore
+    y = pyxel.btnv(pyxel.GAMEPAD1_AXIS_LEFTY)
+    return y > stickInputIgnore
+
+
+stickPrevFlag = False
+stickCounter = 0
+
+def isStickTurn(n):
+    global stickInputIgnore
+    global stickPrevFlag
+    global stickCounter
+    x = pyxel.btnv(pyxel.GAMEPAD1_AXIS_LEFTX)
+    y = pyxel.btnv(pyxel.GAMEPAD1_AXIS_LEFTY)
+    if abs(x) > stickInputIgnore or abs(y) > stickInputIgnore:
+        if stickPrevFlag:
+            stickCounter += 1
+            if stickCounter > 10:
+                stickCounter = 0
+                if n == STICK_TURN_DOWN:
+                    if y > stickInputIgnore:
+                        stickPrevFlag = True
+                        return True
+                elif n == STICK_TURN_UP:
+                    if y < -stickInputIgnore:
+                        stickPrevFlag = True
+                        return True
+                elif n == STICK_TURN_LEFT:
+                    if x < -stickInputIgnore:
+                        stickPrevFlag = True
+                        return True
+                elif n == STICK_TURN_RIGHT:
+                    if x > stickInputIgnore:
+                        stickPrevFlag = True
+                        return True
+        else:
+            stickPrevFlag = True
+            stickCounter = 0
+            if n == STICK_TURN_DOWN:
+                if y > stickInputIgnore:
+                    stickPrevFlag = True
+                    return True
+            elif n == STICK_TURN_UP:
+                if y < -stickInputIgnore:
+                    stickPrevFlag = True
+                    return True
+            elif n == STICK_TURN_LEFT:
+                if x < -stickInputIgnore:
+                    stickPrevFlag = True
+                    return True
+            elif n == STICK_TURN_RIGHT:
+                if x > stickInputIgnore:
+                    stickPrevFlag = True
+                    return True
+    else:
+        stickPrevFlag = False
+        stickCounter = 0
+    return False

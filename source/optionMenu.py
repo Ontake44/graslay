@@ -154,7 +154,7 @@ class OptionMenuScene:
 		Drawing.showTextHCenter(y, "EXIT")
 		
 		Drawing.setBrightness1()
-		pyxel.blt(32, 48 + self.menuPos * 20, 4, 32, 48 + self.menuPos * 20, 192, 12)
+		pyxel.blt(32, 48 + self.menuPos * 20, pyxel.screen, 32, 48 + self.menuPos * 20, 192, 12)
 		pyxel.pal()
 
 		if self.mouseManager.visible:

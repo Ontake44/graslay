@@ -1,5 +1,5 @@
 import pyxel
-
+from drawing import Drawing
 
 #MAP_FILE0 = "assets/stage_warehouse0.pyxmap"
 #MAP_FILE1 = "assets/stage_warehouse1.pyxmap"
@@ -53,8 +53,8 @@ class App:
 
 	def draw(self):
 		pyxel.cls(0)
-		#pyxel.bltm(0, 0, 1, self.map_x, self.map_y, 32, 32, 3)
-		pyxel.bltm(0, 0, 0, self.map_x, self.map_y, 32, 32, 2)
+		#Drawing.bltm(0, 0, 1, self.map_x, self.map_y, 32, 32, 3)
+		Drawing.bltm(0, 0, 0, self.map_x, self.map_y, 32, 32, 2)
 		pyxel.text(4,2, str(self.map_x) + " " + str(self.map_y), 7)
 
 App()

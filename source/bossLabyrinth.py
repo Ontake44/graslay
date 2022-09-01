@@ -137,11 +137,11 @@ class BossLabyrinth(enemy.EnemyBase):
     def draw(self):
         if self.state == 0:
             # 上
-            pyxel.bltm(self.x -47.5, self.y-15.5-32 -self.shiftPos, 0, 0, 0, 12, 4)
+            Drawing.bltm(self.x -47.5, self.y-15.5-32 -self.shiftPos, 0, 0, 0, 12, 4)
             # 中心
-            pyxel.bltm(self.x -47.5, self.y-15.5, 0, 0, 4, 12, 4)
+            Drawing.bltm(self.x -47.5, self.y-15.5, 0, 0, 4, 12, 4)
             # 下
-            pyxel.bltm(self.x -47.5, self.y-15.5+32 +self.shiftPos, 0, 0, 8, 12, 4)
+            Drawing.bltm(self.x -47.5, self.y-15.5+32 +self.shiftPos, 0, 0, 8, 12, 4)
         elif self.state == 1:
             if self.shiftPos > 0:
                 Drawing.blt(self.x -47.5, self.y-15.5-8, 2, 0, 40, 96, 8, 3)
@@ -193,7 +193,7 @@ class BossLabyrinth(enemy.EnemyBase):
             # 中心
             Drawing.blt(self.x -15.5, self.y-15.5, 2, 56, 0, 32, 32, 3)
         elif self.state == 100:
-            pyxel.bltm(self.x -47.5, self.y-15.5-32, 0, 0, 0, 12, 12)
+            Drawing.bltm(self.x -47.5, self.y-15.5-32, 0, 0, 0, 12, 12)
             #Drawing.blt(self.x -15.5, self.y-15.5, 2, 56, 0, 32, 32)
         elif self.state == 101:
             # 中心

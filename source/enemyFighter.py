@@ -225,7 +225,7 @@ class Fighter5(EnemyBase):
         img = pyxel.image(2)
         for y in range(self.gunWidth):
             for x in range(self.gunHeight):
-                self.image[y][x] = img.get(x +0, y +48)
+                self.image[y][x] = img.pget(x +0, y +48)
         self.rad = math.pi
 
     def update(self):

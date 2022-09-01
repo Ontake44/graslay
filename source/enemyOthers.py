@@ -621,7 +621,7 @@ class MovableWall(EnemyBase):
             self.remove()
 
     def draw(self):
-        pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, self.tablePos[0], self.tablePos[1], self.tableSize[0], self.tableSize[1], 2)
+        Drawing.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, self.tablePos[0], self.tablePos[1], self.tableSize[0], self.tableSize[1], 2)
 
 class Smoke1(enemy.EnemyBase):
     def __init__(self, x, y):

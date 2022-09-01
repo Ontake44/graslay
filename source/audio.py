@@ -1,3 +1,4 @@
+from logging import exception
 import pyxel
 import pygame.mixer
 import gcommon
@@ -32,7 +33,7 @@ class BGM:
         [1.0, "R246_Midnight.mp3"],
         [1.0 ,"Pleasure_In_Survival.mp3"],
         [1.0 ,"DANGAN.mp3"],
-        [1.0 ,"漢のステーキタイム.mp3"],
+        [1.0 ,"otoko_no_steaktime.mp3"],
         [1.0 ,"Fill_It_In_Black.mp3"],
         [1.0 ,"SAMURAI_PUNK.mp3"],
         [1.0 ,"The_BEAST.mp3"],
@@ -74,11 +75,15 @@ class BGM:
 
     @classmethod
     def play(cls, no):
-        bgm = BGM.getBgm(no)
-        pygame.mixer.music.load(gcommon.resource_path("assets/music/" + bgm[1]))
-        pygame.mixer.music.set_volume(0.5 * Settings.bgmVolume * bgm[0]/10.0)
-        pygame.mixer.music.play(-1)
-		
+        try:
+            bgm = BGM.getBgm(no)
+            #print("BGM " + gcommon.resource_path("assets/music/" + bgm[1]))
+            pygame.mixer.music.load(gcommon.resource_path("assets/music/" + bgm[1]))
+            pygame.mixer.music.set_volume(0.5 * Settings.bgmVolume * bgm[0]/10.0)
+            pygame.mixer.music.play(-1)
+        except Exception: 
+            pass
+
     @classmethod
     def playOnce(cls, no):
         bgm = BGM.getBgm(no)
@@ -94,18 +99,13 @@ class BGM:
     def sound(cls, snd,ch=0):
         if Settings.soundVolume > 0:
             n = pyxel.play_pos(ch)
-            #if n >=0:
-            #    pass
-            #    #print("snd=" + hex(n))
-            if (n == -1):
+            if n is None:
                 pyxel.play(ch, snd)
-            else:
-                sn = int(n/100)
-                if sn < len(cls.sound_priority):
-                    if cls.sound_priority[sn]<cls.sound_priority[snd]:
-                        pyxel.stop(ch)
-                        pyxel.play(ch, snd)
-                else:
-                    print("Illegal sound number! " + str(sn))
+                return
+            sn = n[0]
+            if sn < len(cls.sound_priority):
+                if cls.sound_priority[sn]<cls.sound_priority[snd]:
+                    pyxel.stop(ch)
+                    pyxel.play(ch, snd)
 
 

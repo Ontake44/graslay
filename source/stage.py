@@ -184,8 +184,8 @@ class Stage:
     def clearTilemap(cls):
         # タイルマップクリア
         MapData.loadMapData(0, "assets/zero.pyxmap")
-        for tm in range(1, 8):
-            pyxel.tilemap(tm).copy(0, 0, 0, 0, 0, 256, 256)
+        #for tm in range(1, 8):
+        #    pyxel.tilemap(tm).copy(0, 0, 0, 0, 0, 256, 256)
 
     @classmethod
     def initStage(cls, stage, restart):
@@ -443,4 +443,4 @@ class Stage:
 #     def draw(self):
 #         if self.state == 0:
 #             x = math.pow(1 - (self.cnt/90.0), 3)
-#             pyxel.bltm(x * 256, 4, 0, 40, 0, 32, 24, 3)
+#             Drawing.bltm(x * 256, 4, 0, 40, 0, 32, 24, 3)

@@ -15,6 +15,7 @@ from gameSession import GameSession
 from audio import BGM
 from enemy import CountMover
 from enemyArmored import Walker2
+from drawing import Drawing
 import story
 
 walker2MoveTable = [
@@ -210,7 +211,8 @@ class BossBattleShip(enemy.EnemyBase):
                 # ハンガー状態の戦闘機配置
                 self.createHangeredFighter3()
                 # 中身スケスケ
-                pyxel.tilemap(1).copy(35, 26, 1, 35, 61, 97-35+1, 76-61+1)
+                #pyxel.tilemap(1).copy(35, 26, 1, 35, 61, 97-35+1, 76-61+1)
+                pyxel.tilemap(1).blt(35, 26, 1, 35, 61, 97-35+1, 76-61+1)
 
                 # 1UPアイテム
                 self.addChild(item.OneUpItem2(self, (36 -BossBattleShip.TILE_LEFT)*8 +7.5, (27-BossBattleShip.TILE_TOP)*8+7.5, False))
@@ -332,12 +334,12 @@ class BossBattleShip(enemy.EnemyBase):
 
     def drawLayer(self, layer):
         if layer == gcommon.C_LAYER_GRD:
-            pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 4, 15, 134-4, 45-15, 2)
+            Drawing.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 4, 15, 134-4, 45-15, 2)
             #gcommon.Text2(200, 184, str(self.cnt), 7, 0)
         elif layer == gcommon.C_LAYER_UPPER_SKY and self.torpedoLauncherMask:
-            pyxel.bltm(gcommon.sint(self.x +(121 -__class__.TILE_LEFT) *8), gcommon.sint(self.y + (26 -__class__.TILE_TOP)*8), 1, 16, 91, 9, 2, 2)
-            pyxel.bltm(gcommon.sint(self.x +(121 -__class__.TILE_LEFT) *8), gcommon.sint(self.y + (28 -__class__.TILE_TOP)*8), 1, 16, 91, 9, 2, 2)
-            pyxel.bltm(gcommon.sint(self.x +(122 -__class__.TILE_LEFT) *8), gcommon.sint(self.y + (32 -__class__.TILE_TOP)*8), 1, 16, 94, 9, 3, 2)
+            Drawing.bltm(gcommon.sint(self.x +(121 -__class__.TILE_LEFT) *8), gcommon.sint(self.y + (26 -__class__.TILE_TOP)*8), 1, 16, 91, 9, 2, 2)
+            Drawing.bltm(gcommon.sint(self.x +(121 -__class__.TILE_LEFT) *8), gcommon.sint(self.y + (28 -__class__.TILE_TOP)*8), 1, 16, 91, 9, 2, 2)
+            Drawing.bltm(gcommon.sint(self.x +(122 -__class__.TILE_LEFT) *8), gcommon.sint(self.y + (32 -__class__.TILE_TOP)*8), 1, 16, 94, 9, 3, 2)
 
     def setScroll(self, params):
         gcommon.debugPrint("setScroll")
@@ -366,7 +368,8 @@ class BossBattleShip(enemy.EnemyBase):
         return False
 
     def getTileData(self, mx, my):
-        return pyxel.tilemap(1).get(mx, my)
+        #return pyxel.tilemap(1).get(mx, my)
+        return gcommon.getTileMapNumber(1, mx, my)
 
     def getTileHit(self, x, y):
         if x < self.x or y < self.y or x >= (self.x + __class__.TILE_WIDTH*8) or y >= (self.y+ __class__.TILE_HEIGHT*8):
@@ -495,11 +498,12 @@ class BossBattleShipEngine(enemy.EnemyBase):
             self.fire = None
 
     def draw(self):
-        pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 0,87, 3, 4, 2)
+        Drawing.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 0,87, 3, 4, 2)
 
     def broken(self):
         super(__class__, self).broken()
-        pyxel.tilemap(1).copy(4 +int(self.offsetX/8), 15 +int(self.offsetY/8), 1, 4 +int(self.offsetX/8), 50 +int(self.offsetY/8), 3, 4)
+        #pyxel.tilemap(1).copy(4 +int(self.offsetX/8), 15 +int(self.offsetY/8), 1, 4 +int(self.offsetX/8), 50 +int(self.offsetY/8), 3, 4)
+        pyxel.tilemap(1).blt(4 +int(self.offsetX/8), 15 +int(self.offsetY/8), 1, 4 +int(self.offsetX/8), 50 +int(self.offsetY/8), 3, 4)
 
 # エンジンバックファイア
 #   右真ん中原点
@@ -714,7 +718,7 @@ class BattleShipMissileLauncher1(enemy.EnemyBase):
 
     def draw(self):
         if self.stater.state <= 3:
-            pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 3 * self.stater.state, 84, 3, 3)
+            Drawing.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 3 * self.stater.state, 84, 3, 3)
 
 # 艦橋
 class BossBattleShipBridge(enemy.EnemyBase):
@@ -744,11 +748,11 @@ class BossBattleShipBridge(enemy.EnemyBase):
         self.y = self.parent.y + self.offsetY
 
     def draw(self):
-        pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 0, 92, 6, 4, 2)
+        Drawing.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 0, 92, 6, 4, 2)
 
     def broken(self):
         super(__class__, self).broken()
-        pyxel.tilemap(1).copy(4 +int(self.offsetX/8), 15 +int(self.offsetY/8), 1, 4 +int(self.offsetX/8), 50 +int(self.offsetY/8), 6, 4)
+        pyxel.tilemap(1).blt(4 +int(self.offsetX/8), 15 +int(self.offsetY/8), 1, 4 +int(self.offsetX/8), 50 +int(self.offsetY/8), 6, 4)
 
 # レーザー砲
 #  state
@@ -791,7 +795,7 @@ class BossBattleShipLaserCannon(enemy.EnemyBase):
         img = pyxel.image(1)
         for y in range(self.gunWidth):
             for x in range(self.gunHeight):
-                self.image[y][x] = img.get(x +128, y +128)
+                self.image[y][x] = img.pget(x +128, y +128)
 
     def update(self):
         self.x = self.parent.x + self.offsetX
@@ -849,7 +853,7 @@ class BossBattleShipLaserCannon(enemy.EnemyBase):
 
     def draw(self):
         if self.state in (0, 5):
-            pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 30, 84, 7, 5)
+            Drawing.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 30, 84, 7, 5)
             # レーザー砲
             drawing.Drawing.setBrightnessWithoutBlack2(-3)
             pyxel.blt(gcommon.sint(self.x +(56-self.gunWidth)/2), gcommon.sint(self.y +(40-self.gunHeight)/2), 1, 128, 128, self.gunWidth, self.gunHeight, 2)
@@ -862,9 +866,9 @@ class BossBattleShipLaserCannon(enemy.EnemyBase):
             if y <= 15:
                 pyxel.blt(self.x, self.y +5, 1, 128, 176+y, 56, 15-y, 2)
                 pyxel.blt(self.x, self.y +20+y, 1, 128, 176, 56, 15-y, 2)
-            pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 23, 84, 7, 5, 2)
+            Drawing.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 23, 84, 7, 5, 2)
         elif self.state in (1, 4):
-            pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 30, 84, 7, 5)
+            Drawing.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 30, 84, 7, 5)
             # レーザー砲
             if self.state == 1:
                 drawing.Drawing.setBrightnessWithoutBlack2(int(self.cnt/10) -3)
@@ -873,7 +877,7 @@ class BossBattleShipLaserCannon(enemy.EnemyBase):
             pyxel.blt(gcommon.sint(self.x +(56-self.gunWidth)/2), gcommon.sint(self.y +(40-self.gunHeight)/2), 1, 128, 128, self.gunWidth, self.gunHeight, 2)
             pyxel.pal()
         elif self.state in (2, 3):
-            pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 30, 84, 7, 5)
+            Drawing.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 30, 84, 7, 5)
             drawing.Drawing.setRotateImage(176, 128, 1, self.work, self.image, -self.rad, 2)
             pyxel.blt(gcommon.sint(self.x +(56-self.gunWidth)/2), gcommon.sint(self.y +(40-self.gunHeight)/2), 1, 176, 128, self.gunWidth, self.gunHeight, 2)
         
@@ -942,9 +946,9 @@ class BossBattleShipUpperBackFire(enemy.EnemyBase):
     def draw(self):
         if self.state in (0, 2):
             if self.cnt % 3 == 0:
-                pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 31, 91, 3, 2, 2)
+                Drawing.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 31, 91, 3, 2, 2)
         else:
-            pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 31, 91, 3, 2, 2)
+            Drawing.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 31, 91, 3, 2, 2)
             n = self.cnt % 3
             if n == 0:
                 pyxel.blt(self.x -39+12, self.y+4, 1, 160, 216, 40, 40, 0)
@@ -1011,7 +1015,7 @@ class BossBattleShipHatch(enemy.EnemyBase):
                 self.remove()
 
     def draw(self):
-        pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 40, 84, 12, 1, 2)
+        Drawing.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 40, 84, 12, 1, 2)
 
     def broken(self):
         #super().broken()
@@ -1046,7 +1050,7 @@ class BossBattleShipBarrierWall(enemy.EnemyBase):
         self.y = self.parent.y + self.offsetY
 
     def draw(self):
-        pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 40, 88, 3, 5, 2)
+        Drawing.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 40, 88, 3, 5, 2)
 
 # ハンガーに吊るされた戦闘機
 class BossBattleShipHangeredFighter3(enemy.EnemyBase):
@@ -1111,7 +1115,7 @@ class BossBattleShipStaticPart(enemy.EnemyBase):
         #    gcommon.debugPrint(str(self.x) + " " + str(self.parent.x))
 
     def draw(self):
-        pyxel.bltm(gcommon.sint(self.parent.x)  + self.offsetX, gcommon.sint(self.y), 1, self.mx, self.my, self.mwidth, self.mheight, 2)
+        Drawing.bltm(gcommon.sint(self.parent.x)  + self.offsetX, gcommon.sint(self.y), 1, self.mx, self.my, self.mwidth, self.mheight, 2)
 
 
 
@@ -1230,7 +1234,7 @@ class BossBattleShipCore(enemy.EnemyBase):
 
     def draw(self):
         if self.state < 101:
-            pyxel.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 54, 84, 8, 13, 3)
+            Drawing.bltm(gcommon.sint(self.x), gcommon.sint(self.y), 1, 54, 84, 8, 13, 3)
             n = int(4 * math.sin(self.cnt * math.pi/60))
             drawing.Drawing.setBrightnessWithoutBlack(n)
             pyxel.blt(gcommon.sint(self.x +8), gcommon.sint(self.y+ 3*8), 2, 96, 176, 6*8, 7*8, 3)
@@ -1247,7 +1251,7 @@ class BossBattleShipCore(enemy.EnemyBase):
         #     if n > 15:
         #         n = 15
         #     for y in range(0, 6):
-        #         pyxel.bltm(0, y*32, 1, 0, 100+n*4, 32, 4, 2)
+        #         Drawing.bltm(0, y*32, 1, 0, 100+n*4, 32, 4, 2)
 
 
 

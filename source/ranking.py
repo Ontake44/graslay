@@ -162,7 +162,7 @@ class RankingDispScene:
 
         Drawing.setBrightness1()
         rect = self.menuRects[self.menuPos]
-        pyxel.blt(rect.left, rect.top, 4, rect.left, rect.top, rect.getWidth(), rect.getHeight())
+        pyxel.blt(rect.left, rect.top, pyxel.screen, rect.left, rect.top, rect.getWidth(), rect.getHeight())
         pyxel.pal()
 
         # マウスカーソル
@@ -336,7 +336,7 @@ class EnterPlayerNameScene:
 
 		rect = self.markerRects[self.rectIndex]
 		Drawing.setBrightness1()
-		pyxel.blt(rect.left, rect.top, 4, rect.left, rect.top, rect.getWidth(), rect.getHeight())
+		pyxel.blt(rect.left, rect.top, pyxel.screen, rect.left, rect.top, rect.getWidth(), rect.getHeight())
 		pyxel.pal()
 
 		self.mouseManager.draw()

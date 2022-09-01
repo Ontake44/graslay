@@ -209,7 +209,7 @@ class BossRushStartMenuScene:
         
         Drawing.setBrightness1()
         y = self.menuYList[self.menuPos] -2
-        pyxel.blt(16, y, 4, 16, y, 224, 12)
+        pyxel.blt(16, y, pyxel.screen, 16, y, 224, 12)
         pyxel.pal()
         if self.mouseManager.visible:
             self.mouseManager.drawMenuCursor()

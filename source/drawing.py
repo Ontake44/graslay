@@ -144,7 +144,8 @@ class Drawing:
         a = sheight/dheight
         py = sy
         for y in range(int(dheight)):
-            pyxel.image(img).copy(wx, wy+y, img, sx, py, swidth, 1)
+            #pyxel.image(img).copy(wx, wy+y, img, sx, py, swidth, 1)
+            pyxel.image(img).blt(wx, wy+y, img, sx, py, swidth, 1)
             py += a
         a = swidth/dwidth
         px = wx
@@ -261,9 +262,9 @@ class Drawing:
                     for i in range(0,l,2):
                         #pyxel.line(p[i], y, p[i+1], y, clr)
                         if p[i] < p[i+1]:
-                            pyxel.blt(p[i], y, 4, p[i], y, p[i+1] -p[i]+1, 1)
+                            pyxel.blt(p[i], y, pyxel.screen, p[i], y, p[i+1] -p[i]+1, 1)
                         else:
-                            pyxel.blt(p[i+1], y, 4, p[i+1], y, p[i] -p[i+1]+1, 1)
+                            pyxel.blt(p[i+1], y, pyxel.screen, p[i+1], y, p[i] -p[i+1]+1, 1)
             y += 1
 
     @classmethod
@@ -512,5 +513,8 @@ class Drawing:
         pyxel.blt(gcommon.sint(x), gcommon.sint(y), img, u, v, w, h, colkey)
 
     @classmethod
-    def bltm(cls, x, y, tm, u, v, w, h, colkey=-1):
-        pyxel.bltm(gcommon.sint(x), gcommon.sint(y), tm, u, v, w, h, colkey)
+    def bltm(cls, x, y, tm, u, v, w, h, colkey=None):
+        #print("x:" + str(x) + " y:"+str(y) + " tm:" +str(tm) + " u:" +str(u) + " v:"+str(v) + " w:"+str(w) + " h:" +str(h) + " colkey:" + str(colkey))
+        pyxel.bltm(gcommon.sint(x), gcommon.sint(y), tm, u*8, v*8, w*8, h*8, colkey)
+
+

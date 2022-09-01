@@ -185,7 +185,7 @@ class BossEnemybaseBody(enemy.EnemyBase):
         img = pyxel.image(2)
         for y in range(self.gunWidth):
             for x in range(self.gunHeight):
-                self.image[y][x] = img.get(x +0, y +192)
+                self.image[y][x] = img.pget(x +0, y +192)
         self.rad = 0.0
         self.mode = 0
         self.mover = None
@@ -713,7 +713,7 @@ class BossEnemybaseBody2(enemy.EnemyBase):
         img = pyxel.image(2)
         for y in range(self.gunWidth):
             for x in range(self.gunHeight):
-                self.image[y][x] = img.get(x +0, y +96)
+                self.image[y][x] = img.pget(x +0, y +96)
         self.timerObj = None
         if self.isBossRush:
             self.timerObj = enemy.Timer1.create(45)

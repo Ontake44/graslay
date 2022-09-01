@@ -310,7 +310,7 @@ class MainGame:
         #	gcommon.debugPrint(str(obj))
     
     def doPause(self):
-        if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.GAMEPAD_1_START):
+        if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_START):
             self.pauseMode = gcommon.PAUSE_NONE
             pygame.mixer.music.unpause()
         elif gcommon.checkUpP():
@@ -406,7 +406,7 @@ class MainGame:
             self.doConfirmContinue()
             return
         else:
-            if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.GAMEPAD_1_START):
+            if pyxel.btnp(pyxel.KEY_ESCAPE) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_START):
                 self.pauseMode = gcommon.PAUSE_PAUSE
                 self.pauseCnt = 0
                 pygame.mixer.music.pause()
@@ -981,7 +981,7 @@ class App:
         gcommon.app = self
         
         pygame.mixer.init()
-        pyxel.init(256, 200, caption="GRASLAY", fps=60, quit_key=pyxel.KEY_Q)
+        pyxel.init(256, 200, title="GRASLAY", fps=60, quit_key=pyxel.KEY_Q)
 
         Settings.loadSettings()
         # コマンドライン解析
@@ -1148,6 +1148,7 @@ class App:
 
     def startCustomStartMenu(self):
         self.setScene(customStartMenu.CustomStartMenuScene())
+        #self.setScene(ending.EndingScene())
 
     def startBossRushStartMenu(self):
         self.setScene(bossRushStartMenu.BossRushStartMenuScene())

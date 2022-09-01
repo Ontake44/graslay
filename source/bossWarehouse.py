@@ -11,6 +11,7 @@ from objMgr import ObjMgr
 from gameSession import GameSession
 from audio import BGM
 import enemyOthers
+from drawing import Drawing
 
 class BossWarehouse(enemy.EnemyBase):
     moveTable = [
@@ -67,7 +68,7 @@ class BossWarehouse(enemy.EnemyBase):
         img = pyxel.image(2)
         for y in range(self.gunWidth):
             for x in range(self.gunHeight):
-                self.image[y][x] = img.get(x +176, y +104)
+                self.image[y][x] = img.pget(x +176, y +104)
         self.timerObj = None
         if self.isBossRush:
             self.timerObj = enemy.Timer1.create(35)
@@ -210,20 +211,20 @@ class BossWarehouseRail(enemy.EnemyBase):
                 x = math.pow(1 - (self.cnt/90.0), 3)
             else:
                 x = 0
-            pyxel.bltm(x * 256, -4 +200*x, 0, 40, 33, 32, 25, 3)
-            pyxel.bltm(x * 256, -4 -200*x, 0, 80, 33, 32, 25, 3)
-            pyxel.bltm(x * 256, -4, 0, 40, 1, 32, 25, 3)
-            pyxel.bltm(0, -4 + 200*x, 0, 0, 33, 32, 25, 3)
+            Drawing.bltm(x * 256, -4 +200*x, 0, 40, 33, 32, 25, 3)
+            Drawing.bltm(x * 256, -4 -200*x, 0, 80, 33, 32, 25, 3)
+            Drawing.bltm(x * 256, -4, 0, 40, 1, 32, 25, 3)
+            Drawing.bltm(0, -4 + 200*x, 0, 0, 33, 32, 25, 3)
         elif self.state == 1:
-            pyxel.bltm(0, -4, 0, 0, 1, 32, 25, 3)
+            Drawing.bltm(0, -4, 0, 0, 1, 32, 25, 3)
         elif self.state == 2:
             if self.cnt <= 90:
                 # 0 to 1
                 x = math.pow(self.cnt/90.0, 3)
             else:
                 x = 1
-            pyxel.bltm(x * 256, -4 +200*x, 0, 40, 33, 32, 25, 3)
-            pyxel.bltm(x * 256, -4 -200*x, 0, 80, 33, 32, 25, 3)
-            pyxel.bltm(x * 256, -4, 0, 40, 1, 32, 25, 3)
-            pyxel.bltm(0, -4 + 200*x, 0, 0, 33, 32, 25, 3)
+            Drawing.bltm(x * 256, -4 +200*x, 0, 40, 33, 32, 25, 3)
+            Drawing.bltm(x * 256, -4 -200*x, 0, 80, 33, 32, 25, 3)
+            Drawing.bltm(x * 256, -4, 0, 40, 1, 32, 25, 3)
+            Drawing.bltm(0, -4 + 200*x, 0, 0, 33, 32, 25, 3)
 

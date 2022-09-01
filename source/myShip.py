@@ -127,18 +127,18 @@ class MyShipBase:
 				mouseDy = 1
 			elif cy > pyxel.mouse_y +2:
 				mouseDy = -1
-		if pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.GAMEPAD_1_LEFT) or mouseDx == -1:
+		if pyxel.btn(pyxel.KEY_LEFT) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_LEFT) or gcommon.isStickLeft() or mouseDx == -1:
 			self.moveActionFlag = True
 			self.x = self.x -2
 			if self.x < 0:
 				self.x = 0
-		elif pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.GAMEPAD_1_RIGHT) or mouseDx == 1:
+		elif pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT) or gcommon.isStickRight() or mouseDx == 1:
 			self.moveActionFlag = True
 			self.x = self.x +2
 			self.sprite = 0
 			if self.x > 240:
 				self.x = 240
-		if pyxel.btn(pyxel.KEY_UP) or pyxel.btn(pyxel.GAMEPAD_1_UP) or mouseDy == -1:
+		if pyxel.btn(pyxel.KEY_UP) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_UP) or gcommon.isStickUp() or mouseDy == -1:
 			self.moveActionFlag = True
 			self.sprite = 2
 			if gcommon.sync_map_y == 1:
@@ -162,7 +162,7 @@ class MyShipBase:
 				else:
 					dy = -(self.y -2)
 				self.y += dy
-		elif pyxel.btn(pyxel.KEY_DOWN) or pyxel.btn(pyxel.GAMEPAD_1_DOWN) or mouseDy == 1:
+		elif pyxel.btn(pyxel.KEY_DOWN) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN) or gcommon.isStickDown() or mouseDy == 1:
 			self.moveActionFlag = True
 			# 縦は192/8 = 24キャラ
 			self.sprite = 1
@@ -691,86 +691,87 @@ class MyShotBDouble(MyShotBase):
 			pyxel.blt(self.x -2.5, self.y -2.5, 0, 136, 16, 5, 5, gcommon.TP_COLOR)
 
 class MyShotBLaser(MyShotBase):
-	def __init__(self, posList, posLate, n):
-		super(MyShotBLaser, self).__init__(0, 0)
-		self.posList = posList
-		self.posLate = posLate
-		self.mulipleNumber = n
-		self.left = -4
-		self.top = -3.5
-		self.right = 7
-		self.bottom = 3.5
-		self.dx = 8
-		self.dy = 0
-		self.laserCount = 1
-		# ショットキーを離すとFalse
-		self.laserFlag = True
-		self.shotPower = gcommon.B_SHOT2_POWER * GameSession.powerRate
-		self.effect = True
-		self.y = 0
-		if self.mulipleNumber == -1:
-			self.x = ObjMgr.myShip.x + 18
-		else:
-			self.x = self.posList[self.posLate-1 + self.mulipleNumber * self.posLate].x +18
+    def __init__(self, posList, posLate, n):
+        super(MyShotBLaser, self).__init__(0, 0)
+        self.posList = posList
+        self.posLate = posLate
+        self.mulipleNumber = n
+        self.left = -4
+        self.top = -3.5
+        self.right = 7
+        self.bottom = 3.5
+        self.dx = 8
+        self.dy = 0
+        self.laserCount = 1
+        # ショットキーを離すとFalse
+        self.laserFlag = True
+        self.shotPower = gcommon.B_SHOT2_POWER * GameSession.powerRate
+        self.effect = True
+        self.y = 0
+        if self.mulipleNumber == -1:
+            self.x = ObjMgr.myShip.x + 18
+        else:
+            self.x = self.posList[self.posLate-1 + self.mulipleNumber * self.posLate].x +18
 
-	def update(self):
-		if self.laserFlag:
-			if self.mulipleNumber == -1:
-				self.y = ObjMgr.myShip.y + 7
-			else:
-				self.y = self.posList[self.posLate-1 + self.mulipleNumber * self.posLate].y +7
-	
-		if gcommon.checkShotKey() == False:
-			self.laserFlag = False
-		if self.laserCount < 24 and self.laserFlag:
-			# 伸びる
-			self.laserCount += 1
-			if self.mulipleNumber == -1:
-			 	self.x = ObjMgr.myShip.x + 18
-			else:
-			 	self.x = self.posList[self.posLate-1 + self.mulipleNumber * self.posLate].x +18
-			self.right += 8
-		else:
-			self.x += 8
-		# if self.x + self.right >= 256:
-		# 	self.right = 256 -self.x
-		# 	if self.right < 0:
-		# 		self.right = 0
-		if self.x <= -8 or self.x >= 256:
-			self.remove()
-		elif self.y <= -8 or self.y >= 192:
-			self.remove()
-		else:
-			# レーザー範囲のマップをクリア
-			clearDeletableMapData(self.x, self.y, int((self.right+7)/8))
-			# 壁に当たると縮む
-			while(checkShotMapCollisionPerfonate(self.x +self.right, self.y)):
-				self.right -= 8
-			if self.right < 8:
-				self.remove()
+    def update(self):
+        if self.laserFlag:
+            if self.mulipleNumber == -1:
+                self.y = ObjMgr.myShip.y + 7
+            else:
+                self.y = self.posList[self.posLate-1 + self.mulipleNumber * self.posLate].y +7
 
-	def hit(self, obj, brokenFlag):
-		if brokenFlag:
-			return
-		while True:
-			self.right -= 8
-			if self.right <= 8:
-				self.remove()
-				return
-			if obj.checkShotCollision(self) == False:
-				return
+        if gcommon.checkShotKey() == False:
+            self.laserFlag = False
+        if self.laserCount < 24 and self.laserFlag:
+            # 伸びる
+            self.laserCount += 1
+            if self.mulipleNumber == -1:
+                self.x = ObjMgr.myShip.x + 18
+            else:
+                self.x = self.posList[self.posLate-1 + self.mulipleNumber * self.posLate].x +18
+            self.right += 8
+        else:
+            self.x += 8
+        if self.x + self.right >= 256:
+            self.right = 256 -self.x
+            if self.right < 0:
+                self.right = 0
+        if self.x <= -8 or self.x >= 256:
+            self.remove()
+        elif self.y <= -8 or self.y >= 192:
+            self.remove()
+        else:
+            # レーザー範囲のマップをクリア
+            clearDeletableMapData(self.x, self.y, int((self.right+7)/8))
+            # 壁に当たると縮む
+            while(checkShotMapCollisionPerfonate(self.x +self.right, self.y)):
+                self.right -= 8
+            if self.right < 8:
+                self.remove()
+        #print("LASER RIGHT:" + str(self.x + self.right))
 
-	def draw(self):
-		l = 0
-		while(l < self.right):
-			pyxel.blt(self.x +l, self.y, 0, 144, 19, 8, 2, gcommon.TP_COLOR)
-			l += 8
+    def hit(self, obj, brokenFlag):
+        if brokenFlag:
+            return
+        while True:
+            self.right -= 8
+            if self.right <= 8:
+                self.remove()
+                return
+            if obj.checkShotCollision(self) == False:
+                return
 
-	def doEffect(self, effectSound):
-		# 跳弾表示
-		ObjMgr.addObj(enemy.Particle1(self.x +self.right, self.y, 0.0, 4, 50))
-		if effectSound:
-			BGM.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
+    def draw(self):
+        l = 0
+        while(l < self.right):
+            pyxel.blt(self.x +l, self.y, 0, 144, 19, 8, 2, gcommon.TP_COLOR)
+            l += 8
+
+    def doEffect(self, effectSound):
+        # 跳弾表示
+        ObjMgr.addObj(enemy.Particle1(self.x +self.right, self.y, 0.0, 4, 50))
+        if effectSound:
+            BGM.sound(gcommon.SOUND_HIT, gcommon.SOUND_CH2)
 
 # リップル
 class MyShotBRipple(MyShotBase):
