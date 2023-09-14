@@ -1154,7 +1154,7 @@ class MapDrawEnemyBase:
 			if gcommon.back_map_x < 16:
 				Drawing.setBrightnessMinus1()
 			mx = (int)(gcommon.back_map_x/8)
-			Drawing.bltm(-1 * (int(gcommon.back_map_x) % 8), -1 * (int(gcommon.back_map_y) % 8), 7, mx, gcommon.back_map_y/8,33,33, 15)
+			Drawing.bltm(-1 * (int(gcommon.back_map_x) % 8), -1 * (int(gcommon.back_map_y) % 8), 7, mx, int(gcommon.back_map_y/8),33,33, 15)
 			if gcommon.back_map_x < 16:
 				pyxel.pal()
 
