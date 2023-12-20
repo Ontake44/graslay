@@ -642,6 +642,13 @@ def checkOpionKey():
 	else:
 		return False
 
+def getShoulderButton():
+	if pyxel.btnp(pyxel.GAMEPAD1_BUTTON_RIGHTSHOULDER):
+		return 1
+	elif pyxel.btnp(pyxel.GAMEPAD1_BUTTON_LEFTSHOULDER):
+		return -1
+	else:
+		return 0
 
 def circfill_obj_center(obj, r, col):
 	pyxel.circ(obj.x+(obj.right -obj.left+1)/2,

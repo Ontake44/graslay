@@ -195,6 +195,18 @@ class MyShipBase:
                     self.setWeapon((self.weapon + 1) % 3)
                 else:
                     self.setWeapon((self.weapon + 1) % 4)
+            if GameSession.weaponType == gcommon.WeaponType.TYPE_A:
+                n = gcommon.getShoulderButton()
+                if self.weapon < 2 and n == 1:
+                    self.setWeapon(self.weapon + 1)
+                elif self.weapon > 0 and n == -1:
+                    self.setWeapon(self.weapon - 1)
+            else:
+                n = gcommon.getShoulderButton()
+                if self.weapon < 3 and n == 1:
+                    self.setWeapon(self.weapon + 1)
+                elif self.weapon > 0 and n == -1:
+                    self.setWeapon(self.weapon - 1)
     
     def executeShot(self):
         pass
@@ -256,12 +268,12 @@ class MyShipA(MyShipBase):
 
     # 自機ショット実行
     def executeShot(self):
+        rightX = pyxel.btnv(pyxel.GAMEPAD1_AXIS_RIGHTX)/32768
+        rightY = pyxel.btnv(pyxel.GAMEPAD1_AXIS_RIGHTY)/32768
+        stick2 = rightX*rightX + rightY*rightY
         if self.weapon == gcommon.WEAPON_ROUND:
             # ラウンドバルカンは特殊
             doMissile = False
-            rightX = pyxel.btnv(pyxel.GAMEPAD1_AXIS_RIGHTX)/32768
-            rightY = pyxel.btnv(pyxel.GAMEPAD1_AXIS_RIGHTY)/32768
-            stick2 = rightX*rightX + rightY*rightY
             if gcommon.checkShotKey() or stick2>0.3:
                 doShot = False
                 if self.prevFlag:
@@ -308,7 +320,7 @@ class MyShipA(MyShipBase):
                 self.missile()
         else:
             # ラウンドバルカン以外
-            if gcommon.checkShotKey():
+            if gcommon.checkShotKey() or stick2 > 0.3:
                 if self.prevFlag:
                     self.shotCounter += 1
                     if self.shotCounter > 3:
