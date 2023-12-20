@@ -7,7 +7,7 @@ import random
 from enum import Enum
 from objMgr import ObjMgr
 
-VERSION = "2.3"
+VERSION = "2.31"
 START_GAME_TIMER= 0		# 3600 :3		#2700 :2
 START_STAGE = None
 
