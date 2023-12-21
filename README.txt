@@ -1,8 +1,8 @@
 ------------------------------------------------------
   タイトル：GRASLAY
-  Version ：2.30
+  Version ：2.31
   著 作 者：Ontake44
-  動作環境：Windows 10 64bit
+  動作環境：Windows 10 64bit, 11
   連 絡 先：twitter： https://twitter.com/Ontake441
 ------------------------------------------------------
 
@@ -10,7 +10,7 @@ GRASLAYはレトロ風横スクロールシューティングゲームです。
 
 
 ## 動作環境
-Windows 7,8.1,10の64bit専用です。
+Windows 10,11の64bit専用です。
 
 Pyxelというレトロゲームエンジンで動作しています。Pyxelに関しては以下のサイトをご覧ください。
 https://github.com/kitao/pyxel/blob/main/docs/README.ja.md
@@ -18,6 +18,9 @@ https://github.com/kitao/pyxel/blob/main/docs/README.ja.md
 
 ## 実行方法
 Graslay.exeを実行してください。
+※Windowsの保護画面が表示されましたら、Graslay.exeのプロパティから、「許可する」に
+  チェックしてください。
+
 
 ## 操作方法
 * カーソルキーで自機が移動します。
@@ -175,12 +178,10 @@ Licenesフォルダも参照してください。
 ### 2.30
 アナログコントローラーに対応しました。
 （左スティックで移動です）
-※Windows 10のみ対応となりました。
-  （Winodws 11は未確認です）
+※Windows 10,11のみ対応となりました。
 pyxel 1.7.2に変更
 
 ### 2.31
 ラウンドバルカンが右スティックで方向を変えられるようにしました。
 また、LRボタンで武器を変更できます。
-※Windows 11の正式対応です（特に変更ありません）。
 
